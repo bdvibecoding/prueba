@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dieta de Definición — TGWL</title>
+<style>
+  :root {
+    --red:    #940a0a;
+    --cyan:   #19f9f9;
+    --white:  #ffffff;
+    --gray:   #a7a7a7;
+    --bg:     #0a0a0a;
+    --bg2:    #111111;
+    --bg3:    #1a1a1a;
+    --border: rgba(255,255,255,0.08);
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 14px; scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    line-height: 1.5;
+    padding: 0 0 40px;
+  }
+
+  /* ── Header ── */
+  .diet-header {
+    background: linear-gradient(135deg, #0d4a4a 0%, #063535 50%, #0a0a0a 100%);
+    padding: 28px 20px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .diet-header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 10%, rgba(25,249,249,0.15) 0%, transparent 60%);
+  }
+  .diet-header-inner { position: relative; z-index: 1; }
+  .diet-badge {
+    display: inline-block;
+    background: rgba(25,249,249,0.1);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(25,249,249,0.3);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 10px;
+  }
+  .diet-title {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .diet-subtitle {
+    font-size: 13px;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 18px;
+  }
+  .macro-strip {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .macro-pill {
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .macro-pill .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .dot-kcal { background: var(--cyan); }
+  .dot-prot  { background: #60a5fa; }
+  .dot-carb  { background: #f59e0b; }
+  .dot-fat   { background: #a78bfa; }
+
+  /* ── Section ── */
+  .section { padding: 0 16px; margin-top: 20px; }
+  .section-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 10px;
+    padding-left: 4px;
+  }
+
+  /* ── Meal Card ── */
+  .meal-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .meal-card.highlight {
+    border-color: rgba(25,249,249,0.2);
+    background: linear-gradient(135deg, rgba(25,249,249,0.04) 0%, var(--bg2) 100%);
+  }
+  .meal-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .meal-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .meal-icon-teal  { background: rgba(25,249,249,0.12); }
+  .meal-icon-blue  { background: rgba(96,165,250,0.15); }
+  .meal-icon-green { background: rgba(34,197,94,0.15); }
+  .meal-icon-amber { background: rgba(245,158,11,0.15); }
+  .meal-icon-purp  { background: rgba(167,139,250,0.15); }
+
+  .meal-info { flex: 1; }
+  .meal-name { font-size: 14px; font-weight: 700; }
+  .meal-time { font-size: 11px; color: var(--gray); margin-top: 1px; }
+  .meal-kcal {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--cyan);
+    text-align: right;
+  }
+  .meal-kcal span { display: block; font-size: 10px; font-weight: 400; color: var(--gray); }
+
+  .meal-body { padding: 12px 14px; }
+  .food-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    gap: 8px;
+  }
+  .food-row:last-child { border-bottom: none; }
+  .food-name { font-size: 13px; color: rgba(255,255,255,0.88); flex: 1; }
+  .food-qty {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--cyan);
+    white-space: nowrap;
+  }
+  .food-note {
+    font-size: 11px;
+    color: var(--gray);
+    margin-top: 2px;
+    display: block;
+  }
+  .food-tag-avoid {
+    display: inline-block;
+    background: rgba(239,68,68,0.15);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: #f87171;
+    font-size: 9px;
+    font-weight: 700;
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin-left: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    vertical-align: middle;
+  }
+  .food-tag-ok {
+    display: inline-block;
+    background: rgba(34,197,94,0.12);
+    border: 1px solid rgba(34,197,94,0.25);
+    color: #4ade80;
+    font-size: 9px;
+    font-weight: 700;
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin-left: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    vertical-align: middle;
+  }
+
+  .meal-macros {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .macro-tag {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    padding: 5px 4px;
+    text-align: center;
+  }
+  .macro-tag .val { font-size: 13px; font-weight: 800; }
+  .macro-tag .lbl { font-size: 9px; color: var(--gray); display: block; margin-top: 1px; }
+  .macro-tag.prot .val { color: #60a5fa; }
+  .macro-tag.carb .val { color: #f59e0b; }
+  .macro-tag.fat  .val { color: #a78bfa; }
+
+  /* ── Info cards ── */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .info-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+  }
+  .info-card .ic-icon { font-size: 22px; margin-bottom: 6px; }
+  .info-card .ic-label { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.06em; }
+  .info-card .ic-value { font-size: 18px; font-weight: 800; margin-top: 2px; }
+  .info-card.full { grid-column: 1 / -1; }
+
+  /* ── Tips ── */
+  .tip-card {
+    background: rgba(25,249,249,0.05);
+    border: 1px solid rgba(25,249,249,0.18);
+    border-radius: var(--radius);
+    padding: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .tip-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .tip-text { font-size: 12px; color: rgba(255,255,255,0.8); line-height: 1.6; }
+  .tip-text strong { color: var(--cyan); }
+
+  .warning-card {
+    background: rgba(239,68,68,0.07);
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: var(--radius);
+    padding: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .warning-text { font-size: 12px; color: rgba(255,255,255,0.8); line-height: 1.6; }
+  .warning-text strong { color: #f87171; }
+
+  /* ── Supp ── */
+  .supp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .supp-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .supp-card .s-icon { font-size: 20px; flex-shrink: 0; }
+  .supp-card .s-name { font-size: 12px; font-weight: 700; }
+  .supp-card .s-dose { font-size: 11px; color: var(--gray); margin-top: 2px; }
+
+  /* ── Alimentos prohibidos / recomendados ── */
+  .food-list { display: flex; flex-direction: column; gap: 6px; }
+  .food-item {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+  .food-item .fi-icon { font-size: 18px; flex-shrink: 0; }
+  .food-item .fi-name { flex: 1; font-weight: 600; }
+  .food-item .fi-reason { font-size: 11px; color: var(--gray); }
+  .food-item.bad { border-color: rgba(239,68,68,0.2); }
+  .food-item.good { border-color: rgba(34,197,94,0.2); }
+
+  /* ── Footer ── */
+  .diet-footer {
+    margin: 24px 16px 0;
+    padding: 16px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-align: center;
+  }
+  .diet-footer p { font-size: 11px; color: var(--gray); line-height: 1.7; }
+  .diet-footer strong { color: var(--white); }
+
+  /* ── Caloric deficit bar ── */
+  .deficit-bar-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+  }
+  .deficit-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--gray); margin-bottom: 8px; }
+  .deficit-bar {
+    height: 8px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .deficit-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--cyan), #0dd);
+    border-radius: 4px;
+    width: 65%;
+  }
+  .deficit-note { font-size: 11px; color: var(--gray); margin-top: 6px; text-align: center; }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="diet-header">
+  <div class="diet-header-inner">
+    <div class="diet-badge">🔥 Fase de Definición</div>
+    <h1 class="diet-title">Dieta de Definición</h1>
+    <p class="diet-subtitle">Plan nutricional para quemar grasa preservando masa muscular</p>
+    <div class="macro-strip">
+      <div class="macro-pill"><span class="dot dot-kcal"></span> ~2.100 kcal</div>
+      <div class="macro-pill"><span class="dot dot-prot"></span> 190g Proteína</div>
+      <div class="macro-pill"><span class="dot dot-carb"></span> 210g Carbohidratos</div>
+      <div class="macro-pill"><span class="dot dot-fat"></span> 65g Grasas</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── RESUMEN ── -->
+<div class="section">
+  <div class="section-label">Resumen del plan</div>
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="ic-icon">🔥</div>
+      <div class="ic-label">Calorías totales</div>
+      <div class="ic-value" style="color:var(--cyan)">2.100 kcal</div>
+    </div>
+    <div class="info-card">
+      <div class="ic-icon">💪</div>
+      <div class="ic-label">Proteína diaria</div>
+      <div class="ic-value" style="color:#60a5fa">190 g</div>
+    </div>
+    <div class="info-card">
+      <div class="ic-icon">📉</div>
+      <div class="ic-label">Déficit estimado</div>
+      <div class="ic-value" style="color:#4ade80">−400–500 kcal</div>
+    </div>
+    <div class="info-card">
+      <div class="ic-icon">⏱️</div>
+      <div class="ic-label">Pérdida grasa esperada</div>
+      <div class="ic-value" style="color:#f59e0b">0,5–0,8 kg/sem</div>
+    </div>
+    <div class="info-card full">
+      <div class="ic-label" style="margin-bottom:8px">Distribución calórica del día</div>
+      <div class="deficit-bar-wrap" style="border:none;padding:0;background:transparent">
+        <div class="deficit-labels">
+          <span>Calorías consumidas: 2.100 kcal</span>
+          <span>TDEE estimado: ~2.550 kcal</span>
+        </div>
+        <div class="deficit-bar"><div class="deficit-fill"></div></div>
+        <div class="deficit-note">Déficit calórico ≈ 450 kcal/día → ~0,5 kg grasa/semana</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── COMIDA 1 ── -->
+<div class="section">
+  <div class="section-label">🌅 Comida 1 — Desayuno</div>
+  <div class="meal-card">
+    <div class="meal-head">
+      <div class="meal-icon meal-icon-teal">🍳</div>
+      <div class="meal-info">
+        <div class="meal-name">Desayuno proteico bajo en grasas</div>
+        <div class="meal-time">07:00 – 08:00 h</div>
+      </div>
+      <div class="meal-kcal">380 <span>kcal</span></div>
+    </div>
+    <div class="meal-body">
+      <div class="food-row">
+        <div class="food-name">Claras de huevo<span class="food-note">A la plancha, sin aceite o con spray</span></div>
+        <div class="food-qty">5 claras</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Avena en copos<span class="food-note">Con agua o leche desnatada</span></div>
+        <div class="food-qty">40 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Arándanos frescos o congelados<span class="food-note">Antioxidantes, bajo en azúcar</span></div>
+        <div class="food-qty">80 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Café negro o té verde<span class="food-note">Sin azúcar — efecto termogénico</span></div>
+        <div class="food-qty">1 taza</div>
+      </div>
+      <div class="meal-macros">
+        <div class="macro-tag prot"><span class="val">40g</span><span class="lbl">Prot</span></div>
+        <div class="macro-tag carb"><span class="val">42g</span><span class="lbl">Carb</span></div>
+        <div class="macro-tag fat"><span class="val">5g</span><span class="lbl">Grasas</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── COMIDA 2 ── -->
+<div class="section">
+  <div class="section-label">🍎 Comida 2 — Media Mañana</div>
+  <div class="tip-card" style="margin-bottom:10px">
+    <div class="tip-icon">🔥</div>
+    <div class="tip-text"><strong>Pre-entreno:</strong> Si entrenas a mediodía, toma esta comida 60–90 min antes. Prioriza proteína y carbohidratos de bajo IG para energía sostenida.</div>
+  </div>
+  <div class="meal-card">
+    <div class="meal-head">
+      <div class="meal-icon meal-icon-blue">🥗</div>
+      <div class="meal-info">
+        <div class="meal-name">Snack saciante</div>
+        <div class="meal-time">10:30 – 11:00 h</div>
+      </div>
+      <div class="meal-kcal">280 <span>kcal</span></div>
+    </div>
+    <div class="meal-body">
+      <div class="food-row">
+        <div class="food-name">Yogur griego 0% grasa<span class="food-note">Alto en proteína, bajo en calorías</span></div>
+        <div class="food-qty">200 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Fresas o kiwi<span class="food-note">Bajo índice glucémico, vitamina C</span></div>
+        <div class="food-qty">100 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Nueces<span class="food-note">Omega-3, saciedad duradera — controla la cantidad</span></div>
+        <div class="food-qty">15 g (5–6 nueces)</div>
+      </div>
+      <div class="meal-macros">
+        <div class="macro-tag prot"><span class="val">20g</span><span class="lbl">Prot</span></div>
+        <div class="macro-tag carb"><span class="val">22g</span><span class="lbl">Carb</span></div>
+        <div class="macro-tag fat"><span class="val">10g</span><span class="lbl">Grasas</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── COMIDA 3 ── -->
+<div class="section">
+  <div class="section-label">🍽️ Comida 3 — Almuerzo</div>
+  <div class="meal-card highlight">
+    <div class="meal-head">
+      <div class="meal-icon meal-icon-teal">🥩</div>
+      <div class="meal-info">
+        <div class="meal-name">Comida principal — mayor aporte</div>
+        <div class="meal-time">13:30 – 14:30 h</div>
+      </div>
+      <div class="meal-kcal">580 <span>kcal</span></div>
+    </div>
+    <div class="meal-body">
+      <div class="food-row">
+        <div class="food-name">Pechuga de pollo o merluza al horno<span class="food-note">Sin aceite o con 5 ml máximo</span></div>
+        <div class="food-qty">200 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Arroz integral o quinoa<span class="food-note">Bajo IG, fibra, saciedad</span></div>
+        <div class="food-qty">70 g (en crudo)</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Verduras de hoja (espinacas, rúcula)<span class="food-note">Ad libitum — comer sin límite</span></div>
+        <div class="food-qty">200 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Tomate y pepino<span class="food-note">Aliñar con vinagre de manzana y sal</span></div>
+        <div class="food-qty">150 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Aceite de oliva<span class="food-note">Solo para aliñar la ensalada</span></div>
+        <div class="food-qty">8 ml (½ cuchar.)</div>
+      </div>
+      <div class="meal-macros">
+        <div class="macro-tag prot"><span class="val">50g</span><span class="lbl">Prot</span></div>
+        <div class="macro-tag carb"><span class="val">68g</span><span class="lbl">Carb</span></div>
+        <div class="macro-tag fat"><span class="val">12g</span><span class="lbl">Grasas</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── COMIDA 4 (POST-ENTRENO) ── -->
+<div class="section">
+  <div class="section-label">⚡ Comida 4 — Post-Entrenamiento</div>
+  <div class="meal-card">
+    <div class="meal-head">
+      <div class="meal-icon meal-icon-green">🥤</div>
+      <div class="meal-info">
+        <div class="meal-name">Recuperación anti-catabólica</div>
+        <div class="meal-time">17:00 – 18:30 h</div>
+      </div>
+      <div class="meal-kcal">360 <span>kcal</span></div>
+    </div>
+    <div class="meal-body">
+      <div class="food-row">
+        <div class="food-name">Proteína whey isolada<span class="food-note">Baja en grasas y carbohidratos — ideal para definición</span></div>
+        <div class="food-qty">35 g (1 scoop)</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Arroz blanco o patata cocida<span class="food-note">Carbohidrato de alto IG para reposición glucógeno</span></div>
+        <div class="food-qty">80 g (peso cocido)</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Piña natural o sandía<span class="food-note">Enzimas digestivas, potasio</span></div>
+        <div class="food-qty">100 g</div>
+      </div>
+      <div class="meal-macros">
+        <div class="macro-tag prot"><span class="val">35g</span><span class="lbl">Prot</span></div>
+        <div class="macro-tag carb"><span class="val">48g</span><span class="lbl">Carb</span></div>
+        <div class="macro-tag fat"><span class="val">5g</span><span class="lbl">Grasas</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── COMIDA 5 ── -->
+<div class="section">
+  <div class="section-label">🌙 Comida 5 — Cena</div>
+  <div class="tip-card" style="margin-bottom:10px">
+    <div class="tip-icon">🌙</div>
+    <div class="tip-text"><strong>Cena baja en carbohidratos:</strong> En definición, la cena debe ser rica en proteína y baja en carbos. Esto favorece la lipólisis nocturna (quema de grasa mientras duermes).</div>
+  </div>
+  <div class="meal-card">
+    <div class="meal-head">
+      <div class="meal-icon meal-icon-purp">🐟</div>
+      <div class="meal-info">
+        <div class="meal-name">Cena lipólisis nocturna</div>
+        <div class="meal-time">20:30 – 21:30 h</div>
+      </div>
+      <div class="meal-kcal">500 <span>kcal</span></div>
+    </div>
+    <div class="meal-body">
+      <div class="food-row">
+        <div class="food-name">Salmón, bacalao o pechuga de pavo<span class="food-note">Al horno o a la plancha con especias</span></div>
+        <div class="food-qty">200 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Brócoli o coliflor al vapor<span class="food-note">Crucíferas — hormonas y detox</span></div>
+        <div class="food-qty">250 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Espárragos o judías verdes<span class="food-note">Diuréticos naturales, fibra</span></div>
+        <div class="food-qty">150 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Aceite de oliva (para cocinar)<span class="food-note">Mínima cantidad</span></div>
+        <div class="food-qty">8 ml</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Requesón o cottage cheese<span class="food-note">Caseína natural — antikatabolismo nocturno</span></div>
+        <div class="food-qty">100 g</div>
+      </div>
+      <div class="meal-macros">
+        <div class="macro-tag prot"><span class="val">55g</span><span class="lbl">Prot</span></div>
+        <div class="macro-tag carb"><span class="val">18g</span><span class="lbl">Carb</span></div>
+        <div class="macro-tag fat"><span class="val">18g</span><span class="lbl">Grasas</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ALIMENTOS A EVITAR ── -->
+<div class="section">
+  <div class="section-label">🚫 Alimentos a evitar en definición</div>
+  <div class="food-list">
+    <div class="food-item bad">
+      <div class="fi-icon">🍺</div>
+      <div>
+        <div class="fi-name">Alcohol <span class="food-tag-avoid">Evitar</span></div>
+        <div class="fi-reason">Bloquea la oxidación de grasas hasta 48h tras el consumo</div>
+      </div>
+    </div>
+    <div class="food-item bad">
+      <div class="fi-icon">🍟</div>
+      <div>
+        <div class="fi-name">Fritos y rebozados <span class="food-tag-avoid">Evitar</span></div>
+        <div class="fi-reason">Alta densidad calórica, grasas saturadas y trans</div>
+      </div>
+    </div>
+    <div class="food-item bad">
+      <div class="fi-icon">🍬</div>
+      <div>
+        <div class="fi-name">Azúcar y ultraprocesados <span class="food-tag-avoid">Evitar</span></div>
+        <div class="fi-reason">Picos de insulina que favorecen el almacenamiento de grasa</div>
+      </div>
+    </div>
+    <div class="food-item bad">
+      <div class="fi-icon">🧃</div>
+      <div>
+        <div class="fi-name">Zumos y bebidas azucaradas <span class="food-tag-avoid">Evitar</span></div>
+        <div class="fi-reason">Calorías líquidas que no generan saciedad</div>
+      </div>
+    </div>
+    <div class="food-item good">
+      <div class="fi-icon">🫐</div>
+      <div>
+        <div class="fi-name">Fruta entera <span class="food-tag-ok">Permitida</span></div>
+        <div class="fi-reason">Con fibra — máx. 2–3 piezas/día, preferiblemente antes de las 15h</div>
+      </div>
+    </div>
+    <div class="food-item good">
+      <div class="fi-icon">🫒</div>
+      <div>
+        <div class="fi-name">Grasas saludables <span class="food-tag-ok">Moderadas</span></div>
+        <div class="fi-reason">Aguacate, aceite de oliva, frutos secos — controlar cantidad total</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SUPLEMENTACIÓN ── -->
+<div class="section">
+  <div class="section-label">💊 Suplementación para definición</div>
+  <div class="supp-grid">
+    <div class="supp-card">
+      <div class="s-icon">🥛</div>
+      <div>
+        <div class="s-name">Whey Isolado</div>
+        <div class="s-dose">1–2 × 35g/día<br>Bajo en grasas y carbos</div>
+      </div>
+    </div>
+    <div class="supp-card">
+      <div class="s-icon">⚡</div>
+      <div>
+        <div class="s-name">Creatina</div>
+        <div class="s-dose">5 g/día<br>Mantiene fuerza en déficit</div>
+      </div>
+    </div>
+    <div class="supp-card">
+      <div class="s-icon">🍵</div>
+      <div>
+        <div class="s-name">Cafeína / Té verde</div>
+        <div class="s-dose">200 mg 30 min pre-entreno<br>Efecto termogénico</div>
+      </div>
+    </div>
+    <div class="supp-card">
+      <div class="s-icon">🧪</div>
+      <div>
+        <div class="s-name">Omega-3</div>
+        <div class="s-dose">3 g EPA+DHA/día<br>Antiinflamatorio, lipólisis</div>
+      </div>
+    </div>
+    <div class="supp-card">
+      <div class="s-icon">🔬</div>
+      <div>
+        <div class="s-name">L-Carnitina</div>
+        <div class="s-dose">2 g 30 min antes del cardio<br>Transporte de ácidos grasos</div>
+      </div>
+    </div>
+    <div class="supp-card">
+      <div class="s-icon">💧</div>
+      <div>
+        <div class="s-name">Hidratación</div>
+        <div class="s-dose">3–4 L agua/día<br>Crucial para metabolismo</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── NOTAS ── -->
+<div class="section" style="margin-top:20px">
+  <div class="section-label">📋 Claves de la definición</div>
+  <div class="tip-card" style="margin-bottom:10px">
+    <div class="tip-icon">💡</div>
+    <div class="tip-text"><strong>Ciclado de carbohidratos:</strong> En días de entrenamiento intenso, puedes añadir 30–50 g extra de carbohidratos (arroz, avena). En días de descanso o cardio ligero, reduce a 150 g total.</div>
+  </div>
+  <div class="tip-card" style="margin-bottom:10px">
+    <div class="tip-icon">🏃</div>
+    <div class="tip-text"><strong>Cardio estratégico:</strong> Añade 3–4 sesiones semanales de cardio en ayunas (LISS 30–45 min) o HIIT post-entreno (15–20 min) para acelerar la pérdida de grasa.</div>
+  </div>
+  <div class="tip-card" style="margin-bottom:10px">
+    <div class="tip-icon">⚖️</div>
+    <div class="tip-text"><strong>Control de peso:</strong> Pésate cada mañana en ayunas, tras ir al baño. Haz la media semanal para evitar fluctuaciones. No pierdas más de <strong>0,8–1 kg/semana</strong>.</div>
+  </div>
+  <div class="warning-card">
+    <div class="tip-icon" style="font-size:18px">⚠️</div>
+    <div class="warning-text"><strong>Déficit excesivo:</strong> Nunca bajes de 1.600 kcal/día para hombres o 1.200 para mujeres sin supervisión médica. El catabolismo muscular severo destruye el trabajo del gimnasio.</div>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<div class="diet-footer">
+  <p><strong>TGWL — The Goal Will Live</strong><br>
+  Plan de Definición · Actualizado 2024<br>
+  Elaborado por el equipo de nutrición TGWL · Para uso personal exclusivo</p>
+</div>
+
+</body>
+</html>

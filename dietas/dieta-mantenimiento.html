@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dieta de Mantenimiento — TGWL</title>
+<style>
+  :root {
+    --red:    #940a0a;
+    --cyan:   #19f9f9;
+    --white:  #ffffff;
+    --gray:   #a7a7a7;
+    --bg:     #0a0a0a;
+    --bg2:    #111111;
+    --bg3:    #1a1a1a;
+    --border: rgba(255,255,255,0.08);
+    --radius: 12px;
+    --green:  #4ade80;
+    --amber:  #f59e0b;
+    --purp:   #a78bfa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 14px; scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    line-height: 1.5;
+    padding: 0 0 40px;
+  }
+
+  /* ── Header ── */
+  .diet-header {
+    background: linear-gradient(135deg, #1a3a20 0%, #0f2a14 50%, #0a0a0a 100%);
+    padding: 28px 20px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .diet-header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 75% 15%, rgba(74,222,128,0.12) 0%, transparent 60%);
+  }
+  .diet-header-inner { position: relative; z-index: 1; }
+  .diet-badge {
+    display: inline-block;
+    background: rgba(74,222,128,0.1);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(74,222,128,0.3);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 10px;
+  }
+  .diet-title {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .diet-subtitle {
+    font-size: 13px;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 18px;
+  }
+  .macro-strip { display: flex; gap: 10px; flex-wrap: wrap; }
+  .macro-pill {
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .macro-pill .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .dot-kcal { background: var(--green); }
+  .dot-prot  { background: #60a5fa; }
+  .dot-carb  { background: var(--amber); }
+  .dot-fat   { background: var(--purp); }
+
+  /* ── Section ── */
+  .section { padding: 0 16px; margin-top: 20px; }
+  .section-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 10px;
+    padding-left: 4px;
+  }
+
+  /* ── Meal Card ── */
+  .meal-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .meal-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .meal-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .meal-icon-green  { background: rgba(74,222,128,0.15); }
+  .meal-icon-amber  { background: rgba(245,158,11,0.15); }
+  .meal-icon-blue   { background: rgba(96,165,250,0.15); }
+  .meal-icon-cyan   { background: rgba(25,249,249,0.12); }
+  .meal-icon-purp   { background: rgba(167,139,250,0.15); }
+
+  .meal-info { flex: 1; }
+  .meal-name { font-size: 14px; font-weight: 700; }
+  .meal-time { font-size: 11px; color: var(--gray); margin-top: 1px; }
+  .meal-kcal {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--green);
+    text-align: right;
+  }
+  .meal-kcal span { display: block; font-size: 10px; font-weight: 400; color: var(--gray); }
+
+  .meal-body { padding: 12px 14px; }
+  .food-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    gap: 8px;
+  }
+  .food-row:last-child { border-bottom: none; }
+  .food-name { font-size: 13px; color: rgba(255,255,255,0.88); flex: 1; }
+  .food-qty {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green);
+    white-space: nowrap;
+  }
+  .food-note {
+    font-size: 11px;
+    color: var(--gray);
+    margin-top: 2px;
+    display: block;
+  }
+  .food-alt {
+    font-size: 11px;
+    color: rgba(74,222,128,0.7);
+    display: block;
+    margin-top: 2px;
+  }
+
+  .meal-macros {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .macro-tag {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    padding: 5px 4px;
+    text-align: center;
+  }
+  .macro-tag .val { font-size: 13px; font-weight: 800; }
+  .macro-tag .lbl { font-size: 9px; color: var(--gray); display: block; margin-top: 1px; }
+  .macro-tag.prot .val { color: #60a5fa; }
+  .macro-tag.carb .val { color: var(--amber); }
+  .macro-tag.fat  .val { color: var(--purp); }
+
+  /* ── Info cards ── */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .info-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+  }
+  .info-card .ic-icon { font-size: 22px; margin-bottom: 6px; }
+  .info-card .ic-label { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.06em; }
+  .info-card .ic-value { font-size: 18px; font-weight: 800; margin-top: 2px; }
+  .info-card.full { grid-column: 1 / -1; }
+
+  /* ── Tip / Warning ── */
+  .tip-card {
+    background: rgba(74,222,128,0.05);
+    border: 1px solid rgba(74,222,128,0.18);
+    border-radius: var(--radius);
+    padding: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .tip-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .tip-text { font-size: 12px; color: rgba(255,255,255,0.8); line-height: 1.6; }
+  .tip-text strong { color: var(--green); }
+
+  .info-tip {
+    background: rgba(96,165,250,0.05);
+    border: 1px solid rgba(96,165,250,0.18);
+    border-radius: var(--radius);
+    padding: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .info-tip .tip-text strong { color: #60a5fa; }
+
+  .warning-card {
+    background: rgba(245,158,11,0.07);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: var(--radius);
+    padding: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .warning-text { font-size: 12px; color: rgba(255,255,255,0.8); line-height: 1.6; }
+  .warning-text strong { color: var(--amber); }
+
+  /* ── Flex day table ── */
+  .flex-table {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .flex-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .flex-row:last-child { border-bottom: none; }
+  .flex-day {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--green);
+    min-width: 80px;
+  }
+  .flex-type {
+    font-size: 12px;
+    flex: 1;
+    color: rgba(255,255,255,0.8);
+  }
+  .flex-carb {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--amber);
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* ── Macros pie visual ── */
+  .macro-visual {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 14px;
+  }
+  .macro-visual-title { font-size: 12px; color: var(--gray); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .macro-bar-row { margin-bottom: 10px; }
+  .macro-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+  .macro-bar-label span:first-child { font-weight: 700; }
+  .macro-bar-label span:last-child { color: var(--gray); }
+  .macro-bar-bg {
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .macro-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+
+  /* ── Supp ── */
+  .supp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .supp-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .supp-card .s-icon { font-size: 20px; flex-shrink: 0; }
+  .supp-card .s-name { font-size: 12px; font-weight: 700; }
+  .supp-card .s-dose { font-size: 11px; color: var(--gray); margin-top: 2px; }
+
+  /* ── Alternativas ── */
+  .alt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .alt-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .alt-card .a-emoji { font-size: 20px; display: block; margin-bottom: 4px; }
+  .alt-card .a-cat { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gray); margin-bottom: 6px; }
+  .alt-card .a-items { font-size: 11px; color: rgba(255,255,255,0.75); line-height: 1.8; }
+
+  /* ── Footer ── */
+  .diet-footer {
+    margin: 24px 16px 0;
+    padding: 16px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-align: center;
+  }
+  .diet-footer p { font-size: 11px; color: var(--gray); line-height: 1.7; }
+  .diet-footer strong { color: var(--white); }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="diet-header">
+  <div class="diet-header-inner">
+    <div class="diet-badge">⚖️ Fase de Mantenimiento</div>
+    <h1 class="diet-title">Dieta de Mantenimiento</h1>
+    <p class="diet-subtitle">Equilibrio perfecto entre rendimiento, salud y composición corporal</p>
+    <div class="macro-strip">
+      <div class="macro-pill"><span class="dot dot-kcal"></span> ~2.600 kcal</div>
+      <div class="macro-pill"><span class="dot dot-prot"></span> 175g Proteína</div>
+      <div class="macro-pill"><span class="dot dot-carb"></span> 290g Carbohidratos</div>
+      <div class="macro-pill"><span class="dot dot-fat"></span> 80g Grasas</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── RESUMEN ── -->
+<div class="section">
+  <div class="section-label">Distribución de macronutrientes</div>
+  <div class="macro-visual">
+    <div class="macro-visual-title">% Calorías por macronutriente</div>
+    <div class="macro-bar-row">
+      <div class="macro-bar-label">
+        <span style="color:#60a5fa">🥩 Proteína</span>
+        <span>175g · 700 kcal · 27%</span>
+      </div>
+      <div class="macro-bar-bg">
+        <div class="macro-bar-fill" style="width:27%;background:linear-gradient(90deg,#60a5fa,#3b82f6)"></div>
+      </div>
+    </div>
+    <div class="macro-bar-row">
+      <div class="macro-bar-label">
+        <span style="color:var(--amber)">🍞 Carbohidratos</span>
+        <span>290g · 1.160 kcal · 45%</span>
+      </div>
+      <div class="macro-bar-bg">
+        <div class="macro-bar-fill" style="width:45%;background:linear-gradient(90deg,#f59e0b,#d97706)"></div>
+      </div>
+    </div>
+    <div class="macro-bar-row" style="margin-bottom:0">
+      <div class="macro-bar-label">
+        <span style="color:var(--purp)">🥑 Grasas</span>
+        <span>80g · 720 kcal · 28%</span>
+      </div>
+      <div class="macro-bar-bg">
+        <div class="macro-bar-fill" style="width:28%;background:linear-gradient(90deg,#a78bfa,#8b5cf6)"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="ic-icon">🔥</div>
+      <div class="ic-label">Calorías totales</div>
+      <div class="ic-value" style="color:var(--green)">2.600 kcal</div>
+    </div>
+    <div class="info-card">
+      <div class="ic-icon">⚖️</div>
+      <div class="ic-label">Balance calórico</div>
+      <div class="ic-value" style="color:var(--amber)">~TDEE</div>
+    </div>
+    <div class="info-card full">
+      <div class="ic-icon">🎯</div>
+      <div class="ic-label">Objetivo</div>
+      <div class="ic-value" style="font-size:14px;margin-top:4px">Mantener peso y composición corporal · Mejorar rendimiento deportivo</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── COMIDA 1 ── -->
+<div class="section">
+  <div class="section-label">🌅 Comida 1 — Desayuno</div>
+  <div class="meal-card">
+    <div class="meal-head">
+      <div class="meal-icon meal-icon-amber">🌾</div>
+      <div class="meal-info">
+        <div class="meal-name">Desayuno equilibrado</div>
+        <div class="meal-time">07:00 – 08:30 h</div>
+      </div>
+      <div class="meal-kcal">520 <span>kcal</span></div>
+    </div>
+    <div class="meal-body">
+      <div class="food-row">
+        <div class="food-name">Avena en copos<span class="food-note">Con leche semidesnatada o bebida de avena</span><span class="food-alt">Alt: Muesli sin azúcar · Pan integral tostado</span></div>
+        <div class="food-qty">60 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Huevos enteros<span class="food-note">Revueltos o cocidos — fuente de colina y vitamina D</span></div>
+        <div class="food-qty">2 uds</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Claras de huevo adicionales<span class="food-note">Para completar proteína sin exceso de grasa</span></div>
+        <div class="food-qty">2 claras</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Fruta de temporada<span class="food-note">Plátano, naranja, manzana, melocotón</span></div>
+        <div class="food-qty">150 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Aceite de oliva virgen o aguacate<span class="food-note">Grasa saludable para la tostada o los huevos</span></div>
+        <div class="food-qty">10 ml / 40 g</div>
+      </div>
+      <div class="meal-macros">
+        <div class="macro-tag prot"><span class="val">32g</span><span class="lbl">Prot</span></div>
+        <div class="macro-tag carb"><span class="val">62g</span><span class="lbl">Carb</span></div>
+        <div class="macro-tag fat"><span class="val">18g</span><span class="lbl">Grasas</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── COMIDA 2 ── -->
+<div class="section">
+  <div class="section-label">🍎 Comida 2 — Media Mañana</div>
+  <div class="meal-card">
+    <div class="meal-head">
+      <div class="meal-icon meal-icon-green">🥣</div>
+      <div class="meal-info">
+        <div class="meal-name">Snack nutritivo</div>
+        <div class="meal-time">10:30 – 11:30 h</div>
+      </div>
+      <div class="meal-kcal">320 <span>kcal</span></div>
+    </div>
+    <div class="meal-body">
+      <div class="food-row">
+        <div class="food-name">Yogur griego semi o entero<span class="food-note">Proteína + probióticos + calcio</span><span class="food-alt">Alt: Kéfir · Cottage cheese · Skyr</span></div>
+        <div class="food-qty">150 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Frutos rojos o mango<span class="food-note">Vitaminas, antioxidantes, fibra</span></div>
+        <div class="food-qty">80 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Mezcla de frutos secos<span class="food-note">Almendras, nueces, avellanas — sin sal ni azúcar</span></div>
+        <div class="food-qty">20 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Semillas de chía o lino<span class="food-note">Mezclar con el yogur — omega-3 vegetal</span></div>
+        <div class="food-qty">10 g</div>
+      </div>
+      <div class="meal-macros">
+        <div class="macro-tag prot"><span class="val">18g</span><span class="lbl">Prot</span></div>
+        <div class="macro-tag carb"><span class="val">28g</span><span class="lbl">Carb</span></div>
+        <div class="macro-tag fat"><span class="val">13g</span><span class="lbl">Grasas</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── COMIDA 3 ── -->
+<div class="section">
+  <div class="section-label">🍽️ Comida 3 — Almuerzo</div>
+  <div class="tip-card" style="margin-bottom:10px">
+    <div class="tip-icon">⚖️</div>
+    <div class="tip-text"><strong>El plato de mantenimiento:</strong> 1/4 proteína · 1/4 carbohidratos · 1/2 verduras. Este equilibrio garantiza saciedad, micronutrientes y la energía necesaria para entrenar.</div>
+  </div>
+  <div class="meal-card">
+    <div class="meal-head">
+      <div class="meal-icon meal-icon-blue">🥗</div>
+      <div class="meal-info">
+        <div class="meal-name">Almuerzo completo y equilibrado</div>
+        <div class="meal-time">13:30 – 14:30 h</div>
+      </div>
+      <div class="meal-kcal">720 <span>kcal</span></div>
+    </div>
+    <div class="meal-body">
+      <div class="food-row">
+        <div class="food-name">Proteína a elegir:<span class="food-note">Pollo · Ternera magra · Salmón · Atún · Legumbres</span></div>
+        <div class="food-qty">180 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Carbohidrato complejo:<span class="food-note">Arroz integral · Pasta integral · Quinoa · Patata · Boniato</span></div>
+        <div class="food-qty">90 g (en crudo)</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Verduras variadas<span class="food-note">Brócoli, pimiento, zanahoria, tomate, lechuga — mezclar colores</span></div>
+        <div class="food-qty">250 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Aceite de oliva virgen extra<span class="food-note">Aliñar en frío cuando sea posible para conservar polifenoles</span></div>
+        <div class="food-qty">12 ml</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Pan integral (opcional)<span class="food-note">Solo si el nivel de actividad es alto ese día</span></div>
+        <div class="food-qty">40 g</div>
+      </div>
+      <div class="meal-macros">
+        <div class="macro-tag prot"><span class="val">48g</span><span class="lbl">Prot</span></div>
+        <div class="macro-tag carb"><span class="val">88g</span><span class="lbl">Carb</span></div>
+        <div class="macro-tag fat"><span class="val">20g</span><span class="lbl">Grasas</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── COMIDA 4 ── -->
+<div class="section">
+  <div class="section-label">⚡ Comida 4 — Merienda / Post-Entreno</div>
+  <div class="meal-card">
+    <div class="meal-head">
+      <div class="meal-icon meal-icon-cyan">🥤</div>
+      <div class="meal-info">
+        <div class="meal-name">Merienda o recuperación</div>
+        <div class="meal-time">17:00 – 18:30 h</div>
+      </div>
+      <div class="meal-kcal">490 <span>kcal</span></div>
+    </div>
+    <div class="meal-body">
+      <div class="food-row">
+        <div class="food-name">Batido de proteína whey o alimento completo<span class="food-note">Opción A: 35 g whey + 300 ml leche semidesnatada</span><span class="food-alt">Opción B: 150 g pechuga + 1 fruta + 30 g frutos secos</span></div>
+        <div class="food-qty">según opción</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Plátano o dátiles<span class="food-note">Si es post-entreno intenso: reposición de glucógeno</span></div>
+        <div class="food-qty">1 unidad / 3 uds</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Tortitas de arroz o tostadas integrales<span class="food-note">Carbohidrato de bajo IG para media tarde</span></div>
+        <div class="food-qty">3 tortitas / 1 tostada</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Mantequilla de almendra o cacahuete<span class="food-note">Sin aceite de palma ni azúcar — leer etiqueta</span></div>
+        <div class="food-qty">15 g</div>
+      </div>
+      <div class="meal-macros">
+        <div class="macro-tag prot"><span class="val">35g</span><span class="lbl">Prot</span></div>
+        <div class="macro-tag carb"><span class="val">58g</span><span class="lbl">Carb</span></div>
+        <div class="macro-tag fat"><span class="val">15g</span><span class="lbl">Grasas</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── COMIDA 5 ── -->
+<div class="section">
+  <div class="section-label">🌙 Comida 5 — Cena</div>
+  <div class="meal-card">
+    <div class="meal-head">
+      <div class="meal-icon meal-icon-purp">🍽️</div>
+      <div class="meal-info">
+        <div class="meal-name">Cena equilibrada y saciante</div>
+        <div class="meal-time">20:30 – 21:30 h</div>
+      </div>
+      <div class="meal-kcal">550 <span>kcal</span></div>
+    </div>
+    <div class="meal-body">
+      <div class="food-row">
+        <div class="food-name">Proteína magra:<span class="food-note">Merluza · Lubina · Dorada · Pavo · Huevos</span><span class="food-alt">Alt proteína vegetal: Tofu · Tempeh · Lentejas + arroz</span></div>
+        <div class="food-qty">180 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Verduras de hoja o crucíferas<span class="food-note">Espinacas, brócoli, coliflor, calabacín, champiñones</span></div>
+        <div class="food-qty">300 g</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Patata o boniato cocido<span class="food-note">Carbohidrato moderado para serotonina y descanso</span></div>
+        <div class="food-qty">120 g (peso cocido)</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Aguacate<span class="food-note">O aceite de oliva para aliñar</span></div>
+        <div class="food-qty">50 g (¼ pieza)</div>
+      </div>
+      <div class="food-row">
+        <div class="food-name">Yogur o requesón (pre-dormir)<span class="food-note">Proteína de lenta absorción — opcional si ya hay proteína suficiente</span></div>
+        <div class="food-qty">100 g</div>
+      </div>
+      <div class="meal-macros">
+        <div class="macro-tag prot"><span class="val">42g</span><span class="lbl">Prot</span></div>
+        <div class="macro-tag carb"><span class="val">54g</span><span class="lbl">Carb</span></div>
+        <div class="macro-tag fat"><span class="val">14g</span><span class="lbl">Grasas</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FLEXIBILIDAD SEMANAL ── -->
+<div class="section">
+  <div class="section-label">📅 Plan semanal flexible</div>
+  <div class="info-tip" style="margin-bottom:10px">
+    <div class="tip-icon">💡</div>
+    <div class="tip-text"><strong>Ciclado adaptativo:</strong> En mantenimiento puedes ajustar los carbohidratos según tu actividad del día. Mantén siempre la proteína fija e intacta.</div>
+  </div>
+  <div class="flex-table">
+    <div class="flex-row">
+      <div class="flex-day">Lun/Mié/Vie</div>
+      <div class="flex-type">Día de entrenamiento intenso</div>
+      <div class="flex-carb">290 g carbs</div>
+    </div>
+    <div class="flex-row">
+      <div class="flex-day">Mar/Jue</div>
+      <div class="flex-type">Día de entrenamiento moderado</div>
+      <div class="flex-carb">240 g carbs</div>
+    </div>
+    <div class="flex-row">
+      <div class="flex-day">Sábado</div>
+      <div class="flex-type">Cardio o actividad recreativa</div>
+      <div class="flex-carb">220 g carbs</div>
+    </div>
+    <div class="flex-row">
+      <div class="flex-day">Domingo</div>
+      <div class="flex-type">Descanso activo (paseo, movilidad)</div>
+      <div class="flex-carb">180 g carbs</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ALTERNATIVAS POR GRUPOS ── -->
+<div class="section">
+  <div class="section-label">🔄 Banco de alimentos alternativos</div>
+  <div class="alt-grid">
+    <div class="alt-card">
+      <span class="a-emoji">🥩</span>
+      <div class="a-cat">Proteína animal</div>
+      <div class="a-items">Pollo · Pavo · Ternera<br>Salmón · Atún · Bacalao<br>Huevos · Yogur griego<br>Requesón · Queso fresco</div>
+    </div>
+    <div class="alt-card">
+      <span class="a-emoji">🌱</span>
+      <div class="a-cat">Proteína vegetal</div>
+      <div class="a-items">Lentejas · Garbanzos<br>Alubias · Edamame<br>Tofu · Tempeh<br>Seitán · Quínoa</div>
+    </div>
+    <div class="alt-card">
+      <span class="a-emoji">🍚</span>
+      <div class="a-cat">Carbohidratos</div>
+      <div class="a-items">Arroz blanco/integral<br>Pasta · Quinoa<br>Avena · Patata<br>Boniato · Pan integral</div>
+    </div>
+    <div class="alt-card">
+      <span class="a-emoji">🥦</span>
+      <div class="a-cat">Verduras libres</div>
+      <div class="a-items">Brócoli · Espinacas<br>Coliflor · Calabacín<br>Judías verdes · Pepino<br>Pimiento · Champiñones</div>
+    </div>
+    <div class="alt-card">
+      <span class="a-emoji">🥑</span>
+      <div class="a-cat">Grasas saludables</div>
+      <div class="a-items">AOVE · Aguacate<br>Nueces · Almendras<br>Avellanas · Salmón<br>Semillas de lino/chía</div>
+    </div>
+    <div class="alt-card">
+      <span class="a-emoji">🍓</span>
+      <div class="a-cat">Frutas recomendadas</div>
+      <div class="a-items">Manzana · Pera · Kiwi<br>Frutos rojos · Naranja<br>Melocotón · Melón<br>Plátano (pre-entreno)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SUPLEMENTACIÓN ── -->
+<div class="section">
+  <div class="section-label">💊 Suplementación de base</div>
+  <div class="supp-grid">
+    <div class="supp-card">
+      <div class="s-icon">🥛</div>
+      <div>
+        <div class="s-name">Proteína (whey)</div>
+        <div class="s-dose">1 scoop post-entreno<br>Solo si no llegas a 175 g</div>
+      </div>
+    </div>
+    <div class="supp-card">
+      <div class="s-icon">⚡</div>
+      <div>
+        <div class="s-name">Creatina</div>
+        <div class="s-dose">5 g/día continuo<br>Rendimiento y recuperación</div>
+      </div>
+    </div>
+    <div class="supp-card">
+      <div class="s-icon">🧪</div>
+      <div>
+        <div class="s-name">Omega-3</div>
+        <div class="s-dose">2–3 g EPA+DHA/día<br>Antiinflamatorio de base</div>
+      </div>
+    </div>
+    <div class="supp-card">
+      <div class="s-icon">🌞</div>
+      <div>
+        <div class="s-name">Vitamina D3 + K2</div>
+        <div class="s-dose">2.000 UI/día<br>Huesos, inmunidad, hormonas</div>
+      </div>
+    </div>
+    <div class="supp-card">
+      <div class="s-icon">🔬</div>
+      <div>
+        <div class="s-name">Magnesio</div>
+        <div class="s-dose">300–400 mg antes de dormir<br>Sueño, relajación muscular</div>
+      </div>
+    </div>
+    <div class="supp-card">
+      <div class="s-icon">💧</div>
+      <div>
+        <div class="s-name">Hidratación</div>
+        <div class="s-dose">2,5–3,5 L agua/día<br>+500 ml por hora de ejercicio</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SEÑALES DE CONTROL ── -->
+<div class="section" style="margin-top:20px">
+  <div class="section-label">🎯 Cómo saber si estás en mantenimiento real</div>
+  <div class="tip-card" style="margin-bottom:10px">
+    <div class="tip-icon">⚖️</div>
+    <div class="tip-text"><strong>Control de peso:</strong> Tu peso corporal fluctúa ±0,5–1 kg de semana a semana, pero la media mensual se mantiene estable. Si subes más de 1,5 kg/mes, reduce 100–150 kcal.</div>
+  </div>
+  <div class="tip-card" style="margin-bottom:10px">
+    <div class="tip-icon">💪</div>
+    <div class="tip-text"><strong>Rendimiento:</strong> Deberías mantener o mejorar tus marcas en el gimnasio. Si notas caída de fuerza sostenida, es señal de déficit calórico — añade 100–200 kcal en carbohidratos.</div>
+  </div>
+  <div class="tip-card" style="margin-bottom:10px">
+    <div class="tip-icon">📸</div>
+    <div class="tip-text"><strong>Fotos de progreso:</strong> Compara fotos cada 4 semanas. Tu composición corporal debería mantenerse similar. Si ves acumulación visible de grasa, ajusta ligeramente a la baja.</div>
+  </div>
+  <div class="warning-card">
+    <div class="tip-icon" style="font-size:18px">⚠️</div>
+    <div class="warning-text"><strong>Ajuste periódico:</strong> El TDEE cambia con el tiempo. Revisa las calorías cada 6–8 semanas o cuando tu peso sea diferente en ±3 kg. <strong>Un plan de mantenimiento necesita mantenimiento.</strong></div>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<div class="diet-footer">
+  <p><strong>TGWL — The Goal Will Live</strong><br>
+  Plan de Mantenimiento · Actualizado 2024<br>
+  Elaborado por el equipo de nutrición TGWL · Para uso personal exclusivo</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "name": "The Growth Lab",
+  "short_name": "TGWL",
+  "description": "Tu plataforma de fitness, salud y bienestar personalizada",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#940a0a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "logotipo/jus%20W%20Logo/TGWL%20--06.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logotipo/jus%20W%20Logo/TGWL%20--06.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["health", "fitness", "sports"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Iniciar Entreno",
+      "short_name": "Entreno",
+      "url": "./#entreno",
+      "icons": [{ "src": "logotipo/jus%20W%20Logo/TGWL%20--06.png", "sizes": "any" }]
+    }
+  ]
+}

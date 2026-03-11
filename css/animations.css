@@ -1,0 +1,228 @@
+/* ═══════════════════════════════════════════════
+   TGWL — animations.css
+   Keyframes & Transition Utilities
+═══════════════════════════════════════════════ */
+
+/* ── Page Transitions ───────────────────────── */
+.page-enter  { animation: pageSlideIn  0.3s cubic-bezier(0.25,0.46,0.45,0.94) forwards; }
+.page-exit   { animation: pageSlideOut 0.25s ease forwards; }
+.page-pop-in { animation: pagePopIn    0.3s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+
+@keyframes pageSlideIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes pageSlideOut {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(-20px); }
+}
+@keyframes pagePopIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Ripple Effect ──────────────────────────── */
+.ripple-container { position: relative; overflow: hidden; }
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  transform: scale(0);
+  animation: rippleAnim 0.6s linear;
+  pointer-events: none;
+}
+@keyframes rippleAnim {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* ── Float / Hover Lift ─────────────────────── */
+.float-on-hover {
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+.float-on-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}
+
+/* ── Pulse Animations ───────────────────────── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+@keyframes pulse-scale {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.04); }
+}
+@keyframes pulse-glow-red {
+  0%, 100% { box-shadow: 0 4px 20px rgba(148,10,10,0.3); }
+  50%       { box-shadow: 0 4px 40px rgba(148,10,10,0.7); }
+}
+@keyframes pulse-glow-cyan {
+  0%, 100% { box-shadow: 0 4px 20px rgba(25,249,249,0.2); }
+  50%       { box-shadow: 0 4px 40px rgba(25,249,249,0.5); }
+}
+.animate-pulse       { animation: pulse 2s ease infinite; }
+.animate-pulse-scale { animation: pulse-scale 2s ease infinite; }
+.animate-glow-red    { animation: pulse-glow-red 2s ease infinite; }
+.animate-glow-cyan   { animation: pulse-glow-cyan 2s ease infinite; }
+
+/* ── Shimmer Loading Skeleton ───────────────── */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255,255,255,0.05);
+  border-radius: var(--radius-sm);
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.07) 40%,
+    rgba(255,255,255,0.12) 50%,
+    rgba(255,255,255,0.07) 60%,
+    transparent 100%);
+  animation: shimmer 1.6s ease infinite;
+}
+@keyframes shimmer {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+.skeleton-text { height: 14px; margin-bottom: 8px; }
+.skeleton-text:last-child { width: 60%; }
+.skeleton-card { height: 100px; }
+
+/* ── Number Count Up ────────────────────────── */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.count-up { animation: countUp 0.5s ease; }
+
+/* ── Check Mark ─────────────────────────────── */
+@keyframes checkMark {
+  0%   { stroke-dashoffset: 100; }
+  100% { stroke-dashoffset: 0; }
+}
+.check-svg path {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: checkMark 0.5s ease forwards;
+}
+
+/* ── Bounce In ──────────────────────────────── */
+@keyframes bounceIn {
+  0%   { opacity: 0; transform: scale(0.3); }
+  50%  { opacity: 1; transform: scale(1.05); }
+  70%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+.animate-bounce-in { animation: bounceIn 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+
+/* ── Slide Down ─────────────────────────────── */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); max-height: 0; }
+  to   { opacity: 1; transform: translateY(0); max-height: 1000px; }
+}
+@keyframes slideUp2 {
+  from { opacity: 1; transform: translateY(0); max-height: 1000px; }
+  to   { opacity: 0; transform: translateY(-10px); max-height: 0; }
+}
+
+/* ── Confetti (workout finish) ──────────────── */
+.confetti-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9000;
+  overflow: hidden;
+}
+.confetti-piece {
+  position: absolute;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  animation: confettiFall linear forwards;
+  top: -20px;
+}
+@keyframes confettiFall {
+  to {
+    transform: translateY(110vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* ── Rest Timer Warning ─────────────────────── */
+@keyframes restWarning {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.05); }
+}
+.rest-warning { animation: restWarning 0.5s ease infinite; }
+
+/* ── Slide in from bottom (for sheets) ─────── */
+@keyframes sheetSlideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* ── Card appear stagger ────────────────────── */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+.stagger-7 { animation-delay: 0.35s; }
+.stagger-8 { animation-delay: 0.4s; }
+.card-appear {
+  opacity: 0;
+  animation: cardAppear 0.4s ease forwards;
+}
+@keyframes cardAppear {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Liquid glass shimmer on hover ──────────── */
+.glass-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.glass-shimmer::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: -75%;
+  width: 50%; height: 200%;
+  background: linear-gradient(
+    to right,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0) 100%
+  );
+  transform: skewX(-20deg);
+  transition: none;
+}
+.glass-shimmer:hover::after {
+  animation: glassShimmer 0.7s ease;
+}
+@keyframes glassShimmer {
+  from { left: -75%; }
+  to   { left: 125%; }
+}
+
+/* ── Icon Glow ──────────────────────────────── */
+@keyframes iconGlow {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(25,249,249,0.3)); }
+  50%       { filter: drop-shadow(0 0 10px rgba(25,249,249,0.7)); }
+}
+.icon-glow { animation: iconGlow 3s ease infinite; }
+
+/* ── Heartbeat (for health module) ─────────── */
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  14%       { transform: scale(1.15); }
+  28%       { transform: scale(1); }
+  42%       { transform: scale(1.12); }
+  70%       { transform: scale(1); }
+}
+.heartbeat { animation: heartbeat 1.5s ease infinite; }
