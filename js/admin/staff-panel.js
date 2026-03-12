@@ -8,6 +8,7 @@ import { db, collections, timestamp } from '../firebase-config.js';
 import { toast, formatDate, getInitials } from '../utils.js';
 import { openSheet, closeSheet, confirm } from '../components/modal.js';
 import { navigate } from '../router.js';
+import { openDirectChat } from '../components/direct-chat.js';
 
 // ── Lazy module loaders ─────────────────────────
 async function getMenuCreator() {
@@ -360,6 +361,19 @@ async function loadMyClients(container, profile) {
       });
     });
 
+    el.querySelectorAll('[data-chat-uid]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openDirectChat({
+          myUid:     profile.uid,
+          myName:    profile.name || '',
+          otherUid:  btn.dataset.chatUid,
+          otherName: btn.dataset.chatName,
+          otherRole: 'Cliente',
+        });
+      });
+    });
+
   } catch (e) {
     el.innerHTML = `<p class="text-muted" style="padding:var(--space-md)">Error cargando clientes: ${e.message}</p>`;
   }
@@ -423,6 +437,12 @@ function buildClientCard(client, cfg) {
             data-note-uid="${uid}"
             style="font-size:11px;padding:4px 10px;cursor:pointer;border-color:var(--cyan-dim);color:var(--cyan)"
           >+ Nota</button>
+          <button
+            class="chip"
+            data-chat-uid="${uid}"
+            data-chat-name="${client.name || ''}"
+            style="font-size:11px;padding:4px 10px;cursor:pointer;border-color:rgba(34,197,94,0.4);color:#4ade80"
+          >💬 Chat</button>
         </div>
       </div>
 

@@ -5,6 +5,7 @@
 
 import { appState } from './state.js';
 import { getUserProfile } from './state.js';
+import { t } from './i18n.js';
 
 // ── Route Definitions ─────────────────────────
 export const ROUTES = {
@@ -119,7 +120,7 @@ async function renderRoute(route, params) {
 
     // Update top-bar title
     const topTitle = document.getElementById('top-bar-title');
-    if (topTitle && ROUTES[route]) topTitle.textContent = ROUTES[route].title;
+    if (topTitle && ROUTES[route]) topTitle.textContent = t('route_' + route) || ROUTES[route].title;
 
   } catch (err) {
     console.error('[Router] Error rendering route:', route, err);
@@ -151,4 +152,10 @@ export function initRouter() {
   // Top-bar avatar click → profile
   const avatar = document.getElementById('top-bar-avatar');
   if (avatar) avatar.addEventListener('click', () => navigate('perfil'));
+
+  // Re-render current page when language changes
+  window.addEventListener('langchange', () => {
+    const currentRoute = appState.get('currentRoute');
+    if (currentRoute && currentRoute !== 'login') navigate(currentRoute);
+  });
 }

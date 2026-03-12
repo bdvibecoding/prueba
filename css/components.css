@@ -88,6 +88,68 @@ body.light-mode .logo-dark-only { display: block !important; }
 body.light-mode .logo-light-only { display: none !important; }
 body.dark-mode  .logo-dark-only  { display: none !important; }
 body.dark-mode  .logo-light-only { display: block !important; }
+
+/* ── Light mode nav & bar overrides ── */
+body.light-mode .bottom-nav {
+  background: rgba(245,245,247,0.92);
+  border-color: rgba(0,0,0,0.1);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+body.light-mode .top-bar {
+  background: rgba(245,245,247,0.88);
+  border-color: rgba(0,0,0,0.09);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+body.light-mode .nav-item.active {
+  color: var(--red);
+}
+body.light-mode .nav-item.active .nav-icon-wrap {
+  background: rgba(148,10,10,0.1);
+  border-color: rgba(148,10,10,0.25);
+}
+body.light-mode .bottom-nav .nav-item .nav-icon svg {
+  color: var(--color-text-muted);
+}
+body.light-mode .bottom-nav .nav-item.active .nav-icon svg {
+  color: var(--red);
+}
+body.light-mode .bottom-nav .nav-item:hover .nav-icon svg {
+  color: #111;
+}
+body.light-mode .accordion-header:hover {
+  color: var(--red);
+}
+body.light-mode .swap-option:hover {
+  background: rgba(0,0,0,0.05);
+}
+body.light-mode .role-select option {
+  background: #ffffff;
+  color: #1a1a1a;
+}
+body.light-mode .role-select {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.12);
+  color: #1a1a1a;
+}
+body.light-mode .settings-item {
+  border-bottom-color: rgba(0,0,0,0.05);
+}
+body.light-mode .settings-item-label {
+  color: #1a1a1a;
+}
+body.light-mode .chip {
+  color: #444;
+  background: rgba(0,0,0,0.06);
+  border-color: rgba(0,0,0,0.1);
+}
+body.light-mode .chip.active,
+body.light-mode .chip:hover {
+  background: rgba(148,10,10,0.1);
+  border-color: var(--red);
+  color: var(--red);
+}
 /* fallback: no explicit class = always show */
 
 /* ── Header Back Button ─────────────────────── */

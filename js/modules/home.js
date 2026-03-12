@@ -7,6 +7,8 @@ import { getUserProfile, getActiveSession, appState } from '../state.js';
 import { navigate } from '../router.js';
 import { getGreeting, getTimeLabel, formatDate, formatTime } from '../utils.js';
 import { collections, db, timestamp } from '../firebase-config.js';
+import { t } from '../i18n.js';
+import { openDirectChat } from '../components/direct-chat.js';
 
 export async function render(container) {
   const profile = getUserProfile();
@@ -33,37 +35,37 @@ export async function render(container) {
            style="padding:var(--space-md);margin-bottom:var(--space-md);cursor:pointer;display:flex;align-items:center;gap:var(--space-md)">
         <span style="font-size:24px">💪</span>
         <div style="flex:1">
-          <div style="font-weight:700">Entreno en curso</div>
+          <div style="font-weight:700">${t('active_session')}</div>
           <div class="text-muted">${session.routineName || 'Rutina activa'}</div>
         </div>
-        <span style="color:var(--cyan);font-size:13px;font-weight:600">Continuar →</span>
+        <span style="color:var(--cyan);font-size:13px;font-weight:600">${t('continue')}</span>
       </div>` : ''}
 
       <!-- Quick Stats -->
       <div class="quick-stats" id="quick-stats-row">
         <div class="glass-card stat-card card-appear stagger-1">
           <div class="stat-value" id="stat-workouts">—</div>
-          <div class="stat-label">Entrenos</div>
+          <div class="stat-label">${t('workouts')}</div>
         </div>
         <div class="glass-card stat-card card-appear stagger-2">
           <div class="stat-value" id="stat-streak">—</div>
-          <div class="stat-label">Racha</div>
+          <div class="stat-label">${t('streak')}</div>
         </div>
         <div class="glass-card stat-card card-appear stagger-3">
           <div class="stat-value" id="stat-week">—</div>
-          <div class="stat-label">Esta semana</div>
+          <div class="stat-label">${t('this_week')}</div>
         </div>
       </div>
 
       <!-- App Grid (iOS-style) -->
-      <div class="section-title">Módulos</div>
+      <div class="section-title">${t('modules')}</div>
       <div class="home-grid" id="app-grid">
         ${buildIconGrid(profile)}
       </div>
 
       <!-- Recent Activity -->
       <div class="section">
-        <div class="section-title">Actividad reciente</div>
+        <div class="section-title">${t('recent_activity')}</div>
         <div id="recent-activity">
           <div class="skeleton skeleton-card" style="height:70px;border-radius:14px;margin-bottom:8px"></div>
           <div class="skeleton skeleton-card" style="height:70px;border-radius:14px"></div>
@@ -72,15 +74,8 @@ export async function render(container) {
 
       <!-- Specialists Chat -->
       <div class="section" id="specialists-section" style="display:none">
-        <div class="section-title">Mis especialistas</div>
-        <div id="specialists-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"></div>
-        <div class="glass-card" style="padding:12px" id="chat-panel" style="display:none">
-          <div id="chat-messages" style="min-height:60px;max-height:200px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:8px"></div>
-          <div style="display:flex;gap:8px">
-            <input type="text" id="chat-input" placeholder="Escribe un mensaje..." style="flex:1;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:22px;padding:10px 16px;color:var(--color-text);font-size:14px">
-            <button id="btn-chat-send" class="btn-primary" style="padding:10px 18px;border-radius:22px;font-size:14px">→</button>
-          </div>
-        </div>
+        <div class="section-title">${t('specialists')}</div>
+        <div id="specialists-list" style="display:flex;flex-direction:column;gap:8px"></div>
       </div>
 
     </div>
@@ -136,14 +131,14 @@ const SVG_ICONS = {
 // ── App icons grid ─────────────────────────────
 function buildIconGrid(profile) {
   const icons = [
-    { route: 'entreno',       svg: SVG_ICONS.entreno,       label: 'Entreno',     cls: 'icon-entreno',       accent: 'var(--red)' },
-    { route: 'alimentacion',  svg: SVG_ICONS.alimentacion,  label: 'Nutrición',   cls: 'icon-alimentacion',  accent: 'var(--cyan)' },
-    { route: 'biomedidas',    svg: SVG_ICONS.biomedidas,    label: 'Biomedidas',  cls: 'icon-biomedidas',    accent: '#3b82f6' },
-    { route: 'salud',         svg: SVG_ICONS.salud,         label: 'Salud',       cls: 'icon-salud',         accent: '#ef4444' },
-    { route: 'progreso',      svg: SVG_ICONS.progreso,      label: 'Progreso',    cls: 'icon-progreso',      accent: '#22c55e' },
-    { route: 'perfil',        svg: SVG_ICONS.perfil,        label: 'Perfil',      cls: 'icon-perfil',        accent: '#a855f7' },
-    { route: 'suscripcion',   svg: SVG_ICONS.suscripcion,   label: 'Premium',     cls: 'icon-suscripcion',   accent: '#f59e0b' },
-    { route: 'configuracion', svg: SVG_ICONS.configuracion, label: 'Ajustes',     cls: 'icon-configuracion', accent: '#6b7280' },
+    { route: 'entreno',       svg: SVG_ICONS.entreno,       label: t('icon_entreno'),       cls: 'icon-entreno',       accent: 'var(--red)' },
+    { route: 'alimentacion',  svg: SVG_ICONS.alimentacion,  label: t('icon_alimentacion'),  cls: 'icon-alimentacion',  accent: 'var(--cyan)' },
+    { route: 'biomedidas',    svg: SVG_ICONS.biomedidas,    label: t('icon_biomedidas'),    cls: 'icon-biomedidas',    accent: '#3b82f6' },
+    { route: 'salud',         svg: SVG_ICONS.salud,         label: t('icon_salud'),         cls: 'icon-salud',         accent: '#ef4444' },
+    { route: 'progreso',      svg: SVG_ICONS.progreso,      label: t('icon_progreso'),      cls: 'icon-progreso',      accent: '#22c55e' },
+    { route: 'perfil',        svg: SVG_ICONS.perfil,        label: t('icon_perfil'),        cls: 'icon-perfil',        accent: '#a855f7' },
+    { route: 'suscripcion',   svg: SVG_ICONS.suscripcion,   label: t('icon_suscripcion'),   cls: 'icon-suscripcion',   accent: '#f59e0b' },
+    { route: 'configuracion', svg: SVG_ICONS.configuracion, label: t('icon_configuracion'), cls: 'icon-configuracion', accent: '#6b7280' },
   ];
 
   const staffRoles = ['admin','coach','medico','fisio','psicologo','nutricionista'];
@@ -250,8 +245,8 @@ function renderEmptyActivity() {
   return `
     <div class="empty-state" style="padding:var(--space-lg)">
       <div class="empty-icon">🏋️</div>
-      <div class="empty-title">Sin entrenos aún</div>
-      <div class="empty-subtitle">¡Comienza tu primera sesión en Entreno!</div>
+      <div class="empty-title">${t('no_workouts')}</div>
+      <div class="empty-subtitle">${t('start_first')}</div>
     </div>
   `;
 }
@@ -300,14 +295,15 @@ async function loadSpecialists(container) {
     </div>
   `).join('');
 
-  let activeUid = null;
   el.querySelectorAll('[data-sp-uid]').forEach(card => {
     card.addEventListener('click', () => {
-      activeUid = card.dataset.spUid;
-      const chatPanel = container.querySelector('#chat-panel');
-      chatPanel.style.display = '';
-      loadChatMessages(container, profile.uid, activeUid);
-      container.querySelector('#chat-input')?.focus();
+      openDirectChat({
+        myUid:     profile.uid,
+        myName:    profile.name || '',
+        otherUid:  card.dataset.spUid,
+        otherName: card.dataset.spName,
+        otherRole: card.dataset.spLabel,
+      });
     });
   });
 }

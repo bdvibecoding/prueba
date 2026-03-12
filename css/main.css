@@ -90,11 +90,39 @@ body.light-mode {
   --color-bg-card:  rgba(0,0,0,0.04);
   --color-border:   rgba(0,0,0,0.1);
   --color-text:     #1a1a1a;
-  --color-text-muted: #666666;
+  --color-text-muted: #555555;
   --glass-bg:       rgba(255,255,255,0.65);
   --glass-bg-strong: rgba(255,255,255,0.85);
   --glass-border:   rgba(0,0,0,0.08);
   --glass-shadow:   0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+/* ── Light mode overrides ── */
+body.light-mode .top-bar-title {
+  background: linear-gradient(135deg, #111111, var(--red));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+body.light-mode .stat-value {
+  background: linear-gradient(135deg, var(--red-light), var(--red-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+body.light-mode ::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+}
+body.light-mode ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.28);
+}
+body.light-mode .input-group select option,
+body.light-mode select option {
+  background: #ffffff;
+  color: #1a1a1a;
+}
+body.light-mode .app-section {
+  background: var(--color-bg) !important;
 }
 
 /* ── Reset ──────────────────────────────────── */

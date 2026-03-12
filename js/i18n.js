@@ -129,6 +129,27 @@ const translations = {
     copy:     'Copiar',
     copied:   '¡Copiado!',
     share:    'Compartir',
+
+    route_home:          'Inicio',
+    route_entreno:       'Entreno',
+    route_alimentacion:  'Nutrición',
+    route_biomedidas:    'Biomedidas',
+    route_salud:         'Salud',
+    route_progreso:      'Progreso',
+    route_perfil:        'Perfil',
+    route_suscripcion:   'Suscripción',
+    route_configuracion: 'Ajustes',
+    route_admin:         'Admin',
+
+    icon_entreno:       'Entreno',
+    icon_alimentacion:  'Nutrición',
+    icon_biomedidas:    'Biomedidas',
+    icon_salud:         'Salud',
+    icon_progreso:      'Progreso',
+    icon_perfil:        'Perfil',
+    icon_suscripcion:   'Premium',
+    icon_configuracion: 'Ajustes',
+    icon_admin:         'Panel',
   },
 
   en: {
@@ -256,6 +277,27 @@ const translations = {
     copy:     'Copy',
     copied:   'Copied!',
     share:    'Share',
+
+    route_home:          'Home',
+    route_entreno:       'Training',
+    route_alimentacion:  'Nutrition',
+    route_biomedidas:    'Biometrics',
+    route_salud:         'Health',
+    route_progreso:      'Progress',
+    route_perfil:        'Profile',
+    route_suscripcion:   'Subscription',
+    route_configuracion: 'Settings',
+    route_admin:         'Admin',
+
+    icon_entreno:       'Training',
+    icon_alimentacion:  'Nutrition',
+    icon_biomedidas:    'Biometrics',
+    icon_salud:         'Health',
+    icon_progreso:      'Progress',
+    icon_perfil:        'Profile',
+    icon_suscripcion:   'Premium',
+    icon_configuracion: 'Settings',
+    icon_admin:         'Panel',
   },
 };
 
@@ -266,6 +308,7 @@ export function setLang(lang) {
   _lang = lang;
   document.documentElement.lang = lang;
   applyTranslations();
+  window.dispatchEvent(new CustomEvent('langchange', { detail: { lang } }));
 }
 
 export function getLang() { return _lang; }
