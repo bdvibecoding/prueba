@@ -8,6 +8,23 @@ import { db, collections, timestamp } from '../firebase-config.js';
 import { toast, formatDate, translateRole, getInitials } from '../utils.js';
 import { openModal, closeModal, confirm, openSheet, closeSheet } from '../components/modal.js';
 
+// Role badge colors
+const ROLE_BADGE_COLORS = {
+  admin:         'background:#ef4444;color:#fff',
+  coach:         'background:#06b6d4;color:#fff',
+  medico:        'background:#22c55e;color:#fff',
+  fisio:         'background:#3b82f6;color:#fff',
+  psicologo:     'background:#a855f7;color:#fff',
+  nutricionista: 'background:#f97316;color:#fff',
+  atleta:        'background:#eab308;color:#000',
+  cliente:       'background:#6b7280;color:#fff',
+};
+
+function roleBadgeHtml(role) {
+  const style = ROLE_BADGE_COLORS[role] || 'background:#6b7280;color:#fff';
+  return `<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;${style}">${translateRole(role)}</span>`;
+}
+
 export async function render(container) {
   container.innerHTML = `
     <div class="page active" id="admin-page">
@@ -23,7 +40,7 @@ export async function render(container) {
         <!-- Stats -->
         <div class="quick-stats" id="admin-stats">
           <div class="glass-card stat-card"><div class="stat-value" id="stat-total">—</div><div class="stat-label">Usuarios</div></div>
-          <div class="glass-card stat-card"><div class="stat-value" id="stat-coaches">—</div><div class="stat-label">Coaches</div></div>
+          <div class="glass-card stat-card"><div class="stat-value" id="stat-staff">—</div><div class="stat-label">Staff</div></div>
           <div class="glass-card stat-card"><div class="stat-value" id="stat-clients">—</div><div class="stat-label">Clientes</div></div>
         </div>
 
@@ -39,7 +56,10 @@ export async function render(container) {
           <button class="chip" data-filter="admin">Admin</button>
           <button class="chip" data-filter="coach">Coach</button>
           <button class="chip" data-filter="medico">Médico</button>
+          <button class="chip" data-filter="fisio">Fisio</button>
+          <button class="chip" data-filter="psicologo">Psicólogo</button>
           <button class="chip" data-filter="nutricionista">Nutricionista</button>
+          <button class="chip" data-filter="atleta">Atleta</button>
           <button class="chip" data-filter="cliente">Cliente</button>
         </div>
 
@@ -100,10 +120,12 @@ export async function init(container) {
     });
   }
 
+  const STAFF_ROLES = ['admin', 'coach', 'medico', 'fisio', 'psicologo', 'nutricionista'];
+
   function updateStats(users) {
     container.querySelector('#stat-total').textContent = users.length;
-    container.querySelector('#stat-coaches').textContent = users.filter(u => u.role === 'coach').length;
-    container.querySelector('#stat-clients').textContent = users.filter(u => u.role === 'cliente').length;
+    container.querySelector('#stat-staff').textContent = users.filter(u => STAFF_ROLES.includes(u.role)).length;
+    container.querySelector('#stat-clients').textContent = users.filter(u => u.role === 'cliente' || u.role === 'atleta').length;
   }
 
   function renderUsersList(users) {
@@ -119,13 +141,19 @@ export async function init(container) {
         <div class="admin-user-info">
           <div class="admin-user-name">${user.name || 'Sin nombre'}</div>
           <div class="admin-user-email">${user.email || ''}</div>
-          <div style="margin-top:4px;font-size:11px;color:var(--color-text-muted)">${formatDate(user.createdAt?.toDate?.() || user.createdAt)}</div>
+          <div style="margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            ${roleBadgeHtml(user.role || 'cliente')}
+            <span style="font-size:11px;color:var(--color-text-muted)">${formatDate(user.createdAt?.toDate?.() || user.createdAt)}</span>
+          </div>
         </div>
         <div class="admin-user-role">
           <select class="role-select" data-uid="${user.uid || user.id}" data-current-role="${user.role}">
             <option value="cliente"        ${user.role === 'cliente'        ? 'selected' : ''}>Cliente</option>
+            <option value="atleta"         ${user.role === 'atleta'         ? 'selected' : ''}>Atleta</option>
             <option value="coach"          ${user.role === 'coach'          ? 'selected' : ''}>Coach</option>
             <option value="medico"         ${user.role === 'medico'         ? 'selected' : ''}>Médico</option>
+            <option value="fisio"          ${user.role === 'fisio'          ? 'selected' : ''}>Fisio</option>
+            <option value="psicologo"      ${user.role === 'psicologo'      ? 'selected' : ''}>Psicólogo</option>
             <option value="nutricionista"  ${user.role === 'nutricionista'  ? 'selected' : ''}>Nutricionista</option>
             <option value="admin"          ${user.role === 'admin'          ? 'selected' : ''}>Admin</option>
           </select>
@@ -156,6 +184,15 @@ export async function init(container) {
           const user = allUsers.find(u => (u.uid || u.id) === uid);
           if (user) user.role = newRole;
           updateStats(allUsers);
+          // Refresh the badge in-place
+          const card = el.querySelector(`.admin-user-card[data-uid="${uid}"]`);
+          if (card) {
+            const badgeWrap = card.querySelector('.admin-user-info [style*="display:flex"]');
+            if (badgeWrap) {
+              const badgeEl = badgeWrap.querySelector('span[style*="border-radius:999px"]');
+              if (badgeEl) badgeEl.outerHTML = roleBadgeHtml(newRole);
+            }
+          }
         } catch (e) {
           sel.value = prevRole;
           toast('Error: ' + e.message, 'error');
@@ -176,24 +213,78 @@ export async function init(container) {
 
 // ── User Detail Sheet ─────────────────────────
 async function openUserDetailSheet(user, allUsers) {
-  const coaches = allUsers.filter(u => u.role === 'coach');
-  const coachOptions = coaches.map(c =>
-    `<option value="${c.uid || c.id}" ${user.assignedCoach === (c.uid || c.id) ? 'selected' : ''}>${c.name}</option>`
-  ).join('');
+  const byRole = (role) => allUsers.filter(u => u.role === role);
+
+  const buildOptions = (list, assignedId) =>
+    list.map(u =>
+      `<option value="${u.uid || u.id}" ${assignedId === (u.uid || u.id) ? 'selected' : ''}>${u.name}</option>`
+    ).join('');
+
+  const coaches       = byRole('coach');
+  const medicos       = byRole('medico');
+  const fisios        = byRole('fisio');
+  const psicologos    = byRole('psicologo');
+  const nutricionistas = byRole('nutricionista');
 
   const html = `
     <h4 style="margin-bottom:var(--space-sm)">${user.name || 'Usuario'}</h4>
-    <p class="text-muted" style="margin-bottom:var(--space-md)">${user.email}</p>
+    <p class="text-muted" style="margin-bottom:4px">${user.email}</p>
+    <div style="margin-bottom:var(--space-md)">${roleBadgeHtml(user.role || 'cliente')}</div>
 
+    <!-- Coach -->
     <div class="section-title">Asignar coach</div>
-    <div class="input-group" style="margin-bottom:var(--space-md)">
+    <div class="input-group" style="margin-bottom:var(--space-sm)">
       <span class="input-icon">🏋️</span>
       <select id="sheet-coach-select">
         <option value="">Sin coach asignado</option>
-        ${coachOptions}
+        ${buildOptions(coaches, user.assignedCoach)}
       </select>
     </div>
     <button class="btn-primary btn-full" id="btn-save-coach" style="margin-bottom:var(--space-md)">Asignar coach</button>
+
+    <!-- Médico -->
+    <div class="section-title">Médico asignado</div>
+    <div class="input-group" style="margin-bottom:var(--space-sm)">
+      <span class="input-icon">🩺</span>
+      <select id="sheet-medico-select">
+        <option value="">Sin médico asignado</option>
+        ${buildOptions(medicos, user.assignedMedico)}
+      </select>
+    </div>
+    <button class="btn-secondary btn-full" id="btn-save-medico" style="margin-bottom:var(--space-md)">Asignar médico</button>
+
+    <!-- Fisio -->
+    <div class="section-title">Fisio asignado</div>
+    <div class="input-group" style="margin-bottom:var(--space-sm)">
+      <span class="input-icon">💆</span>
+      <select id="sheet-fisio-select">
+        <option value="">Sin fisio asignado</option>
+        ${buildOptions(fisios, user.assignedFisio)}
+      </select>
+    </div>
+    <button class="btn-secondary btn-full" id="btn-save-fisio" style="margin-bottom:var(--space-md)">Asignar fisio</button>
+
+    <!-- Psicólogo -->
+    <div class="section-title">Psicólogo asignado</div>
+    <div class="input-group" style="margin-bottom:var(--space-sm)">
+      <span class="input-icon">🧠</span>
+      <select id="sheet-psicologo-select">
+        <option value="">Sin psicólogo asignado</option>
+        ${buildOptions(psicologos, user.assignedPsicologo)}
+      </select>
+    </div>
+    <button class="btn-secondary btn-full" id="btn-save-psicologo" style="margin-bottom:var(--space-md)">Asignar psicólogo</button>
+
+    <!-- Nutricionista -->
+    <div class="section-title">Nutricionista asignado</div>
+    <div class="input-group" style="margin-bottom:var(--space-sm)">
+      <span class="input-icon">🥗</span>
+      <select id="sheet-nutricionista-select">
+        <option value="">Sin nutricionista asignado</option>
+        ${buildOptions(nutricionistas, user.assignedNutricionista)}
+      </select>
+    </div>
+    <button class="btn-secondary btn-full" id="btn-save-nutricionista" style="margin-bottom:var(--space-md)">Asignar nutricionista</button>
 
     <div class="section-title">Rutinas asignadas</div>
     <div id="sheet-routines"><div class="spinner-sm"></div></div>
@@ -219,22 +310,47 @@ async function openUserDetailSheet(user, allUsers) {
   // Load assigned routines
   loadSheetRoutines(sc, user);
 
-  // Save coach assignment
-  sc.querySelector('#btn-save-coach')?.addEventListener('click', async () => {
-    const coachId = sc.querySelector('#sheet-coach-select').value;
-    const uid = user.uid || user.id;
+  const uid = user.uid || user.id;
+
+  // Helper for specialist save buttons
+  async function saveSpecialist(selectId, field, label) {
+    const val = sc.querySelector(selectId).value;
     try {
-      await db.collection('users').doc(uid).update({ assignedCoach: coachId || null, updatedAt: timestamp() });
-      toast('Coach asignado ✅', 'success');
+      await db.collection('users').doc(uid).update({ [field]: val || null, updatedAt: timestamp() });
+      toast(`${label} asignado/a ✅`, 'success');
     } catch (e) { toast('Error: ' + e.message, 'error'); }
-  });
+  }
+
+  // Save coach assignment
+  sc.querySelector('#btn-save-coach')?.addEventListener('click', () =>
+    saveSpecialist('#sheet-coach-select', 'assignedCoach', 'Coach')
+  );
+
+  // Save médico assignment
+  sc.querySelector('#btn-save-medico')?.addEventListener('click', () =>
+    saveSpecialist('#sheet-medico-select', 'assignedMedico', 'Médico')
+  );
+
+  // Save fisio assignment
+  sc.querySelector('#btn-save-fisio')?.addEventListener('click', () =>
+    saveSpecialist('#sheet-fisio-select', 'assignedFisio', 'Fisio')
+  );
+
+  // Save psicólogo assignment
+  sc.querySelector('#btn-save-psicologo')?.addEventListener('click', () =>
+    saveSpecialist('#sheet-psicologo-select', 'assignedPsicologo', 'Psicólogo')
+  );
+
+  // Save nutricionista assignment
+  sc.querySelector('#btn-save-nutricionista')?.addEventListener('click', () =>
+    saveSpecialist('#sheet-nutricionista-select', 'assignedNutricionista', 'Nutricionista')
+  );
 
   // Assign routine
   sc.querySelector('#btn-assign-routine')?.addEventListener('click', () => openAssignRoutineModal(user));
 
   // Grant sensitive data access
   sc.querySelector('#btn-grant-sensitive')?.addEventListener('click', async () => {
-    const uid = user.uid || user.id;
     await db.collection('users').doc(uid).update({ sensitiveClearance: true, updatedAt: timestamp() });
     toast('Acceso concedido a datos sensibles', 'success');
   });
@@ -243,11 +359,14 @@ async function openUserDetailSheet(user, allUsers) {
   sc.querySelector('#btn-revoke-access')?.addEventListener('click', async () => {
     const ok = await confirm('Revocar acceso', '¿Revocar el acceso de este usuario?', { danger: true });
     if (!ok) return;
-    const uid = user.uid || user.id;
     await db.collection('users').doc(uid).update({
       role: 'cliente',
       sensitiveClearance: false,
       assignedCoach: null,
+      assignedMedico: null,
+      assignedFisio: null,
+      assignedPsicologo: null,
+      assignedNutricionista: null,
       updatedAt: timestamp(),
     });
     toast('Acceso revocado', 'warning');
@@ -383,7 +502,7 @@ function openInviteUserModal() {
       <button class="modal-close">✕</button>
     </div>
     <p class="text-muted" style="margin-bottom:var(--space-md)">
-      Envía un enlace de invitación para que el usuario cree su cuenta.
+      Genera un enlace de invitación para que el usuario cree su cuenta.
     </p>
     <div class="input-group" style="margin-bottom:var(--space-md)">
       <span class="input-icon">✉️</span>
@@ -393,29 +512,90 @@ function openInviteUserModal() {
       <span class="input-icon">👤</span>
       <select id="invite-role">
         <option value="cliente">Cliente</option>
+        <option value="atleta">Atleta</option>
         <option value="coach">Coach</option>
         <option value="medico">Médico</option>
+        <option value="fisio">Fisio</option>
+        <option value="psicologo">Psicólogo</option>
         <option value="nutricionista">Nutricionista</option>
       </select>
     </div>
-    <button class="btn-primary btn-full" id="btn-send-invite">📨 Enviar invitación</button>
+    <button class="btn-primary btn-full" id="btn-generate-invite">🔗 Generar enlace</button>
+
+    <!-- Invite link result (hidden initially) -->
+    <div id="invite-result" style="display:none;margin-top:var(--space-md)">
+      <p class="text-muted" style="font-size:12px;margin-bottom:6px">Enlace de invitación:</p>
+      <div class="input-group" style="margin-bottom:var(--space-sm)">
+        <input type="text" id="invite-url-input" readonly style="font-size:12px;cursor:text">
+      </div>
+      <div style="display:flex;gap:var(--space-sm)">
+        <button class="btn-secondary" id="btn-copy-invite" style="flex:1;font-size:13px">📋 Copiar enlace</button>
+        <button class="btn-accent"    id="btn-email-invite" style="flex:1;font-size:13px">📧 Enviar por email</button>
+      </div>
+    </div>
   `;
 
   openModal(html);
   const modal = document.getElementById('modal-content');
-  modal.querySelector('#btn-send-invite')?.addEventListener('click', async () => {
+
+  modal.querySelector('#btn-generate-invite')?.addEventListener('click', async () => {
     const email = modal.querySelector('#invite-email').value.trim();
     const role  = modal.querySelector('#invite-role').value;
     if (!email) { toast('Introduce un email', 'warning'); return; }
 
-    // Mock: in real app, would send email via Cloud Functions
-    await db.collection('invitations').add({
-      email, role,
-      invitedBy: getUserProfile()?.uid,
-      createdAt: timestamp(),
-      status: 'pending',
-    });
-    toast(`Invitación enviada a ${email}`, 'success');
-    closeModal();
+    // Generate unique token and invite URL
+    const token    = Date.now().toString(36) + Math.random().toString(36).slice(2);
+    const inviteUrl = window.location.origin + window.location.pathname + '#register?invite=' + token;
+
+    try {
+      await db.collection('invitations').add({
+        email,
+        role,
+        token,
+        inviteUrl,
+        invitedBy: getUserProfile()?.uid,
+        createdAt: timestamp(),
+        status: 'pending',
+      });
+
+      // Show result section
+      const resultEl = modal.querySelector('#invite-result');
+      const urlInput = modal.querySelector('#invite-url-input');
+      urlInput.value = inviteUrl;
+      resultEl.style.display = 'block';
+
+      // Disable generate button to avoid duplicates
+      modal.querySelector('#btn-generate-invite').disabled = true;
+      modal.querySelector('#btn-generate-invite').textContent = '✅ Enlace generado';
+
+      toast('Enlace de invitación generado', 'success');
+
+      // Copy link
+      modal.querySelector('#btn-copy-invite')?.addEventListener('click', () => {
+        navigator.clipboard.writeText(inviteUrl)
+          .then(() => toast('Enlace copiado al portapapeles', 'success'))
+          .catch(() => {
+            // Fallback for browsers that block clipboard
+            urlInput.select();
+            document.execCommand('copy');
+            toast('Enlace copiado', 'success');
+          });
+      });
+
+      // Send via email client
+      modal.querySelector('#btn-email-invite')?.addEventListener('click', () => {
+        const subject = encodeURIComponent('Invitación TGWL');
+        const body    = encodeURIComponent(
+          `Hola,\n\nTe han invitado a unirse a TGWL.\n\n` +
+          `Haz clic en el siguiente enlace para crear tu cuenta:\n${inviteUrl}\n\n` +
+          `Este enlace es personal e intransferible.\n\n` +
+          `Saludos,\nEl equipo TGWL`
+        );
+        window.open(`mailto:${email}?subject=${subject}&body=${body}`);
+      });
+
+    } catch (e) {
+      toast('Error al generar invitación: ' + e.message, 'error');
+    }
   });
 }

@@ -42,6 +42,9 @@ export const collections = {
   supplements:     (uid) => db.collection('users').doc(uid).collection('supplements'),
   notes:           (uid) => db.collection('users').doc(uid).collection('notes'),
   restaurants:     () => db.collection('restaurants'),
+  invitations:     () => db.collection('invitations'),
+  inquiries:       () => db.collection('inquiries'),
+  chatMessages:    (chatId) => db.collection('chats').doc(chatId).collection('messages'),
 };
 
 // ── Storage paths ────────────────────────────

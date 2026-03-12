@@ -286,12 +286,12 @@ export function getInitials(name = '') {
 // ── Translate ─────────────────────────────────
 const I18N = {
   es: {
-    roles: { admin: 'Administrador', coach: 'Coach', medico: 'Médico', nutricionista: 'Nutricionista', cliente: 'Cliente' },
+    roles: { admin: 'Administrador', coach: 'Coach', medico: 'Médico', fisio: 'Fisioterapeuta', psicologo: 'Psicólogo', nutricionista: 'Nutricionista', atleta: 'Atleta', cliente: 'Cliente' },
     days: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
     months: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
   },
   en: {
-    roles: { admin: 'Administrator', coach: 'Coach', medico: 'Doctor', nutricionista: 'Nutritionist', cliente: 'Client' },
+    roles: { admin: 'Administrator', coach: 'Coach', medico: 'Doctor', fisio: 'Physiotherapist', psicologo: 'Psychologist', nutricionista: 'Nutritionist', atleta: 'Athlete', cliente: 'Client' },
     days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     months: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
   },

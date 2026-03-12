@@ -796,6 +796,7 @@ body.dark-mode .app-section {
   align-items: center;
   justify-content: center;
   gap: var(--space-lg);
+  overflow: hidden;
 }
 .loading-screen:not(.active) { display: none; }
 .loading-logo img { height: 80px; filter: drop-shadow(0 0 20px rgba(25,249,249,0.4)); }

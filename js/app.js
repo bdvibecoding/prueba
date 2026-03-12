@@ -5,6 +5,7 @@
 
 import { initAuthListener, initAuthForms } from './auth.js';
 import { loadPersistedSettings, appState } from './state.js';
+import { initI18n, setLang, applyTranslations } from './i18n.js';
 
 // ══════════════════════════════════════════════
 //  BOOTSTRAP
@@ -13,6 +14,10 @@ async function bootstrap() {
   // 1. Load persisted settings (dark mode, language, etc.)
   loadPersistedSettings();
   applySettings();
+  // Init i18n with saved language
+  const savedLang = appState.get('settings')?.language || 'es';
+  initI18n(savedLang);
+  setLang(savedLang);
 
   // 2. Register Service Worker (PWA)
   registerSW();

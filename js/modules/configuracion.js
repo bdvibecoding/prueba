@@ -5,6 +5,7 @@
 
 import { appState, updateSettings, getSettings } from '../state.js';
 import { toast, requestWakeLock, releaseWakeLock } from '../utils.js';
+import { setLang, t } from '../i18n.js';
 
 export async function render(container) {
   const settings = getSettings();
@@ -177,10 +178,12 @@ export async function init(container) {
     toast(e.target.checked ? 'Mapa muscular activado' : 'Mapa muscular desactivado', 'info');
   });
 
-  // Language selector
+  // Language selector — actually applies translations
   container.querySelector('#select-language')?.addEventListener('change', (e) => {
-    updateSettings({ language: e.target.value });
-    toast(e.target.value === 'es' ? 'Idioma: Español 🇪🇸' : 'Language: English 🇬🇧', 'info');
+    const lang = e.target.value;
+    updateSettings({ language: lang });
+    setLang(lang);
+    toast(lang === 'es' ? 'Idioma: Español 🇪🇸' : 'Language: English 🇬🇧', 'info');
   });
 
   // Notifications toggle

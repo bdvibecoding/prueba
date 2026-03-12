@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#000000" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="TGWL" />
@@ -32,11 +33,17 @@
        LOADING SCREEN
   ═══════════════════════════════════════════ -->
   <div id="loading-screen" class="loading-screen active">
-    <div class="loading-logo">
-      <img src="logotipo/jus%20W%20Logo/TGWL%20--07.png" alt="TGWL" style="height:80px;filter:drop-shadow(0 0 20px rgba(25,249,249,0.4))">
+    <div class="auth-bg" style="position:absolute;inset:0;z-index:0">
+      <img src="imagenes/Fondo%20login.png" alt="" class="auth-bg-img">
+      <div class="auth-bg-overlay"></div>
     </div>
-    <div class="loading-spinner"></div>
-    <p class="loading-text">Cargando...</p>
+    <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:20px">
+      <div class="loading-logo">
+        <img src="logotipo/jus%20W%20Logo/TGWL%20--07.png" alt="TGWL" style="height:80px;filter:drop-shadow(0 0 20px rgba(25,249,249,0.4))">
+      </div>
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Cargando...</p>
+    </div>
   </div>
 
   <!-- ═══════════════════════════════════════════
@@ -187,7 +194,10 @@
     <!-- Top Bar -->
     <header class="top-bar glass-nav" id="top-bar">
       <div class="top-bar-left">
-        <img src="logotipo/Horizonatal%20Logo/TGWL-10.png" alt="The Growth Lab" class="top-bar-logo">
+        <!-- Light theme: use colored/dark logo (dark text on light bg) -->
+        <img src="logotipo/Horizonatal%20Logo/TGWL-08.png" alt="The Growth Lab" class="top-bar-logo logo-dark-only">
+        <!-- Dark theme: use white logo TGWL-10 -->
+        <img src="logotipo/Horizonatal%20Logo/TGWL-10.png" alt="The Growth Lab" class="top-bar-logo logo-light-only">
       </div>
       <div class="top-bar-right">
         <span class="top-bar-greeting" id="top-bar-greeting"></span>
@@ -202,27 +212,36 @@
       <!-- Pages rendered here dynamically -->
     </main>
 
-    <!-- Bottom Navigation -->
+    <!-- Bottom Navigation (3 core items) -->
     <nav class="bottom-nav glass-nav" id="bottom-nav">
       <button class="nav-item active" data-route="home">
-        <span class="nav-icon">🏠</span>
-        <span class="nav-label">Inicio</span>
+        <span class="nav-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 9.5L12 3L21 9.5V20C21 20.55 20.55 21 20 21H15V15H9V21H4C3.45 21 3 20.55 3 20V9.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </span>
+        <span class="nav-label" data-i18n="nav_home">Inicio</span>
       </button>
       <button class="nav-item" data-route="entreno">
-        <span class="nav-icon">💪</span>
-        <span class="nav-label">Entreno</span>
+        <span class="nav-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6.5 6.5H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h2.5M17.5 6.5H20a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <rect x="6.5" y="4" width="3" height="16" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
+            <rect x="14.5" y="4" width="3" height="16" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
+            <line x1="9.5" y1="12" x2="14.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="nav-label" data-i18n="nav_entreno">Entreno</span>
       </button>
       <button class="nav-item" data-route="alimentacion">
-        <span class="nav-icon">🥗</span>
-        <span class="nav-label">Nutrición</span>
-      </button>
-      <button class="nav-item" data-route="progreso">
-        <span class="nav-icon">📈</span>
-        <span class="nav-label">Progreso</span>
-      </button>
-      <button class="nav-item" data-route="perfil">
-        <span class="nav-icon">👤</span>
-        <span class="nav-label">Perfil</span>
+        <span class="nav-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3C9.5 3 6 5 6 9C6 12.5 8 14.5 8 16V20C8 20.55 8.45 21 9 21H15C15.55 21 16 20.55 16 20V16C16 14.5 18 12.5 18 9C18 5 14.5 3 12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" fill="none"/>
+            <line x1="9" y1="17" x2="15" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="12" y1="3" x2="12" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="nav-label" data-i18n="nav_nutricion">Nutrición</span>
       </button>
     </nav>
   </div>

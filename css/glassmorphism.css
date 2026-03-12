@@ -105,16 +105,19 @@ body.light-mode .glass-nav {
     inset 0 -1px 0 rgba(0,0,0,0.15);
   transition: all var(--transition-base);
 }
+/* SVG icon color inside icon cells */
+.app-icon-inner svg { color: var(--icon-accent, rgba(255,255,255,0.9)); filter: drop-shadow(0 1px 4px rgba(0,0,0,0.5)); }
+
 /* Individual icon colors */
-.icon-entreno    { background: linear-gradient(145deg, rgba(148,10,10,0.6), rgba(80,0,0,0.4)); border-color: rgba(148,10,10,0.4); }
-.icon-alimentacion { background: linear-gradient(145deg, rgba(34,197,94,0.4), rgba(15,80,40,0.3)); border-color: rgba(34,197,94,0.3); }
-.icon-biomedidas { background: linear-gradient(145deg, rgba(25,249,249,0.3), rgba(0,100,100,0.2)); border-color: rgba(25,249,249,0.3); }
-.icon-salud      { background: linear-gradient(145deg, rgba(239,68,68,0.3), rgba(120,0,0,0.2)); border-color: rgba(239,68,68,0.3); }
-.icon-progreso   { background: linear-gradient(145deg, rgba(168,85,247,0.3), rgba(80,0,140,0.2)); border-color: rgba(168,85,247,0.3); }
-.icon-perfil     { background: linear-gradient(145deg, rgba(245,158,11,0.3), rgba(120,70,0,0.2)); border-color: rgba(245,158,11,0.3); }
-.icon-suscripcion { background: linear-gradient(145deg, rgba(99,102,241,0.35), rgba(40,40,100,0.25)); border-color: rgba(99,102,241,0.35); }
+.icon-entreno    { background: linear-gradient(145deg, rgba(148,10,10,0.65), rgba(80,0,0,0.45)); border-color: rgba(148,10,10,0.5); }
+.icon-alimentacion { background: linear-gradient(145deg, rgba(25,249,249,0.25), rgba(0,100,100,0.2)); border-color: rgba(25,249,249,0.3); }
+.icon-biomedidas { background: linear-gradient(145deg, rgba(59,130,246,0.35), rgba(20,60,120,0.25)); border-color: rgba(59,130,246,0.35); }
+.icon-salud      { background: linear-gradient(145deg, rgba(239,68,68,0.35), rgba(120,0,0,0.25)); border-color: rgba(239,68,68,0.3); }
+.icon-progreso   { background: linear-gradient(145deg, rgba(34,197,94,0.3), rgba(0,80,30,0.2)); border-color: rgba(34,197,94,0.3); }
+.icon-perfil     { background: linear-gradient(145deg, rgba(168,85,247,0.35), rgba(80,0,140,0.25)); border-color: rgba(168,85,247,0.3); }
+.icon-suscripcion { background: linear-gradient(145deg, rgba(245,158,11,0.35), rgba(120,70,0,0.25)); border-color: rgba(245,158,11,0.35); }
 .icon-configuracion { background: linear-gradient(145deg, rgba(107,114,128,0.35), rgba(40,40,40,0.25)); border-color: rgba(107,114,128,0.3); }
-.icon-admin      { background: linear-gradient(145deg, rgba(148,10,10,0.5), rgba(0,0,0,0.4)); border-color: rgba(148,10,10,0.5); }
+.icon-admin      { background: linear-gradient(145deg, rgba(148,10,10,0.55), rgba(0,0,0,0.4)); border-color: rgba(148,10,10,0.5); }
 
 /* Light glare on icon */
 .app-icon-inner::before {

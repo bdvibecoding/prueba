@@ -72,8 +72,23 @@
 }
 
 /* When nav items are built with simple span.nav-icon: */
-.bottom-nav .nav-item > .nav-icon { display: block; }
+.bottom-nav .nav-item > .nav-icon { display: flex; align-items: center; justify-content: center; }
 .bottom-nav .nav-item > .nav-label { display: block; }
+
+/* SVG icon color in nav */
+.bottom-nav .nav-item .nav-icon svg { color: var(--color-text-muted); transition: color var(--transition-fast); }
+.bottom-nav .nav-item.active .nav-icon svg { color: var(--white); }
+.bottom-nav .nav-item:hover .nav-icon svg { color: var(--white); }
+
+/* Staff panel nav item accent */
+.nav-item-staff .nav-icon svg { color: var(--cyan) !important; }
+
+/* Light mode: top-bar uses dark logos (data-logo-dark) */
+body.light-mode .logo-dark-only { display: block !important; }
+body.light-mode .logo-light-only { display: none !important; }
+body.dark-mode  .logo-dark-only  { display: none !important; }
+body.dark-mode  .logo-light-only { display: block !important; }
+/* fallback: no explicit class = always show */
 
 /* ── Header Back Button ─────────────────────── */
 .header-back {

@@ -64,6 +64,11 @@ function updateTopBar(profile) {
   }
 }
 
+// All staff roles (not counting admin separately)
+export const STAFF_ROLES   = ['coach','medico','fisio','psicologo','nutricionista'];
+export const ALL_ROLES     = ['cliente','atleta','coach','medico','fisio','psicologo','nutricionista','admin'];
+export const ADMIN_ROLES   = ['admin'];
+
 // ── Show / Hide sections ──────────────────────
 function showApp(profile) {
   document.getElementById('loading-screen')?.classList.remove('active');
@@ -71,16 +76,28 @@ function showApp(profile) {
   document.getElementById('app-section')?.classList.remove('hidden');
   updateTopBar(profile);
 
-  // Show admin nav indicator
-  if (['admin','coach','medico','nutricionista'].includes(profile?.role)) {
-    const bottomNav = document.getElementById('bottom-nav');
+  const role = profile?.role;
+  const bottomNav = document.getElementById('bottom-nav');
+
+  // Staff & Admin: add panel nav button
+  if ([...STAFF_ROLES, ...ADMIN_ROLES].includes(role)) {
     if (bottomNav && !bottomNav.querySelector('[data-route="admin"]')) {
-      const adminBtn = document.createElement('button');
-      adminBtn.className = 'nav-item';
-      adminBtn.dataset.route = 'admin';
-      adminBtn.innerHTML = `<span class="nav-icon">🔑</span><span class="nav-label">Admin</span>`;
-      bottomNav.appendChild(adminBtn);
-      adminBtn.addEventListener('click', () => {
+      const panelBtn = document.createElement('button');
+      panelBtn.className = 'nav-item nav-item-staff';
+      panelBtn.dataset.route = 'admin';
+      const label = role === 'admin' ? 'Admin' : 'Panel';
+      panelBtn.innerHTML = `
+        <span class="nav-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.8"/>
+            <rect x="13" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.8"/>
+            <rect x="3" y="13" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.8"/>
+            <rect x="13" y="13" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
+        </span>
+        <span class="nav-label">${label}</span>`;
+      bottomNav.appendChild(panelBtn);
+      panelBtn.addEventListener('click', () => {
         import('./router.js').then(({ navigate }) => navigate('admin'));
       });
     }
@@ -110,7 +127,13 @@ export function initAuthListener() {
       showApp(profile);
       const { navigate, initRouter } = await import('./router.js');
       initRouter();
-      navigate('home');
+      // Staff goes to their panel; clients go home
+      const role = profile?.role;
+      if ([...STAFF_ROLES, ...ADMIN_ROLES].includes(role)) {
+        navigate('admin');
+      } else {
+        navigate('home');
+      }
     } else {
       clearUser();
       showAuth();

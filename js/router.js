@@ -39,11 +39,12 @@ export function navigate(route, params = {}) {
     return;
   }
 
-  // Admin guard
+  // Admin/staff guard
   if (routeDef.adminOnly) {
     const profile = getUserProfile();
     const role = profile?.role;
-    if (!['admin'].includes(role)) {
+    const allowed = ['admin','coach','medico','fisio','psicologo','nutricionista'];
+    if (!allowed.includes(role)) {
       import('./utils.js').then(({ toast }) => toast('Acceso no autorizado', 'error'));
       return;
     }
@@ -98,8 +99,10 @@ async function renderRoute(route, params) {
         const profile = getUserProfile();
         if (profile?.role === 'admin') {
           module = await import('./admin/admin-panel.js');
-        } else if (['coach','medico','nutricionista'].includes(profile?.role)) {
-          module = await import('./admin/coach-panel.js');
+        } else if (['coach','medico','fisio','psicologo','nutricionista'].includes(profile?.role)) {
+          // Try staff-panel first, fall back to coach-panel
+          try { module = await import('./admin/staff-panel.js'); }
+          catch { module = await import('./admin/coach-panel.js'); }
         }
         break;
       }
