@@ -12,21 +12,39 @@ import { renderMuscleMap } from '../components/muscle-map.js';
 
 let activeRoutineId   = null;
 let activeRoutineData = null;
+let historialLoaded   = false;
 
 // ══════════════════════════════════════════════
-//  RENDER — Routines List
+//  RENDER — Routines List + Historial Tabs
 // ══════════════════════════════════════════════
 export async function render(container) {
+  historialLoaded = false;
   container.innerHTML = `
     <div class="page active" id="entreno-page">
-      <div class="page-header">
-        <div>
-          <h2 class="page-title">💪 Entreno</h2>
-          <p class="page-subtitle">Tus rutinas asignadas</p>
+      <div style="padding:var(--page-pad)">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">💪 Entreno</h2>
+            <p class="page-subtitle" id="entreno-subtitle">Tus rutinas asignadas</p>
+          </div>
         </div>
-      </div>
-      <div id="routines-container">
-        <div class="overlay-spinner"><div class="spinner-sm"></div></div>
+        <!-- Tabs -->
+        <div class="tabs" style="margin-bottom:var(--space-md)">
+          <button class="tab-btn active" data-tab="rutinas">Rutinas</button>
+          <button class="tab-btn" data-tab="historial">Historial</button>
+        </div>
+        <!-- Routines tab -->
+        <div id="tab-rutinas" class="tab-content">
+          <div id="routines-container">
+            <div class="overlay-spinner"><div class="spinner-sm"></div></div>
+          </div>
+        </div>
+        <!-- History tab -->
+        <div id="tab-historial" class="tab-content hidden">
+          <div id="history-container">
+            <div class="overlay-spinner"><div class="spinner-sm"></div></div>
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -40,6 +58,20 @@ export async function init(container) {
     return;
   }
   await loadRoutinesList(container);
+
+  // Tab switching
+  container.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
+      container.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+      btn.classList.add('active');
+      container.querySelector(`#tab-${btn.dataset.tab}`)?.classList.remove('hidden');
+      if (btn.dataset.tab === 'historial' && !historialLoaded) {
+        historialLoaded = true;
+        loadHistorialTab(container);
+      }
+    });
+  });
 }
 
 // ── Load Routines List ─────────────────────────
@@ -522,6 +554,228 @@ async function openExerciseHistory(exercise) {
   } catch (e) {
     const histEl = document.getElementById('modal-content')?.querySelector('#history-content');
     if (histEl) histEl.innerHTML = `<p class="text-muted">Error al cargar historial</p>`;
+  }
+}
+
+// ══════════════════════════════════════════════
+//  HISTORIAL TAB
+// ══════════════════════════════════════════════
+
+// ── Load Historial Tab ────────────────────────
+async function loadHistorialTab(container) {
+  const profile  = getUserProfile();
+  const histEl   = container.querySelector('#history-container');
+
+  if (!profile?.uid) {
+    histEl.innerHTML = `<div class="empty-state"><div class="empty-icon">🔒</div><div class="empty-title">No autenticado</div></div>`;
+    return;
+  }
+
+  try {
+    const snap = await collections.workoutSessions(profile.uid)
+      .orderBy('startTime', 'desc')
+      .limit(30)
+      .get();
+
+    if (snap.empty) {
+      histEl.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">📭</div>
+          <div class="empty-title">Sin entrenos registrados</div>
+          <div class="empty-subtitle">Completa tu primer entreno para ver el historial aquí.</div>
+        </div>
+      `;
+      return;
+    }
+
+    histEl.innerHTML = snap.docs.map(doc => {
+      const session   = doc.data();
+      const date      = session.startTime?.toDate?.() || new Date(session.startTime);
+      const totalSets = Object.values(session.completedSets || {})
+        .reduce((acc, arr) => acc + (Array.isArray(arr) ? arr.length : 0), 0);
+      const exerciseCount = Object.keys(session.setData || {})
+        .filter(exId => (session.setData[exId]?.sets?.length || 0) > 0).length;
+
+      return `
+        <div class="session-history-card glass-card" data-session-id="${doc.id}" style="margin-bottom:var(--space-sm);cursor:pointer">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-weight:700;font-size:15px">${session.routineName || 'Entreno'}</div>
+              <div style="font-size:12px;color:var(--color-text-muted)">${formatDate(date)}</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:13px;font-weight:600">${formatTime(session.durationMs || 0)}</div>
+              ${session.rpe ? `<div style="font-size:11px;color:var(--color-text-muted)">RPE ${session.rpe}/10</div>` : ''}
+            </div>
+          </div>
+          <div style="margin-top:var(--space-xs);display:flex;gap:6px;flex-wrap:wrap">
+            <span class="chip">${totalSets} series</span>
+            <span class="chip">${exerciseCount} ejercicios</span>
+          </div>
+          ${session.note ? `<p style="font-size:12px;color:var(--color-text-muted);margin-top:var(--space-xs);font-style:italic">"${session.note}"</p>` : ''}
+        </div>
+      `;
+    }).join('');
+
+    // Attach click handlers — store session data on element for sheet
+    snap.docs.forEach(doc => {
+      const card = histEl.querySelector(`[data-session-id="${doc.id}"]`);
+      if (card) {
+        card.addEventListener('click', () => openSessionDetail(doc.id, doc.data()));
+      }
+    });
+
+  } catch (e) {
+    histEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Error al cargar</div><div class="empty-subtitle">${e.message}</div></div>`;
+  }
+}
+
+// ── Open Session Detail Sheet ─────────────────
+async function openSessionDetail(sessionId, session) {
+  const profile     = getUserProfile();
+  const role        = profile?.role || 'cliente';
+  const isCoach     = role === 'coach' || role === 'admin';
+  const date        = session.startTime?.toDate?.() || new Date(session.startTime);
+  const totalSets   = Object.values(session.completedSets || {})
+    .reduce((acc, arr) => acc + (Array.isArray(arr) ? arr.length : 0), 0);
+
+  // Build initial sheet with loading state for exercises
+  const toggleHtml = !isCoach ? `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:var(--space-sm)">
+      <label style="font-size:13px;color:var(--color-text-muted)">Mostrar mapa muscular</label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-session-map" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  ` : '';
+
+  const html = `
+    <div class="modal-header">
+      <h3 class="modal-title">${session.routineName || 'Entreno'}</h3>
+      <button class="modal-close">✕</button>
+    </div>
+
+    ${toggleHtml}
+
+    <div class="summary-stat-grid" style="margin-bottom:var(--space-md)">
+      <div class="summary-stat">
+        <span class="summary-stat-val">${formatTime(session.durationMs || 0)}</span>
+        <span class="summary-stat-key">Duración</span>
+      </div>
+      <div class="summary-stat">
+        <span class="summary-stat-val">${totalSets}</span>
+        <span class="summary-stat-key">Series</span>
+      </div>
+      <div class="summary-stat">
+        <span class="summary-stat-val">${session.rpe ? session.rpe + '/10' : '—'}</span>
+        <span class="summary-stat-key">RPE</span>
+      </div>
+    </div>
+
+    ${session.note ? `<div class="glass-card" style="margin-bottom:var(--space-md);font-style:italic;font-size:13px">"${session.note}"</div>` : ''}
+
+    <div class="section-title">Series realizadas</div>
+    <div id="session-exercises-detail">
+      <div class="overlay-spinner"><div class="spinner-sm"></div></div>
+    </div>
+
+    <div class="section-title" style="margin-top:var(--space-md)" id="muscle-map-title">Músculos trabajados</div>
+    <div id="session-muscle-map"></div>
+  `;
+
+  openSheet(html);
+
+  // Fetch routine exercises for names
+  let exercises = [];
+  if (session.routineId) {
+    try {
+      const routineSnap = await db.collection('routines').doc(session.routineId).get();
+      exercises = routineSnap.exists ? (routineSnap.data().exercises || []) : [];
+    } catch { /* silently fall back to empty array */ }
+  }
+
+  // Build exercise name lookup
+  const exNameMap = {};
+  exercises.forEach(ex => { exNameMap[ex.id] = ex.name || ex.id; });
+
+  // Render per-exercise breakdown
+  const sheetContent = document.getElementById('sheet-content') || document.querySelector('.sheet-body');
+  const detailEl = sheetContent
+    ? sheetContent.querySelector('#session-exercises-detail')
+    : document.querySelector('#session-exercises-detail');
+
+  if (detailEl) {
+    const setData = session.setData || {};
+    const exIds   = Object.keys(setData).filter(id => setData[id]?.sets?.length > 0);
+
+    if (exIds.length === 0) {
+      detailEl.innerHTML = `<p style="color:var(--color-text-muted);font-size:13px">Sin datos de series registrados.</p>`;
+    } else {
+      detailEl.innerHTML = exIds.map(exId => {
+        const sets = setData[exId].sets || [];
+        const name = exNameMap[exId] || exId;
+        const rows = sets.map((set, i) => `
+          <tr>
+            <td style="color:var(--color-text-muted);font-weight:700">${i + 1}</td>
+            <td>${set.reps || '—'}</td>
+            <td>${set.weight || '—'}</td>
+          </tr>
+        `).join('');
+
+        return `
+          <div class="glass-card" style="margin-bottom:var(--space-sm)">
+            <div style="font-weight:600;margin-bottom:var(--space-xs)">${name}</div>
+            <table class="sets-table" style="width:100%">
+              <thead>
+                <tr><th>Set</th><th>Reps</th><th>Kg</th></tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  // Render muscle map
+  const performedExIds = Object.keys(session.setData || {})
+    .filter(id => (session.setData[id]?.sets?.length || 0) > 0);
+  const performedExercises = exercises.filter(ex => performedExIds.includes(ex.id));
+
+  const mapEl = sheetContent
+    ? sheetContent.querySelector('#session-muscle-map')
+    : document.querySelector('#session-muscle-map');
+
+  const mapTitleEl = sheetContent
+    ? sheetContent.querySelector('#muscle-map-title')
+    : document.querySelector('#muscle-map-title');
+
+  const renderMap = () => {
+    if (mapEl && performedExercises.length > 0) {
+      renderMuscleMap(mapEl, performedExercises);
+    } else if (mapEl) {
+      mapEl.innerHTML = `<p style="color:var(--color-text-muted);font-size:13px">No hay datos de músculos disponibles.</p>`;
+    }
+  };
+
+  if (isCoach) {
+    renderMap();
+  } else {
+    // Toggle behaviour for non-coach roles
+    renderMap();
+
+    const toggleInput = sheetContent
+      ? sheetContent.querySelector('#toggle-session-map')
+      : document.querySelector('#toggle-session-map');
+
+    if (toggleInput && mapEl && mapTitleEl) {
+      toggleInput.addEventListener('change', () => {
+        const show = toggleInput.checked;
+        mapEl.style.display        = show ? '' : 'none';
+        mapTitleEl.style.display   = show ? '' : 'none';
+      });
+    }
   }
 }
 

@@ -9,6 +9,15 @@ import { toast, formatDate, getInitials } from '../utils.js';
 import { openSheet, closeSheet, confirm } from '../components/modal.js';
 import { navigate } from '../router.js';
 
+// ── Lazy module loaders ─────────────────────────
+async function getMenuCreator() {
+  return import('./menu-creator.js');
+}
+
+async function getSupplementCreator() {
+  return import('./supplement-creator.js');
+}
+
 // ── Role configuration ─────────────────────────
 const ROLE_CONFIG = {
   coach: {
@@ -95,11 +104,102 @@ export async function render(container) {
           </div>
         </div>
 
+        <!-- Routine management (coach / admin only) -->
+        ${role === 'coach' || role === 'admin' ? `
+        <div class="section-title">Gestión de Rutinas</div>
+        <div class="settings-group" style="margin-bottom:var(--space-md)">
+          <div class="settings-item" id="btn-create-routine" style="cursor:pointer">
+            <div class="settings-item-icon" style="background:rgba(148,10,10,0.2)">📋</div>
+            <div class="settings-item-info">
+              <div class="settings-item-label">Crear rutina</div>
+              <div class="settings-item-desc">Diseña una nueva rutina de entrenamiento</div>
+            </div>
+            <div class="settings-item-right">›</div>
+          </div>
+          <div class="settings-item" id="btn-my-routines" style="cursor:pointer">
+            <div class="settings-item-icon" style="background:rgba(25,249,249,0.1)">📚</div>
+            <div class="settings-item-info">
+              <div class="settings-item-label">Mis rutinas</div>
+              <div class="settings-item-desc">Ver, editar y asignar rutinas creadas</div>
+            </div>
+            <div class="settings-item-right">›</div>
+          </div>
+        </div>
+        ` : ''}
+
+        <!-- Nutrition management (nutricionista only) -->
+        ${role === 'nutricionista' ? `
+        <div class="section-title">Gestión de Planes</div>
+        <div class="settings-group" style="margin-bottom:var(--space-md)">
+          <div class="settings-item" id="btn-create-menu" style="cursor:pointer">
+            <div class="settings-item-icon" style="background:rgba(34,197,94,0.15)">🥗</div>
+            <div class="settings-item-info">
+              <div class="settings-item-label">Crear plan nutricional</div>
+              <div class="settings-item-desc">Diseña un nuevo plan de alimentación semanal</div>
+            </div>
+            <div class="settings-item-right">›</div>
+          </div>
+          <div class="settings-item" id="btn-my-menus" style="cursor:pointer">
+            <div class="settings-item-icon" style="background:rgba(34,197,94,0.1)">📋</div>
+            <div class="settings-item-info">
+              <div class="settings-item-label">Mis planes</div>
+              <div class="settings-item-desc">Ver, editar y asignar planes creados</div>
+            </div>
+            <div class="settings-item-right">›</div>
+          </div>
+          <div class="settings-item" id="btn-create-suppl-nutri" style="cursor:pointer">
+            <div class="settings-item-icon" style="background:rgba(168,85,247,0.15)">💊</div>
+            <div class="settings-item-info">
+              <div class="settings-item-label">Crear protocolo de suplementación</div>
+              <div class="settings-item-desc">Nuevo protocolo de suplementos para un cliente</div>
+            </div>
+            <div class="settings-item-right">›</div>
+          </div>
+          <div class="settings-item" id="btn-my-suppls-nutri" style="cursor:pointer">
+            <div class="settings-item-icon" style="background:rgba(168,85,247,0.1)">📚</div>
+            <div class="settings-item-info">
+              <div class="settings-item-label">Mis protocolos</div>
+              <div class="settings-item-desc">Ver, editar y asignar protocolos creados</div>
+            </div>
+            <div class="settings-item-right">›</div>
+          </div>
+        </div>
+        ` : ''}
+
+        <!-- Supplement management (coach only) -->
+        ${role === 'coach' ? `
+        <div class="section-title">Gestión de Suplementación</div>
+        <div class="settings-group" style="margin-bottom:var(--space-md)">
+          <div class="settings-item" id="btn-create-suppl-coach" style="cursor:pointer">
+            <div class="settings-item-icon" style="background:rgba(168,85,247,0.15)">💊</div>
+            <div class="settings-item-info">
+              <div class="settings-item-label">Crear protocolo de suplementación</div>
+              <div class="settings-item-desc">Nuevo protocolo de suplementos para un cliente</div>
+            </div>
+            <div class="settings-item-right">›</div>
+          </div>
+          <div class="settings-item" id="btn-my-suppls-coach" style="cursor:pointer">
+            <div class="settings-item-icon" style="background:rgba(168,85,247,0.1)">📚</div>
+            <div class="settings-item-info">
+              <div class="settings-item-label">Mis protocolos</div>
+              <div class="settings-item-desc">Ver, editar y asignar protocolos creados</div>
+            </div>
+            <div class="settings-item-right">›</div>
+          </div>
+        </div>
+        ` : ''}
+
         <!-- Clients section -->
         <div class="section-title">Mis Clientes</div>
         <div id="staff-clients-list">
           <div class="overlay-spinner"><div class="spinner-sm"></div></div>
         </div>
+
+        <!-- Menus list panel (rendered inline when "Mis planes" is clicked) -->
+        <div id="staff-menus-list" style="display:none"></div>
+
+        <!-- Supplements list panel (rendered inline when "Mis protocolos" is clicked) -->
+        <div id="staff-suppls-list" style="display:none"></div>
 
       </div>
     </div>
@@ -109,8 +209,80 @@ export async function render(container) {
 // ── init ───────────────────────────────────────
 export async function init(container) {
   const profile = getUserProfile();
+  const role    = profile?.role || 'coach';
 
   container.querySelector('#btn-client-view')?.addEventListener('click', () => navigate('home'));
+
+  // Routine management buttons (coach / admin only)
+  if (role === 'coach' || role === 'admin') {
+    const { openRoutineCreator, openRoutinesList } = await import('./routine-creator.js');
+
+    container.querySelector('#btn-create-routine')?.addEventListener('click', () => {
+      openRoutineCreator();
+    });
+
+    container.querySelector('#btn-my-routines')?.addEventListener('click', () => {
+      openRoutinesList(container);
+    });
+  }
+
+  // Nutrition plan management (nutricionista only)
+  if (role === 'nutricionista') {
+    container.querySelector('#btn-create-menu')?.addEventListener('click', async () => {
+      const { openMenuCreator } = await getMenuCreator();
+      openMenuCreator();
+    });
+
+    container.querySelector('#btn-my-menus')?.addEventListener('click', async () => {
+      const listEl = container.querySelector('#staff-menus-list');
+      if (!listEl) return;
+      // Toggle: hide if already visible, show otherwise
+      if (listEl.style.display !== 'none') {
+        listEl.style.display = 'none';
+        return;
+      }
+      listEl.style.display = 'block';
+      const { openMenusList } = await getMenuCreator();
+      await openMenusList(listEl);
+    });
+
+    container.querySelector('#btn-create-suppl-nutri')?.addEventListener('click', async () => {
+      const { openSupplementCreator } = await getSupplementCreator();
+      openSupplementCreator();
+    });
+
+    container.querySelector('#btn-my-suppls-nutri')?.addEventListener('click', async () => {
+      const listEl = container.querySelector('#staff-suppls-list');
+      if (!listEl) return;
+      if (listEl.style.display !== 'none') {
+        listEl.style.display = 'none';
+        return;
+      }
+      listEl.style.display = 'block';
+      const { openSupplementsList } = await getSupplementCreator();
+      await openSupplementsList(listEl);
+    });
+  }
+
+  // Supplement management (coach only)
+  if (role === 'coach') {
+    container.querySelector('#btn-create-suppl-coach')?.addEventListener('click', async () => {
+      const { openSupplementCreator } = await getSupplementCreator();
+      openSupplementCreator();
+    });
+
+    container.querySelector('#btn-my-suppls-coach')?.addEventListener('click', async () => {
+      const listEl = container.querySelector('#staff-suppls-list');
+      if (!listEl) return;
+      if (listEl.style.display !== 'none') {
+        listEl.style.display = 'none';
+        return;
+      }
+      listEl.style.display = 'block';
+      const { openSupplementsList } = await getSupplementCreator();
+      await openSupplementsList(listEl);
+    });
+  }
 
   await loadMyClients(container, profile);
 }
