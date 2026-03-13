@@ -5,7 +5,7 @@
 
 import { getUserProfile, getActiveSession, appState } from '../state.js';
 import { navigate } from '../router.js';
-import { getGreeting, getTimeLabel, formatDate, formatTime } from '../utils.js';
+import { getGreeting, getTimeLabel, formatDate, formatTime, translateRole } from '../utils.js';
 import { collections, db, timestamp } from '../firebase-config.js';
 import { t } from '../i18n.js';
 import { openDirectChat } from '../components/direct-chat.js';
@@ -266,15 +266,16 @@ async function loadSpecialists(container) {
   if (!el) return;
 
   // Check if user has any specialist assigned
-  const fields = { coach: 'Coach', medico: 'Médico', fisio: 'Fisio', psicologo: 'Psicólogo', nutricionista: 'Nutricionista' };
+  const fields = { coach: 'coach', medico: 'medico', fisio: 'fisio', psicologo: 'psicologo', nutricionista: 'nutricionista' };
   const assigned = Object.entries(fields).filter(([key]) => profile[`assigned${key.charAt(0).toUpperCase() + key.slice(1)}`]);
 
   if (!assigned.length) return;
   section.style.display = '';
 
   // Load specialist profiles
-  const cards = await Promise.all(assigned.map(async ([key, label]) => {
+  const cards = await Promise.all(assigned.map(async ([key]) => {
     const uid = profile[`assigned${key.charAt(0).toUpperCase() + key.slice(1)}`];
+    const label = translateRole(key);
     try {
       const snap = await db.collection('users').doc(uid).get();
       const sp = snap.data() || {};
@@ -291,7 +292,7 @@ async function loadSpecialists(container) {
         <div style="font-weight:600;font-size:14px">${sp.name}</div>
         <div style="font-size:12px;color:var(--color-text-muted)">${sp.label}</div>
       </div>
-      <span style="font-size:12px;color:var(--cyan);font-weight:600">Mensaje →</span>
+      <span style="font-size:12px;color:var(--cyan);font-weight:600">${t('message')}</span>
     </div>
   `).join('');
 
@@ -354,15 +355,10 @@ async function sendChatMessage(container) {
   }
 }
 
-const PHRASES = [
-  'El único entreno que lamentarás es el que no hiciste.',
-  'Consistencia > Perfección.',
-  'Cada rep cuenta. Cada día importa.',
-  'Sé más fuerte que tus excusas.',
-  'El dolor de hoy es el progreso de mañana.',
-  'Tu cuerpo puede. Es tu mente la que debes convencer.',
-  'No pares cuando estés cansado. Para cuando hayas terminado.',
-];
 function getMotivationPhrase() {
-  return PHRASES[new Date().getDay() % PHRASES.length];
+  const phrases = [
+    t('motivation_1'), t('motivation_2'), t('motivation_3'),
+    t('motivation_4'), t('motivation_5'), t('motivation_6'), t('motivation_7'),
+  ];
+  return phrases[new Date().getDay() % phrases.length];
 }

@@ -4,6 +4,7 @@
 ═══════════════════════════════════════════════ */
 
 import { appState } from './state.js';
+import { t, getLang } from './i18n.js';
 
 // ── Date & Time ───────────────────────────────
 export function formatDate(date, locale = 'es-ES') {
@@ -48,14 +49,15 @@ export function todayString() {
 
 export function getGreeting() {
   const h = new Date().getHours();
-  if (h < 13) return '¡Buenos días';
-  if (h < 20) return '¡Buenas tardes';
-  return '¡Buenas noches';
+  if (h < 13) return `¡${t('greeting_morning')}`;
+  if (h < 20) return `¡${t('greeting_afternoon')}`;
+  return `¡${t('greeting_evening')}`;
 }
 
 export function getTimeLabel() {
   const now = new Date();
-  return now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  const locale = getLang() === 'en' ? 'en-US' : 'es-ES';
+  return now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
 }
 
 export function getLast7Days() {
