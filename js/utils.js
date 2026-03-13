@@ -4,7 +4,6 @@
 ═══════════════════════════════════════════════ */
 
 import { appState } from './state.js';
-import { t, getLang } from './i18n.js';
 
 // ── Date & Time ───────────────────────────────
 export function formatDate(date, locale = 'es-ES') {
@@ -56,8 +55,8 @@ export function getGreeting() {
 
 export function getTimeLabel() {
   const now = new Date();
-  const locale = getLang() === 'en' ? 'en-US' : 'es-ES';
-  return now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+  const lang = appState.get('settings')?.language || 'es';
+  return now.toLocaleTimeString(lang === 'en' ? 'en-US' : 'es-ES', { hour: '2-digit', minute: '2-digit' });
 }
 
 export function getLast7Days() {
@@ -291,11 +290,17 @@ const I18N = {
     roles: { admin: 'Administrador', coach: 'Coach', medico: 'Médico', fisio: 'Fisioterapeuta', psicologo: 'Psicólogo', nutricionista: 'Nutricionista', atleta: 'Atleta', cliente: 'Cliente' },
     days: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
     months: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+    greeting_morning: 'Buenos días',
+    greeting_afternoon: 'Buenas tardes',
+    greeting_evening: 'Buenas noches',
   },
   en: {
     roles: { admin: 'Administrator', coach: 'Coach', medico: 'Doctor', fisio: 'Physiotherapist', psicologo: 'Psychologist', nutricionista: 'Nutritionist', atleta: 'Athlete', cliente: 'Client' },
     days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     months: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    greeting_morning: 'Good morning',
+    greeting_afternoon: 'Good afternoon',
+    greeting_evening: 'Good evening',
   },
 };
 
