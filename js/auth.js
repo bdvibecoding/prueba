@@ -5,7 +5,7 @@
 
 import { auth, db, collections, timestamp } from './firebase-config.js';
 import { appState, setUser, clearUser } from './state.js';
-import { toast, validateEmail, getInitials } from './utils.js';
+import { toast, validateEmail, getInitials, getGreeting } from './utils.js';
 import { navigate } from './router.js';
 
 // ── Show/Hide Auth Views ──────────────────────
@@ -55,14 +55,18 @@ function updateTopBar(profile) {
   const greeting = document.getElementById('top-bar-greeting');
   const initials = document.getElementById('avatar-initials');
   if (greeting && profile?.name) {
-    const hour = new Date().getHours();
-    const greet = hour < 13 ? 'Buenos días' : hour < 20 ? 'Buenas tardes' : 'Buenas noches';
-    greeting.textContent = `${greet}, ${profile.name.split(' ')[0]}`;
+    greeting.textContent = `${getGreeting()}, ${profile.name.split(' ')[0]}`;
   }
   if (initials && profile?.name) {
     initials.textContent = getInitials(profile.name);
   }
 }
+
+// Re-update greeting when language changes
+window.addEventListener('langchange', () => {
+  const profile = appState.get('userProfile');
+  if (profile) updateTopBar(profile);
+});
 
 // All staff roles (not counting admin separately)
 export const STAFF_ROLES   = ['coach','medico','fisio','psicologo','nutricionista'];
