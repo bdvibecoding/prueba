@@ -7,18 +7,21 @@ import { db, collections, timestamp } from '../firebase-config.js';
 import { getUserProfile }             from '../state.js';
 import { toast, formatDate }          from '../utils.js';
 import { openSheet, closeSheet, confirm } from '../components/modal.js';
+import { t } from '../i18n.js';
 
-// ── Meal slot names ────────────────────────────
-const SLOT_OPTIONS = [
-  'Desayuno',
-  'Media mañana',
-  'Almuerzo',
-  'Merienda',
-  'Cena',
-  'Pre-entreno',
-  'Post-entreno',
-  'Suplementación',
-];
+// ── Meal slot options (i18n-aware, built at call time) ─
+function getSlotOptions() {
+  return [
+    { value: 'Desayuno',       label: t('mc_slot_breakfast') },
+    { value: 'Media mañana',   label: t('mc_slot_midmorning') },
+    { value: 'Almuerzo',       label: t('mc_slot_lunch') },
+    { value: 'Merienda',       label: t('mc_slot_snack') },
+    { value: 'Cena',           label: t('mc_slot_dinner') },
+    { value: 'Pre-entreno',    label: t('mc_slot_preworkout') },
+    { value: 'Post-entreno',   label: t('mc_slot_postworkout') },
+    { value: 'Suplementación', label: t('mc_slot_supplements_name') },
+  ];
+}
 
 // ── Helper: load clients assigned to current user ──
 async function loadAssignedClients(selectEl, role, myUid) {
@@ -40,7 +43,7 @@ async function loadAssignedClients(selectEl, role, myUid) {
 
 // ── Build a single meal-slot card HTML ────────
 function buildMealSlotHTML(index = 0) {
-  const options = SLOT_OPTIONS.map(s => `<option>${s}</option>`).join('');
+  const options = getSlotOptions().map(s => `<option value="${s.value}">${s.label}</option>`).join('');
   return `
     <div class="meal-slot-item glass-card" data-slot-index="${index}" style="margin-bottom:var(--space-sm)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-xs)">
@@ -54,15 +57,15 @@ function buildMealSlotHTML(index = 0) {
       <div class="meal-items-list" style="margin-bottom:var(--space-xs)"></div>
 
       <div style="display:flex;gap:6px;margin-top:var(--space-xs)">
-        <input type="text" class="meal-item-name input-solo" placeholder="Alimento (ej: Arroz cocido)" style="flex:2">
-        <input type="text" class="meal-item-qty input-solo" placeholder="Cantidad (100g)" style="flex:1">
+        <input type="text" class="meal-item-name input-solo" placeholder="${t('mc_slot_food_placeholder')}" style="flex:2">
+        <input type="text" class="meal-item-qty input-solo" placeholder="${t('mc_slot_qty_placeholder')}" style="flex:1">
         <button class="btn-accent btn-add-meal-item" style="padding:6px 10px;white-space:nowrap">+</button>
       </div>
 
       <textarea
         class="meal-slot-notes input-solo"
         rows="1"
-        placeholder="Notas de esta toma..."
+        placeholder="${t('mc_slot_notes_placeholder')}"
         style="margin-top:var(--space-xs);font-size:12px;width:100%;resize:vertical"
       ></textarea>
     </div>
@@ -92,7 +95,7 @@ function wireMealSlotEvents(card) {
     const qtyInput  = card.querySelector('.meal-item-qty');
     const name      = nameInput.value.trim();
     const quantity  = qtyInput.value.trim();
-    if (!name) { toast('Escribe el nombre del alimento', 'warning'); return; }
+    if (!name) { toast(t('mc_food_name_required'), 'warning'); return; }
 
     const list = card.querySelector('.meal-items-list');
     const row  = document.createElement('div');
@@ -136,54 +139,54 @@ export async function openMenuCreator(clientUid = null) {
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">🥗 Nuevo Plan Nutricional</h3>
+      <h3 class="modal-title">${t('mc_title')}</h3>
       <button class="modal-close">✕</button>
     </div>
     <div style="padding:var(--space-md);overflow-y:auto;max-height:calc(100vh - 120px)">
 
       <!-- Basic Info -->
-      <label class="field-label">Nombre del plan *</label>
-      <input type="text" id="menu-name" class="input-solo" placeholder="Ej: Déficit calórico semana 1" style="margin-bottom:var(--space-md)">
+      <label class="field-label">${t('mc_name_label')}</label>
+      <input type="text" id="menu-name" class="input-solo" placeholder="${t('mc_name_placeholder')}" style="margin-bottom:var(--space-md)">
 
-      <label class="field-label">Descripción / Objetivo</label>
-      <textarea id="menu-desc" class="input-solo" rows="2" placeholder="Objetivo del plan, observaciones..." style="margin-bottom:var(--space-md)"></textarea>
+      <label class="field-label">${t('mc_desc_label')}</label>
+      <textarea id="menu-desc" class="input-solo" rows="2" placeholder="${t('mc_desc_placeholder')}" style="margin-bottom:var(--space-md)"></textarea>
 
       <!-- Macro targets -->
-      <div class="section-title">Objetivos nutricionales</div>
+      <div class="section-title">${t('mc_macros_title')}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:var(--space-md)">
         <div>
-          <label class="field-label" style="font-size:11px">Kcal/día</label>
+          <label class="field-label" style="font-size:11px">${t('mc_kcal')}</label>
           <input type="number" id="menu-kcal" class="input-solo" placeholder="2000" style="margin-top:4px">
         </div>
         <div>
-          <label class="field-label" style="font-size:11px">Proteínas (g)</label>
+          <label class="field-label" style="font-size:11px">${t('mc_protein')}</label>
           <input type="number" id="menu-protein" class="input-solo" placeholder="150" style="margin-top:4px">
         </div>
         <div>
-          <label class="field-label" style="font-size:11px">Carbohidratos (g)</label>
+          <label class="field-label" style="font-size:11px">${t('mc_carbs')}</label>
           <input type="number" id="menu-carbs" class="input-solo" placeholder="200" style="margin-top:4px">
         </div>
         <div>
-          <label class="field-label" style="font-size:11px">Grasas (g)</label>
+          <label class="field-label" style="font-size:11px">${t('mc_fat')}</label>
           <input type="number" id="menu-fat" class="input-solo" placeholder="70" style="margin-top:4px">
         </div>
       </div>
 
       <!-- Meal slots -->
-      <div class="section-title">Comidas del día</div>
+      <div class="section-title">${t('mc_meals_title')}</div>
       <div id="meal-slots-container"></div>
 
       <button class="btn-accent" id="btn-add-meal-slot" style="margin-bottom:var(--space-md);width:100%">
-        + Añadir toma
+        ${t('mc_add_slot')}
       </button>
 
       <!-- Assign client -->
-      <label class="field-label">Asignar a cliente</label>
+      <label class="field-label">${t('mc_assign_label')}</label>
       <select id="menu-assign-client" class="input-solo" style="margin-top:4px;margin-bottom:var(--space-lg)">
-        <option value="">— Sin asignar —</option>
+        <option value="">${t('mc_no_assign')}</option>
       </select>
 
-      <button class="btn-primary btn-full" id="btn-save-menu">💾 Guardar plan</button>
+      <button class="btn-primary btn-full" id="btn-save-menu">${t('mc_save')}</button>
     </div>
   `;
 
@@ -223,7 +226,7 @@ export async function openMenuCreator(clientUid = null) {
   // Save
   sc.querySelector('#btn-save-menu')?.addEventListener('click', async () => {
     const name = sc.querySelector('#menu-name')?.value?.trim();
-    if (!name) { toast('El nombre del plan es obligatorio', 'warning'); return; }
+    if (!name) { toast(t('mc_name_required'), 'warning'); return; }
 
     const description   = sc.querySelector('#menu-desc')?.value?.trim() || '';
     const kcalTarget    = parseFloat(sc.querySelector('#menu-kcal')?.value) || 0;
@@ -233,7 +236,7 @@ export async function openMenuCreator(clientUid = null) {
     const assignedTo    = sc.querySelector('#menu-assign-client')?.value || null;
     const meals         = collectSlots(sc);
 
-    if (meals.length === 0) { toast('Añade al menos una toma', 'warning'); return; }
+    if (meals.length === 0) { toast(t('mc_slot_required'), 'warning'); return; }
 
     const plan = {
       name,
@@ -251,7 +254,7 @@ export async function openMenuCreator(clientUid = null) {
 
     const saveBtn = sc.querySelector('#btn-save-menu');
     saveBtn.disabled    = true;
-    saveBtn.textContent = 'Guardando…';
+    saveBtn.textContent = t('mc_saving');
 
     try {
       // Save to top-level menus collection for easy querying
@@ -265,12 +268,12 @@ export async function openMenuCreator(clientUid = null) {
         });
       }
 
-      toast('Plan guardado ✅', 'success');
+      toast(t('mc_saved'), 'success');
       closeSheet();
     } catch (e) {
-      toast('Error al guardar: ' + e.message, 'error');
+      toast(t('mc_save_error') + ': ' + e.message, 'error');
       saveBtn.disabled    = false;
-      saveBtn.textContent = '💾 Guardar plan';
+      saveBtn.textContent = t('mc_save');
     }
   });
 }
@@ -295,8 +298,8 @@ export async function openMenusList(container) {
       container.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">🥗</div>
-          <div class="empty-title">Sin planes creados</div>
-          <div class="empty-subtitle">Crea tu primer plan nutricional.</div>
+          <div class="empty-title">${t('mc_no_plans')}</div>
+          <div class="empty-subtitle">${t('mc_no_plans_sub')}</div>
         </div>`;
       return;
     }
@@ -318,11 +321,11 @@ export async function openMenusList(container) {
     container.querySelectorAll('[data-delete-menu]').forEach(btn => {
       btn.addEventListener('click', async () => {
         const menuId = btn.dataset.deleteMenu;
-        const ok = await confirm('Eliminar plan', '¿Eliminar este plan nutricional? Esta acción no se puede deshacer.', { danger: true, okText: 'Eliminar' });
+        const ok = await confirm(t('mc_delete_title'), t('mc_delete_confirm'), { danger: true, okText: t('mc_delete_title') });
         if (!ok) return;
         try {
           await db.collection('menus').doc(menuId).delete();
-          toast('Plan eliminado', 'success');
+          toast(t('mc_deleted'), 'success');
           // Re-render
           await openMenusList(container);
         } catch (e) {
@@ -343,9 +346,10 @@ function buildMenuCard(menu) {
   const created   = menu.createdAt?.toDate
     ? formatDate(menu.createdAt.toDate())
     : '—';
+  const mealLabel = mealCount === 1 ? t('mc_meals') : t('mc_meals_plural');
   const assigned  = menu.assignedTo
-    ? `<span class="badge badge-cyan" style="font-size:10px">Asignado</span>`
-    : `<span class="badge badge-gray" style="font-size:10px">Sin asignar</span>`;
+    ? `<span class="badge badge-cyan" style="font-size:10px">${t('mc_badge_assigned')}</span>`
+    : `<span class="badge badge-gray" style="font-size:10px">${t('mc_badge_not_assigned')}</span>`;
 
   return `
     <div class="glass-card" style="padding:var(--space-md);margin-bottom:var(--space-sm)">
@@ -359,7 +363,7 @@ function buildMenuCard(menu) {
             : ''}
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;align-items:center">
             <span style="font-size:12px;color:var(--color-text-muted)">🔥 ${kcal}</span>
-            <span style="font-size:12px;color:var(--color-text-muted)">🍽 ${mealCount} toma${mealCount !== 1 ? 's' : ''}</span>
+            <span style="font-size:12px;color:var(--color-text-muted)">🍽 ${mealCount} ${mealLabel}</span>
             ${assigned}
           </div>
           <div style="font-size:11px;color:var(--color-text-muted);margin-top:4px">${created}</div>
@@ -369,7 +373,7 @@ function buildMenuCard(menu) {
             class="chip"
             data-assign-menu="${menu.id}"
             style="font-size:11px;padding:4px 10px;cursor:pointer;border-color:var(--cyan-dim);color:var(--cyan)"
-          >Asignar</button>
+          >${t('assign')}</button>
           <button
             class="btn-icon"
             data-delete-menu="${menu.id}"
@@ -387,15 +391,15 @@ async function openAssignMenuSheet(menu, profile) {
   const myUid = profile?.uid;
 
   const html = `
-    <h4 style="margin-bottom:4px">Asignar plan</h4>
+    <h4 style="margin-bottom:4px">${t('mc_assign_plan')}</h4>
     <p class="text-muted" style="margin-bottom:var(--space-md);font-size:13px">
       <strong>${menu.name}</strong>
     </p>
-    <label class="field-label">Selecciona cliente</label>
+    <label class="field-label">${t('mc_select_client')}</label>
     <select id="assign-client-select" class="input-solo" style="margin-top:4px;margin-bottom:var(--space-md)">
-      <option value="">— Selecciona un cliente —</option>
+      <option value="">${t('mc_select_client_opt')}</option>
     </select>
-    <button class="btn-primary btn-full" id="btn-do-assign">Asignar plan</button>
+    <button class="btn-primary btn-full" id="btn-do-assign">${t('mc_do_assign')}</button>
   `;
 
   openSheet(html);
@@ -406,7 +410,7 @@ async function openAssignMenuSheet(menu, profile) {
 
   sc.querySelector('#btn-do-assign')?.addEventListener('click', async () => {
     const clientUid = sel.value;
-    if (!clientUid) { toast('Selecciona un cliente', 'warning'); return; }
+    if (!clientUid) { toast(t('mc_assign_select'), 'warning'); return; }
 
     try {
       await collections.dietas(clientUid).add({
@@ -416,7 +420,7 @@ async function openAssignMenuSheet(menu, profile) {
       });
       // Also update the top-level record
       await db.collection('menus').doc(menu.id).update({ assignedTo: clientUid });
-      toast('Plan asignado ✅', 'success');
+      toast(t('mc_assigned'), 'success');
       closeSheet();
     } catch (e) {
       toast('Error: ' + e.message, 'error');

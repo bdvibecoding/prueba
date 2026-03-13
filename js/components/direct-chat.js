@@ -4,6 +4,7 @@
 ═══════════════════════════════════════════════ */
 
 import { db, timestamp } from '../firebase-config.js';
+import { t } from '../i18n.js';
 
 let _unsubscribe = null;
 let _overlay     = null;
@@ -43,7 +44,7 @@ export function openDirectChat({ myUid, myName, otherUid, otherName, otherRole =
         color:var(--cyan); font-size:14px; font-weight:600;
         display:flex; align-items:center; gap:4px; padding:8px 0;
         white-space:nowrap;
-      ">← Volver</button>
+      ">${t('dc_back')}</button>
 
       <div style="
         width:36px; height:36px; border-radius:50%; flex-shrink:0;
@@ -83,7 +84,7 @@ export function openDirectChat({ myUid, myName, otherUid, otherName, otherRole =
       <input
         id="dc-input"
         type="text"
-        placeholder="Escribe un mensaje..."
+        placeholder="${t('dc_placeholder')}"
         style="
           flex:1;
           background:var(--glass-bg);
@@ -161,7 +162,7 @@ function renderMessages(snapshot, myUid, otherName, overlay) {
       <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 24px; gap:12px; opacity:0.5">
         <div style="font-size:40px">💬</div>
         <div style="font-size:14px; color:var(--color-text-muted); text-align:center">
-          Inicia la conversación con ${otherName || 'tu especialista'}
+          ${t('dc_start_convo')}${otherName || ''}
         </div>
       </div>
     `;

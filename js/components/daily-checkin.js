@@ -6,6 +6,7 @@
 
 import { db, collections, timestamp } from '../firebase-config.js';
 import { toast } from '../utils.js';
+import { t, getLang } from '../i18n.js';
 
 // ── Entry point ────────────────────────────────
 /**
@@ -83,7 +84,7 @@ function _buildAndShow(uid, todayStr, lsKey) {
         font-weight:700;
         color:#fff;
         letter-spacing:-0.3px;
-      ">Check-in diario</h2>
+      ">${t('checkin_daily')}</h2>
       <p style="
         margin:0;
         font-size:13px;
@@ -98,14 +99,14 @@ function _buildAndShow(uid, todayStr, lsKey) {
         font-weight:600;
         color:#fff;
         margin-bottom:12px;
-      ">¿Cómo te sientes hoy?</div>
+      ">${t('checkin_mood')}</div>
       <div id="q-mood" style="display:flex;justify-content:space-between;gap:4px">
         ${_emojiRow([
-          { v: 1, e: '😞', label: 'Mal' },
-          { v: 2, e: '😕', label: 'Regular' },
-          { v: 3, e: '😐', label: 'Normal' },
-          { v: 4, e: '😊', label: 'Bien' },
-          { v: 5, e: '😄', label: 'Genial' },
+          { v: 1, e: '😞', label: t('checkin_mood_bad') },
+          { v: 2, e: '😕', label: t('checkin_mood_poor') },
+          { v: 3, e: '😐', label: t('checkin_mood_ok') },
+          { v: 4, e: '😊', label: t('checkin_mood_good') },
+          { v: 5, e: '😄', label: t('checkin_mood_great') },
         ], 'mood')}
       </div>
     </div>
@@ -117,14 +118,14 @@ function _buildAndShow(uid, todayStr, lsKey) {
         font-weight:600;
         color:#fff;
         margin-bottom:12px;
-      ">¿Cómo dormiste?</div>
+      ">${t('checkin_sleep')}</div>
       <div id="q-sleep-quality" style="display:flex;justify-content:space-between;gap:4px">
         ${_emojiRow([
-          { v: 1, e: '😴', label: 'Muy mal' },
-          { v: 2, e: '💤', label: 'Mal' },
-          { v: 3, e: '🌙', label: 'Regular' },
-          { v: 4, e: '⭐', label: 'Bien' },
-          { v: 5, e: '✨', label: 'Excelente' },
+          { v: 1, e: '😴', label: t('checkin_sleep_terrible') },
+          { v: 2, e: '💤', label: t('checkin_sleep_bad') },
+          { v: 3, e: '🌙', label: t('checkin_sleep_ok') },
+          { v: 4, e: '⭐', label: t('checkin_sleep_good') },
+          { v: 5, e: '✨', label: t('checkin_sleep_great') },
         ], 'sleep')}
       </div>
     </div>
@@ -136,7 +137,7 @@ function _buildAndShow(uid, todayStr, lsKey) {
         font-weight:600;
         color:#fff;
         margin-bottom:10px;
-      ">Horas de sueño</div>
+      ">${t('checkin_hours')}</div>
       <div style="display:flex;align-items:center;gap:12px">
         <input
           id="q-sleep-hours"
@@ -158,7 +159,7 @@ function _buildAndShow(uid, todayStr, lsKey) {
             -moz-appearance:textfield;
           "
         />
-        <span style="color:var(--color-text-muted,#a7a7a7);font-size:13px">horas esta noche</span>
+        <span style="color:var(--color-text-muted,#a7a7a7);font-size:13px">${t('checkin_hours_tonight')}</span>
       </div>
     </div>
 
@@ -169,11 +170,11 @@ function _buildAndShow(uid, todayStr, lsKey) {
         font-weight:600;
         color:#fff;
         margin-bottom:10px;
-      ">¿Hay algo fuera de lo normal? <span style="font-weight:400;color:var(--color-text-muted,#a7a7a7)">(opcional)</span></div>
+      ">${t('checkin_free_comment')} <span style="font-weight:400;color:var(--color-text-muted,#a7a7a7)">${t('checkin_optional')}</span></div>
       <textarea
         id="q-comment"
         rows="3"
-        placeholder="Ej: me siento muy cansado, tuve un evento estresante..."
+        placeholder="${t('checkin_comment_placeholder')}"
         style="
           width:100%;
           background:rgba(255,255,255,0.07);
@@ -199,7 +200,7 @@ function _buildAndShow(uid, todayStr, lsKey) {
         justify-content:space-between;
         margin-bottom:10px;
       ">
-        <div style="font-size:14px;font-weight:600;color:#fff">¿Te duele algo hoy?</div>
+        <div style="font-size:14px;font-weight:600;color:#fff">${t('checkin_pain')}</div>
         <!-- Toggle -->
         <div
           id="pain-toggle"
@@ -230,7 +231,7 @@ function _buildAndShow(uid, todayStr, lsKey) {
         <input
           id="q-pain-location"
           type="text"
-          placeholder="¿Dónde? Ej: rodilla izquierda, hombro..."
+          placeholder="${t('checkin_pain_where_placeholder')}"
           style="
             width:100%;
             background:rgba(255,255,255,0.07);
@@ -265,7 +266,7 @@ function _buildAndShow(uid, todayStr, lsKey) {
         transition:opacity 0.2s, transform 0.15s;
         margin-bottom:12px;
       "
-    >Guardar check-in</button>
+    >${t('checkin_submit')}</button>
 
     <div style="text-align:center">
       <button
@@ -280,7 +281,7 @@ function _buildAndShow(uid, todayStr, lsKey) {
           text-decoration:underline;
           text-underline-offset:2px;
         "
-      >Omitir por hoy</button>
+      >${t('checkin_skip')}</button>
     </div>
   `;
 
@@ -354,18 +355,18 @@ function _buildAndShow(uid, todayStr, lsKey) {
     try {
       const submitBtn = card.querySelector('#checkin-submit');
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Guardando…';
+      submitBtn.textContent = t('checkin_saving');
 
       await db.collection('users').doc(uid).collection('health').doc(todayStr).set(data, { merge: true });
 
       localStorage.setItem(lsKey, '1');
-      toast('Check-in guardado ✅', 'success');
+      toast(t('checkin_saved'), 'success');
       _closeOverlay(overlay);
     } catch (e) {
       const submitBtn = card.querySelector('#checkin-submit');
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Guardar check-in';
-      toast('Error al guardar: ' + e.message, 'error');
+      submitBtn.textContent = t('checkin_submit');
+      toast(t('checkin_error') + ': ' + e.message, 'error');
     }
   });
 
@@ -430,7 +431,9 @@ function _closeOverlay(overlay) {
 }
 
 function _formatDisplayDate() {
-  return new Date().toLocaleDateString('es-ES', {
+  const lang = getLang();
+  const locale = lang === 'en' ? 'en-US' : 'es-ES';
+  return new Date().toLocaleDateString(locale, {
     weekday: 'long',
     day:     'numeric',
     month:   'long',

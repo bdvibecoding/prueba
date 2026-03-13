@@ -9,13 +9,16 @@ import { toast, formatDate, todayString } from '../utils.js';
 import { openModal, closeModal } from '../components/modal.js';
 import { buildSliderHTML, initBeforeAfterSlider, updateSliderImages } from '../components/before-after-slider.js';
 import { renderWeightChart, renderWorkoutChart } from '../components/charts.js';
+import { t } from '../i18n.js';
 
-const ANGLES = [
-  { id: 'front',  label: 'Frontal',    icon: '🧍' },
-  { id: 'left',   label: 'Perfil Izq', icon: '🧍' },
-  { id: 'back',   label: 'Espalda',    icon: '🧍' },
-  { id: 'right',  label: 'Perfil Der', icon: '🧍' },
-];
+function getAngles() {
+  return [
+    { id: 'front',  label: t('prog_angle_front'), icon: '🧍' },
+    { id: 'left',   label: t('prog_angle_left'),  icon: '🧍' },
+    { id: 'back',   label: t('prog_angle_back'),  icon: '🧍' },
+    { id: 'right',  label: t('prog_angle_right'), icon: '🧍' },
+  ];
+}
 
 export async function render(container) {
   container.innerHTML = `
@@ -23,17 +26,17 @@ export async function render(container) {
       <div style="padding:var(--page-pad)">
         <div class="page-header">
           <div>
-            <h2 class="page-title">📈 Progreso</h2>
-            <p class="page-subtitle">Fotos semanales y gráficas</p>
+            <h2 class="page-title">📈 ${t('prog_title')}</h2>
+            <p class="page-subtitle">${t('prog_subtitle')}</p>
           </div>
-          <button class="btn-primary" id="btn-upload-photos" style="padding:10px 16px;font-size:13px">📸 Subir</button>
+          <button class="btn-primary" id="btn-upload-photos" style="padding:10px 16px;font-size:13px">📸 ${t('prog_upload')}</button>
         </div>
 
         <!-- Tabs -->
         <div class="tabs">
-          <button class="tab-btn active" data-tab="photos">Fotos</button>
-          <button class="tab-btn" data-tab="comparison">Comparar</button>
-          <button class="tab-btn" data-tab="charts">Gráficas</button>
+          <button class="tab-btn active" data-tab="photos">${t('prog_tab_photos')}</button>
+          <button class="tab-btn" data-tab="comparison">${t('prog_tab_compare')}</button>
+          <button class="tab-btn" data-tab="charts">${t('prog_tab_charts')}</button>
         </div>
 
         <!-- Tab: Photos -->
@@ -42,12 +45,12 @@ export async function render(container) {
           <div class="date-range" style="margin-bottom:var(--space-md)">
             <span>📅</span>
             <input type="date" id="photo-week-selector" value="${todayString()}">
-            <button class="btn-accent" id="btn-load-photos" style="padding:6px 12px;font-size:12px">Cargar</button>
+            <button class="btn-accent" id="btn-load-photos" style="padding:6px 12px;font-size:12px">${t('load')}</button>
           </div>
 
           <!-- Angle tabs -->
           <div class="h-scroll" id="angle-tabs" style="margin-bottom:var(--space-md)">
-            ${ANGLES.map((a, i) => `
+            ${getAngles().map((a, i) => `
               <button class="chip ${i === 0 ? 'active' : ''}" data-angle="${a.id}">${a.icon} ${a.label}</button>
             `).join('')}
           </div>
@@ -56,7 +59,7 @@ export async function render(container) {
           <div id="current-photo-wrap" style="max-width:320px;margin:0 auto">
             <div class="photo-slot" id="main-photo-slot" style="aspect-ratio:3/4;cursor:default">
               <div class="photo-slot-icon">📷</div>
-              <div class="photo-slot-label">Sin foto</div>
+              <div class="photo-slot-label">${t('prog_no_photo')}</div>
             </div>
           </div>
         </div>
@@ -65,21 +68,21 @@ export async function render(container) {
         <div id="tab-comparison" class="tab-content hidden">
           <div style="display:flex;gap:var(--space-sm);margin-bottom:var(--space-md)">
             <div style="flex:1">
-              <label class="field-label">Fecha inicio</label>
+              <label class="field-label">${t('prog_start_date')}</label>
               <input type="date" id="compare-from" class="input-solo" style="margin-top:4px" value="${getDateMinus(90)}">
             </div>
             <div style="flex:1">
-              <label class="field-label">Fecha final</label>
+              <label class="field-label">${t('prog_end_date')}</label>
               <input type="date" id="compare-to" class="input-solo" style="margin-top:4px" value="${todayString()}">
             </div>
           </div>
           <div class="h-scroll" style="margin-bottom:var(--space-md)">
-            ${ANGLES.map((a, i) => `
+            ${getAngles().map((a, i) => `
               <button class="chip ${i === 0 ? 'active' : ''}" data-compare-angle="${a.id}">${a.label}</button>
             `).join('')}
           </div>
           <div id="comparison-slider-wrap">
-            ${buildSliderHTML(null, null, 'Antes', 'Ahora')}
+            ${buildSliderHTML(null, null, t('prog_before'), t('prog_after'))}
           </div>
         </div>
 
@@ -90,7 +93,7 @@ export async function render(container) {
             <input type="date" id="chart-from" value="${getDateMinus(90)}">
             <span>—</span>
             <input type="date" id="chart-to" value="${todayString()}">
-            <button class="btn-accent" id="btn-apply-chart-range" style="padding:6px 12px;font-size:12px">Aplicar</button>
+            <button class="btn-accent" id="btn-apply-chart-range" style="padding:6px 12px;font-size:12px">${t('apply')}</button>
           </div>
           <div class="glass-card" style="margin-bottom:var(--space-md)">
             <div class="chart-container"><canvas id="chart-progress-weight"></canvas></div>
@@ -197,7 +200,7 @@ async function loadPhotosForWeek(container, profile, date, angle) {
     } else {
       slot.innerHTML = `
         <div class="photo-slot-icon">📷</div>
-        <div class="photo-slot-label">Sin foto · ${angle}</div>
+        <div class="photo-slot-label">${t('prog_no_photo')} · ${angle}</div>
       `;
     }
   } catch (e) {
@@ -222,10 +225,10 @@ async function loadComparison(container, profile, angle) {
     const sliderWrap = container.querySelector('#comparison-slider-wrap');
     if (sliderWrap) {
       sliderWrap.innerHTML = buildSliderHTML(beforeURL, afterURL,
-        `Antes · ${from}`, `Ahora · ${to}`);
+        `${t('prog_before')} · ${from}`, `${t('prog_after')} · ${to}`);
       initBeforeAfterSlider(sliderWrap);
     }
-  } catch (e) { toast('Error cargando comparación', 'error'); }
+  } catch (e) { toast(t('prog_comparison_error'), 'error'); }
 }
 
 // ── Load Charts ───────────────────────────────
@@ -248,7 +251,7 @@ async function loadCharts(container, profile, from, to) {
       };
     });
     renderWorkoutChart('chart-progress-workouts', sessions);
-  } catch (e) { toast('Error cargando gráficas', 'error'); }
+  } catch (e) { toast(t('prog_charts_error'), 'error'); }
 }
 
 // ── Upload Modal ──────────────────────────────
@@ -256,16 +259,16 @@ function openUploadModal(profile, container) {
   const today = todayString();
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">📸 Subir fotos de progreso</h3>
+      <h3 class="modal-title">📸 ${t('prog_upload_title')}</h3>
       <button class="modal-close">✕</button>
     </div>
     <div class="form-row">
-      <label class="field-label">Fecha</label>
+      <label class="field-label">${t('date')}</label>
       <input type="date" id="upload-date" class="input-solo" value="${today}">
     </div>
-    <p class="text-muted" style="margin-bottom:var(--space-md)">Selecciona hasta 4 fotos (Frontal, Perfil Izq, Espalda, Perfil Der)</p>
+    <p class="text-muted" style="margin-bottom:var(--space-md)">${t('prog_upload_hint')}</p>
     <div class="photo-grid" id="upload-photo-grid">
-      ${ANGLES.map(a => `
+      ${getAngles().map(a => `
         <div class="photo-slot upload-slot" data-angle="${a.id}" style="cursor:pointer">
           <div class="photo-slot-icon">📷</div>
           <div class="photo-slot-label">${a.label}</div>
@@ -274,7 +277,7 @@ function openUploadModal(profile, container) {
       `).join('')}
     </div>
     <button class="btn-primary btn-full" id="btn-upload-save" style="margin-top:var(--space-md)" disabled>
-      💾 Guardar fotos
+      💾 ${t('prog_save_photos')}
     </button>
   `;
 
@@ -299,7 +302,7 @@ function openUploadModal(profile, container) {
         slot.innerHTML = `
           <img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:calc(var(--radius-md) - 2px)">
           <div class="photo-slot-overlay">
-            <span style="color:white;font-size:13px">Cambiar</span>
+            <span style="color:white;font-size:13px">${t('change')}</span>
           </div>
           <input type="file" accept="image/*" capture="environment" style="display:none" class="photo-file-input" data-angle="${angle}">
         `;
@@ -316,7 +319,7 @@ function openUploadModal(profile, container) {
   modal.querySelector('#btn-upload-save').addEventListener('click', async () => {
     const date = modal.querySelector('#upload-date').value;
     const btn  = modal.querySelector('#btn-upload-save');
-    btn.textContent = 'Subiendo...';
+    btn.textContent = t('prog_uploading');
     btn.disabled = true;
 
     try {
@@ -332,12 +335,12 @@ function openUploadModal(profile, container) {
         date, photos: photoURLs, createdAt: timestamp(),
       });
 
-      toast('Fotos subidas ✅', 'success');
+      toast(t('prog_photos_saved'), 'success');
       closeModal();
       loadPhotosForWeek(container, profile, date, 'front');
     } catch (e) {
-      toast('Error subiendo fotos: ' + e.message, 'error');
-      btn.textContent = '💾 Guardar fotos';
+      toast(t('prog_upload_error') + ': ' + e.message, 'error');
+      btn.textContent = `💾 ${t('prog_save_photos')}`;
       btn.disabled = false;
     }
   });

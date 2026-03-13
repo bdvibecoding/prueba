@@ -9,6 +9,7 @@ import { toast, formatTime, formatDate, pad, launchConfetti, requestWakeLock, re
 import { openModal, closeModal, openSheet, closeSheet, confirm, alert, openRPESheet, promptModal } from '../components/modal.js';
 import { buildWorkoutTimerBar, initWorkoutTimerBar, startWorkoutTimer, stopWorkoutTimer, startRestTimer, clearRestTimer, buildRestTimerHTML, initRestTimerWidget, getElapsedMs } from '../components/timer.js';
 import { renderMuscleMap } from '../components/muscle-map.js';
+import { t } from '../i18n.js';
 
 let activeRoutineId   = null;
 let activeRoutineData = null;
@@ -24,14 +25,14 @@ export async function render(container) {
       <div style="padding:var(--page-pad)">
         <div class="page-header">
           <div>
-            <h2 class="page-title">💪 Entreno</h2>
-            <p class="page-subtitle" id="entreno-subtitle">Tus rutinas asignadas</p>
+            <h2 class="page-title">💪 ${t('entreno_title')}</h2>
+            <p class="page-subtitle" id="entreno-subtitle">${t('entreno_subtitle')}</p>
           </div>
         </div>
         <!-- Tabs -->
         <div class="tabs" style="margin-bottom:var(--space-md)">
-          <button class="tab-btn active" data-tab="rutinas">Rutinas</button>
-          <button class="tab-btn" data-tab="historial">Historial</button>
+          <button class="tab-btn active" data-tab="rutinas">${t('entreno_tab_routines')}</button>
+          <button class="tab-btn" data-tab="historial">${t('entreno_tab_history')}</button>
         </div>
         <!-- Routines tab -->
         <div id="tab-rutinas" class="tab-content">
@@ -86,8 +87,8 @@ async function loadRoutinesList(container) {
       listEl.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">📋</div>
-          <div class="empty-title">Sin rutinas asignadas</div>
-          <div class="empty-subtitle">Tu coach aún no ha asignado ninguna rutina.</div>
+          <div class="empty-title">${t('entreno_no_routines')}</div>
+          <div class="empty-subtitle">${t('entreno_no_routines_sub')}</div>
         </div>
       `;
       return;
@@ -111,11 +112,11 @@ async function loadRoutinesList(container) {
               <div class="routine-card-title">${r.name || a.name || 'Rutina'}</div>
               <div class="text-muted" style="font-size:12px">${r.description || ''}</div>
             </div>
-            <span class="badge badge-cyan">${r.exercises?.length || 0} ej.</span>
+            <span class="badge badge-cyan">${r.exercises?.length || 0} ${t('entreno_exercises_count')}</span>
           </div>
           <div class="routine-card-meta">
             ${r.tags?.map(t => `<span class="chip">${t}</span>`).join('') || ''}
-            <span class="chip">${a.assignedAt ? formatDate(a.assignedAt.toDate?.() || a.assignedAt) : 'Hoy'}</span>
+            <span class="chip">${a.assignedAt ? formatDate(a.assignedAt.toDate?.() || a.assignedAt) : t('today')}</span>
           </div>
         </div>
       `;
@@ -129,7 +130,7 @@ async function loadRoutinesList(container) {
     });
 
   } catch (e) {
-    listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Error al cargar</div><div class="empty-subtitle">${e.message}</div></div>`;
+    listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">${t('error_loading')}</div><div class="empty-subtitle">${e.message}</div></div>`;
   }
 }
 
@@ -141,11 +142,11 @@ async function loadRoutineDetail(container, routineId) {
 
   try {
     const snap = await db.collection('routines').doc(routineId).get();
-    if (!snap.exists) throw new Error('Rutina no encontrada');
+    if (!snap.exists) throw new Error(t('entreno_routine_not_found'));
     activeRoutineData = { id: snap.id, ...snap.data() };
     renderRoutineDetail(container, activeRoutineData);
   } catch (e) {
-    toast('Error al cargar rutina: ' + e.message, 'error');
+    toast(t('error_loading') + ': ' + e.message, 'error');
     loadRoutinesList(container);
   }
 }
@@ -159,7 +160,7 @@ function renderRoutineDetail(container, routine) {
   container.querySelector('#entreno-page').innerHTML = `
     <div style="padding:var(--page-pad)">
       <div class="page-header">
-        <button class="header-back" id="btn-back-routines">← Rutinas</button>
+        <button class="header-back" id="btn-back-routines">← ${t('entreno_tab_routines')}</button>
         <h2 class="page-title" style="font-size:20px">${routine.name}</h2>
       </div>
 
@@ -171,7 +172,7 @@ function renderRoutineDetail(container, routine) {
       <!-- Action buttons -->
       ${!isActive ? `
         <button class="btn-primary btn-full" id="btn-start-routine" style="margin-bottom:var(--space-md)">
-          ▶ Iniciar Entreno
+          ${t('entreno_start_btn')}
         </button>
       ` : ''}
 
@@ -183,8 +184,8 @@ function renderRoutineDetail(container, routine) {
       ${exercises.length === 0 ? `
         <div class="empty-state">
           <div class="empty-icon">📋</div>
-          <div class="empty-title">Sin ejercicios</div>
-          <div class="empty-subtitle">Esta rutina no tiene ejercicios asignados aún.</div>
+          <div class="empty-title">${t('entreno_no_exercises')}</div>
+          <div class="empty-subtitle">${t('entreno_no_exercises_sub')}</div>
         </div>
       ` : ''}
     </div>
@@ -233,17 +234,17 @@ function buildExerciseCard(ex, index, sessionActive, session) {
         <!-- Setup Note -->
         <div class="setup-note" id="setup-${ex.id}">
           <span class="setup-note-icon">📌</span>
-          <textarea class="setup-note-text" placeholder="Notas de setup (banco pos.2, agarre neutro...)" data-exid="${ex.id}">${ex.setupNotes || ''}</textarea>
+          <textarea class="setup-note-text" placeholder="${t('entreno_setup_placeholder')}" data-exid="${ex.id}">${ex.setupNotes || ''}</textarea>
         </div>
 
         <!-- Action buttons -->
         <div style="display:flex;gap:8px;margin-bottom:var(--space-sm);flex-wrap:wrap">
           <a href="${ex.videoUrl || '#'}" target="_blank" class="video-btn" ${!ex.videoUrl ? 'onclick="return false"' : ''}>
-            🎬 Ver ejercicio
+            🎬 ${t('entreno_watch_exercise')}
           </a>
-          <button class="btn-icon" data-action="swap" data-exid="${ex.id}" data-exindex="${index}" title="Cambiar ejercicio">🔄</button>
-          <button class="btn-icon" data-action="notes" data-exid="${ex.id}" data-exindex="${index}" title="Notas / incidencias">📝</button>
-          <button class="btn-icon" data-action="history" data-exid="${ex.id}" data-exindex="${index}" title="Historial">🕐</button>
+          <button class="btn-icon" data-action="swap" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_swap_exercise')}">🔄</button>
+          <button class="btn-icon" data-action="notes" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_notes')}">📝</button>
+          <button class="btn-icon" data-action="history" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_history')}">🕐</button>
         </div>
 
         <!-- Sets Table -->
@@ -296,9 +297,9 @@ function buildSetsTable(ex, exIndex, session) {
     <table class="sets-table">
       <thead>
         <tr>
-          <th>Set</th>
-          <th>Anterior</th>
-          <th>Reps</th>
+          <th>${t('entreno_set')}</th>
+          <th>${t('entreno_prev')}</th>
+          <th>${t('entreno_reps')}</th>
           <th>Kg</th>
           <th>✓</th>
         </tr>
@@ -323,7 +324,7 @@ function initExerciseList(container, exercises, sessionActive) {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (!sessionActive) {
-        toast('Primero inicia el entreno', 'info');
+        toast(t('entreno_start_first'), 'info');
         return;
       }
       const exId   = btn.dataset.exid;
@@ -400,7 +401,7 @@ function showRestTimer(container, exId, seconds) {
 
   startRestTimer(seconds, () => {
     widget.classList.add('hidden');
-    toast('¡Tiempo de descanso terminado! 💪', 'info');
+    toast(t('entreno_rest_done'), 'info');
   }, `#rest-widget-${exId} .timer-ring`);
 }
 
@@ -413,28 +414,28 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">🔄 Cambiar ejercicio</h3>
+      <h3 class="modal-title">🔄 ${t('entreno_swap_exercise')}</h3>
       <button class="modal-close">✕</button>
     </div>
-    <p class="text-muted" style="margin-bottom:var(--space-md)">Alternativas para <strong>${currentEx.name}</strong></p>
+    <p class="text-muted" style="margin-bottom:var(--space-md)">${t('entreno_alternatives_for')} <strong>${currentEx.name}</strong></p>
     <div class="swap-dropdown">
       ${alternatives.map(ex => `
         <div class="swap-option" data-ex-id="${ex.id}" data-ex-name="${ex.name}">
           <div>
             <div class="swap-option-name">${ex.name}</div>
-            <div class="swap-option-muscle">${ex.muscleGroup} · ${ex.equipment || 'Sin equipo'}</div>
+            <div class="swap-option-muscle">${ex.muscleGroup} · ${ex.equipment || t('entreno_no_equipment')}</div>
           </div>
           <span class="badge badge-cyan">${ex.difficulty || ''}</span>
         </div>
       `).join('')}
     </div>
     <div style="margin-top:var(--space-md)">
-      <label class="field-label">Motivo del cambio *</label>
-      <textarea id="swap-reason" class="input-solo" placeholder="Ej: Máquina ocupada, molestia en el codo..." rows="2"
+      <label class="field-label">${t('entreno_swap_reason')} *</label>
+      <textarea id="swap-reason" class="input-solo" placeholder="${t('entreno_swap_reason_placeholder')}" rows="2"
                 style="padding:var(--space-md);margin-top:var(--space-xs)"></textarea>
     </div>
     <button class="btn-primary btn-full" style="margin-top:var(--space-md)" id="btn-confirm-swap" disabled>
-      Confirmar cambio
+      ${t('entreno_confirm_swap')}
     </button>
   `;
 
@@ -460,9 +461,9 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
 
   modalEl.querySelector('#btn-confirm-swap').addEventListener('click', async () => {
     const reason = modalEl.querySelector('#swap-reason').value.trim();
-    if (!reason) { toast('Indica el motivo del cambio', 'warning'); return; }
+    if (!reason) { toast(t('entreno_swap_reason_required'), 'warning'); return; }
     closeModal();
-    toast(`Ejercicio cambiado a ${selectedEx.name}`, 'success');
+    toast(t('entreno_swapped_to').replace('{name}', selectedEx.name), 'success');
     // Log swap note
     const profile = getUserProfile();
     if (profile?.uid) {
@@ -481,7 +482,7 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
 // ── Exercise Notes ────────────────────────────
 async function openExerciseNotes(exId) {
   const profile = getUserProfile();
-  const note = await promptModal('📝 Nota de incidencia', 'Ej: Dolor de codo, fatiga excesiva, malestar...');
+  const note = await promptModal(`📝 ${t('entreno_incident_note')}`, t('entreno_incident_placeholder'));
   if (note && profile?.uid) {
     await collections.notes(profile.uid).add({
       type: 'incidence',
@@ -489,7 +490,7 @@ async function openExerciseNotes(exId) {
       note,
       date: timestamp(),
     });
-    toast('Nota guardada', 'success');
+    toast(t('note_saved'), 'success');
   }
 }
 
@@ -500,7 +501,7 @@ async function openExerciseHistory(exercise) {
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">🕐 Historial: ${exercise.name}</h3>
+      <h3 class="modal-title">🕐 ${t('entreno_history')}: ${exercise.name}</h3>
       <button class="modal-close">✕</button>
     </div>
     <div id="history-content">${historyHTML}</div>
@@ -542,7 +543,7 @@ async function openExerciseHistory(exercise) {
     });
 
     if (notesSnap.docs.length) {
-      html2 += `<div class="divider"></div><div class="section-title">Incidencias</div>`;
+      html2 += `<div class="divider"></div><div class="section-title">${t('entreno_incidents')}</div>`;
       notesSnap.docs.forEach(doc => {
         const n = doc.data();
         const date = formatDate(n.date?.toDate?.() || new Date(n.date));
@@ -550,10 +551,10 @@ async function openExerciseHistory(exercise) {
       });
     }
 
-    if (histEl) histEl.innerHTML = html2 || `<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">Sin historial</div></div>`;
+    if (histEl) histEl.innerHTML = html2 || `<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">${t('entreno_no_history')}</div></div>`;
   } catch (e) {
     const histEl = document.getElementById('modal-content')?.querySelector('#history-content');
-    if (histEl) histEl.innerHTML = `<p class="text-muted">Error al cargar historial</p>`;
+    if (histEl) histEl.innerHTML = `<p class="text-muted">${t('entreno_history_error')}</p>`;
   }
 }
 
@@ -567,7 +568,7 @@ async function loadHistorialTab(container) {
   const histEl   = container.querySelector('#history-container');
 
   if (!profile?.uid) {
-    histEl.innerHTML = `<div class="empty-state"><div class="empty-icon">🔒</div><div class="empty-title">No autenticado</div></div>`;
+    histEl.innerHTML = `<div class="empty-state"><div class="empty-icon">🔒</div><div class="empty-title">${t('not_authenticated')}</div></div>`;
     return;
   }
 
@@ -581,8 +582,8 @@ async function loadHistorialTab(container) {
       histEl.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">📭</div>
-          <div class="empty-title">Sin entrenos registrados</div>
-          <div class="empty-subtitle">Completa tu primer entreno para ver el historial aquí.</div>
+          <div class="empty-title">${t('entreno_no_sessions')}</div>
+          <div class="empty-subtitle">${t('entreno_no_sessions_sub')}</div>
         </div>
       `;
       return;
@@ -609,8 +610,8 @@ async function loadHistorialTab(container) {
             </div>
           </div>
           <div style="margin-top:var(--space-xs);display:flex;gap:6px;flex-wrap:wrap">
-            <span class="chip">${totalSets} series</span>
-            <span class="chip">${exerciseCount} ejercicios</span>
+            <span class="chip">${totalSets} ${t('entreno_sets_count')}</span>
+            <span class="chip">${exerciseCount} ${t('entreno_exercises_label')}</span>
           </div>
           ${session.note ? `<p style="font-size:12px;color:var(--color-text-muted);margin-top:var(--space-xs);font-style:italic">"${session.note}"</p>` : ''}
         </div>
@@ -626,7 +627,7 @@ async function loadHistorialTab(container) {
     });
 
   } catch (e) {
-    histEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Error al cargar</div><div class="empty-subtitle">${e.message}</div></div>`;
+    histEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">${t('error_loading')}</div><div class="empty-subtitle">${e.message}</div></div>`;
   }
 }
 
@@ -642,7 +643,7 @@ async function openSessionDetail(sessionId, session) {
   // Build initial sheet with loading state for exercises
   const toggleHtml = !isCoach ? `
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:var(--space-sm)">
-      <label style="font-size:13px;color:var(--color-text-muted)">Mostrar mapa muscular</label>
+      <label style="font-size:13px;color:var(--color-text-muted)">${t('entreno_show_muscle_map')}</label>
       <label class="toggle-switch">
         <input type="checkbox" id="toggle-session-map" checked>
         <span class="toggle-slider"></span>
@@ -661,11 +662,11 @@ async function openSessionDetail(sessionId, session) {
     <div class="summary-stat-grid" style="margin-bottom:var(--space-md)">
       <div class="summary-stat">
         <span class="summary-stat-val">${formatTime(session.durationMs || 0)}</span>
-        <span class="summary-stat-key">Duración</span>
+        <span class="summary-stat-key">${t('entreno_duration')}</span>
       </div>
       <div class="summary-stat">
         <span class="summary-stat-val">${totalSets}</span>
-        <span class="summary-stat-key">Series</span>
+        <span class="summary-stat-key">${t('entreno_sets_count')}</span>
       </div>
       <div class="summary-stat">
         <span class="summary-stat-val">${session.rpe ? session.rpe + '/10' : '—'}</span>
@@ -675,12 +676,12 @@ async function openSessionDetail(sessionId, session) {
 
     ${session.note ? `<div class="glass-card" style="margin-bottom:var(--space-md);font-style:italic;font-size:13px">"${session.note}"</div>` : ''}
 
-    <div class="section-title">Series realizadas</div>
+    <div class="section-title">${t('entreno_sets_performed')}</div>
     <div id="session-exercises-detail">
       <div class="overlay-spinner"><div class="spinner-sm"></div></div>
     </div>
 
-    <div class="section-title" style="margin-top:var(--space-md)" id="muscle-map-title">Músculos trabajados</div>
+    <div class="section-title" style="margin-top:var(--space-md)" id="muscle-map-title">${t('entreno_muscles_worked')}</div>
     <div id="session-muscle-map"></div>
   `;
 
@@ -710,7 +711,7 @@ async function openSessionDetail(sessionId, session) {
     const exIds   = Object.keys(setData).filter(id => setData[id]?.sets?.length > 0);
 
     if (exIds.length === 0) {
-      detailEl.innerHTML = `<p style="color:var(--color-text-muted);font-size:13px">Sin datos de series registrados.</p>`;
+      detailEl.innerHTML = `<p style="color:var(--color-text-muted);font-size:13px">${t('entreno_no_set_data')}</p>`;
     } else {
       detailEl.innerHTML = exIds.map(exId => {
         const sets = setData[exId].sets || [];
@@ -728,7 +729,7 @@ async function openSessionDetail(sessionId, session) {
             <div style="font-weight:600;margin-bottom:var(--space-xs)">${name}</div>
             <table class="sets-table" style="width:100%">
               <thead>
-                <tr><th>Set</th><th>Reps</th><th>Kg</th></tr>
+                <tr><th>${t('entreno_set')}</th><th>${t('entreno_reps')}</th><th>Kg</th></tr>
               </thead>
               <tbody>${rows}</tbody>
             </table>
@@ -755,7 +756,7 @@ async function openSessionDetail(sessionId, session) {
     if (mapEl && performedExercises.length > 0) {
       renderMuscleMap(mapEl, performedExercises);
     } else if (mapEl) {
-      mapEl.innerHTML = `<p style="color:var(--color-text-muted);font-size:13px">No hay datos de músculos disponibles.</p>`;
+      mapEl.innerHTML = `<p style="color:var(--color-text-muted);font-size:13px">${t('entreno_no_muscle_data')}</p>`;
     }
   };
 
@@ -784,14 +785,14 @@ async function openSessionDetail(sessionId, session) {
 // ══════════════════════════════════════════════
 async function startRoutine(container, routine) {
   const ok = await confirm(
-    '▶ Iniciar Entreno',
-    `¿Listo para comenzar "${routine.name}"? El cronómetro arrancará al confirmar.`,
-    { okText: 'Iniciar', cancelText: 'Cancelar' }
+    t('entreno_start_btn'),
+    t('entreno_start_confirm').replace('{name}', routine.name),
+    { okText: t('entreno_start_ok'), cancelText: t('cancel') }
   );
   if (!ok) return;
 
   startWorkoutSession(routine.id, routine.name, routine.exercises || []);
-  toast(`¡Arranca! ${routine.name} 💪`, 'success');
+  toast(t('entreno_started').replace('{name}', routine.name), 'success');
   renderRoutineDetail(container, routine);
 }
 
@@ -807,7 +808,7 @@ async function finishWorkout(container) {
   const durationMs  = getElapsedMs();
 
   // 1. General note
-  const note = await promptModal('📝 Nota general del entreno', 'Cómo te has sentido, observaciones...');
+  const note = await promptModal(`📝 ${t('entreno_general_note')}`, t('entreno_general_note_placeholder'));
 
   // 2. RPE
   const rpe = await openRPESheet(null);
@@ -826,9 +827,9 @@ async function finishWorkout(container) {
       rpe:           rpe || null,
       createdAt:     timestamp(),
     });
-    toast('Entreno guardado ✅', 'success');
+    toast(t('entreno_saved'), 'success');
   } catch (e) {
-    toast('Error guardando: ' + e.message, 'error');
+    toast(t('error_saving') + ': ' + e.message, 'error');
   }
 
   // 4. Muscle map & celebration
@@ -844,16 +845,16 @@ function showWorkoutSummary(container, durationMs, session, rpe, note) {
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">🎉 ¡Entreno completado!</h3>
+      <h3 class="modal-title">🎉 ${t('entreno_completed')}</h3>
     </div>
     <div class="summary-stat-grid">
-      <div class="summary-stat"><span class="summary-stat-val">${formatTime(durationMs)}</span><span class="summary-stat-key">Duración</span></div>
-      <div class="summary-stat"><span class="summary-stat-val">${totalSets}</span><span class="summary-stat-key">Series</span></div>
+      <div class="summary-stat"><span class="summary-stat-val">${formatTime(durationMs)}</span><span class="summary-stat-key">${t('entreno_duration')}</span></div>
+      <div class="summary-stat"><span class="summary-stat-val">${totalSets}</span><span class="summary-stat-key">${t('entreno_sets_count')}</span></div>
       <div class="summary-stat"><span class="summary-stat-val">${rpe ? rpe + '/10' : '—'}</span><span class="summary-stat-key">RPE</span></div>
     </div>
     ${note ? `<p class="text-muted" style="margin-bottom:var(--space-md);font-style:italic">"${note}"</p>` : ''}
     <div id="finish-muscle-map"></div>
-    <button class="btn-primary btn-full" id="btn-close-summary" style="margin-top:var(--space-md)">Cerrar</button>
+    <button class="btn-primary btn-full" id="btn-close-summary" style="margin-top:var(--space-md)">${t('close')}</button>
   `;
 
   openModal(html, { noClickClose: true });
@@ -872,16 +873,16 @@ function showWorkoutSummary(container, durationMs, session, rpe, note) {
 // ── Cancel Workout ────────────────────────────
 async function cancelWorkout(container) {
   const ok = await confirm(
-    '✕ Cancelar entreno',
-    '¿Seguro que deseas cancelar? Se perderá el progreso no guardado.',
-    { okText: 'Sí, cancelar', danger: true }
+    t('entreno_cancel_title'),
+    t('entreno_cancel_confirm'),
+    { okText: t('entreno_cancel_ok'), danger: true }
   );
   if (!ok) return;
   stopWorkoutTimer();
   clearRestTimer();
   releaseWakeLock();
   endSession();
-  toast('Entreno cancelado', 'info');
+  toast(t('entreno_cancelled'), 'info');
   loadRoutinesList(container);
 }
 

@@ -7,19 +7,24 @@ import { getUserProfile } from '../state.js';
 import { collections, timestamp, db } from '../firebase-config.js';
 import { toast, formatDate, todayString } from '../utils.js';
 import { openModal, closeModal, openSheet, closeSheet } from '../components/modal.js';
+import { t } from '../i18n.js';
 
-const MEAL_TYPES_3 = [
-  { id: 'breakfast', name: 'Desayuno',    icon: '🌅', time: '08:00' },
-  { id: 'lunch',     name: 'Almuerzo',    icon: '🍽️', time: '14:00' },
-  { id: 'dinner',    name: 'Cena',        icon: '🌙', time: '21:00' },
-];
-const MEAL_TYPES_5 = [
-  { id: 'breakfast',   name: 'Desayuno',          icon: '🌅', time: '08:00' },
-  { id: 'midmorning',  name: 'Media mañana',       icon: '🍎', time: '11:00' },
-  { id: 'lunch',       name: 'Almuerzo',           icon: '🍽️', time: '14:00' },
-  { id: 'snack',       name: 'Merienda',           icon: '🥪', time: '18:00' },
-  { id: 'dinner',      name: 'Cena',               icon: '🌙', time: '21:00' },
-];
+function getMealTypes3() {
+  return [
+    { id: 'breakfast', name: t('meal_breakfast'),   icon: '🌅', time: '08:00' },
+    { id: 'lunch',     name: t('meal_lunch'),        icon: '🍽️', time: '14:00' },
+    { id: 'dinner',    name: t('meal_dinner'),       icon: '🌙', time: '21:00' },
+  ];
+}
+function getMealTypes5() {
+  return [
+    { id: 'breakfast',  name: t('meal_breakfast'),   icon: '🌅', time: '08:00' },
+    { id: 'midmorning', name: t('meal_midmorning'),  icon: '🍎', time: '11:00' },
+    { id: 'lunch',      name: t('meal_lunch'),       icon: '🍽️', time: '14:00' },
+    { id: 'snack',      name: t('meal_snack'),       icon: '🥪', time: '18:00' },
+    { id: 'dinner',     name: t('meal_dinner'),      icon: '🌙', time: '21:00' },
+  ];
+}
 
 export async function render(container) {
   container.innerHTML = `
@@ -27,10 +32,10 @@ export async function render(container) {
       <div style="padding:var(--page-pad)">
         <div class="page-header">
           <div>
-            <h2 class="page-title">🥗 Nutrición</h2>
-            <p class="page-subtitle">Seguimiento alimentario</p>
+            <h2 class="page-title">🥗 ${t('alim_title')}</h2>
+            <p class="page-subtitle">${t('alim_subtitle')}</p>
           </div>
-          <button class="btn-icon" id="btn-diet-settings" title="Ajustar comidas">⚙️</button>
+          <button class="btn-icon" id="btn-diet-settings" title="${t('alim_settings_title')}">⚙️</button>
         </div>
 
         <!-- Wake-up Supplement Banner -->
@@ -38,27 +43,27 @@ export async function render(container) {
           <div style="display:flex;align-items:center;gap:var(--space-md)">
             <span style="font-size:28px">🌟</span>
             <div style="flex:1">
-              <div style="font-weight:700;margin-bottom:4px">Al despertar</div>
-              <div id="supplement-list" class="text-muted" style="font-size:13px">Cargando suplementación...</div>
+              <div style="font-weight:700;margin-bottom:4px">${t('alim_wakeup')}</div>
+              <div id="supplement-list" class="text-muted" style="font-size:13px">${t('alim_loading_supps')}</div>
             </div>
-            <button class="btn-accent" id="btn-see-supplements">Ver</button>
+            <button class="btn-accent" id="btn-see-supplements">${t('view')}</button>
           </div>
         </div>
 
         <!-- Tabs -->
         <div class="tabs">
-          <button class="tab-btn active" data-tab="tracker">Tracker</button>
-          <button class="tab-btn" data-tab="menus">Menús</button>
-          <button class="tab-btn" data-tab="restaurants">Restaurantes</button>
+          <button class="tab-btn active" data-tab="tracker">${t('alim_tab_tracker')}</button>
+          <button class="tab-btn" data-tab="menus">${t('alim_tab_menus')}</button>
+          <button class="tab-btn" data-tab="restaurants">${t('alim_tab_restaurants')}</button>
         </div>
 
         <!-- Tab Content -->
         <div id="tab-tracker" class="tab-content">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-md)">
-            <span class="section-title" style="margin:0">Hoy — ${formatDate(new Date())}</span>
+            <span class="section-title" style="margin:0">${t('today')} — ${formatDate(new Date())}</span>
             <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-muted)">
-              <span>5 comidas</span>
-              <label class="toggle-switch" title="Alternar entre 3 y 5 comidas">
+              <span>${t('alim_5meals')}</span>
+              <label class="toggle-switch" title="${t('alim_toggle_meals')}">
                 <input type="checkbox" id="toggle-meals">
                 <span class="toggle-slider"></span>
               </label>
@@ -116,7 +121,7 @@ export async function init(container) {
 async function loadMealTracker(container, profile, count = 3) {
   const listEl = container.querySelector('#meal-list');
   const today  = todayString();
-  const meals  = count === 5 ? MEAL_TYPES_5 : MEAL_TYPES_3;
+  const meals  = count === 5 ? getMealTypes5() : getMealTypes3();
 
   try {
     const snap = await collections.meals(profile.uid).doc(today).get();
@@ -135,7 +140,7 @@ async function loadMealTracker(container, profile, count = 3) {
       });
     });
   } catch (e) {
-    listEl.innerHTML = `<p class="text-muted">Error cargando comidas: ${e.message}</p>`;
+    listEl.innerHTML = `<p class="text-muted">${t('error_loading')}: ${e.message}</p>`;
   }
 }
 
@@ -154,7 +159,7 @@ function buildMealSlot(meal, logged) {
         <span style="font-size:20px">${statusIcon}</span>
       </div>
       ${logged?.foods ? `<div class="text-muted" style="font-size:12px;padding-top:4px;border-top:1px solid rgba(255,255,255,0.05)">${logged.foods}</div>` : ''}
-      ${logged?.skipped ? `<div style="font-size:12px;color:var(--color-warning)">⚠️ ${logged.skipReason || 'Saltada'}</div>` : ''}
+      ${logged?.skipped ? `<div style="font-size:12px;color:var(--color-warning)">⚠️ ${logged.skipReason || t('alim_skipped')}</div>` : ''}
     </div>
   `;
 }
@@ -167,14 +172,14 @@ function openMealModal(meal, logged, profile, today, listEl, meals) {
       <button class="modal-close">✕</button>
     </div>
     <div class="form-row">
-      <label class="field-label">¿Qué comiste?</label>
+      <label class="field-label">${t('alim_what_ate')}</label>
       <textarea id="meal-foods" class="input-solo" rows="3"
-        placeholder="Ej: Arroz con pollo y ensalada, 300g arroz..."
+        placeholder="${t('alim_foods_placeholder')}"
         style="padding:var(--space-md);width:100%;margin-top:4px">${logged?.foods || ''}</textarea>
     </div>
     <div class="form-row">
       <div style="display:flex;align-items:center;gap:var(--space-md)">
-        <label class="field-label" style="margin:0">¿Saltaste esta comida?</label>
+        <label class="field-label" style="margin:0">${t('alim_skip_question')}</label>
         <label class="toggle-switch">
           <input type="checkbox" id="meal-skipped" ${logged?.skipped ? 'checked' : ''}>
           <span class="toggle-slider"></span>
@@ -182,19 +187,19 @@ function openMealModal(meal, logged, profile, today, listEl, meals) {
       </div>
     </div>
     <div id="skip-reason-row" class="form-row" style="${logged?.skipped ? '' : 'display:none'}">
-      <label class="field-label">¿Por qué la saltaste?</label>
+      <label class="field-label">${t('alim_skip_reason')}</label>
       <textarea id="meal-skip-reason" class="input-solo" rows="2"
-        placeholder="Ej: No tuve tiempo, estaba de viaje..."
+        placeholder="${t('alim_skip_reason_placeholder')}"
         style="padding:var(--space-md);width:100%;margin-top:4px">${logged?.skipReason || ''}</textarea>
     </div>
     <div id="replacement-row" class="form-row" style="${logged?.skipped ? '' : 'display:none'}">
-      <label class="field-label">¿Qué comiste en su lugar?</label>
+      <label class="field-label">${t('alim_replacement')}</label>
       <input id="meal-replacement" type="text" class="input-solo"
-        placeholder="Ej: Un bocadillo, fruta..." value="${logged?.replacement || ''}">
+        placeholder="${t('alim_replacement_placeholder')}" value="${logged?.replacement || ''}">
     </div>
     <div style="display:flex;gap:8px;margin-top:var(--space-md)">
-      <button class="btn-secondary btn-full" id="btn-meal-delete">Limpiar</button>
-      <button class="btn-primary btn-full" id="btn-meal-save">💾 Guardar</button>
+      <button class="btn-secondary btn-full" id="btn-meal-delete">${t('clear')}</button>
+      <button class="btn-primary btn-full" id="btn-meal-save">💾 ${t('save')}</button>
     </div>
   `;
 
@@ -223,7 +228,7 @@ function openMealModal(meal, logged, profile, today, listEl, meals) {
       await collections.meals(profile.uid).doc(today).set(
         { [meal.id]: mealData }, { merge: true }
       );
-      toast('Comida registrada ✅', 'success');
+      toast(t('alim_meal_saved'), 'success');
       closeModal();
       // Refresh list
       const data = (await collections.meals(profile.uid).doc(today).get()).data() || {};
@@ -234,7 +239,7 @@ function openMealModal(meal, logged, profile, today, listEl, meals) {
           openMealModal(m, data[m.id], profile, today, listEl, meals);
         });
       });
-    } catch (e) { toast('Error: ' + e.message, 'error'); }
+    } catch (e) { toast(t('error') + ': ' + e.message, 'error'); }
   });
 
   modal.querySelector('#btn-meal-delete').addEventListener('click', async () => {
@@ -252,7 +257,7 @@ async function loadMenus(container, profile) {
   try {
     const snap = await collections.dietas(profile.uid).orderBy('assignedAt','desc').limit(10).get();
     if (snap.empty) {
-      el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Sin menús asignados</div><div class="empty-subtitle">Tu nutricionista aún no ha asignado ningún menú.</div></div>`;
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">${t('alim_no_menus')}</div><div class="empty-subtitle">${t('alim_no_menus_sub')}</div></div>`;
       return;
     }
     el.innerHTML = snap.docs.map(doc => {
@@ -265,7 +270,7 @@ async function loadMenus(container, profile) {
             <div style="font-weight:700">${d.name || 'Menú'}</div>
             <div class="text-muted">${d.type || ''} · ${formatDate(d.assignedAt?.toDate?.() || d.assignedAt)}</div>
           </div>
-          <span class="badge badge-cyan">Ver</span>
+          <span class="badge badge-cyan">${t('view')}</span>
         </div>
       `;
     }).join('');
@@ -273,7 +278,7 @@ async function loadMenus(container, profile) {
     el.querySelectorAll('[data-diet-id]').forEach(card => {
       card.addEventListener('click', () => openDietMenu(card.dataset.dietId, card.dataset.dietType));
     });
-  } catch (e) { el.innerHTML = `<p class="text-muted">Error: ${e.message}</p>`; }
+  } catch (e) { el.innerHTML = `<p class="text-muted">${t('error')}: ${e.message}</p>`; }
 }
 
 function openDietMenu(dietId, dietType) {
@@ -286,7 +291,7 @@ function openDietMenu(dietId, dietType) {
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">📋 Menú asignado</h3>
+      <h3 class="modal-title">📋 ${t('alim_assigned_menu')}</h3>
       <button class="modal-close">✕</button>
     </div>
     <div style="height:70vh;overflow:hidden;border-radius:var(--radius-md)">
@@ -306,8 +311,8 @@ async function loadRestaurants(container) {
       el.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">🍽️</div>
-          <div class="empty-title">Sin restaurantes asignados</div>
-          <div class="empty-subtitle">Tu coach no ha añadido puntos de interés gastronómicos aún.</div>
+          <div class="empty-title">${t('alim_no_restaurants')}</div>
+          <div class="empty-subtitle">${t('alim_no_restaurants_sub')}</div>
         </div>
       `;
       return;
@@ -319,7 +324,7 @@ async function loadRestaurants(container) {
           <div class="restaurant-img">${r.emoji || '🍽️'}</div>
           <div class="restaurant-info">
             <div class="restaurant-name">${r.name}</div>
-            <div class="restaurant-desc">${r.description || 'Restaurante saludable'}</div>
+            <div class="restaurant-desc">${r.description || t('alim_healthy_restaurant')}</div>
             <div class="restaurant-rating">
               ⭐ ${r.rating || '5.0'}
               <span class="text-muted" style="margin-left:8px">📍 ${r.city || ''}</span>
@@ -328,7 +333,7 @@ async function loadRestaurants(container) {
         </div>
       `;
     }).join('');
-  } catch (e) { el.innerHTML = `<p class="text-muted">Error: ${e.message}</p>`; }
+  } catch (e) { el.innerHTML = `<p class="text-muted">${t('error')}: ${e.message}</p>`; }
 }
 
 // ── Load Supplements ─────────────────────────
@@ -337,23 +342,23 @@ async function loadSupplements(container, profile) {
   try {
     const snap = await collections.supplements(profile.uid).get();
     if (snap.empty) {
-      el.textContent = 'Sin suplementación asignada aún.';
+      el.textContent = t('alim_no_supps');
       return;
     }
     const morning = snap.docs.filter(d => d.data().timing === 'morning' || d.data().timing === 'anytime');
     el.textContent = morning.length
       ? morning.map(d => d.data().name).slice(0, 3).join(' · ')
-      : 'Consulta tu suplementación.';
-  } catch { el.textContent = 'Ver suplementación asignada.'; }
+      : t('alim_check_supps');
+  } catch { el.textContent = t('alim_see_supps'); }
 }
 
 // ── Supplements Sheet ─────────────────────────
 async function openSupplementsSheet(profile) {
   const html = `
-    <h4 style="margin-bottom:var(--space-md)">💊 Suplementación</h4>
+    <h4 style="margin-bottom:var(--space-md)">💊 ${t('alim_supplementation')}</h4>
     <div id="supplements-sheet-list"><div class="overlay-spinner"><div class="spinner-sm"></div></div></div>
     <p class="text-muted" style="margin-top:var(--space-md);font-size:12px">
-      Los suplementos son orientativos. Consulta siempre con tu médico o nutricionista.
+      ${t('alim_supps_disclaimer')}
     </p>
   `;
   openSheet(html);
@@ -362,7 +367,7 @@ async function openSupplementsSheet(profile) {
     const snap = await collections.supplements(profile.uid).get();
     const el = document.getElementById('sheet-content').querySelector('#supplements-sheet-list');
     if (snap.empty) {
-      el.innerHTML = `<div class="empty-state"><div class="empty-icon">💊</div><div class="empty-title">Sin suplementos</div></div>`;
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">💊</div><div class="empty-title">${t('alim_no_supps')}</div></div>`;
       return;
     }
     const groups = {};
@@ -372,7 +377,12 @@ async function openSupplementsSheet(profile) {
       groups[s.timing].push(s);
     });
 
-    const timingLabels = { morning: '🌅 Al despertar', preworkout: '⚡ Pre-entreno', postworkout: '🔄 Post-entreno', anytime: '🕒 En cualquier momento' };
+    const timingLabels = {
+      morning:     `🌅 ${t('supp_morning')}`,
+      preworkout:  `⚡ ${t('supp_preworkout')}`,
+      postworkout: `🔄 ${t('supp_postworkout')}`,
+      anytime:     `🕒 ${t('supp_anytime')}`,
+    };
     el.innerHTML = Object.entries(groups).map(([timing, supps]) => `
       <div class="section-title">${timingLabels[timing] || timing}</div>
       ${supps.map(s => `
@@ -387,6 +397,6 @@ async function openSupplementsSheet(profile) {
     `).join('');
   } catch (e) {
     const el = document.getElementById('sheet-content')?.querySelector('#supplements-sheet-list');
-    if (el) el.innerHTML = `<p class="text-muted">Error: ${e.message}</p>`;
+    if (el) el.innerHTML = `<p class="text-muted">${t('error')}: ${e.message}</p>`;
   }
 }

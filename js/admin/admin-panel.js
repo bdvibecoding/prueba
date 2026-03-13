@@ -7,6 +7,7 @@ import { getUserProfile } from '../state.js';
 import { db, collections, timestamp } from '../firebase-config.js';
 import { toast, formatDate, translateRole, getInitials } from '../utils.js';
 import { openModal, closeModal, confirm, openSheet, closeSheet } from '../components/modal.js';
+import { t } from '../i18n.js';
 
 // Role badge colors
 const ROLE_BADGE_COLORS = {
@@ -31,36 +32,36 @@ export async function render(container) {
       <div style="padding:var(--page-pad)">
         <div class="page-header">
           <div>
-            <h2 class="page-title">🔑 Panel Admin</h2>
-            <p class="page-subtitle">Gestión de usuarios y permisos</p>
+            <h2 class="page-title">🔑 ${t('admin_title')}</h2>
+            <p class="page-subtitle">${t('admin_subtitle')}</p>
           </div>
-          <button class="btn-primary" id="btn-invite-user" style="padding:10px 16px;font-size:13px">+ Invitar</button>
+          <button class="btn-primary" id="btn-invite-user" style="padding:10px 16px;font-size:13px">${t('invite')}</button>
         </div>
 
         <!-- Stats -->
         <div class="quick-stats" id="admin-stats">
-          <div class="glass-card stat-card"><div class="stat-value" id="stat-total">—</div><div class="stat-label">Usuarios</div></div>
-          <div class="glass-card stat-card"><div class="stat-value" id="stat-staff">—</div><div class="stat-label">Staff</div></div>
-          <div class="glass-card stat-card"><div class="stat-value" id="stat-clients">—</div><div class="stat-label">Clientes</div></div>
+          <div class="glass-card stat-card"><div class="stat-value" id="stat-total">—</div><div class="stat-label">${t('admin_stats_users')}</div></div>
+          <div class="glass-card stat-card"><div class="stat-value" id="stat-staff">—</div><div class="stat-label">${t('admin_stats_staff')}</div></div>
+          <div class="glass-card stat-card"><div class="stat-value" id="stat-clients">—</div><div class="stat-label">${t('admin_stats_clients')}</div></div>
         </div>
 
         <!-- Search -->
         <div class="input-group" style="margin-bottom:var(--space-md)">
           <span class="input-icon">🔍</span>
-          <input type="search" id="user-search" placeholder="Buscar por nombre o email..." autocomplete="off">
+          <input type="search" id="user-search" placeholder="${t('search_users')}" autocomplete="off">
         </div>
 
         <!-- Role Filter -->
         <div class="h-scroll" style="margin-bottom:var(--space-md)">
-          <button class="chip active" data-filter="all">Todos</button>
-          <button class="chip" data-filter="admin">Admin</button>
-          <button class="chip" data-filter="coach">Coach</button>
-          <button class="chip" data-filter="medico">Médico</button>
-          <button class="chip" data-filter="fisio">Fisio</button>
-          <button class="chip" data-filter="psicologo">Psicólogo</button>
-          <button class="chip" data-filter="nutricionista">Nutricionista</button>
-          <button class="chip" data-filter="atleta">Atleta</button>
-          <button class="chip" data-filter="cliente">Cliente</button>
+          <button class="chip active" data-filter="all">${t('all')}</button>
+          <button class="chip" data-filter="admin">${translateRole('admin')}</button>
+          <button class="chip" data-filter="coach">${translateRole('coach')}</button>
+          <button class="chip" data-filter="medico">${translateRole('medico')}</button>
+          <button class="chip" data-filter="fisio">${translateRole('fisio')}</button>
+          <button class="chip" data-filter="psicologo">${translateRole('psicologo')}</button>
+          <button class="chip" data-filter="nutricionista">${translateRole('nutricionista')}</button>
+          <button class="chip" data-filter="atleta">${translateRole('atleta')}</button>
+          <button class="chip" data-filter="cliente">${translateRole('cliente')}</button>
         </div>
 
         <!-- Users List -->
@@ -131,7 +132,7 @@ export async function init(container) {
   function renderUsersList(users) {
     const el = container.querySelector('#users-list');
     if (!users.length) {
-      el.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">Sin usuarios</div></div>`;
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">${t('admin_no_users')}</div></div>`;
       return;
     }
 
@@ -139,7 +140,7 @@ export async function init(container) {
       <div class="admin-user-card" data-uid="${user.uid || user.id}">
         <div class="admin-user-avatar">${getInitials(user.name) || '?'}</div>
         <div class="admin-user-info">
-          <div class="admin-user-name">${user.name || 'Sin nombre'}</div>
+          <div class="admin-user-name">${user.name || t('admin_no_name')}</div>
           <div class="admin-user-email">${user.email || ''}</div>
           <div style="margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
             ${roleBadgeHtml(user.role || 'cliente')}
@@ -148,14 +149,14 @@ export async function init(container) {
         </div>
         <div class="admin-user-role">
           <select class="role-select" data-uid="${user.uid || user.id}" data-current-role="${user.role}">
-            <option value="cliente"        ${user.role === 'cliente'        ? 'selected' : ''}>Cliente</option>
-            <option value="atleta"         ${user.role === 'atleta'         ? 'selected' : ''}>Atleta</option>
-            <option value="coach"          ${user.role === 'coach'          ? 'selected' : ''}>Coach</option>
-            <option value="medico"         ${user.role === 'medico'         ? 'selected' : ''}>Médico</option>
-            <option value="fisio"          ${user.role === 'fisio'          ? 'selected' : ''}>Fisio</option>
-            <option value="psicologo"      ${user.role === 'psicologo'      ? 'selected' : ''}>Psicólogo</option>
-            <option value="nutricionista"  ${user.role === 'nutricionista'  ? 'selected' : ''}>Nutricionista</option>
-            <option value="admin"          ${user.role === 'admin'          ? 'selected' : ''}>Admin</option>
+            <option value="cliente"        ${user.role === 'cliente'        ? 'selected' : ''}>${translateRole('cliente')}</option>
+            <option value="atleta"         ${user.role === 'atleta'         ? 'selected' : ''}>${translateRole('atleta')}</option>
+            <option value="coach"          ${user.role === 'coach'          ? 'selected' : ''}>${translateRole('coach')}</option>
+            <option value="medico"         ${user.role === 'medico'         ? 'selected' : ''}>${translateRole('medico')}</option>
+            <option value="fisio"          ${user.role === 'fisio'          ? 'selected' : ''}>${translateRole('fisio')}</option>
+            <option value="psicologo"      ${user.role === 'psicologo'      ? 'selected' : ''}>${translateRole('psicologo')}</option>
+            <option value="nutricionista"  ${user.role === 'nutricionista'  ? 'selected' : ''}>${translateRole('nutricionista')}</option>
+            <option value="admin"          ${user.role === 'admin'          ? 'selected' : ''}>${translateRole('admin')}</option>
           </select>
         </div>
         <button class="btn-icon" data-uid="${user.uid || user.id}" style="width:32px;height:32px;font-size:16px" data-action="detail">👁</button>
@@ -169,9 +170,9 @@ export async function init(container) {
         const newRole  = sel.value;
         const prevRole = sel.dataset.currentRole;
         const ok = await confirm(
-          'Cambiar rol',
-          `¿Cambiar el rol de este usuario a "${translateRole(newRole)}"?`,
-          { okText: 'Confirmar' }
+          t('admin_change_role'),
+          t('admin_role_confirm').replace('{role}', translateRole(newRole)),
+          { okText: t('confirm') }
         );
         if (!ok) {
           sel.value = prevRole;
@@ -180,7 +181,7 @@ export async function init(container) {
         try {
           await db.collection('users').doc(uid).update({ role: newRole, updatedAt: timestamp() });
           sel.dataset.currentRole = newRole;
-          toast(`Rol actualizado a ${translateRole(newRole)}`, 'success');
+          toast(t('admin_role_updated') + translateRole(newRole), 'success');
           const user = allUsers.find(u => (u.uid || u.id) === uid);
           if (user) user.role = newRole;
           updateStats(allUsers);
@@ -227,79 +228,79 @@ async function openUserDetailSheet(user, allUsers) {
   const nutricionistas = byRole('nutricionista');
 
   const html = `
-    <h4 style="margin-bottom:var(--space-sm)">${user.name || 'Usuario'}</h4>
+    <h4 style="margin-bottom:var(--space-sm)">${user.name || t('admin_no_name')}</h4>
     <p class="text-muted" style="margin-bottom:4px">${user.email}</p>
     <div style="margin-bottom:var(--space-md)">${roleBadgeHtml(user.role || 'cliente')}</div>
 
     <!-- Coach -->
-    <div class="section-title">Asignar coach</div>
+    <div class="section-title">${t('admin_assign_coach')}</div>
     <div class="input-group" style="margin-bottom:var(--space-sm)">
       <span class="input-icon">🏋️</span>
       <select id="sheet-coach-select">
-        <option value="">Sin coach asignado</option>
+        <option value="">${t('admin_no_coach')}</option>
         ${buildOptions(coaches, user.assignedCoach)}
       </select>
     </div>
-    <button class="btn-primary btn-full" id="btn-save-coach" style="margin-bottom:var(--space-md)">Asignar coach</button>
+    <button class="btn-primary btn-full" id="btn-save-coach" style="margin-bottom:var(--space-md)">${t('admin_save_coach_btn')}</button>
 
     <!-- Médico -->
-    <div class="section-title">Médico asignado</div>
+    <div class="section-title">${t('admin_assign_medico')}</div>
     <div class="input-group" style="margin-bottom:var(--space-sm)">
       <span class="input-icon">🩺</span>
       <select id="sheet-medico-select">
-        <option value="">Sin médico asignado</option>
+        <option value="">${t('admin_no_medico')}</option>
         ${buildOptions(medicos, user.assignedMedico)}
       </select>
     </div>
-    <button class="btn-secondary btn-full" id="btn-save-medico" style="margin-bottom:var(--space-md)">Asignar médico</button>
+    <button class="btn-secondary btn-full" id="btn-save-medico" style="margin-bottom:var(--space-md)">${t('admin_save_medico_btn')}</button>
 
     <!-- Fisio -->
-    <div class="section-title">Fisio asignado</div>
+    <div class="section-title">${t('admin_assign_fisio')}</div>
     <div class="input-group" style="margin-bottom:var(--space-sm)">
       <span class="input-icon">💆</span>
       <select id="sheet-fisio-select">
-        <option value="">Sin fisio asignado</option>
+        <option value="">${t('admin_no_fisio')}</option>
         ${buildOptions(fisios, user.assignedFisio)}
       </select>
     </div>
-    <button class="btn-secondary btn-full" id="btn-save-fisio" style="margin-bottom:var(--space-md)">Asignar fisio</button>
+    <button class="btn-secondary btn-full" id="btn-save-fisio" style="margin-bottom:var(--space-md)">${t('admin_save_fisio_btn')}</button>
 
     <!-- Psicólogo -->
-    <div class="section-title">Psicólogo asignado</div>
+    <div class="section-title">${t('admin_assign_psicologo')}</div>
     <div class="input-group" style="margin-bottom:var(--space-sm)">
       <span class="input-icon">🧠</span>
       <select id="sheet-psicologo-select">
-        <option value="">Sin psicólogo asignado</option>
+        <option value="">${t('admin_no_psicologo')}</option>
         ${buildOptions(psicologos, user.assignedPsicologo)}
       </select>
     </div>
-    <button class="btn-secondary btn-full" id="btn-save-psicologo" style="margin-bottom:var(--space-md)">Asignar psicólogo</button>
+    <button class="btn-secondary btn-full" id="btn-save-psicologo" style="margin-bottom:var(--space-md)">${t('admin_save_psicologo_btn')}</button>
 
     <!-- Nutricionista -->
-    <div class="section-title">Nutricionista asignado</div>
+    <div class="section-title">${t('admin_assign_nutricionista')}</div>
     <div class="input-group" style="margin-bottom:var(--space-sm)">
       <span class="input-icon">🥗</span>
       <select id="sheet-nutricionista-select">
-        <option value="">Sin nutricionista asignado</option>
+        <option value="">${t('admin_no_nutricionista')}</option>
         ${buildOptions(nutricionistas, user.assignedNutricionista)}
       </select>
     </div>
-    <button class="btn-secondary btn-full" id="btn-save-nutricionista" style="margin-bottom:var(--space-md)">Asignar nutricionista</button>
+    <button class="btn-secondary btn-full" id="btn-save-nutricionista" style="margin-bottom:var(--space-md)">${t('admin_save_nutricionista_btn')}</button>
 
-    <div class="section-title">Rutinas asignadas</div>
+    <div class="section-title">${t('admin_routines_title')}</div>
     <div id="sheet-routines"><div class="spinner-sm"></div></div>
 
     <button class="btn-accent btn-full" id="btn-assign-routine" style="margin-top:var(--space-md)">
-      📋 Asignar nueva rutina
+      ${t('admin_assign_routine')}
     </button>
 
-    <div class="section-title" style="margin-top:var(--space-lg)">Acciones</div>
+    <div class="section-title" style="margin-top:var(--space-lg)">${t('admin_actions')}</div>
     <div style="display:flex;gap:var(--space-sm)">
       <button class="btn-danger" id="btn-grant-sensitive" style="flex:1;font-size:12px">
-        🔓 Dar acceso datos sensibles
+        ${t('admin_grant_sensitive')}
       </button>
       <button class="btn-danger" id="btn-revoke-access" style="flex:1;font-size:12px">
-        🚫 Revocar acceso
+        ${t('admin_revoke_access')}
       </button>
     </div>
   `;
@@ -317,33 +318,33 @@ async function openUserDetailSheet(user, allUsers) {
     const val = sc.querySelector(selectId).value;
     try {
       await db.collection('users').doc(uid).update({ [field]: val || null, updatedAt: timestamp() });
-      toast(`${label} asignado/a ✅`, 'success');
+      toast(`${label} ${t('admin_assigned_ok')}`, 'success');
     } catch (e) { toast('Error: ' + e.message, 'error'); }
   }
 
   // Save coach assignment
   sc.querySelector('#btn-save-coach')?.addEventListener('click', () =>
-    saveSpecialist('#sheet-coach-select', 'assignedCoach', 'Coach')
+    saveSpecialist('#sheet-coach-select', 'assignedCoach', translateRole('coach'))
   );
 
   // Save médico assignment
   sc.querySelector('#btn-save-medico')?.addEventListener('click', () =>
-    saveSpecialist('#sheet-medico-select', 'assignedMedico', 'Médico')
+    saveSpecialist('#sheet-medico-select', 'assignedMedico', translateRole('medico'))
   );
 
   // Save fisio assignment
   sc.querySelector('#btn-save-fisio')?.addEventListener('click', () =>
-    saveSpecialist('#sheet-fisio-select', 'assignedFisio', 'Fisio')
+    saveSpecialist('#sheet-fisio-select', 'assignedFisio', translateRole('fisio'))
   );
 
   // Save psicólogo assignment
   sc.querySelector('#btn-save-psicologo')?.addEventListener('click', () =>
-    saveSpecialist('#sheet-psicologo-select', 'assignedPsicologo', 'Psicólogo')
+    saveSpecialist('#sheet-psicologo-select', 'assignedPsicologo', translateRole('psicologo'))
   );
 
   // Save nutricionista assignment
   sc.querySelector('#btn-save-nutricionista')?.addEventListener('click', () =>
-    saveSpecialist('#sheet-nutricionista-select', 'assignedNutricionista', 'Nutricionista')
+    saveSpecialist('#sheet-nutricionista-select', 'assignedNutricionista', translateRole('nutricionista'))
   );
 
   // Assign routine
@@ -352,12 +353,12 @@ async function openUserDetailSheet(user, allUsers) {
   // Grant sensitive data access
   sc.querySelector('#btn-grant-sensitive')?.addEventListener('click', async () => {
     await db.collection('users').doc(uid).update({ sensitiveClearance: true, updatedAt: timestamp() });
-    toast('Acceso concedido a datos sensibles', 'success');
+    toast(t('admin_sensitive_granted'), 'success');
   });
 
   // Revoke access
   sc.querySelector('#btn-revoke-access')?.addEventListener('click', async () => {
-    const ok = await confirm('Revocar acceso', '¿Revocar el acceso de este usuario?', { danger: true });
+    const ok = await confirm(t('admin_revoke_title'), t('admin_revoke_confirm'), { danger: true });
     if (!ok) return;
     await db.collection('users').doc(uid).update({
       role: 'cliente',
@@ -369,7 +370,7 @@ async function openUserDetailSheet(user, allUsers) {
       assignedNutricionista: null,
       updatedAt: timestamp(),
     });
-    toast('Acceso revocado', 'warning');
+    toast(t('admin_revoked'), 'warning');
     closeSheet();
   });
 }
@@ -381,7 +382,7 @@ async function loadSheetRoutines(sc, user) {
   try {
     const snap = await collections.assignments(uid).orderBy('createdAt','desc').limit(5).get();
     if (snap.empty) {
-      el.innerHTML = `<p class="text-muted" style="font-size:12px">Sin rutinas asignadas</p>`;
+      el.innerHTML = `<p class="text-muted" style="font-size:12px">${t('admin_no_routines')}</p>`;
       return;
     }
     el.innerHTML = snap.docs.map(doc => {
@@ -389,18 +390,18 @@ async function loadSheetRoutines(sc, user) {
       return `
         <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
           <span style="font-size:16px">💪</span>
-          <div style="flex:1;font-size:13px;font-weight:600">${d.name || d.routineId || 'Rutina'}</div>
-          <button class="badge badge-red" style="cursor:pointer;border:none" data-assign-id="${doc.id}" data-uid="${uid}">Eliminar</button>
+          <div style="flex:1;font-size:13px;font-weight:600">${d.name || d.routineId || t('admin_routine_label')}</div>
+          <button class="badge badge-red" style="cursor:pointer;border:none" data-assign-id="${doc.id}" data-uid="${uid}">${t('admin_delete_assign')}</button>
         </div>
       `;
     }).join('');
 
     el.querySelectorAll('[data-assign-id]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        const ok = await confirm('Eliminar asignación', '¿Eliminar esta rutina asignada?', { danger: true });
+        const ok = await confirm(t('admin_delete_assign_title'), t('admin_delete_assign_confirm'), { danger: true });
         if (!ok) return;
         await collections.assignments(btn.dataset.uid).doc(btn.dataset.assignId).delete();
-        toast('Asignación eliminada', 'info');
+        toast(t('admin_assign_deleted'), 'info');
         loadSheetRoutines(sc, user);
       });
     });
@@ -413,16 +414,16 @@ async function loadSheetRoutines(sc, user) {
 async function openAssignRoutineModal(user) {
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">📋 Asignar rutina</h3>
+      <h3 class="modal-title">${t('admin_assign_modal')}</h3>
       <button class="modal-close">✕</button>
     </div>
-    <p class="text-muted" style="margin-bottom:var(--space-md)">Asignando a: <strong>${user.name}</strong></p>
+    <p class="text-muted" style="margin-bottom:var(--space-md)">${t('admin_assigning_to')}<strong>${user.name}</strong></p>
     <div id="routine-list-modal"><div class="overlay-spinner"><div class="spinner-sm"></div></div></div>
     <div style="margin-top:var(--space-md);padding-top:var(--space-md);border-top:1px solid var(--glass-border)">
-      <p class="text-muted" style="font-size:12px;margin-bottom:var(--space-sm)">O crea una nueva rutina:</p>
-      <input type="text" id="new-routine-name" class="input-solo" placeholder="Nombre de la rutina...">
+      <p class="text-muted" style="font-size:12px;margin-bottom:var(--space-sm)">${t('admin_or_create_routine')}</p>
+      <input type="text" id="new-routine-name" class="input-solo" placeholder="${t('admin_new_routine')}">
       <button class="btn-secondary btn-full" id="btn-create-assign-routine" style="margin-top:var(--space-sm)">
-        + Crear y asignar
+        ${t('admin_create_assign')}
       </button>
     </div>
   `;
@@ -435,7 +436,7 @@ async function openAssignRoutineModal(user) {
     const snap = await db.collection('routines').orderBy('createdAt','desc').limit(30).get();
     const el = modal.querySelector('#routine-list-modal');
     if (snap.empty) {
-      el.innerHTML = `<p class="text-muted">No hay rutinas creadas aún.</p>`;
+      el.innerHTML = `<p class="text-muted">${t('admin_no_routines_created')}</p>`;
     } else {
       el.innerHTML = snap.docs.map(doc => {
         const r = doc.data();
@@ -444,9 +445,9 @@ async function openAssignRoutineModal(user) {
             <span style="font-size:20px">💪</span>
             <div style="flex:1">
               <div style="font-weight:700;font-size:14px">${r.name}</div>
-              <div class="text-muted">${r.exercises?.length || 0} ejercicios</div>
+              <div class="text-muted">${r.exercises?.length || 0} ${t('admin_exercises')}</div>
             </div>
-            <span class="badge badge-cyan">Asignar</span>
+            <span class="badge badge-cyan">${t('assign')}</span>
           </div>
         `;
       }).join('');
@@ -465,7 +466,7 @@ async function openAssignRoutineModal(user) {
   // Create & assign new routine
   modal.querySelector('#btn-create-assign-routine')?.addEventListener('click', async () => {
     const name = modal.querySelector('#new-routine-name').value.trim();
-    if (!name) { toast('Introduce un nombre', 'warning'); return; }
+    if (!name) { toast(t('admin_name_required'), 'warning'); return; }
 
     try {
       const newRoutine = await db.collection('routines').add({
@@ -477,7 +478,7 @@ async function openAssignRoutineModal(user) {
         createdAt:    timestamp(),
       });
       await assignRoutine(user.uid || user.id, newRoutine.id, name);
-      toast('Rutina creada y asignada ✅', 'success');
+      toast(t('admin_routine_created'), 'success');
       closeModal();
     } catch (e) { toast('Error: ' + e.message, 'error'); }
   });
@@ -491,46 +492,46 @@ async function assignRoutine(clientUid, routineId, routineName) {
     assignedAt: timestamp(),
     createdAt:  timestamp(),
   });
-  toast(`Rutina "${routineName}" asignada ✅`, 'success');
+  toast(`"${routineName}" ${t('admin_assigned_ok')}`, 'success');
 }
 
 // ── Invite User Modal ─────────────────────────
 function openInviteUserModal() {
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">📨 Invitar usuario</h3>
+      <h3 class="modal-title">${t('admin_invite_title')}</h3>
       <button class="modal-close">✕</button>
     </div>
     <p class="text-muted" style="margin-bottom:var(--space-md)">
-      Genera un enlace de invitación para que el usuario cree su cuenta.
+      ${t('admin_invite_desc')}
     </p>
     <div class="input-group" style="margin-bottom:var(--space-md)">
       <span class="input-icon">✉️</span>
-      <input type="email" id="invite-email" placeholder="correo@ejemplo.com">
+      <input type="email" id="invite-email" placeholder="${t('admin_invite_email')}">
     </div>
     <div class="input-group" style="margin-bottom:var(--space-md)">
       <span class="input-icon">👤</span>
       <select id="invite-role">
-        <option value="cliente">Cliente</option>
-        <option value="atleta">Atleta</option>
-        <option value="coach">Coach</option>
-        <option value="medico">Médico</option>
-        <option value="fisio">Fisio</option>
-        <option value="psicologo">Psicólogo</option>
-        <option value="nutricionista">Nutricionista</option>
+        <option value="cliente">${translateRole('cliente')}</option>
+        <option value="atleta">${translateRole('atleta')}</option>
+        <option value="coach">${translateRole('coach')}</option>
+        <option value="medico">${translateRole('medico')}</option>
+        <option value="fisio">${translateRole('fisio')}</option>
+        <option value="psicologo">${translateRole('psicologo')}</option>
+        <option value="nutricionista">${translateRole('nutricionista')}</option>
       </select>
     </div>
-    <button class="btn-primary btn-full" id="btn-generate-invite">🔗 Generar enlace</button>
+    <button class="btn-primary btn-full" id="btn-generate-invite">${t('admin_generate')}</button>
 
     <!-- Invite link result (hidden initially) -->
     <div id="invite-result" style="display:none;margin-top:var(--space-md)">
-      <p class="text-muted" style="font-size:12px;margin-bottom:6px">Enlace de invitación:</p>
+      <p class="text-muted" style="font-size:12px;margin-bottom:6px">${t('admin_invite_link')}</p>
       <div class="input-group" style="margin-bottom:var(--space-sm)">
         <input type="text" id="invite-url-input" readonly style="font-size:12px;cursor:text">
       </div>
       <div style="display:flex;gap:var(--space-sm)">
-        <button class="btn-secondary" id="btn-copy-invite" style="flex:1;font-size:13px">📋 Copiar enlace</button>
-        <button class="btn-accent"    id="btn-email-invite" style="flex:1;font-size:13px">📧 Enviar por email</button>
+        <button class="btn-secondary" id="btn-copy-invite" style="flex:1;font-size:13px">${t('admin_copy_link')}</button>
+        <button class="btn-accent"    id="btn-email-invite" style="flex:1;font-size:13px">${t('admin_email_link')}</button>
       </div>
     </div>
   `;
@@ -541,7 +542,7 @@ function openInviteUserModal() {
   modal.querySelector('#btn-generate-invite')?.addEventListener('click', async () => {
     const email = modal.querySelector('#invite-email').value.trim();
     const role  = modal.querySelector('#invite-role').value;
-    if (!email) { toast('Introduce un email', 'warning'); return; }
+    if (!email) { toast(t('admin_email_required'), 'warning'); return; }
 
     // Generate unique token and invite URL
     const token    = Date.now().toString(36) + Math.random().toString(36).slice(2);
@@ -566,36 +567,33 @@ function openInviteUserModal() {
 
       // Disable generate button to avoid duplicates
       modal.querySelector('#btn-generate-invite').disabled = true;
-      modal.querySelector('#btn-generate-invite').textContent = '✅ Enlace generado';
+      modal.querySelector('#btn-generate-invite').textContent = t('admin_generated_ok');
 
-      toast('Enlace de invitación generado', 'success');
+      toast(t('admin_link_generated'), 'success');
 
       // Copy link
       modal.querySelector('#btn-copy-invite')?.addEventListener('click', () => {
         navigator.clipboard.writeText(inviteUrl)
-          .then(() => toast('Enlace copiado al portapapeles', 'success'))
+          .then(() => toast(t('admin_link_copied'), 'success'))
           .catch(() => {
             // Fallback for browsers that block clipboard
             urlInput.select();
             document.execCommand('copy');
-            toast('Enlace copiado', 'success');
+            toast(t('admin_link_copied2'), 'success');
           });
       });
 
       // Send via email client
       modal.querySelector('#btn-email-invite')?.addEventListener('click', () => {
-        const subject = encodeURIComponent('Invitación TGWL');
+        const subject = encodeURIComponent(t('admin_invite_subject'));
         const body    = encodeURIComponent(
-          `Hola,\n\nTe han invitado a unirse a TGWL.\n\n` +
-          `Haz clic en el siguiente enlace para crear tu cuenta:\n${inviteUrl}\n\n` +
-          `Este enlace es personal e intransferible.\n\n` +
-          `Saludos,\nEl equipo TGWL`
+          t('admin_invite_body').replace('{url}', inviteUrl)
         );
         window.open(`mailto:${email}?subject=${subject}&body=${body}`);
       });
 
     } catch (e) {
-      toast('Error al generar invitación: ' + e.message, 'error');
+      toast(t('admin_invite_error') + ': ' + e.message, 'error');
     }
   });
 }

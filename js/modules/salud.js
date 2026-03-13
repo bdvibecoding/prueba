@@ -7,6 +7,7 @@ import { getUserProfile } from '../state.js';
 import { db, collections, timestamp } from '../firebase-config.js';
 import { toast, formatDate } from '../utils.js';
 import { openModal, closeModal, confirm } from '../components/modal.js';
+import { t, getLang } from '../i18n.js';
 
 const MOOD_EMOJIS  = ['', '😞', '😕', '😐', '🙂', '😄'];
 const SLEEP_EMOJIS = ['', '😫', '😪', '😴', '🌙', '✨'];
@@ -28,16 +29,16 @@ export async function render(container) {
       <div style="padding:var(--page-pad)">
         <div class="page-header">
           <div>
-            <h2 class="page-title">❤️ Salud</h2>
-            <p class="page-subtitle">Historial y bienestar</p>
+            <h2 class="page-title">❤️ ${t('salud_title')}</h2>
+            <p class="page-subtitle">${t('salud_subtitle')}</p>
           </div>
-          <button class="btn-primary" id="btn-add-health" style="padding:10px 16px;font-size:13px">+ Añadir</button>
+          <button class="btn-primary" id="btn-add-health" style="padding:10px 16px;font-size:13px">+ ${t('add')}</button>
         </div>
 
         <div class="tabs">
-          <button class="tab-btn active" data-tab="general">General</button>
-          <button class="tab-btn" data-tab="sensible">🔒 Sensible</button>
-          <button class="tab-btn" data-tab="checkins">📊 Check-ins</button>
+          <button class="tab-btn active" data-tab="general">${t('salud_tab_general')}</button>
+          <button class="tab-btn" data-tab="sensible">🔒 ${t('salud_tab_sensitive')}</button>
+          <button class="tab-btn" data-tab="checkins">📊 ${t('salud_tab_checkins')}</button>
         </div>
 
         <div id="tab-general" class="tab-content">
@@ -92,24 +93,24 @@ async function loadHealthRecords(container, profile) {
       el.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">🏥</div>
-          <div class="empty-title">Sin registros</div>
-          <div class="empty-subtitle">Añade lesiones, operaciones o afecciones relevantes.</div>
+          <div class="empty-title">${t('salud_no_records')}</div>
+          <div class="empty-subtitle">${t('salud_no_records_sub')}</div>
         </div>`;
       return;
     }
     el.innerHTML = snap.docs.map(doc => buildHealthCard(doc.id, doc.data(), profile)).join('');
     el.querySelectorAll('[data-delete-id]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        const ok = await confirm('Eliminar registro', '¿Eliminar este registro de salud?', { okText: 'Eliminar', danger: true });
+        const ok = await confirm(t('salud_delete_title'), t('salud_delete_confirm'), { okText: t('delete'), danger: true });
         if (ok) {
           await collections.health(profile.uid).doc(btn.dataset.deleteId).delete();
-          toast('Registro eliminado', 'info');
+          toast(t('salud_record_deleted'), 'info');
           loadHealthRecords(container, profile);
         }
       });
     });
   } catch (e) {
-    el.innerHTML = `<p class="text-muted" style="padding:var(--space-md)">Error: ${e.message}</p>`;
+    el.innerHTML = `<p class="text-muted" style="padding:var(--space-md)">${t('error')}: ${e.message}</p>`;
   }
 }
 
@@ -124,12 +125,12 @@ function buildHealthCard(id, record, profile) {
           <div class="health-record-date">${record.type?record.type.charAt(0).toUpperCase()+record.type.slice(1):''} · ${formatDate(record.date)}</div>
         </div>
         <div style="display:flex;gap:6px">
-          ${record.active?'<span class="badge badge-orange">Activo</span>':'<span class="badge badge-gray">Resuelto</span>'}
+          ${record.active?`<span class="badge badge-orange">${t('salud_active')}</span>`:`<span class="badge badge-gray">${t('salud_resolved')}</span>`}
           <button class="btn-icon" data-delete-id="${id}" style="width:32px;height:32px;font-size:14px;color:var(--color-danger)">🗑</button>
         </div>
       </div>
       ${record.description?`<p style="font-size:13px;color:var(--color-text-muted);line-height:1.5;margin-top:var(--space-xs)">${record.description}</p>`:''}
-      ${record.affectsTraining?`<p style="font-size:12px;color:var(--color-warning);margin-top:4px">⚠️ Afecta al entrenamiento: ${record.trainingNotes||''}</p>`:''}
+      ${record.affectsTraining?`<p style="font-size:12px;color:var(--color-warning);margin-top:4px">⚠️ ${t('salud_affects_training')}: ${record.trainingNotes||''}</p>`:''}
     </div>`;
 }
 
@@ -146,17 +147,17 @@ function loadSensitiveSection(container, profile) {
     el.innerHTML = `
       <div class="sensitive-lock">
         <div class="lock-icon">🔐</div>
-        <div class="lock-title">Datos sensibles protegidos</div>
-        <div class="lock-desc">Solo visible para el administrador autorizado.</div>
-        <button class="btn-secondary" id="btn-request-access" style="margin-top:var(--space-md)">Solicitar acceso</button>
+        <div class="lock-title">${t('salud_sensitive_title')}</div>
+        <div class="lock-desc">${t('salud_sensitive_desc')}</div>
+        <button class="btn-secondary" id="btn-request-access" style="margin-top:var(--space-md)">${t('salud_request_access')}</button>
       </div>`;
-    el.querySelector('#btn-request-access')?.addEventListener('click', () => toast('Solicitud enviada al administrador', 'info'));
+    el.querySelector('#btn-request-access')?.addEventListener('click', () => toast(t('salud_access_requested'), 'info'));
     return;
   }
   el.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-md)">
-      <span class="badge badge-red">🔑 Acceso autorizado</span>
-      <button class="btn-primary" id="btn-add-sensitive" style="padding:8px 14px;font-size:12px">+ Añadir</button>
+      <span class="badge badge-red">🔑 ${t('salud_access_granted')}</span>
+      <button class="btn-primary" id="btn-add-sensitive" style="padding:8px 14px;font-size:12px">+ ${t('add')}</button>
     </div>
     <div id="sensitive-records"><div class="overlay-spinner"><div class="spinner-sm"></div></div></div>`;
   el.querySelector('#btn-add-sensitive')?.addEventListener('click', () => openAddHealthModal(profile, container, true));
@@ -166,9 +167,9 @@ function loadSensitiveSection(container, profile) {
 async function loadSensitiveRecords(el, profile) {
   try {
     const snap = await collections.health(profile.uid).where('sensitive','==',true).orderBy('date','desc').get();
-    if (snap.empty) { el.innerHTML = `<div class="empty-state"><div class="empty-icon">🔒</div><div class="empty-title">Sin datos sensibles</div></div>`; return; }
+    if (snap.empty) { el.innerHTML = `<div class="empty-state"><div class="empty-icon">🔒</div><div class="empty-title">${t('salud_no_sensitive')}</div></div>`; return; }
     el.innerHTML = snap.docs.map(doc => buildHealthCard(doc.id, doc.data(), profile)).join('');
-  } catch (e) { el.innerHTML = `<p class="text-muted">Error: ${e.message}</p>`; }
+  } catch (e) { el.innerHTML = `<p class="text-muted">${t('error')}: ${e.message}</p>`; }
 }
 
 /* ════════════════════════════════
@@ -192,11 +193,11 @@ async function loadCheckinsTab(container, profile) {
   el.innerHTML = `
     ${isStaff && clients.length ? `
     <div style="margin-bottom:var(--space-md)">
-      <label class="field-label">Ver datos de</label>
+      <label class="field-label">${t('salud_view_data_of')}</label>
       <div class="input-group" style="margin-top:4px">
         <span class="input-icon">👤</span>
         <select id="checkin-client-select">
-          <option value="${profile.uid}">— Mis propios check-ins —</option>
+          <option value="${profile.uid}">— ${t('salud_my_checkins')} —</option>
           ${clients.map(c=>`<option value="${c.uid}">${c.name}</option>`).join('')}
         </select>
       </div>
@@ -229,8 +230,8 @@ async function renderCheckinData(el, uid, userName, isStaff) {
       el.innerHTML = `
         <div class="empty-state" style="padding:var(--space-2xl)">
           <div class="empty-icon">📋</div>
-          <div class="empty-title">Sin check-ins aún</div>
-          <div class="empty-subtitle">${isStaff?`${userName} no ha completado ningún check-in todavía.`:'Completa tu primer check-in diario al abrir la app.'}</div>
+          <div class="empty-title">${t('salud_no_checkins')}</div>
+          <div class="empty-subtitle">${isStaff ? t('salud_no_checkins_staff').replace('{name}', userName) : t('salud_no_checkins_own')}</div>
         </div>`;
       return;
     }
@@ -247,9 +248,9 @@ async function renderCheckinData(el, uid, userName, isStaff) {
 
     const moodN  = parseFloat(avgMood)||0;
     const sleepN = parseFloat(avgSleep)||0;
-    const state  = (moodN>=3.5&&sleepN>=3.5&&painDays<=1) ? {label:'Bueno',color:'#22c55e',icon:'🟢'}
-                 : (moodN>=2.5&&sleepN>=2.5&&painDays<=3) ? {label:'Atención',color:'#f59e0b',icon:'🟡'}
-                 : {label:'Alerta',color:'#ef4444',icon:'🔴'};
+    const state  = (moodN>=3.5&&sleepN>=3.5&&painDays<=1) ? {label:t('salud_state_good'),color:'#22c55e',icon:'🟢'}
+                 : (moodN>=2.5&&sleepN>=2.5&&painDays<=3) ? {label:t('salud_state_warning'),color:'#f59e0b',icon:'🟡'}
+                 : {label:t('salud_state_alert'),color:'#ef4444',icon:'🔴'};
 
     el.innerHTML = `
       ${isStaff ? `
@@ -257,23 +258,23 @@ async function renderCheckinData(el, uid, userName, isStaff) {
         <div style="display:flex;align-items:center;gap:10px">
           <span style="font-size:24px">${state.icon}</span>
           <div>
-            <div style="font-weight:700;font-size:15px">Estado: <span style="color:${state.color}">${state.label}</span></div>
-            <div style="font-size:12px;color:var(--color-text-muted)">Últimos 7 días · ${userName}</div>
+            <div style="font-weight:700;font-size:15px">${t('salud_status')}: <span style="color:${state.color}">${state.label}</span></div>
+            <div style="font-size:12px;color:var(--color-text-muted)">${t('salud_last_7_days')} · ${userName}</div>
           </div>
         </div>
       </div>` : ''}
 
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:var(--space-md)">
-        ${_pill('😊','Ánimo',avgMood+'/5')}
-        ${_pill('😴','Sueño',avgSleep+'/5')}
-        ${_pill('🕐','Horas',avgHours+'h')}
-        ${_pill('🩹','Dolor',painDays+' días',painDays>3?'var(--color-danger)':painDays>0?'var(--color-warning)':undefined)}
+        ${_pill('😊',t('salud_mood'),avgMood+'/5')}
+        ${_pill('😴',t('salud_sleep'),avgSleep+'/5')}
+        ${_pill('🕐',t('salud_hours'),avgHours+'h')}
+        ${_pill('🩹',t('salud_pain'),painDays+' '+t('salud_days'),painDays>3?'var(--color-danger)':painDays>0?'var(--color-warning)':undefined)}
       </div>
 
-      <div class="section-title" style="margin-bottom:8px">Últimos días</div>
+      <div class="section-title" style="margin-bottom:8px">${t('salud_recent_days')}</div>
       <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:var(--space-md);-webkit-overflow-scrolling:touch">
         ${[...last7].reverse().map(c=>{
-          const lbl = new Date(c.date+'T12:00:00').toLocaleDateString('es',{weekday:'short',day:'numeric'});
+          const lbl = new Date(c.date+'T12:00:00').toLocaleDateString(getLang(),{weekday:'short',day:'numeric'});
           return `<div class="glass-card" style="flex-shrink:0;min-width:72px;padding:10px 8px;text-align:center">
             <div style="font-size:10px;color:var(--color-text-muted);margin-bottom:4px">${lbl}</div>
             <div style="font-size:20px">${MOOD_EMOJIS[c.mood]||'—'}</div>
@@ -284,7 +285,7 @@ async function renderCheckinData(el, uid, userName, isStaff) {
         }).join('')}
       </div>
 
-      <div class="section-title" style="margin-bottom:8px">Tendencia ánimo (14 días)</div>
+      <div class="section-title" style="margin-bottom:8px">${t('salud_mood_trend')}</div>
       <div class="glass-card" style="padding:var(--space-md);margin-bottom:var(--space-md)">
         <div style="display:flex;align-items:flex-end;gap:3px;height:50px">
           ${last14rev.map(c=>{
@@ -294,12 +295,12 @@ async function renderCheckinData(el, uid, userName, isStaff) {
         </div>
         <div style="display:flex;justify-content:space-between;margin-top:6px">
           <span style="font-size:10px;color:var(--color-text-muted)">${last14rev[0]?.date||''}</span>
-          <span style="font-size:10px;color:var(--color-text-muted)">Promedio: ${avgMood}/5</span>
+          <span style="font-size:10px;color:var(--color-text-muted)">${t('salud_avg')}: ${avgMood}/5</span>
           <span style="font-size:10px;color:var(--color-text-muted)">${last14rev[last14rev.length-1]?.date||''}</span>
         </div>
       </div>
 
-      <div class="section-title" style="margin-bottom:8px">Horas de sueño (14 días)</div>
+      <div class="section-title" style="margin-bottom:8px">${t('salud_sleep_hours_trend')}</div>
       <div class="glass-card" style="padding:var(--space-md);margin-bottom:var(--space-md)">
         <div style="display:flex;align-items:flex-end;gap:3px;height:50px">
           ${last14rev.map(c=>{
@@ -311,26 +312,26 @@ async function renderCheckinData(el, uid, userName, isStaff) {
         </div>
         <div style="display:flex;justify-content:space-between;margin-top:6px">
           <span style="font-size:10px;color:var(--color-text-muted)">${last14rev[0]?.date||''}</span>
-          <span style="font-size:10px;color:var(--color-text-muted)">Promedio: ${avgHours}h/noche</span>
+          <span style="font-size:10px;color:var(--color-text-muted)">${t('salud_avg')}: ${avgHours}h/${t('salud_night')}</span>
           <span style="font-size:10px;color:var(--color-text-muted)">${last14rev[last14rev.length-1]?.date||''}</span>
         </div>
       </div>
 
       ${checkins.filter(c=>c.pain).length?`
-      <div class="section-title" style="margin-bottom:8px">Historial de dolor</div>
+      <div class="section-title" style="margin-bottom:8px">${t('salud_pain_history')}</div>
       <div class="glass-card" style="padding:var(--space-md);margin-bottom:var(--space-md)">
         ${checkins.filter(c=>c.pain).slice(0,8).map(c=>`
           <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--glass-border)">
             <span style="font-size:16px">🩹</span>
             <div style="flex:1">
               <div style="font-size:13px;font-weight:600">${c.date}</div>
-              <div style="font-size:12px;color:var(--color-text-muted)">${c.painLocation||'Sin localización'}</div>
+              <div style="font-size:12px;color:var(--color-text-muted)">${c.painLocation||t('salud_no_location')}</div>
             </div>
           </div>`).join('')}
       </div>`:''}
 
       ${checkins.filter(c=>c.comment?.trim()).length?`
-      <div class="section-title" style="margin-bottom:8px">Notas y anomalías</div>
+      <div class="section-title" style="margin-bottom:8px">${t('salud_notes_anomalies')}</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:var(--space-md)">
         ${checkins.filter(c=>c.comment?.trim()).slice(0,10).map(c=>`
           <div class="glass-card" style="padding:var(--space-sm) var(--space-md);display:flex;gap:10px;align-items:flex-start">
@@ -343,7 +344,7 @@ async function renderCheckinData(el, uid, userName, isStaff) {
       </div>`:''}
     `;
   } catch (e) {
-    el.innerHTML = `<p class="text-muted" style="padding:var(--space-md)">Error: ${e.message}</p>`;
+    el.innerHTML = `<p class="text-muted" style="padding:var(--space-md)">${t('error')}: ${e.message}</p>`;
   }
 }
 
@@ -361,54 +362,54 @@ function _pill(icon, label, value, color) {
 function openAddHealthModal(profile, container, sensitive = false) {
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">${sensitive?'🔒 Dato sensible':'❤️ Registro de salud'}</h3>
+      <h3 class="modal-title">${sensitive?`🔒 ${t('salud_sensitive_record')}`:`❤️ ${t('salud_health_record')}`}</h3>
       <button class="modal-close">✕</button>
     </div>
     <div class="form-row">
-      <label class="field-label">Tipo</label>
+      <label class="field-label">${t('salud_type')}</label>
       <div class="input-group" style="margin-top:4px">
         <span class="input-icon">📋</span>
         <select id="health-type">
-          <option value="lesion">Lesión</option>
-          <option value="fractura">Fractura</option>
-          <option value="operacion">Operación</option>
-          <option value="protesis">Prótesis</option>
-          <option value="enfermedad">Enfermedad</option>
-          <option value="alergia">Alergia</option>
-          <option value="otro">Otro</option>
+          <option value="lesion">${t('salud_type_injury')}</option>
+          <option value="fractura">${t('salud_type_fracture')}</option>
+          <option value="operacion">${t('salud_type_surgery')}</option>
+          <option value="protesis">${t('salud_type_prosthesis')}</option>
+          <option value="enfermedad">${t('salud_type_illness')}</option>
+          <option value="alergia">${t('salud_type_allergy')}</option>
+          <option value="otro">${t('salud_type_other')}</option>
         </select>
       </div>
     </div>
     <div class="form-row">
-      <label class="field-label">Título / Diagnóstico</label>
+      <label class="field-label">${t('salud_title_diagnosis')}</label>
       <div class="input-group" style="margin-top:4px">
         <span class="input-icon">📝</span>
-        <input type="text" id="health-title" placeholder="Ej: Rotura fibras bíceps derecho">
+        <input type="text" id="health-title" placeholder="${t('salud_title_placeholder')}">
       </div>
     </div>
     <div class="form-row">
-      <label class="field-label">Fecha</label>
+      <label class="field-label">${t('date')}</label>
       <input type="date" id="health-date" class="input-solo" value="${new Date().toISOString().split('T')[0]}">
     </div>
     <div class="form-row">
-      <label class="field-label">Descripción (opcional)</label>
+      <label class="field-label">${t('salud_description_optional')}</label>
       <textarea id="health-desc" class="input-solo" rows="3"
-        placeholder="Detalles, tratamiento, observaciones..."
+        placeholder="${t('salud_description_placeholder')}"
         style="padding:var(--space-md);width:100%;margin-top:4px;resize:vertical"></textarea>
     </div>
     <div class="form-row" style="display:flex;align-items:center;gap:var(--space-md)">
-      <label class="field-label" style="margin:0">¿Activo actualmente?</label>
+      <label class="field-label" style="margin:0">${t('salud_currently_active')}</label>
       <label class="toggle-switch"><input type="checkbox" id="health-active" checked><span class="toggle-slider"></span></label>
     </div>
     <div class="form-row" style="display:flex;align-items:center;gap:var(--space-md)">
-      <label class="field-label" style="margin:0">¿Afecta al entrenamiento?</label>
+      <label class="field-label" style="margin:0">${t('salud_affects_training_q')}</label>
       <label class="toggle-switch"><input type="checkbox" id="health-affects"><span class="toggle-slider"></span></label>
     </div>
     <div id="training-notes-row" style="display:none" class="form-row">
       <input type="text" id="health-training-notes" class="input-solo"
-        placeholder="Ej: Evitar peso muerto, no cargar más de 10kg...">
+        placeholder="${t('salud_training_notes_placeholder')}">
     </div>
-    <button class="btn-primary btn-full" id="btn-save-health" style="margin-top:var(--space-md)">💾 Guardar</button>`;
+    <button class="btn-primary btn-full" id="btn-save-health" style="margin-top:var(--space-md)">💾 ${t('save')}</button>`;
 
   openModal(html);
   const modal = document.getElementById('modal-content');
@@ -417,7 +418,7 @@ function openAddHealthModal(profile, container, sensitive = false) {
   });
   modal.querySelector('#btn-save-health').addEventListener('click', async () => {
     const title = modal.querySelector('#health-title').value.trim();
-    if (!title) { toast('Introduce un título', 'warning'); return; }
+    if (!title) { toast(t('salud_title_required'), 'warning'); return; }
     const record = {
       type:            modal.querySelector('#health-type').value,
       title,
@@ -431,9 +432,9 @@ function openAddHealthModal(profile, container, sensitive = false) {
     };
     try {
       await collections.health(profile.uid).add(record);
-      toast('Registro guardado ✅', 'success');
+      toast(t('salud_record_saved'), 'success');
       closeModal();
       loadHealthRecords(container, profile);
-    } catch (e) { toast('Error: ' + e.message, 'error'); }
+    } catch (e) { toast(t('error') + ': ' + e.message, 'error'); }
   });
 }

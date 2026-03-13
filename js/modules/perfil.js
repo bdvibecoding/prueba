@@ -8,6 +8,7 @@ import { auth, db, storage, storagePaths, timestamp } from '../firebase-config.j
 import { toast, getAge, getInitials, formatDate, translateRole } from '../utils.js';
 import { confirm } from '../components/modal.js';
 import { logout } from '../auth.js';
+import { t } from '../i18n.js';
 
 export async function render(container) {
   const profile = getUserProfile();
@@ -16,10 +17,10 @@ export async function render(container) {
     <div class="page active" id="perfil-page">
       <div style="padding:var(--page-pad)">
         <div class="page-header">
-          <h2 class="page-title">👤 Perfil</h2>
+          <h2 class="page-title">👤 ${t('perfil_title')}</h2>
           <div style="display:flex;gap:8px">
-            <button class="btn-icon" id="btn-edit-toggle" title="Editar">✏️</button>
-            <button class="btn-icon" id="btn-logout" title="Cerrar sesión" style="color:var(--color-danger)">🚪</button>
+            <button class="btn-icon" id="btn-edit-toggle" title="${t('edit')}">✏️</button>
+            <button class="btn-icon" id="btn-logout" title="${t('perfil_logout')}" style="color:var(--color-danger)">🚪</button>
           </div>
         </div>
 
@@ -29,32 +30,32 @@ export async function render(container) {
             ${profile?.photoURL ? `<img src="${profile.photoURL}" alt="Avatar">` : getInitials(profile?.name || '?')}
             <div style="position:absolute;bottom:0;right:0;width:28px;height:28px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid var(--color-bg)">📷</div>
           </div>
-          <div class="profile-name">${profile?.name || 'Usuario'}</div>
+          <div class="profile-name">${profile?.name || t('user')}</div>
           <span class="profile-role-badge badge ${getRoleBadgeClass(profile?.role)}">${translateRole(profile?.role || 'cliente')}</span>
-          ${profile?.birthDate ? `<p class="text-muted">${getAge(profile.birthDate)} años</p>` : ''}
+          ${profile?.birthDate ? `<p class="text-muted">${getAge(profile.birthDate)} ${t('perfil_years_old')}</p>` : ''}
         </div>
 
         <!-- Profile Form -->
         <form id="profile-form" class="profile-form">
           <div class="settings-group">
-            ${profileField('text',   'profile-name-input',  'Nombre completo',    profile?.name || '',     '👤', false)}
-            ${profileField('email',  'profile-email',       'Correo',             profile?.email || '',    '✉️', true)}
-            ${profileField('date',   'profile-birth',       'Fecha de nacimiento', profile?.birthDate || '','🎂', false)}
-            ${profileSelectField('profile-gender', 'Género', profile?.gender || '', [
-              { value: '', label: 'Seleccionar...' },
-              { value: 'masculino', label: 'Masculino' },
-              { value: 'femenino', label: 'Femenino' },
-              { value: 'otro', label: 'Otro / Prefiero no indicar' },
+            ${profileField('text',   'profile-name-input',  t('perfil_full_name'),    profile?.name || '',     '👤', false)}
+            ${profileField('email',  'profile-email',       t('perfil_email'),        profile?.email || '',    '✉️', true)}
+            ${profileField('date',   'profile-birth',       t('perfil_birth_date'),   profile?.birthDate || '','🎂', false)}
+            ${profileSelectField('profile-gender', t('perfil_gender'), profile?.gender || '', [
+              { value: '', label: t('perfil_select') },
+              { value: 'masculino', label: t('perfil_male') },
+              { value: 'femenino', label: t('perfil_female') },
+              { value: 'otro', label: t('perfil_other_gender') },
             ])}
           </div>
 
           <!-- Physical Data -->
-          <div class="section-title">Datos físicos</div>
+          <div class="section-title">${t('perfil_physical_data')}</div>
           <div class="settings-group">
             <div class="settings-item">
               <div class="settings-item-icon" style="background:rgba(25,249,249,0.1)">📏</div>
               <div class="settings-item-info">
-                <div class="settings-item-label">Talla</div>
+                <div class="settings-item-label">${t('perfil_height')}</div>
               </div>
               <div class="settings-item-right">
                 <input type="number" id="profile-height" class="measurement-input" value="${profile?.height || ''}" placeholder="175" min="100" max="250">
@@ -64,7 +65,7 @@ export async function render(container) {
             <div class="settings-item">
               <div class="settings-item-icon" style="background:rgba(148,10,10,0.1)">⚖️</div>
               <div class="settings-item-info">
-                <div class="settings-item-label">Peso inicial</div>
+                <div class="settings-item-label">${t('perfil_initial_weight')}</div>
               </div>
               <div class="settings-item-right">
                 <input type="number" id="profile-weight" class="measurement-input" value="${profile?.weight || ''}" placeholder="75" min="30" max="300" step="0.5">
@@ -74,42 +75,42 @@ export async function render(container) {
           </div>
 
           <!-- Goals & Experience -->
-          <div class="section-title">Objetivos y experiencia</div>
+          <div class="section-title">${t('perfil_goals_experience')}</div>
           <div class="settings-group">
-            ${profileSelectField('profile-experience', 'Nivel de experiencia', profile?.experience || 'principiante', [
-              { value: 'principiante', label: '🌱 Principiante' },
-              { value: 'intermedio',   label: '💪 Intermedio' },
-              { value: 'avanzado',     label: '🏆 Avanzado' },
-              { value: 'elite',        label: '⭐ Élite' },
+            ${profileSelectField('profile-experience', t('perfil_experience_level'), profile?.experience || 'principiante', [
+              { value: 'principiante', label: `🌱 ${t('perfil_beginner')}` },
+              { value: 'intermedio',   label: `💪 ${t('perfil_intermediate')}` },
+              { value: 'avanzado',     label: `🏆 ${t('perfil_advanced')}` },
+              { value: 'elite',        label: `⭐ ${t('perfil_elite')}` },
             ])}
           </div>
           <div class="form-row" style="margin-top:var(--space-md)">
-            <label class="field-label">Objetivos deportivos</label>
+            <label class="field-label">${t('perfil_sports_goals')}</label>
             <textarea id="profile-goals" class="input-solo" rows="3"
-              placeholder="Ej: Perder grasa, ganar masa muscular, mejorar rendimiento en competición..."
+              placeholder="${t('perfil_goals_placeholder')}"
               style="padding:var(--space-md);width:100%;margin-top:4px">${profile?.goals || ''}</textarea>
           </div>
 
           <!-- Save button (hidden until edit mode) -->
           <button type="submit" class="btn-primary btn-full hidden" id="btn-save-profile" style="margin-top:var(--space-md)">
-            💾 Guardar cambios
+            💾 ${t('perfil_save_changes')}
           </button>
         </form>
 
         <!-- Account section -->
-        <div class="section-title" style="margin-top:var(--space-lg)">Cuenta</div>
+        <div class="section-title" style="margin-top:var(--space-lg)">${t('perfil_account')}</div>
         <div class="settings-group">
           <div class="settings-item" id="btn-change-password" style="cursor:pointer">
             <div class="settings-item-icon" style="background:rgba(148,10,10,0.1)">🔑</div>
             <div class="settings-item-info">
-              <div class="settings-item-label">Cambiar contraseña</div>
+              <div class="settings-item-label">${t('perfil_change_password')}</div>
             </div>
             <div class="settings-item-right">›</div>
           </div>
           <div class="settings-item" id="btn-logout-item" style="cursor:pointer">
             <div class="settings-item-icon" style="background:rgba(239,68,68,0.1)">🚪</div>
             <div class="settings-item-info">
-              <div class="settings-item-label" style="color:var(--color-danger)">Cerrar sesión</div>
+              <div class="settings-item-label" style="color:var(--color-danger)">${t('perfil_logout')}</div>
             </div>
             <div class="settings-item-right">›</div>
           </div>
@@ -145,7 +146,7 @@ export async function init(container) {
   // Update age dynamically
   container.querySelector('#profile-birth')?.addEventListener('change', (e) => {
     const age = getAge(e.target.value);
-    if (age !== null) toast(`Edad calculada: ${age} años`, 'info');
+    if (age !== null) toast(t('perfil_age_calculated').replace('{age}', age), 'info');
   });
 
   // Save form
@@ -170,15 +171,15 @@ export async function init(container) {
       const newProfile = { ...profile, ...updates };
       setUser(user, newProfile);
       // Update top bar
-      document.getElementById('top-bar-greeting').textContent = `Buenos días, ${updates.name.split(' ')[0]}`;
+      document.getElementById('top-bar-greeting').textContent = `${t('greeting')}, ${updates.name.split(' ')[0]}`;
       document.getElementById('avatar-initials').textContent = getInitials(updates.name);
-      toast('Perfil actualizado ✅', 'success');
+      toast(t('perfil_updated'), 'success');
       editMode = false;
       editBtn.textContent = '✏️';
       saveBtn.classList.add('hidden');
       form?.querySelectorAll('input, select, textarea').forEach(input => { input.disabled = true; });
     } catch (err) {
-      toast('Error: ' + err.message, 'error');
+      toast(t('error') + ': ' + err.message, 'error');
     }
   });
 
@@ -188,13 +189,13 @@ export async function init(container) {
     if (!user?.email) return;
     try {
       await auth.sendPasswordResetEmail(user.email);
-      toast('Email de recuperación enviado', 'success');
-    } catch (e) { toast('Error: ' + e.message, 'error'); }
+      toast(t('perfil_reset_email_sent'), 'success');
+    } catch (e) { toast(t('error') + ': ' + e.message, 'error'); }
   });
 
   // Logout
   const handleLogout = async () => {
-    const ok = await confirm('Cerrar sesión', '¿Seguro que deseas cerrar sesión?', { okText: 'Sí, salir' });
+    const ok = await confirm(t('perfil_logout'), t('perfil_logout_confirm'), { okText: t('perfil_logout_ok') });
     if (ok) {
       await logout();
       window.location.reload();
@@ -226,8 +227,8 @@ export async function init(container) {
         setUser(user, newProfile);
         avatarEl.innerHTML = `<img src="${url}" alt="Avatar">
           <div style="position:absolute;bottom:0;right:0;width:28px;height:28px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid var(--color-bg)">📷</div>`;
-        toast('Foto actualizada ✅', 'success');
-      } catch (e) { toast('Error subiendo foto: ' + e.message, 'error'); }
+        toast(t('perfil_photo_updated'), 'success');
+      } catch (e) { toast(t('perfil_photo_error') + ': ' + e.message, 'error'); }
     });
   }
 }

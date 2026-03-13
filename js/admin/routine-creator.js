@@ -8,6 +8,7 @@ import { db, collections, timestamp } from '../firebase-config.js';
 import { toast, formatDate } from '../utils.js';
 import { openSheet, closeSheet, openModal, closeModal, confirm } from '../components/modal.js';
 import { EXERCISES } from '../../data/data.js';
+import { t } from '../i18n.js';
 
 // ── Helpers ────────────────────────────────────
 const TAGS = ['Fuerza', 'Hipertrofia', 'Cardio', 'Full Body', 'Upper', 'Lower', 'Push', 'Pull', 'Legs', 'HIIT'];
@@ -46,33 +47,33 @@ export async function openRoutineCreator(clientUid = null) {
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">📋 Nueva Rutina</h3>
+      <h3 class="modal-title">${t('rc_title')}</h3>
       <button class="modal-close">✕</button>
     </div>
     <div style="padding:var(--space-md);overflow-y:auto;max-height:calc(80vh - 60px)">
 
       <!-- Routine name -->
-      <label class="field-label">Nombre de la rutina *</label>
+      <label class="field-label">${t('rc_name_label')}</label>
       <input
         type="text"
         id="routine-name"
         class="input-solo"
-        placeholder="Ej: Fuerza Upper Body A"
+        placeholder="${t('rc_name_placeholder')}"
         style="margin-bottom:var(--space-md)"
       >
 
       <!-- Description -->
-      <label class="field-label">Descripción</label>
+      <label class="field-label">${t('rc_desc_label')}</label>
       <textarea
         id="routine-desc"
         class="input-solo"
-        placeholder="Objetivo, notas generales..."
+        placeholder="${t('rc_desc_placeholder')}"
         rows="2"
         style="margin-bottom:var(--space-md);resize:vertical"
       ></textarea>
 
       <!-- Tag chips -->
-      <label class="field-label">Etiquetas</label>
+      <label class="field-label">${t('rc_tags_label')}</label>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--space-md)" id="tag-chips">
         ${TAGS.map(tag =>
           `<button class="chip tag-chip" data-tag="${tag}" type="button">${tag}</button>`
@@ -80,7 +81,7 @@ export async function openRoutineCreator(clientUid = null) {
       </div>
 
       <!-- Exercise builder -->
-      <div class="section-title" style="margin-top:var(--space-sm)">Ejercicios</div>
+      <div class="section-title" style="margin-top:var(--space-sm)">${t('rc_exercises_title')}</div>
       <div id="exercise-builder-list"></div>
 
       <button
@@ -88,20 +89,20 @@ export async function openRoutineCreator(clientUid = null) {
         id="btn-add-exercise"
         type="button"
         style="margin-top:var(--space-sm)"
-      >+ Añadir ejercicio</button>
+      >${t('rc_add_exercise')}</button>
 
       <!-- Client assignment -->
       ${clientUid
         ? `<div style="margin-top:var(--space-md)">
-             <label class="field-label">Asignar a cliente</label>
+             <label class="field-label">${t('rc_assign_btn')}</label>
              <p style="font-size:12px;color:var(--color-text-muted);margin-top:4px">
-               Se asignará automáticamente al cliente seleccionado
+               ${t('rc_assign_auto')}
              </p>
            </div>`
         : `<div style="margin-top:var(--space-md)">
-             <label class="field-label">Asignar a cliente (opcional)</label>
+             <label class="field-label">${t('rc_assign_label')}</label>
              <select id="select-assign-client" class="input-solo" style="margin-top:4px">
-               <option value="">— Sin asignar —</option>
+               <option value="">${t('rc_no_assign')}</option>
                ${clientsOptions}
              </select>
            </div>`
@@ -113,7 +114,7 @@ export async function openRoutineCreator(clientUid = null) {
         id="btn-save-routine"
         type="button"
         style="margin-top:var(--space-lg);margin-bottom:var(--space-md)"
-      >💾 Guardar rutina</button>
+      >${t('rc_save')}</button>
 
     </div>
   `;
@@ -150,7 +151,7 @@ function openExercisePicker(creatorSc) {
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">+ Añadir Ejercicio</h3>
+      <h3 class="modal-title">${t('rc_exercise_picker')}</h3>
       <button class="modal-close">✕</button>
     </div>
     <div style="padding:var(--space-md);overflow-y:auto;max-height:calc(80vh - 60px)">
@@ -158,12 +159,12 @@ function openExercisePicker(creatorSc) {
         type="text"
         id="ex-search"
         class="input-solo"
-        placeholder="Buscar ejercicio..."
+        placeholder="${t('rc_search_exercise')}"
         style="margin-bottom:var(--space-md)"
       >
       <!-- Muscle group filter chips -->
       <div class="h-scroll" id="muscle-filter" style="margin-bottom:var(--space-md);padding-bottom:4px">
-        <button class="chip active" data-muscle="Todos" type="button">Todos</button>
+        <button class="chip active" data-muscle="all" type="button">${t('rc_all_muscles')}</button>
         ${MUSCLE_GROUPS.map(g =>
           `<button class="chip" data-muscle="${g}" type="button">${g}</button>`
         ).join('')}
@@ -181,7 +182,7 @@ function openExercisePicker(creatorSc) {
   if (!mc) return;
 
   // ── Search filter ─────────────────────────────
-  let currentMuscle = 'Todos';
+  let currentMuscle = 'all';
   let currentSearch = '';
 
   function applyFilters() {
@@ -191,7 +192,7 @@ function openExercisePicker(creatorSc) {
       const matchSearch = !currentSearch ||
         ex.name.toLowerCase().includes(currentSearch) ||
         ex.muscleGroup.toLowerCase().includes(currentSearch);
-      const matchMuscle = currentMuscle === 'Todos' || ex.muscleGroup === currentMuscle;
+      const matchMuscle = currentMuscle === 'all' || ex.muscleGroup === currentMuscle;
       return matchSearch && matchMuscle;
     });
     list.innerHTML = renderPickerItems(filtered, addedIds);
@@ -232,7 +233,7 @@ function openExercisePicker(creatorSc) {
 // ── Render picker item list HTML ───────────────
 function renderPickerItems(exercises, addedIds) {
   if (!exercises.length) {
-    return `<p class="text-muted" style="padding:var(--space-md);text-align:center">Sin resultados</p>`;
+    return `<p class="text-muted" style="padding:var(--space-md);text-align:center">${t('rc_no_results')}</p>`;
   }
   return exercises.map(ex => {
     const isAdded = addedIds.has(ex.id);
@@ -256,7 +257,7 @@ function renderPickerItems(exercises, addedIds) {
           <div style="font-size:11px;color:var(--color-text-muted)">${ex.muscleGroup} · ${ex.equipment || ''}</div>
         </div>
         ${isAdded
-          ? `<span style="font-size:10px;color:var(--color-text-muted)">añadido</span>`
+          ? `<span style="font-size:10px;color:var(--color-text-muted)">${t('rc_added')}</span>`
           : `<span class="badge badge-cyan" style="font-size:10px">${ex.difficulty || ''}</span>`
         }
       </div>
@@ -291,7 +292,7 @@ function addExerciseToBuilder(sc, ex) {
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:var(--space-xs)">
       <div>
-        <label style="font-size:11px;color:var(--color-text-muted)">Series</label>
+        <label style="font-size:11px;color:var(--color-text-muted)">${t('rc_sets_label')}</label>
         <input
           type="number"
           class="ex-sets input-solo"
@@ -302,7 +303,7 @@ function addExerciseToBuilder(sc, ex) {
         >
       </div>
       <div>
-        <label style="font-size:11px;color:var(--color-text-muted)">Reps</label>
+        <label style="font-size:11px;color:var(--color-text-muted)">${t('rc_reps_label')}</label>
         <input
           type="text"
           class="ex-reps input-solo"
@@ -312,7 +313,7 @@ function addExerciseToBuilder(sc, ex) {
         >
       </div>
       <div>
-        <label style="font-size:11px;color:var(--color-text-muted)">Descanso (s)</label>
+        <label style="font-size:11px;color:var(--color-text-muted)">${t('rc_rest_label')}</label>
         <input
           type="number"
           class="ex-rest input-solo"
@@ -327,7 +328,7 @@ function addExerciseToBuilder(sc, ex) {
       type="text"
       class="ex-notes input-solo"
       style="padding:6px;font-size:12px"
-      placeholder="Notas del ejercicio..."
+      placeholder="${t('rc_notes_placeholder')}"
       value="${ex.setupNotes || ''}"
     >
   `;
@@ -348,7 +349,7 @@ async function saveRoutine(sc, clientUid) {
   const name      = nameInput?.value?.trim();
 
   if (!name) {
-    toast('El nombre de la rutina es obligatorio', 'warning');
+    toast(t('rc_name_required'), 'warning');
     nameInput?.focus();
     return;
   }
@@ -377,7 +378,7 @@ async function saveRoutine(sc, clientUid) {
   });
 
   if (exercises.length === 0) {
-    toast('Añade al menos un ejercicio a la rutina', 'warning');
+    toast(t('rc_exercises_required'), 'warning');
     return;
   }
 
@@ -398,7 +399,7 @@ async function saveRoutine(sc, clientUid) {
 
   // Disable save button while working
   const saveBtn = sc.querySelector('#btn-save-routine');
-  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Guardando...'; }
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = t('rc_saving'); }
 
   try {
     const docRef = await collections.routines().add(routine);
@@ -416,11 +417,14 @@ async function saveRoutine(sc, clientUid) {
       });
     }
 
-    toast(`Rutina "${name}" guardada${assignClientUid ? ' y asignada' : ''} ✅`, 'success');
+    const savedMsg = assignClientUid
+      ? t('rc_saved').replace('{name}', name)
+      : t('rc_saved_no_assign').replace('{name}', name);
+    toast(savedMsg, 'success');
     closeSheet();
   } catch (e) {
-    toast('Error al guardar: ' + e.message, 'error');
-    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 Guardar rutina'; }
+    toast(t('rc_save_error') + ': ' + e.message, 'error');
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = t('rc_save'); }
   }
 }
 
@@ -434,13 +438,13 @@ export async function openRoutinesList(container) {
   // Open an initially loading sheet
   const html = `
     <div class="modal-header" style="margin-bottom:var(--space-md)">
-      <h3 class="modal-title">📚 Mis Rutinas</h3>
+      <h3 class="modal-title">${t('rc_my_routines')}</h3>
       <button class="modal-close" id="close-routines-sheet">✕</button>
     </div>
     <div style="padding:0 var(--space-md) var(--space-md)">
       <button class="btn-accent btn-full" id="btn-new-routine-from-list" type="button"
               style="margin-bottom:var(--space-md)">
-        + Crear nueva rutina
+        ${t('rc_new_routine')}
       </button>
       <div id="routines-list-inner">
         <div class="overlay-spinner"><div class="spinner-sm"></div></div>
@@ -478,8 +482,8 @@ async function loadRoutinesList(sc, profile) {
       inner.innerHTML = `
         <div class="empty-state" style="padding:var(--space-lg) 0">
           <div class="empty-icon">📋</div>
-          <div class="empty-title">Sin rutinas creadas</div>
-          <div class="empty-subtitle">Pulsa "Crear nueva rutina" para empezar.</div>
+          <div class="empty-title">${t('rc_no_routines')}</div>
+          <div class="empty-subtitle">${t('rc_no_routines_sub')}</div>
         </div>
       `;
       return;
@@ -492,6 +496,7 @@ async function loadRoutinesList(sc, profile) {
       const created = r.createdAt
         ? formatDate(r.createdAt?.toDate?.() || r.createdAt)
         : '—';
+      const exLabel = exCount === 1 ? t('rc_exercise_s') : t('rc_exercises_s');
       return `
         <div class="glass-card routine-item"
              data-id="${doc.id}"
@@ -499,13 +504,13 @@ async function loadRoutinesList(sc, profile) {
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
             <div style="flex:1;min-width:0">
               <div style="font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-                ${r.name || 'Sin nombre'}
+                ${r.name || t('admin_no_name')}
               </div>
               <div style="font-size:12px;color:var(--color-text-muted);margin-top:2px">
-                ${exCount} ejercicio${exCount !== 1 ? 's' : ''} · ${tagStr}
+                ${exCount} ${exLabel} · ${tagStr}
               </div>
               <div style="font-size:11px;color:var(--color-text-muted);margin-top:2px">
-                Creada: ${created}
+                ${t('rc_created')}${created}
               </div>
             </div>
             <div style="display:flex;gap:6px;flex-shrink:0">
@@ -513,7 +518,7 @@ async function loadRoutinesList(sc, profile) {
                 class="btn-icon btn-assign-routine"
                 data-id="${doc.id}"
                 data-name="${(r.name || '').replace(/"/g, '&quot;')}"
-                title="Asignar a cliente"
+                title="${t('rc_assign_btn')}"
                 type="button"
                 style="font-size:18px"
               >📤</button>
@@ -521,7 +526,7 @@ async function loadRoutinesList(sc, profile) {
                 class="btn-icon btn-delete-routine"
                 data-id="${doc.id}"
                 data-name="${(r.name || '').replace(/"/g, '&quot;')}"
-                title="Eliminar rutina"
+                title="${t('rc_delete_btn')}"
                 type="button"
                 style="font-size:18px;color:var(--color-danger)"
               >🗑️</button>
@@ -544,33 +549,33 @@ async function loadRoutinesList(sc, profile) {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
         const ok = await confirm(
-          'Eliminar rutina',
-          `¿Eliminar la rutina "${btn.dataset.name}"? Esta acción no se puede deshacer.`,
-          { okText: 'Eliminar', danger: true }
+          t('rc_delete_title'),
+          t('rc_delete_confirm').replace('{name}', btn.dataset.name),
+          { okText: t('rc_delete_btn'), danger: true }
         );
         if (!ok) return;
         try {
           await collections.routines().doc(btn.dataset.id).delete();
-          toast('Rutina eliminada', 'success');
+          toast(t('rc_deleted'), 'success');
           // Remove item from DOM
           inner.querySelector(`.routine-item[data-id="${btn.dataset.id}"]`)?.remove();
           if (!inner.querySelector('.routine-item')) {
             inner.innerHTML = `
               <div class="empty-state" style="padding:var(--space-lg) 0">
                 <div class="empty-icon">📋</div>
-                <div class="empty-title">Sin rutinas creadas</div>
-                <div class="empty-subtitle">Pulsa "Crear nueva rutina" para empezar.</div>
+                <div class="empty-title">${t('rc_no_routines')}</div>
+                <div class="empty-subtitle">${t('rc_no_routines_sub')}</div>
               </div>
             `;
           }
         } catch (err) {
-          toast('Error al eliminar: ' + err.message, 'error');
+          toast(t('rc_delete_error') + ': ' + err.message, 'error');
         }
       });
     });
 
   } catch (e) {
-    inner.innerHTML = `<p class="text-muted" style="padding:var(--space-md)">Error cargando rutinas: ${e.message}</p>`;
+    inner.innerHTML = `<p class="text-muted" style="padding:var(--space-md)">${t('rc_load_error')}: ${e.message}</p>`;
   }
 }
 
@@ -600,12 +605,12 @@ async function openAssignClientModal(routineId, routineName, profile) {
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">📤 Asignar rutina</h3>
+      <h3 class="modal-title">${t('rc_assign_title')}</h3>
       <button class="modal-close">✕</button>
     </div>
     <div style="padding:var(--space-md)">
       <p style="font-size:13px;color:var(--color-text-muted);margin-bottom:var(--space-md)">
-        <strong>${routineName}</strong> → selecciona el cliente
+        <strong>${routineName}</strong> → ${t('rc_assign_to')}
       </p>
       ${clients.length
         ? `<div id="assign-client-list">
@@ -627,15 +632,15 @@ async function openAssignClientModal(routineId, routineName, profile) {
                   font-weight:700;font-size:13px;color:var(--white)
                 ">${(c.name || '?').slice(0, 2).toUpperCase()}</div>
                 <div style="flex:1;min-width:0">
-                  <div style="font-weight:600;font-size:14px">${c.name || 'Cliente'}</div>
+                  <div style="font-weight:600;font-size:14px">${c.name || t('staff_client_label')}</div>
                   <div style="font-size:11px;color:var(--color-text-muted)">${c.email || ''}</div>
                 </div>
-                <span class="badge badge-cyan" style="font-size:10px">Asignar</span>
+                <span class="badge badge-cyan" style="font-size:10px">${t('assign')}</span>
               </div>
             `).join('')}
            </div>`
         : `<p class="text-muted" style="padding:var(--space-md);text-align:center">
-             No tienes clientes asignados.
+             ${t('rc_no_clients')}
            </p>`
       }
     </div>
@@ -648,7 +653,8 @@ async function openAssignClientModal(routineId, routineName, profile) {
 
   mc.querySelectorAll('.assign-client-item').forEach(item => {
     item.addEventListener('click', async () => {
-      const clientUid = item.dataset.uid;
+      const clientUid  = item.dataset.uid;
+      const clientName = item.querySelector('div > div:first-child')?.textContent?.trim() || '';
       try {
         await collections.assignments(clientUid).add({
           routineId,
@@ -658,10 +664,10 @@ async function openAssignClientModal(routineId, routineName, profile) {
           status:     'active',
           createdAt:  timestamp(),
         });
-        toast(`Rutina asignada a ${item.querySelector('div > div:first-child')?.textContent?.trim() || 'cliente'} ✅`, 'success');
+        toast(t('rc_assign_ok').replace('{name}', clientName), 'success');
         closeModal();
       } catch (e) {
-        toast('Error al asignar: ' + e.message, 'error');
+        toast(t('rc_assign_error') + ': ' + e.message, 'error');
       }
     });
   });

@@ -9,6 +9,7 @@ import { toast, formatDate, getInitials } from '../utils.js';
 import { openSheet, closeSheet, confirm } from '../components/modal.js';
 import { navigate } from '../router.js';
 import { openDirectChat } from '../components/direct-chat.js';
+import { t } from '../i18n.js';
 
 // ── Lazy module loaders ─────────────────────────
 async function getMenuCreator() {
@@ -19,50 +20,52 @@ async function getSupplementCreator() {
   return import('./supplement-creator.js');
 }
 
-// ── Role configuration ─────────────────────────
-const ROLE_CONFIG = {
-  coach: {
-    icon:     '🏋️',
-    title:    'Panel Coach',
-    subtitle: 'Gestiona tus clientes y rutinas',
-    field:    'assignedCoach',
-    action:   { label: 'Ver rutinas',  key: 'routines' },
-  },
-  medico: {
-    icon:     '🩺',
-    title:    'Panel Médico',
-    subtitle: 'Historial de salud de tus pacientes',
-    field:    'assignedMedico',
-    action:   { label: 'Ver historial de salud', key: 'health' },
-  },
-  fisio: {
-    icon:     '🦴',
-    title:    'Panel de Fisioterapia',
-    subtitle: 'Seguimiento fisioterapéutico de tus pacientes',
-    field:    'assignedFisio',
-    action:   { label: 'Ver historial de salud', key: 'health' },
-  },
-  psicologo: {
-    icon:     '🧠',
-    title:    'Panel de Psicología',
-    subtitle: 'Notas y seguimiento psicológico',
-    field:    'assignedPsicologo',
-    action:   { label: 'Ver notas', key: 'notes' },
-  },
-  nutricionista: {
-    icon:     '🥗',
-    title:    'Panel de Nutrición',
-    subtitle: 'Planes nutricionales de tus clientes',
-    field:    'assignedNutricionista',
-    action:   { label: 'Ver dieta', key: 'diet' },
-  },
-};
+// ── Role config (i18n-aware, built at call time) ─
+function getRoleConfig() {
+  return {
+    coach: {
+      icon:     '🏋️',
+      title:    t('staff_coach_title'),
+      subtitle: t('staff_coach_subtitle'),
+      field:    'assignedCoach',
+      action:   { label: t('staff_coach_action'), key: 'routines' },
+    },
+    medico: {
+      icon:     '🩺',
+      title:    t('staff_medico_title'),
+      subtitle: t('staff_medico_subtitle'),
+      field:    'assignedMedico',
+      action:   { label: t('staff_medico_action'), key: 'health' },
+    },
+    fisio: {
+      icon:     '🦴',
+      title:    t('staff_fisio_title'),
+      subtitle: t('staff_fisio_subtitle'),
+      field:    'assignedFisio',
+      action:   { label: t('staff_fisio_action'), key: 'health' },
+    },
+    psicologo: {
+      icon:     '🧠',
+      title:    t('staff_psicologo_title'),
+      subtitle: t('staff_psicologo_subtitle'),
+      field:    'assignedPsicologo',
+      action:   { label: t('staff_psicologo_action'), key: 'notes' },
+    },
+    nutricionista: {
+      icon:     '🥗',
+      title:    t('staff_nutricionista_title'),
+      subtitle: t('staff_nutricionista_subtitle'),
+      field:    'assignedNutricionista',
+      action:   { label: t('staff_nutricionista_action'), key: 'diet' },
+    },
+  };
+}
 
 // ── render ─────────────────────────────────────
 export async function render(container) {
   const profile = getUserProfile();
   const role    = profile?.role || 'coach';
-  const cfg     = ROLE_CONFIG[role] || ROLE_CONFIG.coach;
+  const cfg     = getRoleConfig()[role] || getRoleConfig().coach;
 
   container.innerHTML = `
     <div class="page active" id="staff-page">
@@ -89,7 +92,7 @@ export async function render(container) {
               margin-top:2px;
             "
           >
-            Vista cliente →
+            ${t('staff_client_view')}
           </button>
         </div>
 
@@ -97,31 +100,31 @@ export async function render(container) {
         <div class="quick-stats" id="staff-stats" style="margin-bottom:var(--space-md)">
           <div class="glass-card stat-card">
             <div class="stat-value" id="stat-clients">—</div>
-            <div class="stat-label">Clientes</div>
+            <div class="stat-label">${t('staff_clients')}</div>
           </div>
           <div class="glass-card stat-card">
             <div class="stat-value" id="stat-sessions-week">—</div>
-            <div class="stat-label">Sesiones semana</div>
+            <div class="stat-label">${t('staff_sessions_week')}</div>
           </div>
         </div>
 
         <!-- Routine management (coach / admin only) -->
         ${role === 'coach' || role === 'admin' ? `
-        <div class="section-title">Gestión de Rutinas</div>
+        <div class="section-title">${t('staff_routines_mgmt')}</div>
         <div class="settings-group" style="margin-bottom:var(--space-md)">
           <div class="settings-item" id="btn-create-routine" style="cursor:pointer">
             <div class="settings-item-icon" style="background:rgba(148,10,10,0.2)">📋</div>
             <div class="settings-item-info">
-              <div class="settings-item-label">Crear rutina</div>
-              <div class="settings-item-desc">Diseña una nueva rutina de entrenamiento</div>
+              <div class="settings-item-label">${t('staff_create_routine')}</div>
+              <div class="settings-item-desc">${t('staff_create_routine_desc')}</div>
             </div>
             <div class="settings-item-right">›</div>
           </div>
           <div class="settings-item" id="btn-my-routines" style="cursor:pointer">
             <div class="settings-item-icon" style="background:rgba(25,249,249,0.1)">📚</div>
             <div class="settings-item-info">
-              <div class="settings-item-label">Mis rutinas</div>
-              <div class="settings-item-desc">Ver, editar y asignar rutinas creadas</div>
+              <div class="settings-item-label">${t('staff_my_routines')}</div>
+              <div class="settings-item-desc">${t('staff_my_routines_desc')}</div>
             </div>
             <div class="settings-item-right">›</div>
           </div>
@@ -130,37 +133,37 @@ export async function render(container) {
 
         <!-- Nutrition management (nutricionista only) -->
         ${role === 'nutricionista' ? `
-        <div class="section-title">Gestión de Planes</div>
+        <div class="section-title">${t('staff_nutrition_mgmt')}</div>
         <div class="settings-group" style="margin-bottom:var(--space-md)">
           <div class="settings-item" id="btn-create-menu" style="cursor:pointer">
             <div class="settings-item-icon" style="background:rgba(34,197,94,0.15)">🥗</div>
             <div class="settings-item-info">
-              <div class="settings-item-label">Crear plan nutricional</div>
-              <div class="settings-item-desc">Diseña un nuevo plan de alimentación semanal</div>
+              <div class="settings-item-label">${t('staff_create_menu')}</div>
+              <div class="settings-item-desc">${t('staff_create_menu_desc')}</div>
             </div>
             <div class="settings-item-right">›</div>
           </div>
           <div class="settings-item" id="btn-my-menus" style="cursor:pointer">
             <div class="settings-item-icon" style="background:rgba(34,197,94,0.1)">📋</div>
             <div class="settings-item-info">
-              <div class="settings-item-label">Mis planes</div>
-              <div class="settings-item-desc">Ver, editar y asignar planes creados</div>
+              <div class="settings-item-label">${t('staff_my_menus')}</div>
+              <div class="settings-item-desc">${t('staff_my_menus_desc')}</div>
             </div>
             <div class="settings-item-right">›</div>
           </div>
           <div class="settings-item" id="btn-create-suppl-nutri" style="cursor:pointer">
             <div class="settings-item-icon" style="background:rgba(168,85,247,0.15)">💊</div>
             <div class="settings-item-info">
-              <div class="settings-item-label">Crear protocolo de suplementación</div>
-              <div class="settings-item-desc">Nuevo protocolo de suplementos para un cliente</div>
+              <div class="settings-item-label">${t('staff_create_suppl')}</div>
+              <div class="settings-item-desc">${t('staff_create_suppl_desc')}</div>
             </div>
             <div class="settings-item-right">›</div>
           </div>
           <div class="settings-item" id="btn-my-suppls-nutri" style="cursor:pointer">
             <div class="settings-item-icon" style="background:rgba(168,85,247,0.1)">📚</div>
             <div class="settings-item-info">
-              <div class="settings-item-label">Mis protocolos</div>
-              <div class="settings-item-desc">Ver, editar y asignar protocolos creados</div>
+              <div class="settings-item-label">${t('staff_my_suppls')}</div>
+              <div class="settings-item-desc">${t('staff_my_suppls_desc')}</div>
             </div>
             <div class="settings-item-right">›</div>
           </div>
@@ -169,21 +172,21 @@ export async function render(container) {
 
         <!-- Supplement management (coach only) -->
         ${role === 'coach' ? `
-        <div class="section-title">Gestión de Suplementación</div>
+        <div class="section-title">${t('staff_suppl_mgmt')}</div>
         <div class="settings-group" style="margin-bottom:var(--space-md)">
           <div class="settings-item" id="btn-create-suppl-coach" style="cursor:pointer">
             <div class="settings-item-icon" style="background:rgba(168,85,247,0.15)">💊</div>
             <div class="settings-item-info">
-              <div class="settings-item-label">Crear protocolo de suplementación</div>
-              <div class="settings-item-desc">Nuevo protocolo de suplementos para un cliente</div>
+              <div class="settings-item-label">${t('staff_create_suppl')}</div>
+              <div class="settings-item-desc">${t('staff_create_suppl_desc')}</div>
             </div>
             <div class="settings-item-right">›</div>
           </div>
           <div class="settings-item" id="btn-my-suppls-coach" style="cursor:pointer">
             <div class="settings-item-icon" style="background:rgba(168,85,247,0.1)">📚</div>
             <div class="settings-item-info">
-              <div class="settings-item-label">Mis protocolos</div>
-              <div class="settings-item-desc">Ver, editar y asignar protocolos creados</div>
+              <div class="settings-item-label">${t('staff_my_suppls')}</div>
+              <div class="settings-item-desc">${t('staff_my_suppls_desc')}</div>
             </div>
             <div class="settings-item-right">›</div>
           </div>
@@ -191,7 +194,7 @@ export async function render(container) {
         ` : ''}
 
         <!-- Clients section -->
-        <div class="section-title">Mis Clientes</div>
+        <div class="section-title">${t('staff_my_clients')}</div>
         <div id="staff-clients-list">
           <div class="overlay-spinner"><div class="spinner-sm"></div></div>
         </div>
@@ -292,7 +295,7 @@ export async function init(container) {
 async function loadMyClients(container, profile) {
   const el  = container.querySelector('#staff-clients-list');
   const role = profile?.role || 'coach';
-  const cfg  = ROLE_CONFIG[role] || ROLE_CONFIG.coach;
+  const cfg  = getRoleConfig()[role] || getRoleConfig().coach;
 
   try {
     const snap = await db.collection('users')
@@ -308,8 +311,8 @@ async function loadMyClients(container, profile) {
       el.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">👥</div>
-          <div class="empty-title">Sin clientes asignados</div>
-          <div class="empty-subtitle">El administrador te asignará clientes pronto.</div>
+          <div class="empty-title">${t('staff_no_clients')}</div>
+          <div class="empty-subtitle">${t('staff_no_clients_sub')}</div>
         </div>`;
       container.querySelector('#stat-sessions-week').textContent = '0';
       return;
@@ -369,13 +372,13 @@ async function loadMyClients(container, profile) {
           myName:    profile.name || '',
           otherUid:  btn.dataset.chatUid,
           otherName: btn.dataset.chatName,
-          otherRole: 'Cliente',
+          otherRole: t('staff_client_label'),
         });
       });
     });
 
   } catch (e) {
-    el.innerHTML = `<p class="text-muted" style="padding:var(--space-md)">Error cargando clientes: ${e.message}</p>`;
+    el.innerHTML = `<p class="text-muted" style="padding:var(--space-md)">${t('staff_error_clients')}: ${e.message}</p>`;
   }
 }
 
@@ -416,13 +419,13 @@ function buildClientCard(client, cfg) {
       <!-- Info -->
       <div style="flex:1;min-width:0">
         <div style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-          ${client.name || 'Cliente'}
+          ${client.name || t('staff_client_label')}
         </div>
         <div class="text-muted" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
           ${client.email || ''}
         </div>
         <div style="font-size:11px;color:var(--color-text-muted);margin-top:2px">
-          Última sesión: ${lastSeen}
+          ${t('staff_last_session')}${lastSeen}
         </div>
         <!-- Action buttons row -->
         <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
@@ -436,13 +439,13 @@ function buildClientCard(client, cfg) {
             class="chip"
             data-note-uid="${uid}"
             style="font-size:11px;padding:4px 10px;cursor:pointer;border-color:var(--cyan-dim);color:var(--cyan)"
-          >+ Nota</button>
+          >${t('staff_add_note')}</button>
           <button
             class="chip"
             data-chat-uid="${uid}"
             data-chat-name="${client.name || ''}"
             style="font-size:11px;padding:4px 10px;cursor:pointer;border-color:rgba(34,197,94,0.4);color:#4ade80"
-          >💬 Chat</button>
+          >${t('staff_chat')}</button>
         </div>
       </div>
 
@@ -484,10 +487,10 @@ async function openRoutinesSheet(client, profile) {
   const uid  = client.uid || client.id;
   const html = `
     <h4 style="margin-bottom:4px">${client.name}</h4>
-    <p class="text-muted" style="margin-bottom:var(--space-md);font-size:13px">Rutinas asignadas</p>
+    <p class="text-muted" style="margin-bottom:var(--space-md);font-size:13px">${t('staff_assigned_routine')}</p>
     <div id="sheet-routines-list"><div class="spinner-sm"></div></div>
     <button class="btn-accent btn-full" id="btn-assign-routine" style="margin-top:var(--space-md)">
-      📋 Asignar nueva rutina
+      ${t('staff_assign_new_routine')}
     </button>
   `;
   openSheet(html);
@@ -502,7 +505,7 @@ async function loadSheetRoutines(sc, uid) {
   try {
     const snap = await collections.assignments(uid).orderBy('assignedAt', 'desc').limit(20).get();
     if (snap.empty) {
-      el.innerHTML = `<p class="text-muted">Sin rutinas asignadas aún.</p>`;
+      el.innerHTML = `<p class="text-muted">${t('staff_no_routines')}</p>`;
       return;
     }
     el.innerHTML = snap.docs.map(doc => {
@@ -515,9 +518,9 @@ async function loadSheetRoutines(sc, uid) {
         ">
           <span style="font-size:18px">💪</span>
           <div style="flex:1">
-            <div style="font-size:14px;font-weight:600">${d.name || d.routineId || 'Rutina'}</div>
+            <div style="font-size:14px;font-weight:600">${d.name || d.routineId || t('admin_routine_label')}</div>
             <div class="text-muted" style="font-size:11px">
-              Asignada: ${formatDate(d.assignedAt?.toDate?.() || d.assignedAt)}
+              ${t('staff_assigned_date')}${formatDate(d.assignedAt?.toDate?.() || d.assignedAt)}
             </div>
           </div>
         </div>
@@ -533,19 +536,19 @@ async function openAssignRoutineSheet(clientUid) {
   try {
     routineSnap = await db.collection('routines').limit(30).get();
   } catch {
-    toast('Error cargando rutinas', 'error');
+    toast(t('staff_error_routines'), 'error');
     return;
   }
   const routines = routineSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
   const html = `
-    <h4 style="margin-bottom:var(--space-md)">📋 Asignar rutina</h4>
+    <h4 style="margin-bottom:var(--space-md)">${t('staff_assign_routine')}</h4>
     ${routines.length
       ? routines.map(r => `
           <div
             class="glass-card"
             data-rid="${r.id}"
-            data-rname="${r.name || 'Rutina'}"
+            data-rname="${r.name || t('admin_routine_label')}"
             style="
               display:flex;align-items:center;gap:10px;
               padding:var(--space-sm) var(--space-md);
@@ -555,13 +558,13 @@ async function openAssignRoutineSheet(clientUid) {
           >
             <span style="font-size:20px">💪</span>
             <div style="flex:1">
-              <div style="font-weight:700">${r.name || 'Rutina'}</div>
-              <div class="text-muted" style="font-size:12px">${r.exercises?.length || 0} ejercicios</div>
+              <div style="font-weight:700">${r.name || t('admin_routine_label')}</div>
+              <div class="text-muted" style="font-size:12px">${r.exercises?.length || 0} ${t('admin_exercises')}</div>
             </div>
-            <span class="badge badge-cyan">Asignar</span>
+            <span class="badge badge-cyan">${t('assign')}</span>
           </div>
         `).join('')
-      : `<p class="text-muted">No hay rutinas creadas todavía.</p>`
+      : `<p class="text-muted">${t('staff_no_routines_yet')}</p>`
     }
   `;
 
@@ -577,7 +580,7 @@ async function openAssignRoutineSheet(clientUid) {
           assignedAt: timestamp(),
           createdAt:  timestamp(),
         });
-        toast('Rutina asignada ✅', 'success');
+        toast(t('staff_routine_assigned'), 'success');
         closeSheet();
       } catch (e) {
         toast('Error: ' + e.message, 'error');
@@ -588,18 +591,17 @@ async function openAssignRoutineSheet(clientUid) {
 
 // ── Medico / Fisio: Health sheet (placeholder) ──
 function openHealthSheet(client) {
-  const uid  = client.uid || client.id;
   const html = `
     <h4 style="margin-bottom:4px">${client.name}</h4>
-    <p class="text-muted" style="margin-bottom:var(--space-md);font-size:13px">Historial de salud</p>
+    <p class="text-muted" style="margin-bottom:var(--space-md);font-size:13px">${t('staff_health_title')}</p>
     <div
       class="glass-card glass-card-cyan"
       style="padding:var(--space-md);text-align:center;margin-top:var(--space-lg)"
     >
       <div style="font-size:32px;margin-bottom:8px">🩺</div>
-      <div style="font-weight:700;margin-bottom:4px">Historial completo</div>
+      <div style="font-weight:700;margin-bottom:4px">${t('staff_health_desc')}</div>
       <div class="text-muted" style="font-size:13px;margin-bottom:var(--space-md)">
-        Ve al módulo de Salud del cliente para ver y editar su historial completo.
+        ${t('staff_health_full')}
       </div>
     </div>
   `;
@@ -611,7 +613,7 @@ async function openPsicologoNotesSheet(client) {
   const uid  = client.uid || client.id;
   const html = `
     <h4 style="margin-bottom:4px">${client.name}</h4>
-    <p class="text-muted" style="margin-bottom:var(--space-md);font-size:13px">Notas psicológicas</p>
+    <p class="text-muted" style="margin-bottom:var(--space-md);font-size:13px">${t('staff_psi_notes_title')}</p>
     <div id="psi-notes-list"><div class="spinner-sm"></div></div>
   `;
   openSheet(html);
@@ -625,7 +627,7 @@ async function openPsicologoNotesSheet(client) {
     const el = sc.querySelector('#psi-notes-list');
     if (!el) return;
     if (snap.empty) {
-      el.innerHTML = `<p class="text-muted">Sin notas aún.</p>`;
+      el.innerHTML = `<p class="text-muted">${t('staff_no_notes')}</p>`;
       return;
     }
     el.innerHTML = snap.docs.map(doc => {
@@ -649,15 +651,15 @@ async function openPsicologoNotesSheet(client) {
 function openDietSheet(client) {
   const html = `
     <h4 style="margin-bottom:4px">${client.name}</h4>
-    <p class="text-muted" style="margin-bottom:var(--space-md);font-size:13px">Plan nutricional</p>
+    <p class="text-muted" style="margin-bottom:var(--space-md);font-size:13px">${t('staff_diet_title')}</p>
     <div
       class="glass-card glass-card-cyan"
       style="padding:var(--space-md);text-align:center;margin-top:var(--space-lg)"
     >
       <div style="font-size:32px;margin-bottom:8px">🥗</div>
-      <div style="font-weight:700;margin-bottom:4px">Plan nutricional</div>
+      <div style="font-weight:700;margin-bottom:4px">${t('staff_diet_desc')}</div>
       <div class="text-muted" style="font-size:13px;margin-bottom:var(--space-md)">
-        Accede al módulo de Alimentación del cliente para gestionar su dieta.
+        ${t('staff_diet_full')}
       </div>
     </div>
   `;
@@ -670,15 +672,15 @@ function openNoteSheet(client, profile) {
   const role = profile?.role || 'coach';
 
   const html = `
-    <h4 style="margin-bottom:4px">Nueva nota</h4>
+    <h4 style="margin-bottom:4px">${t('staff_note_title')}</h4>
     <p class="text-muted" style="margin-bottom:var(--space-md);font-size:13px">
-      Para: <strong>${client.name}</strong>
+      ${t('staff_note_for')}<strong>${client.name}</strong>
     </p>
     <textarea
       id="staff-note-text"
       class="input-solo"
       rows="5"
-      placeholder="Escribe tu nota aquí..."
+      placeholder="${t('staff_note_placeholder')}"
       style="
         padding:var(--space-md);
         width:100%;
@@ -693,7 +695,7 @@ function openNoteSheet(client, profile) {
         font-family:var(--font-sans);
       "
     ></textarea>
-    <button class="btn-primary btn-full" id="btn-save-note">💾 Guardar nota</button>
+    <button class="btn-primary btn-full" id="btn-save-note">${t('staff_save_note')}</button>
   `;
 
   openSheet(html);
@@ -702,7 +704,7 @@ function openNoteSheet(client, profile) {
   sc.querySelector('#btn-save-note')?.addEventListener('click', async () => {
     const text = sc.querySelector('#staff-note-text')?.value?.trim();
     if (!text) {
-      toast('Escribe algo antes de guardar', 'warning');
+      toast(t('staff_note_empty'), 'warning');
       return;
     }
     try {
@@ -712,10 +714,10 @@ function openNoteSheet(client, profile) {
         authorUid: profile?.uid,
         createdAt: timestamp(),
       });
-      toast('Nota guardada ✅', 'success');
+      toast(t('staff_note_saved'), 'success');
       closeSheet();
     } catch (e) {
-      toast('Error al guardar: ' + e.message, 'error');
+      toast(t('staff_note_error') + ': ' + e.message, 'error');
     }
   });
 }

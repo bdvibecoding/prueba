@@ -7,26 +7,29 @@ import { db, collections, timestamp } from '../firebase-config.js';
 import { getUserProfile }             from '../state.js';
 import { toast, formatDate }          from '../utils.js';
 import { openSheet, closeSheet, confirm } from '../components/modal.js';
+import { t } from '../i18n.js';
 
-// ── Common supplement suggestions ─────────────
+// ── Common supplement suggestions (names stay as-is) ─
 const SUPPLEMENT_SUGGESTIONS = [
   'Creatina', 'Proteína Whey', 'BCAA', 'Vitamina D3',
   'Omega-3', 'Magnesio', 'ZMA', 'Beta-Alanina',
   'Cafeína', 'Glutamina', 'Colágeno',
 ];
 
-// ── Timing options ─────────────────────────────
-const TIMING_OPTIONS = [
-  'Mañana en ayunas',
-  'Con desayuno',
-  'Pre-entreno (30min)',
-  'Intra-entreno',
-  'Post-entreno',
-  'Con almuerzo',
-  'Con cena',
-  'Antes de dormir',
-  'En cualquier momento',
-];
+// ── Timing options (i18n-aware, built at call time) ─
+function getTimingOptions() {
+  return [
+    { value: 'Mañana en ayunas',    label: t('sc_timing_morning_fast') },
+    { value: 'Con desayuno',        label: t('sc_timing_with_breakfast') },
+    { value: 'Pre-entreno (30min)', label: t('sc_timing_preworkout') },
+    { value: 'Intra-entreno',       label: t('sc_timing_intra') },
+    { value: 'Post-entreno',        label: t('sc_timing_postworkout') },
+    { value: 'Con almuerzo',        label: t('sc_timing_with_lunch') },
+    { value: 'Con cena',            label: t('sc_timing_with_dinner') },
+    { value: 'Antes de dormir',     label: t('sc_timing_before_sleep') },
+    { value: 'En cualquier momento', label: t('sc_timing_anytime') },
+  ];
+}
 
 // ── Helper: load clients assigned to current user ──
 async function loadAssignedClients(selectEl, role, myUid) {
@@ -92,29 +95,29 @@ export async function openSupplementCreator(clientUid = null) {
   const myName  = profile?.name || 'Staff';
   const role    = profile?.role || 'coach';
 
-  const timingOpts  = TIMING_OPTIONS.map(t => `<option>${t}</option>`).join('');
-  const suggChips   = SUPPLEMENT_SUGGESTIONS.map(s =>
+  const timingOpts = getTimingOptions().map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+  const suggChips  = SUPPLEMENT_SUGGESTIONS.map(s =>
     `<button class="chip suppl-suggest" data-name="${s}" style="cursor:pointer">${s}</button>`
   ).join('');
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">💊 Nuevo Protocolo de Suplementación</h3>
+      <h3 class="modal-title">${t('sc_title')}</h3>
       <button class="modal-close">✕</button>
     </div>
     <div style="padding:var(--space-md);overflow-y:auto;max-height:calc(100vh - 120px)">
 
-      <label class="field-label">Nombre del protocolo *</label>
-      <input type="text" id="suppl-name" class="input-solo" placeholder="Ej: Protocolo de volumen" style="margin-bottom:var(--space-md)">
+      <label class="field-label">${t('sc_name_label')}</label>
+      <input type="text" id="suppl-name" class="input-solo" placeholder="${t('sc_name_placeholder')}" style="margin-bottom:var(--space-md)">
 
-      <label class="field-label">Descripción / Objetivo</label>
-      <textarea id="suppl-desc" class="input-solo" rows="2" placeholder="Objetivo del protocolo..." style="margin-bottom:var(--space-md)"></textarea>
+      <label class="field-label">${t('sc_desc_label')}</label>
+      <textarea id="suppl-desc" class="input-solo" rows="2" placeholder="${t('sc_desc_placeholder')}" style="margin-bottom:var(--space-md)"></textarea>
 
-      <div class="section-title">Suplementos</div>
+      <div class="section-title">${t('sc_suppl_title')}</div>
 
       <!-- Quick suggestions -->
       <div style="margin-bottom:var(--space-sm)">
-        <p style="font-size:12px;color:var(--color-text-muted);margin-bottom:6px">Sugerencias:</p>
+        <p style="font-size:12px;color:var(--color-text-muted);margin-bottom:6px">${t('sc_suggestions')}</p>
         <div style="display:flex;flex-wrap:wrap;gap:6px">
           ${suggChips}
         </div>
@@ -124,42 +127,42 @@ export async function openSupplementCreator(clientUid = null) {
       <div class="glass-card" style="margin-bottom:var(--space-sm)">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
           <div>
-            <label style="font-size:11px;color:var(--color-text-muted)">Suplemento *</label>
-            <input type="text" id="new-suppl-name" class="input-solo" placeholder="Nombre" style="margin-top:2px">
+            <label style="font-size:11px;color:var(--color-text-muted)">${t('sc_suppl_label')}</label>
+            <input type="text" id="new-suppl-name" class="input-solo" placeholder="${t('sc_suppl_placeholder')}" style="margin-top:2px">
           </div>
           <div>
-            <label style="font-size:11px;color:var(--color-text-muted)">Marca</label>
-            <input type="text" id="new-suppl-brand" class="input-solo" placeholder="Opcional" style="margin-top:2px">
+            <label style="font-size:11px;color:var(--color-text-muted)">${t('sc_brand_label')}</label>
+            <input type="text" id="new-suppl-brand" class="input-solo" placeholder="${t('sc_brand_placeholder')}" style="margin-top:2px">
           </div>
           <div>
-            <label style="font-size:11px;color:var(--color-text-muted)">Dosis</label>
-            <input type="text" id="new-suppl-dose" class="input-solo" placeholder="Ej: 5g" style="margin-top:2px">
+            <label style="font-size:11px;color:var(--color-text-muted)">${t('sc_dose_label')}</label>
+            <input type="text" id="new-suppl-dose" class="input-solo" placeholder="${t('sc_dose_placeholder')}" style="margin-top:2px">
           </div>
           <div>
-            <label style="font-size:11px;color:var(--color-text-muted)">Momento</label>
+            <label style="font-size:11px;color:var(--color-text-muted)">${t('sc_timing_label')}</label>
             <select id="new-suppl-timing" class="input-solo" style="margin-top:2px">
               ${timingOpts}
             </select>
           </div>
         </div>
-        <input type="text" id="new-suppl-instructions" class="input-solo" placeholder="Instrucciones (mezclar con agua...)" style="margin-bottom:6px">
-        <input type="text" id="new-suppl-duration" class="input-solo" placeholder="Duración (ej: 8 semanas, continuo)">
-        <button class="btn-accent btn-full" id="btn-add-suppl" style="margin-top:8px">+ Añadir suplemento</button>
+        <input type="text" id="new-suppl-instructions" class="input-solo" placeholder="${t('sc_instructions_placeholder')}" style="margin-bottom:6px">
+        <input type="text" id="new-suppl-duration" class="input-solo" placeholder="${t('sc_duration_placeholder')}">
+        <button class="btn-accent btn-full" id="btn-add-suppl" style="margin-top:8px">${t('sc_add_suppl')}</button>
       </div>
 
       <!-- Items list -->
       <div id="suppl-items-list"></div>
 
-      <label class="field-label" style="margin-top:var(--space-md)">Notas generales</label>
-      <textarea id="suppl-notes" class="input-solo" rows="2" placeholder="Contraindicaciones, consejos..." style="margin-top:4px;margin-bottom:var(--space-md)"></textarea>
+      <label class="field-label" style="margin-top:var(--space-md)">${t('sc_notes_label')}</label>
+      <textarea id="suppl-notes" class="input-solo" rows="2" placeholder="${t('sc_notes_placeholder')}" style="margin-top:4px;margin-bottom:var(--space-md)"></textarea>
 
       <!-- Assign client -->
-      <label class="field-label">Asignar a cliente</label>
+      <label class="field-label">${t('sc_assign_label')}</label>
       <select id="suppl-assign-client" class="input-solo" style="margin-top:4px;margin-bottom:var(--space-lg)">
-        <option value="">— Sin asignar —</option>
+        <option value="">${t('sc_no_assign')}</option>
       </select>
 
-      <button class="btn-primary btn-full" id="btn-save-suppl">💾 Guardar protocolo</button>
+      <button class="btn-primary btn-full" id="btn-save-suppl">${t('sc_save')}</button>
     </div>
   `;
 
@@ -193,11 +196,11 @@ export async function openSupplementCreator(clientUid = null) {
     const name         = sc.querySelector('#new-suppl-name')?.value?.trim();
     const brand        = sc.querySelector('#new-suppl-brand')?.value?.trim() || '';
     const dose         = sc.querySelector('#new-suppl-dose')?.value?.trim() || '';
-    const timing       = sc.querySelector('#new-suppl-timing')?.value || TIMING_OPTIONS[0];
+    const timing       = sc.querySelector('#new-suppl-timing')?.value || getTimingOptions()[0].value;
     const instructions = sc.querySelector('#new-suppl-instructions')?.value?.trim() || '';
     const duration     = sc.querySelector('#new-suppl-duration')?.value?.trim() || '';
 
-    if (!name) { toast('El nombre del suplemento es obligatorio', 'warning'); return; }
+    if (!name) { toast(t('sc_suppl_required'), 'warning'); return; }
 
     const item = { supplement: name, brand, dose, timing, instructions, duration };
 
@@ -228,10 +231,10 @@ export async function openSupplementCreator(clientUid = null) {
   // Save
   sc.querySelector('#btn-save-suppl')?.addEventListener('click', async () => {
     const name = sc.querySelector('#suppl-name')?.value?.trim();
-    if (!name) { toast('El nombre del protocolo es obligatorio', 'warning'); return; }
+    if (!name) { toast(t('sc_name_required'), 'warning'); return; }
 
     const items = collectItems(sc);
-    if (items.length === 0) { toast('Añade al menos un suplemento', 'warning'); return; }
+    if (items.length === 0) { toast(t('sc_items_required'), 'warning'); return; }
 
     const description = sc.querySelector('#suppl-desc')?.value?.trim() || '';
     const notes       = sc.querySelector('#suppl-notes')?.value?.trim() || '';
@@ -250,7 +253,7 @@ export async function openSupplementCreator(clientUid = null) {
 
     const saveBtn = sc.querySelector('#btn-save-suppl');
     saveBtn.disabled    = true;
-    saveBtn.textContent = 'Guardando…';
+    saveBtn.textContent = t('sc_saving');
 
     try {
       await db.collection('supplements').add(protocol);
@@ -262,12 +265,12 @@ export async function openSupplementCreator(clientUid = null) {
         });
       }
 
-      toast('Protocolo guardado ✅', 'success');
+      toast(t('sc_saved'), 'success');
       closeSheet();
     } catch (e) {
-      toast('Error al guardar: ' + e.message, 'error');
+      toast(t('sc_save_error') + ': ' + e.message, 'error');
       saveBtn.disabled    = false;
-      saveBtn.textContent = '💾 Guardar protocolo';
+      saveBtn.textContent = t('sc_save');
     }
   });
 }
@@ -292,8 +295,8 @@ export async function openSupplementsList(container) {
       container.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">💊</div>
-          <div class="empty-title">Sin protocolos creados</div>
-          <div class="empty-subtitle">Crea tu primer protocolo de suplementación.</div>
+          <div class="empty-title">${t('sc_no_protocols')}</div>
+          <div class="empty-subtitle">${t('sc_no_protocols_sub')}</div>
         </div>`;
       return;
     }
@@ -316,11 +319,11 @@ export async function openSupplementsList(container) {
     container.querySelectorAll('[data-delete-suppl]').forEach(btn => {
       btn.addEventListener('click', async () => {
         const pid = btn.dataset.deleteSuppl;
-        const ok  = await confirm('Eliminar protocolo', '¿Eliminar este protocolo de suplementación? Esta acción no se puede deshacer.', { danger: true, okText: 'Eliminar' });
+        const ok  = await confirm(t('sc_delete_title'), t('sc_delete_confirm'), { danger: true, okText: t('sc_delete_title') });
         if (!ok) return;
         try {
           await db.collection('supplements').doc(pid).delete();
-          toast('Protocolo eliminado', 'success');
+          toast(t('sc_deleted'), 'success');
           await openSupplementsList(container);
         } catch (e) {
           toast('Error: ' + e.message, 'error');
@@ -339,9 +342,10 @@ function buildProtocolCard(protocol) {
   const created   = protocol.createdAt?.toDate
     ? formatDate(protocol.createdAt.toDate())
     : '—';
+  const supplLabel = itemCount === 1 ? t('sc_supplements') : t('sc_supplements_plural');
   const assigned  = protocol.assignedTo
-    ? `<span class="badge badge-cyan" style="font-size:10px">Asignado</span>`
-    : `<span class="badge badge-gray" style="font-size:10px">Sin asignar</span>`;
+    ? `<span class="badge badge-cyan" style="font-size:10px">${t('sc_badge_assigned')}</span>`
+    : `<span class="badge badge-gray" style="font-size:10px">${t('sc_badge_not_assigned')}</span>`;
 
   return `
     <div class="glass-card" style="padding:var(--space-md);margin-bottom:var(--space-sm)">
@@ -354,7 +358,7 @@ function buildProtocolCard(protocol) {
             ? `<div class="text-muted" style="font-size:12px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${protocol.description}</div>`
             : ''}
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;align-items:center">
-            <span style="font-size:12px;color:var(--color-text-muted)">💊 ${itemCount} suplemento${itemCount !== 1 ? 's' : ''}</span>
+            <span style="font-size:12px;color:var(--color-text-muted)">💊 ${itemCount} ${supplLabel}</span>
             ${assigned}
           </div>
           <div style="font-size:11px;color:var(--color-text-muted);margin-top:4px">${created}</div>
@@ -364,7 +368,7 @@ function buildProtocolCard(protocol) {
             class="chip"
             data-assign-suppl="${protocol.id}"
             style="font-size:11px;padding:4px 10px;cursor:pointer;border-color:var(--cyan-dim);color:var(--cyan)"
-          >Asignar</button>
+          >${t('assign')}</button>
           <button
             class="btn-icon"
             data-delete-suppl="${protocol.id}"
@@ -382,15 +386,15 @@ async function openAssignSupplSheet(protocol, profile) {
   const myUid = profile?.uid;
 
   const html = `
-    <h4 style="margin-bottom:4px">Asignar protocolo</h4>
+    <h4 style="margin-bottom:4px">${t('sc_assign_protocol')}</h4>
     <p class="text-muted" style="margin-bottom:var(--space-md);font-size:13px">
       <strong>${protocol.name}</strong>
     </p>
-    <label class="field-label">Selecciona cliente</label>
+    <label class="field-label">${t('sc_select_client')}</label>
     <select id="assign-suppl-client-select" class="input-solo" style="margin-top:4px;margin-bottom:var(--space-md)">
-      <option value="">— Selecciona un cliente —</option>
+      <option value="">${t('sc_select_client_opt')}</option>
     </select>
-    <button class="btn-primary btn-full" id="btn-do-assign-suppl">Asignar protocolo</button>
+    <button class="btn-primary btn-full" id="btn-do-assign-suppl">${t('sc_do_assign')}</button>
   `;
 
   openSheet(html);
@@ -401,7 +405,7 @@ async function openAssignSupplSheet(protocol, profile) {
 
   sc.querySelector('#btn-do-assign-suppl')?.addEventListener('click', async () => {
     const clientUid = sel.value;
-    if (!clientUid) { toast('Selecciona un cliente', 'warning'); return; }
+    if (!clientUid) { toast(t('sc_assign_select'), 'warning'); return; }
 
     try {
       await collections.supplements(clientUid).add({
@@ -410,7 +414,7 @@ async function openAssignSupplSheet(protocol, profile) {
         assignedAt: timestamp(),
       });
       await db.collection('supplements').doc(protocol.id).update({ assignedTo: clientUid });
-      toast('Protocolo asignado ✅', 'success');
+      toast(t('sc_assigned'), 'success');
       closeSheet();
     } catch (e) {
       toast('Error: ' + e.message, 'error');

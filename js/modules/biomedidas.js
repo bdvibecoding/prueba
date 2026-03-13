@@ -8,6 +8,7 @@ import { collections, timestamp } from '../firebase-config.js';
 import { toast, formatDate, todayString, round2, calcBMI, bmiCategory, deltaPercent } from '../utils.js';
 import { openModal, closeModal, openSheet } from '../components/modal.js';
 import { renderWeightChart, renderBodyFatChart, renderSkinfoldChart, renderPerimetralsChart, renderCompositionChart } from '../components/charts.js';
+import { t } from '../i18n.js';
 
 export async function render(container) {
   container.innerHTML = `
@@ -15,24 +16,24 @@ export async function render(container) {
       <div style="padding:var(--page-pad)">
         <div class="page-header">
           <div>
-            <h2 class="page-title">📊 Biomedidas</h2>
-            <p class="page-subtitle">Control de composición corporal</p>
+            <h2 class="page-title">📊 ${t('bio_title')}</h2>
+            <p class="page-subtitle">${t('bio_subtitle')}</p>
           </div>
-          <button class="btn-primary" id="btn-add-bio" style="padding:10px 16px;font-size:13px">+ Añadir</button>
+          <button class="btn-primary" id="btn-add-bio" style="padding:10px 16px;font-size:13px">+ ${t('bio_add')}</button>
         </div>
 
         <!-- Fixed Data Row -->
         <div class="quick-stats" id="fixed-stats-row">
-          <div class="glass-card stat-card"><div class="stat-value" id="stat-height">—</div><div class="stat-label">Talla (cm)</div></div>
-          <div class="glass-card stat-card"><div class="stat-value" id="stat-weight">—</div><div class="stat-label">Peso (kg)</div></div>
-          <div class="glass-card stat-card"><div class="stat-value" id="stat-bmi">—</div><div class="stat-label">IMC</div></div>
+          <div class="glass-card stat-card"><div class="stat-value" id="stat-height">—</div><div class="stat-label">${t('bio_height_cm')}</div></div>
+          <div class="glass-card stat-card"><div class="stat-value" id="stat-weight">—</div><div class="stat-label">${t('bio_weight_kg')}</div></div>
+          <div class="glass-card stat-card"><div class="stat-value" id="stat-bmi">—</div><div class="stat-label">${t('bio_bmi')}</div></div>
         </div>
 
         <!-- Tabs -->
         <div class="tabs">
-          <button class="tab-btn active" data-tab="bioimpedancia">Bioimpedancia</button>
-          <button class="tab-btn" data-tab="pliegues">Pliegues</button>
-          <button class="tab-btn" data-tab="perimetros">Perímetros</button>
+          <button class="tab-btn active" data-tab="bioimpedancia">${t('bio_tab_bio')}</button>
+          <button class="tab-btn" data-tab="pliegues">${t('bio_tab_skinfolds')}</button>
+          <button class="tab-btn" data-tab="perimetros">${t('bio_tab_perimetrals')}</button>
         </div>
 
         <!-- Date Range -->
@@ -41,7 +42,7 @@ export async function render(container) {
           <input type="date" id="date-from" value="${getDateMinus(90)}">
           <span>—</span>
           <input type="date" id="date-to" value="${todayString()}">
-          <button class="btn-accent" id="btn-apply-range" style="padding:6px 12px;font-size:12px">Aplicar</button>
+          <button class="btn-accent" id="btn-apply-range" style="padding:6px 12px;font-size:12px">${t('apply')}</button>
         </div>
 
         <!-- Tab Content: Bioimpedancia -->
@@ -156,7 +157,7 @@ async function loadBioData(container, profile, from, to) {
     renderPerimetralTable(container, data);
 
   } catch (e) {
-    toast('Error cargando datos: ' + e.message, 'error');
+    toast(t('error_loading') + ': ' + e.message, 'error');
   }
 }
 
@@ -164,7 +165,7 @@ function renderBioTable(container, data) {
   const el = container.querySelector('#bio-readings-table');
   if (!el) return;
   const rows = data.filter(d => d.fatPercent || d.musclePercent || d.weight).reverse().slice(0, 10);
-  if (!rows.length) { el.innerHTML = `<p class="text-muted" style="padding:var(--space-md)">Sin datos de bioimpedancia</p>`; return; }
+  if (!rows.length) { el.innerHTML = `<p class="text-muted" style="padding:var(--space-md)">${t('bio_no_bio_data')}</p>`; return; }
   el.innerHTML = `
     <div style="padding:var(--space-md)">
       ${rows.map(d => `
@@ -183,14 +184,14 @@ function renderSkinfoldTable(container, data) {
   const el = container.querySelector('#skinfold-table');
   if (!el) return;
   const rows = data.filter(d => d.skinfolds).reverse().slice(0, 5);
-  if (!rows.length) { el.innerHTML = `<p class="text-muted" style="padding:var(--space-md)">Sin datos de pliegues</p>`; return; }
+  if (!rows.length) { el.innerHTML = `<p class="text-muted" style="padding:var(--space-md)">${t('bio_no_skinfold_data')}</p>`; return; }
   const keys = Object.keys(rows[0].skinfolds || {});
   el.innerHTML = `
     <div style="padding:var(--space-md);overflow-x:auto">
       <table style="width:100%;font-size:12px;border-collapse:collapse">
-        <tr><th style="text-align:left;color:var(--color-text-muted);padding:6px 4px">Fecha</th>
+        <tr><th style="text-align:left;color:var(--color-text-muted);padding:6px 4px">${t('date')}</th>
           ${keys.map(k => `<th style="color:var(--color-text-muted);padding:6px 4px">${k}</th>`).join('')}
-          <th style="color:var(--color-text-muted);padding:6px 4px">% Grasa</th>
+          <th style="color:var(--color-text-muted);padding:6px 4px">${t('bio_fat_pct')}</th>
         </tr>
         ${rows.map(d => `
           <tr style="border-top:1px solid rgba(255,255,255,0.04)">
@@ -208,7 +209,7 @@ function renderPerimetralTable(container, data) {
   const el = container.querySelector('#perimetral-table');
   if (!el) return;
   const rows = data.filter(d => d.perimetrals).reverse().slice(0, 8);
-  if (!rows.length) { el.innerHTML = `<p class="text-muted" style="padding:var(--space-md)">Sin medidas perimetrales</p>`; return; }
+  if (!rows.length) { el.innerHTML = `<p class="text-muted" style="padding:var(--space-md)">${t('bio_no_perim_data')}</p>`; return; }
   el.innerHTML = `
     <div style="padding:var(--space-md)">
       ${rows.map(d => {
@@ -216,9 +217,9 @@ function renderPerimetralTable(container, data) {
         return `
           <div class="bio-row">
             <span class="bio-label">${formatDate(d.date)}</span>
-            ${p.waist ? `<span class="bio-value">${p.waist} cm <span class="text-muted" style="font-size:10px">cin</span></span>` : ''}
-            ${p.hip ? `<span class="bio-value">${p.hip} cm <span class="text-muted" style="font-size:10px">cad</span></span>` : ''}
-            ${p.chest ? `<span class="bio-value">${p.chest} cm <span class="text-muted" style="font-size:10px">pec</span></span>` : ''}
+            ${p.waist ? `<span class="bio-value">${p.waist} cm <span class="text-muted" style="font-size:10px">${t('bio_waist_abbr')}</span></span>` : ''}
+            ${p.hip ? `<span class="bio-value">${p.hip} cm <span class="text-muted" style="font-size:10px">${t('bio_hip_abbr')}</span></span>` : ''}
+            ${p.chest ? `<span class="bio-value">${p.chest} cm <span class="text-muted" style="font-size:10px">${t('bio_chest_abbr')}</span></span>` : ''}
           </div>
         `;
       }).join('')}
@@ -230,39 +231,52 @@ function renderPerimetralTable(container, data) {
 function openAddBioSheet(profile, container) {
   const today = todayString();
   const html = `
-    <h4 style="margin-bottom:var(--space-md)">📊 Añadir medidas</h4>
+    <h4 style="margin-bottom:var(--space-md)">📊 ${t('bio_add_measurements')}</h4>
     <div class="tabs" style="margin-bottom:var(--space-md)">
-      <button class="tab-btn active" data-subtab="bio">Bioimpedancia</button>
-      <button class="tab-btn" data-subtab="skin">Pliegues</button>
-      <button class="tab-btn" data-subtab="peri">Perímetros</button>
+      <button class="tab-btn active" data-subtab="bio">${t('bio_tab_bio')}</button>
+      <button class="tab-btn" data-subtab="skin">${t('bio_tab_skinfolds')}</button>
+      <button class="tab-btn" data-subtab="peri">${t('bio_tab_perimetrals')}</button>
     </div>
 
     <input type="date" id="bio-entry-date" class="input-solo" value="${today}" style="margin-bottom:var(--space-md)">
 
     <!-- Bioimpedancia fields -->
     <div id="subtab-bio">
-      ${buildMeasurementInput('bio-weight', 'Peso actual', 'kg')}
-      ${buildMeasurementInput('bio-fat', '% Grasa corporal', '%')}
-      ${buildMeasurementInput('bio-muscle', '% Masa muscular', '%')}
-      ${buildMeasurementInput('bio-water', '% Agua', '%')}
-      ${buildMeasurementInput('bio-visceral', 'Grasa visceral', 'índice')}
+      ${buildMeasurementInput('bio-weight', t('bio_current_weight'), 'kg')}
+      ${buildMeasurementInput('bio-fat', t('bio_body_fat_pct'), '%')}
+      ${buildMeasurementInput('bio-muscle', t('bio_muscle_pct'), '%')}
+      ${buildMeasurementInput('bio-water', t('bio_water_pct'), '%')}
+      ${buildMeasurementInput('bio-visceral', t('bio_visceral_fat'), t('bio_index'))}
     </div>
 
-    <!-- Pliegues fields -->
+    <!-- Skinfold fields -->
     <div id="subtab-skin" style="display:none">
-      ${['Tríceps','Bíceps','Subescapular','Supraespinal','Abdominal','Muslo','Pierna'].map(p =>
-        buildMeasurementInput('skin-' + p.toLowerCase(), p, 'mm')
-      ).join('')}
+      ${[
+        ['triceps',      t('bio_sf_triceps')],
+        ['biceps',       t('bio_sf_biceps')],
+        ['subescapular', t('bio_sf_subscapular')],
+        ['supraespinal', t('bio_sf_supraspinal')],
+        ['abdominal',    t('bio_sf_abdominal')],
+        ['muslo',        t('bio_sf_thigh')],
+        ['pierna',       t('bio_sf_calf')],
+      ].map(([id, label]) => buildMeasurementInput('skin-' + id, label, 'mm')).join('')}
     </div>
 
-    <!-- Perímetros fields -->
+    <!-- Perimetral fields -->
     <div id="subtab-peri" style="display:none">
-      ${['Cintura','Cadera','Pecho','Brazo D','Brazo I','Muslo D','Muslo I','Gemelo'].map(p =>
-        buildMeasurementInput('peri-' + p.toLowerCase().replace(/ /g,''), p, 'cm')
-      ).join('')}
+      ${[
+        ['cintura',  t('bio_p_waist')],
+        ['cadera',   t('bio_p_hip')],
+        ['pecho',    t('bio_p_chest')],
+        ['brazod',   t('bio_p_arm_r')],
+        ['brazoi',   t('bio_p_arm_l')],
+        ['muslod',   t('bio_p_thigh_r')],
+        ['musloi',   t('bio_p_thigh_l')],
+        ['gemelo',   t('bio_p_calf')],
+      ].map(([id, label]) => buildMeasurementInput('peri-' + id, label, 'cm')).join('')}
     </div>
 
-    <button class="btn-primary btn-full" id="btn-save-bio" style="margin-top:var(--space-md)">💾 Guardar</button>
+    <button class="btn-primary btn-full" id="btn-save-bio" style="margin-top:var(--space-md)">💾 ${t('save')}</button>
   `;
   openSheet(html);
 
@@ -314,11 +328,11 @@ function openAddBioSheet(profile, container) {
 
     try {
       await collections.biomedidas(profile.uid).add(entry);
-      toast('Medidas guardadas ✅', 'success');
+      toast(t('bio_saved'), 'success');
       closeSheet();
       loadBioData(container, profile, getDateMinus(90), todayString());
       loadFixedStats(container, { ...profile, weight: entry.weight || profile.weight });
-    } catch (e) { toast('Error: ' + e.message, 'error'); }
+    } catch (e) { toast(t('error') + ': ' + e.message, 'error'); }
   });
 }
 
