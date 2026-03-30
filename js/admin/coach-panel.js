@@ -266,35 +266,105 @@ async function openAssignRoutineFromCoach(clientUid) {
 async function loadMyRoutines(container, profile) {
   const el = container.querySelector('#routines-list');
   if (!el) return;
+
+  el.innerHTML = `
+    <button class="btn-primary btn-full" id="btn-create-routine-tab" style="margin-bottom:var(--space-md)">
+      + Nueva rutina
+    </button>
+    <div id="routines-cards"><div class="overlay-spinner"><div class="spinner-sm"></div></div></div>
+  `;
+
+  el.querySelector('#btn-create-routine-tab')?.addEventListener('click', () => openNewRoutineModal(profile, container));
+  await renderRoutineCards(el.querySelector('#routines-cards'), profile, container);
+}
+
+async function renderRoutineCards(el, profile, container) {
+  if (!el) return;
   try {
     const snap = await db.collection('routines').where('createdBy', '==', profile.uid).limit(30).get();
     if (snap.empty) {
-      el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Sin rutinas creadas</div></div>`;
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Sin rutinas creadas</div><div class="empty-subtitle">Crea tu primera rutina arriba.</div></div>`;
       return;
     }
     el.innerHTML = snap.docs.map(doc => {
       const r = doc.data();
+      const tags = r.tags?.map(t => `<span class="badge badge-gray">${t}</span>`).join('') || '';
+      const muscles = [...new Set((r.exercises || []).map(e => e.muscleGroup).filter(Boolean))].slice(0, 3).join(' · ');
       return `
-        <div class="routine-card glass-card" data-rid="${doc.id}" style="cursor:pointer">
-          <div class="routine-card-header">
-            <div class="routine-card-icon">💪</div>
-            <div>
-              <div class="routine-card-title">${r.name}</div>
-              <div class="text-muted">${r.exercises?.length || 0} ejercicios</div>
+        <div class="glass-card" style="margin-bottom:var(--space-sm);padding:var(--space-md)">
+          <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px">
+            <div style="font-size:26px;line-height:1">💪</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:700;font-size:15px">${r.name}</div>
+              <div class="text-muted" style="font-size:12px;margin-top:2px">
+                ${r.exercises?.length || 0} ejercicios${muscles ? ' · ' + muscles : ''}
+              </div>
+              ${tags ? `<div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap">${tags}</div>` : ''}
             </div>
-            <button class="btn-icon" data-edit-rid="${doc.id}" style="font-size:14px">✏️</button>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-secondary" style="flex:1;font-size:12px;padding:8px" data-edit-rid="${doc.id}">✏️ Editar</button>
+            <button class="btn-accent" style="flex:1;font-size:12px;padding:8px" data-assign-rid="${doc.id}" data-assign-rname="${r.name}">📋 Asignar</button>
           </div>
         </div>
       `;
     }).join('');
 
     el.querySelectorAll('[data-edit-rid]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        openEditRoutineModal(btn.dataset.editRid, profile);
-      });
+      btn.addEventListener('click', () => openEditRoutineModal(btn.dataset.editRid, profile, container));
+    });
+
+    el.querySelectorAll('[data-assign-rid]').forEach(btn => {
+      btn.addEventListener('click', () => openAssignClientForRoutine(btn.dataset.assignRid, btn.dataset.assignRname, profile));
     });
   } catch (e) { el.innerHTML = `<p class="text-muted">Error: ${e.message}</p>`; }
+}
+
+// ── Assign routine → pick client ─────────────
+async function openAssignClientForRoutine(routineId, routineName, profile) {
+  let clients = [];
+  try {
+    const snap = await db.collection('users').where('assignedCoach', '==', profile.uid).get();
+    clients = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch { /* ignore */ }
+
+  if (!clients.length) {
+    toast('No tienes clientes asignados aún', 'info');
+    return;
+  }
+
+  const html = `
+    <div class="modal-header">
+      <h3 class="modal-title">📋 Asignar rutina</h3>
+      <button class="modal-close">✕</button>
+    </div>
+    <p class="text-muted" style="margin-bottom:var(--space-md);font-size:13px">
+      "<strong>${routineName}</strong>" → selecciona el cliente:
+    </p>
+    ${clients.map(c => `
+      <div class="admin-user-card" data-cuid="${c.uid || c.id}" data-cname="${c.name || 'Cliente'}" style="cursor:pointer;margin-bottom:6px">
+        <div class="admin-user-avatar">${getInitials(c.name || '?')}</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:14px">${c.name || 'Cliente'}</div>
+          <div class="text-muted" style="font-size:12px">${c.email || ''}</div>
+        </div>
+        <span class="badge badge-cyan">Asignar</span>
+      </div>
+    `).join('')}
+  `;
+
+  openModal(html);
+  document.getElementById('modal-content').querySelectorAll('[data-cuid]').forEach(card => {
+    card.addEventListener('click', async () => {
+      await collections.assignments(card.dataset.cuid).add({
+        routineId, name: routineName,
+        assignedBy: profile.uid,
+        assignedAt: timestamp(), createdAt: timestamp(),
+      });
+      toast(`Rutina asignada a ${card.dataset.cname} ✅`, 'success');
+      closeModal();
+    });
+  });
 }
 
 // ── New / Edit Routine Modal ──────────────────
@@ -310,7 +380,6 @@ async function openEditRoutineModal(routineId, profile, container) {
   }
 
   const { EXERCISES } = await import('../../data/data.js');
-  const muscleGroups = [...new Set(EXERCISES.map(e => e.muscleGroup))];
 
   const html = `
     <div class="modal-header">
@@ -328,16 +397,11 @@ async function openEditRoutineModal(routineId, profile, container) {
     <div id="routine-exercises-list">
       ${routine.exercises?.map((ex, i) => buildRoutineExRow(ex, i)).join('') || '<p class="text-muted">Añade ejercicios</p>'}
     </div>
-    <div style="display:flex;gap:8px;margin-top:var(--space-sm)">
-      <select id="exercise-to-add" class="input-solo" style="flex:1">
-        ${muscleGroups.map(g => `<optgroup label="${g}">
-          ${EXERCISES.filter(e => e.muscleGroup === g).map(e =>
-            `<option value="${e.id}">${e.name}</option>`
-          ).join('')}
-        </optgroup>`).join('')}
-      </select>
-      <button class="btn-accent" id="btn-add-ex-to-routine">+ Añadir</button>
+    <div style="position:relative;margin:8px 0 4px">
+      <input type="text" id="cp-ex-search" class="input-solo" placeholder="🔍 Buscar ejercicio o músculo..." style="font-size:12px;width:100%" autocomplete="off">
+      <div id="cp-ex-results" style="display:none;position:absolute;top:100%;left:0;right:0;max-height:200px;overflow-y:auto;background:#1a1a2e;border:1px solid var(--glass-border);border-radius:var(--radius-sm);z-index:200;margin-top:2px"></div>
     </div>
+    <button class="btn-accent btn-full" id="btn-add-ex-to-routine" style="margin-bottom:12px">+ Añadir ejercicio seleccionado</button>
     <button class="btn-primary btn-full" id="btn-save-routine" style="margin-top:var(--space-md)">
       💾 Guardar rutina
     </button>
@@ -347,11 +411,34 @@ async function openEditRoutineModal(routineId, profile, container) {
   const modal = document.getElementById('modal-content');
   let exercises = [...(routine.exercises || [])];
 
+  let _cpSelEx = null;
+  const cpSearch = modal.querySelector('#cp-ex-search');
+  const cpResults = modal.querySelector('#cp-ex-results');
+  cpSearch?.addEventListener('input', () => {
+    const q = cpSearch.value.toLowerCase().trim();
+    if (!q) { cpResults.style.display = 'none'; return; }
+    const hits = EXERCISES.filter(e => e.n.toLowerCase().includes(q) || e.m.toLowerCase().includes(q)).slice(0, 20);
+    if (!hits.length) { cpResults.style.display = 'none'; return; }
+    cpResults.innerHTML = hits.map(e => `
+      <div data-ex="${e.n}" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--glass-border);display:flex;justify-content:space-between;align-items:center" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+        <span style="color:#e2e8f0;font-size:13px">${e.n}</span>
+        <span style="background:#ef4444;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:8px;white-space:nowrap">${e.m}</span>
+      </div>`).join('');
+    cpResults.style.display = 'block';
+    cpResults.querySelectorAll('[data-ex]').forEach(row => {
+      row.addEventListener('click', () => {
+        _cpSelEx = EXERCISES.find(e => e.n === row.dataset.ex);
+        cpSearch.value = _cpSelEx.n;
+        cpResults.style.display = 'none';
+      });
+    });
+  });
+
   modal.querySelector('#btn-add-ex-to-routine')?.addEventListener('click', () => {
-    const sel = modal.querySelector('#exercise-to-add');
-    const ex  = EXERCISES.find(e => e.id === sel.value);
-    if (!ex) return;
-    exercises.push({ ...ex, sets: 3, reps: '10', weight: 0, setupNotes: '', restSeconds: 60 });
+    if (!_cpSelEx) return;
+    exercises.push({ id:_cpSelEx.n, name:_cpSelEx.n, muscleGroup:_cpSelEx.m, videoUrl:_cpSelEx.v||'', setupNotes:(_cpSelEx.instructions||[]).join(' '), sets:3, reps:'10', weight:0, restSeconds:60 });
+    _cpSelEx = null;
+    cpSearch.value = '';
     refreshExerciseList();
   });
 
@@ -391,7 +478,11 @@ async function openEditRoutineModal(routineId, profile, container) {
         toast('Rutina creada ✅', 'success');
       }
       closeModal();
-      if (container) loadMyRoutines(container, profile);
+      if (container) {
+        const cardsEl = container.querySelector('#routines-cards');
+        if (cardsEl) await renderRoutineCards(cardsEl, profile, container);
+        else loadMyRoutines(container, profile);
+      }
     } catch (e) { toast('Error: ' + e.message, 'error'); }
   });
 }
