@@ -28,8 +28,33 @@ function roleBadgeHtml(role) {
 
 export async function render(container) {
   container.innerHTML = `
-    <div class="page active" id="admin-page">
-      <div style="padding:var(--page-pad)">
+    <div class="page active" id="admin-page" style="display:flex;flex-direction:column;height:100%;overflow:hidden">
+
+      <!-- ── Main tab bar ── -->
+      <div style="
+        display:flex; border-bottom:1px solid var(--glass-border);
+        flex-shrink:0; background:var(--color-bg); padding:0 var(--page-pad);
+      ">
+        <button class="admin-main-tab active" data-main-tab="users"
+          style="flex:1;padding:12px 6px;background:none;border:none;border-bottom:2.5px solid var(--cyan);
+                 font-size:13px;font-weight:700;color:var(--cyan);cursor:pointer;font-family:inherit">
+          👥 Usuarios
+        </button>
+        <button class="admin-main-tab" data-main-tab="hub"
+          style="flex:1;padding:12px 6px;background:none;border:none;border-bottom:2.5px solid transparent;
+                 font-size:13px;font-weight:700;color:var(--color-text-muted);cursor:pointer;font-family:inherit">
+          💬 Hub Clientes
+        </button>
+        <button class="admin-main-tab" data-main-tab="routines"
+          style="flex:1;padding:12px 6px;background:none;border:none;border-bottom:2.5px solid transparent;
+                 font-size:13px;font-weight:700;color:var(--color-text-muted);cursor:pointer;font-family:inherit">
+          💪 Rutinas
+        </button>
+      </div>
+
+      <!-- ── Users panel ── -->
+      <div id="admin-tab-users" style="flex:1;overflow-y:auto;padding:var(--page-pad)">
+
         <div class="page-header">
           <div>
             <h2 class="page-title">🔑 ${t('admin_title')}</h2>
@@ -64,22 +89,152 @@ export async function render(container) {
           <button class="chip" data-filter="cliente">${translateRole('cliente')}</button>
         </div>
 
+        <!-- Pending activation section -->
+        <div id="pending-access-section" style="
+          margin-bottom:var(--space-md);
+          border:1px solid rgba(234,179,8,0.3);
+          border-radius:12px;
+          padding:var(--space-md);
+          background:rgba(234,179,8,0.05)
+        ">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="font-size:13px;font-weight:700;color:#eab308">
+              ⏳ ${t('admin_pending_title')}
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <button id="btn-refresh-pending" title="Actualizar" style="
+                background:none;border:none;cursor:pointer;color:var(--color-text-muted);
+                font-size:14px;padding:2px 4px;line-height:1
+              ">↺</button>
+              <span id="pending-count-badge" style="
+                font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;
+                background:rgba(234,179,8,0.2);color:#eab308;border:1px solid rgba(234,179,8,0.3)
+              ">0</span>
+            </div>
+          </div>
+          <p style="font-size:11px;color:var(--color-text-muted);margin:0 0 var(--space-sm)">
+            ${t('admin_pending_desc')}
+          </p>
+          <div id="pending-list">
+            <!-- filled by renderPendingSection() -->
+          </div>
+        </div>
+
+        <!-- Admin elevation section -->
+        <div id="admin-elevation-section" style="
+          margin-bottom:var(--space-md);
+          border:1px solid rgba(148,10,10,0.4);
+          border-radius:12px;
+          padding:var(--space-md);
+          background:rgba(148,10,10,0.08)
+        ">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="font-size:13px;font-weight:700;color:#ef4444">
+              🔑 ${t('admin_current_admins')}
+            </div>
+            <span id="admin-slot-badge" style="
+              font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;
+              background:rgba(148,10,10,0.3);color:#ef4444;border:1px solid rgba(148,10,10,0.4)
+            ">— / 3</span>
+          </div>
+          <p style="font-size:11px;color:var(--color-text-muted);margin:0 0 var(--space-sm)">
+            ${t('admin_current_admins_desc')}
+          </p>
+          <div id="admin-list-section">
+            <div class="spinner-sm"></div>
+          </div>
+        </div>
+
         <!-- Users List -->
         <div id="users-list">
           <div class="overlay-spinner"><div class="spinner-sm"></div></div>
         </div>
       </div>
+
+      <!-- ── Hub Clientes panel (lazy-loaded) ── -->
+      <div id="admin-tab-hub" style="flex:1;display:none;overflow:hidden;min-height:0">
+
+      <!-- ── Rutinas panel ── -->
+      </div><div id="admin-tab-routines" style="flex:1;display:none;overflow-y:auto;padding:var(--page-pad)">
+        <div class="page-header" style="margin-bottom:var(--space-lg)">
+          <div>
+            <h2 class="page-title">💪 Mis Rutinas</h2>
+            <p class="page-subtitle">Crea, edita y asigna rutinas a tus clientes</p>
+          </div>
+          <button class="btn-primary" id="btn-new-routine-admin" style="padding:10px 16px;font-size:13px">+ Nueva rutina</button>
+        </div>
+        <div id="admin-routines-cards"><div class="overlay-spinner"><div class="spinner-sm"></div></div></div>
+      </div>
+
     </div>
   `;
 }
 
 export async function init(container) {
   let allUsers = [];
+  let allInvitations = [];
   let currentFilter = 'all';
   let searchTerm = '';
+  let _hubLoaded = false;
+  let _hubModule = null;
+  let _unsubscribeUsers = null;
 
-  // Load users
+  // ── Main tab switching ───────────────────────
+  container.querySelectorAll('.admin-main-tab').forEach(tab => {
+    tab.addEventListener('click', async () => {
+      container.querySelectorAll('.admin-main-tab').forEach(t => {
+        t.classList.remove('active');
+        t.style.color = 'var(--color-text-muted)';
+        t.style.borderBottomColor = 'transparent';
+      });
+      tab.classList.add('active');
+      tab.style.color = 'var(--cyan)';
+      tab.style.borderBottomColor = 'var(--cyan)';
+
+      const which = tab.dataset.mainTab;
+      container.querySelector('#admin-tab-users'   ).style.display = which === 'users'    ? '' : 'none';
+      container.querySelector('#admin-tab-hub'     ).style.display = which === 'hub'      ? '' : 'none';
+      container.querySelector('#admin-tab-routines').style.display = which === 'routines' ? '' : 'none';
+
+      if (which === 'routines') loadAdminRoutines(container);
+
+      // Lazy-load the specialist hub the first time
+      if (which === 'hub' && !_hubLoaded) {
+        _hubLoaded = true;
+        const hubContainer = container.querySelector('#admin-tab-hub');
+        try {
+          _hubModule = await import('./specialist-hub.js');
+          await _hubModule.render(hubContainer, { embedded: true });
+          await _hubModule.init(hubContainer, { embedded: true });
+        } catch (e) {
+          hubContainer.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Error al cargar hub</div><div class="empty-subtitle">${e.message}</div></div>`;
+        }
+      }
+    });
+  });
+
+  // Must be declared before loadUsers() calls updateStats()
+  const STAFF_ROLES = ['admin', 'coach', 'medico', 'fisio', 'psicologo', 'nutricionista'];
+
+  // Load users + admin section
   await loadUsers();
+  try {
+    const invSnap = await db.collection('invitations')
+      .where('status', '==', 'pending')
+      .orderBy('createdAt', 'desc')
+      .get();
+    allInvitations = invSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (e) {
+    console.warn('Could not load invitations (index may be missing, retrying without orderBy):', e.message);
+    try {
+      const invSnap = await db.collection('invitations').where('status', '==', 'pending').get();
+      allInvitations = invSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (e2) {
+      console.warn('Could not load invitations:', e2.message);
+    }
+  }
+  renderAdminSection(allUsers);
+  renderPendingSection(allUsers, allInvitations);
 
   // Search
   const searchInput = container.querySelector('#user-search');
@@ -101,16 +256,40 @@ export async function init(container) {
   // Invite user button
   container.querySelector('#btn-invite-user')?.addEventListener('click', openInviteUserModal);
 
+  // Refresh pending section manually
+  container.querySelector('#btn-refresh-pending')?.addEventListener('click', async () => {
+    const btn = container.querySelector('#btn-refresh-pending');
+    if (btn) { btn.style.opacity = '0.4'; btn.style.pointerEvents = 'none'; }
+    // Reload invitations
+    try {
+      const invSnap = await db.collection('invitations').where('status', '==', 'pending').get();
+      allInvitations = invSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch(e) { console.warn(e); }
+    renderPendingSection(allUsers, allInvitations);
+    if (btn) { btn.style.opacity = ''; btn.style.pointerEvents = ''; }
+  });
+
   // ── Load all users ──────────────────────────
   async function loadUsers() {
-    try {
-      const snap = await db.collection('users').orderBy('createdAt', 'desc').limit(100).get();
-      allUsers = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      updateStats(allUsers);
-      renderUsersList(allUsers);
-    } catch (e) {
-      container.querySelector('#users-list').innerHTML = `<p class="text-muted">Error: ${e.message}</p>`;
-    }
+    return new Promise((resolve) => {
+      // Unsubscribe previous listener if any
+      if (_unsubscribeUsers) _unsubscribeUsers();
+
+      _unsubscribeUsers = db.collection('users')
+        .orderBy('createdAt', 'desc')
+        .limit(100)
+        .onSnapshot(snap => {
+          allUsers = snap.docs.map(doc => ({ id: doc.id, uid: doc.id, ...doc.data() }));
+          updateStats(allUsers);
+          renderUsersList(filterUsers(allUsers, currentFilter, searchTerm));
+          renderAdminSection(allUsers);
+          renderPendingSection(allUsers, allInvitations);
+          resolve();
+        }, e => {
+          container.querySelector('#users-list').innerHTML = `<p class="text-muted">Error: ${e.message}</p>`;
+          resolve();
+        });
+    });
   }
 
   function filterUsers(users, filter, search) {
@@ -121,12 +300,228 @@ export async function init(container) {
     });
   }
 
-  const STAFF_ROLES = ['admin', 'coach', 'medico', 'fisio', 'psicologo', 'nutricionista'];
-
   function updateStats(users) {
     container.querySelector('#stat-total').textContent = users.length;
     container.querySelector('#stat-staff').textContent = users.filter(u => STAFF_ROLES.includes(u.role)).length;
     container.querySelector('#stat-clients').textContent = users.filter(u => u.role === 'cliente' || u.role === 'atleta').length;
+  }
+
+  function renderAdminSection(users) {
+    const admins = users.filter(u => u.role === 'admin');
+    const count  = admins.length;
+    const MAX    = 3;
+
+    const badge = container.querySelector('#admin-slot-badge');
+    if (badge) {
+      badge.textContent = `${count} / ${MAX}`;
+      badge.style.background = count >= MAX ? 'rgba(148,10,10,0.5)' : 'rgba(25,249,249,0.1)';
+      badge.style.color       = count >= MAX ? '#ef4444' : 'var(--cyan)';
+      badge.style.borderColor = count >= MAX ? 'rgba(148,10,10,0.6)' : 'rgba(25,249,249,0.3)';
+    }
+
+    const el = container.querySelector('#admin-list-section');
+    if (!el) return;
+
+    if (!admins.length) {
+      el.innerHTML = `<p style="font-size:12px;color:var(--color-text-muted);margin:0">${t('admin_no_admins')}</p>`;
+      return;
+    }
+
+    el.innerHTML = admins.map(u => `
+      <div style="
+        display:flex;align-items:center;gap:10px;
+        padding:8px 10px;border-radius:8px;
+        background:rgba(255,255,255,0.04);
+        margin-bottom:6px
+      ">
+        <div style="
+          width:30px;height:30px;border-radius:50%;flex-shrink:0;
+          background:#940a0a;color:#fff;
+          display:flex;align-items:center;justify-content:center;
+          font-size:12px;font-weight:700
+        ">${getInitials(u.name) || '?'}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            ${u.name || t('admin_no_name')}
+          </div>
+          <div style="font-size:11px;color:var(--color-text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            ${u.email || ''}
+          </div>
+        </div>
+        <span style="
+          font-size:10px;font-weight:700;padding:2px 6px;border-radius:999px;
+          background:#ef4444;color:#fff;flex-shrink:0
+        ">Admin</span>
+      </div>
+    `).join('');
+  }
+
+  function renderPendingSection(users, invitations = []) {
+    // Type A: registered users without access
+    const pendingUsers = users.filter(u =>
+      ['cliente', 'atleta'].includes(u.role) &&
+      u.accessGranted !== true &&
+      (!u.subscriptionStatus || u.subscriptionStatus === 'free')
+    );
+
+    // Type B: invitations sent but not yet registered
+    const pendingInvites = invitations.filter(inv => inv.status === 'pending');
+
+    const total = pendingUsers.length + pendingInvites.length;
+
+    const badge = container.querySelector('#pending-count-badge');
+    if (badge) badge.textContent = total;
+
+    // Always show the section so admins know it exists
+    const section = container.querySelector('#pending-access-section');
+    if (section) section.style.display = '';
+
+    const el = container.querySelector('#pending-list');
+    if (!el) return;
+
+    if (total === 0) {
+      el.innerHTML = `<p style="font-size:12px;color:var(--color-text-muted);margin:0;text-align:center;padding:var(--space-sm) 0">
+        ${t('admin_no_pending') || 'No hay pendientes'}
+      </p>`;
+      return;
+    }
+
+    // Render pending invitations (not registered yet)
+    const invitesHtml = pendingInvites.map(inv => `
+      <div style="
+        display:flex;align-items:center;gap:10px;
+        padding:8px 10px;border-radius:8px;
+        background:rgba(255,255,255,0.03);
+        border:1px solid rgba(234,179,8,0.15);
+        margin-bottom:6px
+      ">
+        <div style="
+          width:32px;height:32px;border-radius:50%;flex-shrink:0;
+          background:rgba(234,179,8,0.15);color:#eab308;
+          display:flex;align-items:center;justify-content:center;
+          font-size:14px;border:1px solid rgba(234,179,8,0.3)
+        ">✉️</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            ${inv.email || '—'}
+          </div>
+          <div style="font-size:11px;color:var(--color-text-muted)">
+            ${t('admin_invite_sent') || 'Invitación enviada'} · ${inv.role || 'cliente'}
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="btn-approve-invite" data-invid="${inv.id}" style="
+            font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;
+            background:rgba(25,249,249,0.1);color:var(--cyan);
+            border:1px solid rgba(25,249,249,0.3);cursor:pointer;white-space:nowrap
+          ">${t('admin_invite_approve') || '✓ Aprobar'}</button>
+          <button class="btn-reject-invite" data-invid="${inv.id}" style="
+            font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;
+            background:rgba(148,10,10,0.15);color:#ef4444;
+            border:1px solid rgba(148,10,10,0.3);cursor:pointer;white-space:nowrap
+          ">${t('admin_invite_reject') || '✗ Rechazar'}</button>
+        </div>
+      </div>
+    `).join('');
+
+    // Render registered users without access
+    const usersHtml = pendingUsers.map(u => `
+      <div style="
+        display:flex;align-items:center;gap:10px;
+        padding:8px 10px;border-radius:8px;
+        background:rgba(255,255,255,0.04);
+        border:1px solid rgba(25,249,249,0.1);
+        margin-bottom:6px
+      ">
+        <div style="
+          width:32px;height:32px;border-radius:50%;flex-shrink:0;
+          background:rgba(25,249,249,0.1);color:var(--cyan);
+          display:flex;align-items:center;justify-content:center;
+          font-size:12px;font-weight:700;border:1px solid rgba(25,249,249,0.2)
+        ">${getInitials(u.name) || '?'}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            ${u.name || u.email || '—'}
+          </div>
+          <div style="font-size:11px;color:var(--color-text-muted)">
+            ${u.email || ''} · ${u.role}
+          </div>
+        </div>
+        <button class="btn-grant-access" data-uid="${u.uid || u.id}" style="
+          font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;
+          background:rgba(25,249,249,0.1);color:var(--cyan);
+          border:1px solid rgba(25,249,249,0.3);cursor:pointer;
+          white-space:nowrap;flex-shrink:0
+        ">${t('admin_grant_access') || 'Activar'}</button>
+      </div>
+    `).join('');
+
+    el.innerHTML = invitesHtml + usersHtml;
+
+    // Approve invitation
+    el.querySelectorAll('.btn-approve-invite').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const invId = btn.dataset.invid;
+        btn.disabled = true;
+        try {
+          await db.collection('invitations').doc(invId).update({ status: 'approved' });
+          // Remove from local list so it disappears immediately
+          allInvitations = allInvitations.filter(i => i.id !== invId);
+          renderPendingSection(allUsers, allInvitations);
+          toast(t('admin_invite_approved') || '✅ Aprobado — cuando se registre con su link tendrá acceso automáticamente', 'success');
+        } catch(e) {
+          console.error(e);
+          toast('Error al aprobar', 'error');
+          btn.disabled = false;
+        }
+      });
+    });
+
+    // Reject invitation
+    el.querySelectorAll('.btn-reject-invite').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const invId = btn.dataset.invid;
+        btn.disabled = true;
+        try {
+          await db.collection('invitations').doc(invId).update({ status: 'rejected' });
+          allInvitations = allInvitations.filter(i => i.id !== invId);
+          renderPendingSection(allUsers, allInvitations);
+          toast(t('admin_invite_rejected') || 'Invitación rechazada', 'info');
+        } catch(e) {
+          console.error(e);
+          toast('Error al rechazar', 'error');
+          btn.disabled = false;
+        }
+      });
+    });
+
+    // Attach listeners for grant access buttons
+    el.querySelectorAll('.btn-grant-access').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const uid = btn.dataset.uid;
+        btn.disabled = true;
+        btn.textContent = '…';
+        try {
+          const adminProfile = getUserProfile();
+          await db.collection('users').doc(uid).update({
+            accessGranted:   true,
+            accessGrantedBy: adminProfile?.uid || 'admin',
+            accessGrantedAt: timestamp(),
+            accessNote:      t('admin_pending_manual_note') || 'Activado manualmente',
+          });
+          const user = allUsers.find(u => (u.uid || u.id) === uid);
+          if (user) user.accessGranted = true;
+          renderPendingSection(allUsers, allInvitations);
+          renderAdminSection(allUsers);
+          toast(t('admin_access_unlocked')?.replace('{name}', user?.name || uid) || 'Acceso activado', 'success');
+        } catch (e) {
+          console.error(e);
+          toast('Error al conceder acceso', 'error');
+          btn.disabled = false;
+          btn.textContent = t('admin_grant_access') || 'Activar';
+        }
+      });
+    });
   }
 
   function renderUsersList(users) {
@@ -169,15 +564,35 @@ export async function init(container) {
         const uid      = sel.dataset.uid;
         const newRole  = sel.value;
         const prevRole = sel.dataset.currentRole;
-        const ok = await confirm(
-          t('admin_change_role'),
-          t('admin_role_confirm').replace('{role}', translateRole(newRole)),
-          { okText: t('confirm') }
-        );
-        if (!ok) {
-          sel.value = prevRole;
-          return;
+
+        // Admin elevation guard: max 3 admins
+        if (newRole === 'admin' && prevRole !== 'admin') {
+          const currentAdminCount = allUsers.filter(u => u.role === 'admin').length;
+          if (currentAdminCount >= 3) {
+            toast(t('admin_admin_limit_reached'), 'error');
+            sel.value = prevRole;
+            return;
+          }
+          const slotsLeft = 3 - currentAdminCount;
+          const confirmMsg = t('admin_elevate_confirm') + '\n\n' +
+            t('admin_elevate_warning').replace('{n}', slotsLeft);
+          const ok = await confirm(t('admin_change_role'), confirmMsg, { okText: t('confirm'), danger: true });
+          if (!ok) {
+            sel.value = prevRole;
+            return;
+          }
+        } else {
+          const ok = await confirm(
+            t('admin_change_role'),
+            t('admin_role_confirm').replace('{role}', translateRole(newRole)),
+            { okText: t('confirm') }
+          );
+          if (!ok) {
+            sel.value = prevRole;
+            return;
+          }
         }
+
         try {
           await db.collection('users').doc(uid).update({ role: newRole, updatedAt: timestamp() });
           sel.dataset.currentRole = newRole;
@@ -185,6 +600,8 @@ export async function init(container) {
           const user = allUsers.find(u => (u.uid || u.id) === uid);
           if (user) user.role = newRole;
           updateStats(allUsers);
+          renderAdminSection(allUsers);
+          renderPendingSection(allUsers, allInvitations);
           // Refresh the badge in-place
           const card = el.querySelector(`.admin-user-card[data-uid="${uid}"]`);
           if (card) {
@@ -212,6 +629,17 @@ export async function init(container) {
   }
 }
 
+// ── Access Badge Helper ───────────────────────
+function renderAccessBadge(user) {
+  if (user.subscriptionStatus && user.subscriptionStatus !== 'free') {
+    return `<span class="badge" style="background:rgba(34,197,94,0.2);color:#22c55e;border:1px solid rgba(34,197,94,0.3)">${t('admin_access_active_sub')}</span>`;
+  }
+  if (user.accessGranted) {
+    return `<span class="badge" style="background:rgba(6,182,212,0.2);color:#06b6d4;border:1px solid rgba(6,182,212,0.3)">${t('admin_access_manual_override')}</span>`;
+  }
+  return `<span class="badge" style="background:rgba(148,10,10,0.2);color:#ef4444;border:1px solid rgba(148,10,10,0.3)">${t('admin_access_none')}</span>`;
+}
+
 // ── User Detail Sheet ─────────────────────────
 async function openUserDetailSheet(user, allUsers) {
   const byRole = (role) => allUsers.filter(u => u.role === role);
@@ -231,6 +659,19 @@ async function openUserDetailSheet(user, allUsers) {
     <h4 style="margin-bottom:var(--space-sm)">${user.name || t('admin_no_name')}</h4>
     <p class="text-muted" style="margin-bottom:4px">${user.email}</p>
     <div style="margin-bottom:var(--space-md)">${roleBadgeHtml(user.role || 'cliente')}</div>
+
+    ${!['cliente','atleta'].includes(user.role) ? `
+    <div class="glass-card" style="padding:var(--space-md);margin-bottom:var(--space-md)">
+      <div class="section-title" style="margin-bottom:8px">👤 Perfil de cliente</div>
+      <label style="display:flex;align-items:center;gap:var(--space-sm);cursor:pointer">
+        <div class="toggle-switch" style="flex-shrink:0">
+          <input type="checkbox" id="isClientToggle" ${user.isClient ? 'checked' : ''}>
+          <span class="toggle-slider"></span>
+        </div>
+        <span style="font-size:var(--fs-sm)">También es cliente — puede recibir rutinas y asignaciones</span>
+      </label>
+    </div>
+    ` : ''}
 
     <!-- Coach -->
     <div class="section-title">${t('admin_assign_coach')}</div>
@@ -286,6 +727,44 @@ async function openUserDetailSheet(user, allUsers) {
       </select>
     </div>
     <button class="btn-secondary btn-full" id="btn-save-nutricionista" style="margin-bottom:var(--space-md)">${t('admin_save_nutricionista_btn')}</button>
+
+    ${['cliente','atleta'].includes(user.role) ? `
+    <!-- Access Control -->
+    <div class="glass-card" style="padding:var(--space-md);margin-bottom:var(--space-md)">
+      <div class="section-title" style="margin-bottom:var(--space-sm)">${t('admin_access_control')}</div>
+
+      <div id="accessStatusBadge" style="margin-bottom:var(--space-sm)">
+        ${renderAccessBadge(user)}
+      </div>
+
+      <label style="display:flex;align-items:center;gap:var(--space-sm);cursor:pointer;margin-bottom:var(--space-sm)">
+        <div class="toggle-switch" style="flex-shrink:0">
+          <input type="checkbox" id="accessToggle" data-uid="${user.uid || user.id}" ${user.accessGranted ? 'checked' : ''}>
+          <span class="toggle-slider"></span>
+        </div>
+        <span style="font-size:var(--fs-sm)">${t('admin_access_granted_toggle')}</span>
+      </label>
+
+      <div class="input-group" style="margin-bottom:var(--space-sm)">
+        <input
+          type="text"
+          id="accessNote"
+          placeholder="${t('admin_access_note_placeholder')}"
+          value="${user.accessNote || ''}"
+          style="font-size:var(--fs-sm)"
+        >
+      </div>
+      <button class="btn-secondary btn-full" id="saveAccessNote" style="font-size:var(--fs-sm)">
+        ${t('admin_access_save_note')}
+      </button>
+
+      ${user.accessGrantedBy ? `
+        <p style="font-size:var(--fs-xs);color:var(--color-text-muted);margin-top:var(--space-sm);margin-bottom:0">
+          ${t('admin_access_granted_by')}: ${user.accessGrantedBy}
+        </p>
+      ` : ''}
+    </div>
+    ` : ''}
 
     <div class="section-title">${t('admin_routines_title')}</div>
     <div id="sheet-routines"><div class="spinner-sm"></div></div>
@@ -349,6 +828,61 @@ async function openUserDetailSheet(user, allUsers) {
 
   // Assign routine
   sc.querySelector('#btn-assign-routine')?.addEventListener('click', () => openAssignRoutineModal(user));
+
+  // isClient toggle (for staff/admin users)
+  sc.querySelector('#isClientToggle')?.addEventListener('change', async (e) => {
+    try {
+      await db.collection('users').doc(uid).update({ isClient: e.target.checked, updatedAt: timestamp() });
+      toast(e.target.checked ? 'Marcado como cliente ✅' : 'Perfil de cliente desactivado', 'info');
+    } catch(err) { toast('Error: ' + err.message, 'error'); }
+  });
+
+  // ── Access Control (cliente / atleta only) ──
+  if (['cliente', 'atleta'].includes(user.role)) {
+    const adminProfile = getUserProfile();
+
+    // Toggle accessGranted
+    sc.querySelector('#accessToggle')?.addEventListener('change', async (e) => {
+      const granted = e.target.checked;
+      const badgeEl = sc.querySelector('#accessStatusBadge');
+      try {
+        if (granted) {
+          await db.collection('users').doc(uid).update({
+            accessGranted:   true,
+            accessGrantedBy: adminProfile?.uid || null,
+            accessGrantedAt: timestamp(),
+            updatedAt:       timestamp(),
+          });
+          if (badgeEl) badgeEl.innerHTML = renderAccessBadge({ ...user, accessGranted: true });
+          toast(t('admin_access_unlocked').replace('{name}', user.name || user.email), 'success');
+        } else {
+          await db.collection('users').doc(uid).update({
+            accessGranted:   false,
+            accessGrantedBy: null,
+            accessGrantedAt: null,
+            updatedAt:       timestamp(),
+          });
+          if (badgeEl) badgeEl.innerHTML = renderAccessBadge({ ...user, accessGranted: false });
+          toast(t('admin_access_revoked'), 'warning');
+        }
+      } catch (e) {
+        toast('Error: ' + e.message, 'error');
+        // Revert toggle on failure
+        e.target.checked = !granted;
+      }
+    });
+
+    // Save access note
+    sc.querySelector('#saveAccessNote')?.addEventListener('click', async () => {
+      const note = sc.querySelector('#accessNote')?.value?.trim() || '';
+      try {
+        await db.collection('users').doc(uid).update({ accessNote: note, updatedAt: timestamp() });
+        toast(t('admin_access_save_note'), 'success');
+      } catch (e) {
+        toast('Error: ' + e.message, 'error');
+      }
+    });
+  }
 
   // Grant sensitive data access
   sc.querySelector('#btn-grant-sensitive')?.addEventListener('click', async () => {
@@ -496,7 +1030,36 @@ async function assignRoutine(clientUid, routineId, routineName) {
 }
 
 // ── Invite User Modal ─────────────────────────
+const TGWL_FROM_EMAIL = 'Contact@tgwl.us';
+
 function openInviteUserModal() {
+  const inviterProfile = getUserProfile();
+  const inviterRole    = inviterProfile?.role;
+  const isAdminInviter = inviterRole === 'admin';
+
+  const roleSelectHtml = isAdminInviter
+    ? `
+      <select id="invite-role">
+        <option value="cliente">${translateRole('cliente')}</option>
+        <option value="atleta">${translateRole('atleta')}</option>
+        <option value="coach">${translateRole('coach')}</option>
+        <option value="medico">${translateRole('medico')}</option>
+        <option value="fisio">${translateRole('fisio')}</option>
+        <option value="psicologo">${translateRole('psicologo')}</option>
+        <option value="nutricionista">${translateRole('nutricionista')}</option>
+        <option value="admin">${translateRole('admin')}</option>
+      </select>`
+    : `
+      <select id="invite-role" disabled>
+        <option value="cliente" selected>${translateRole('cliente')}</option>
+      </select>`;
+
+  const staffWarningHtml = isAdminInviter
+    ? ''
+    : `<p class="text-muted" style="font-size:var(--fs-xs);margin-top:calc(var(--space-xs) * -1);margin-bottom:var(--space-sm)">
+        ${t('invite_staff_only_client')}
+      </p>`;
+
   const html = `
     <div class="modal-header">
       <h3 class="modal-title">${t('admin_invite_title')}</h3>
@@ -509,18 +1072,11 @@ function openInviteUserModal() {
       <span class="input-icon">✉️</span>
       <input type="email" id="invite-email" placeholder="${t('admin_invite_email')}">
     </div>
-    <div class="input-group" style="margin-bottom:var(--space-md)">
+    <div class="input-group" style="margin-bottom:var(--space-sm)">
       <span class="input-icon">👤</span>
-      <select id="invite-role">
-        <option value="cliente">${translateRole('cliente')}</option>
-        <option value="atleta">${translateRole('atleta')}</option>
-        <option value="coach">${translateRole('coach')}</option>
-        <option value="medico">${translateRole('medico')}</option>
-        <option value="fisio">${translateRole('fisio')}</option>
-        <option value="psicologo">${translateRole('psicologo')}</option>
-        <option value="nutricionista">${translateRole('nutricionista')}</option>
-      </select>
+      ${roleSelectHtml}
     </div>
+    ${staffWarningHtml}
     <button class="btn-primary btn-full" id="btn-generate-invite">${t('admin_generate')}</button>
 
     <!-- Invite link result (hidden initially) -->
@@ -531,8 +1087,11 @@ function openInviteUserModal() {
       </div>
       <div style="display:flex;gap:var(--space-sm)">
         <button class="btn-secondary" id="btn-copy-invite" style="flex:1;font-size:13px">${t('admin_copy_link')}</button>
-        <button class="btn-accent"    id="btn-email-invite" style="flex:1;font-size:13px">${t('admin_email_link')}</button>
+        <button class="btn-primary"   id="btn-send-invite" style="flex:1;font-size:13px">Enviar automático</button>
       </div>
+      <p class="text-muted" style="font-size:11px;margin-top:6px;text-align:center">
+        De: ${TGWL_FROM_EMAIL}
+      </p>
     </div>
   `;
 
@@ -549,12 +1108,13 @@ function openInviteUserModal() {
     const inviteUrl = window.location.origin + window.location.pathname + '#register?invite=' + token;
 
     try {
-      await db.collection('invitations').add({
+      const inviteRef = await db.collection('invitations').add({
         email,
         role,
         token,
         inviteUrl,
         invitedBy: getUserProfile()?.uid,
+        invitedByEmail: TGWL_FROM_EMAIL,
         createdAt: timestamp(),
         status: 'pending',
       });
@@ -576,24 +1136,245 @@ function openInviteUserModal() {
         navigator.clipboard.writeText(inviteUrl)
           .then(() => toast(t('admin_link_copied'), 'success'))
           .catch(() => {
-            // Fallback for browsers that block clipboard
             urlInput.select();
             document.execCommand('copy');
             toast(t('admin_link_copied2'), 'success');
           });
       });
 
-      // Send via email client
-      modal.querySelector('#btn-email-invite')?.addEventListener('click', () => {
-        const subject = encodeURIComponent(t('admin_invite_subject'));
-        const body    = encodeURIComponent(
-          t('admin_invite_body').replace('{url}', inviteUrl)
-        );
-        window.open(`mailto:${email}?subject=${subject}&body=${body}`);
+      // Send automatically via Firebase Trigger Email extension (mail collection)
+      modal.querySelector('#btn-send-invite')?.addEventListener('click', async () => {
+        const btn = modal.querySelector('#btn-send-invite');
+        btn.disabled = true;
+        btn.textContent = 'Enviando...';
+        try {
+          await db.collection('mail').add({
+            to: email,
+            replyTo: TGWL_FROM_EMAIL,
+            message: {
+              subject: t('admin_invite_subject'),
+              html: `
+                <div style="font-family:sans-serif;max-width:480px;margin:0 auto;background:#0a0a0a;color:#fff;border-radius:12px;overflow:hidden">
+                  <div style="background:#940a0a;padding:24px;text-align:center">
+                    <h1 style="margin:0;font-size:24px;letter-spacing:2px">THE GROWTH LAB</h1>
+                  </div>
+                  <div style="padding:32px">
+                    <h2 style="margin:0 0 16px">¡Tienes una invitación!</h2>
+                    <p style="color:#aaa;margin-bottom:24px">
+                      Has sido invitado/a a unirte a The Growth Lab como <strong style="color:#19f9f9">${translateRole(role)}</strong>.
+                    </p>
+                    <a href="${inviteUrl}"
+                       style="display:block;background:#940a0a;color:#fff;text-align:center;padding:14px 24px;border-radius:8px;text-decoration:none;font-weight:700;font-size:16px">
+                      Activar mi cuenta
+                    </a>
+                    <p style="color:#555;font-size:12px;margin-top:24px;text-align:center">
+                      Este enlace es de un solo uso. Si no esperabas esta invitación, puedes ignorar este correo.
+                    </p>
+                  </div>
+                  <div style="padding:16px;text-align:center;border-top:1px solid #222">
+                    <p style="color:#555;font-size:11px;margin:0">
+                      The Growth Lab · ${TGWL_FROM_EMAIL}
+                    </p>
+                  </div>
+                </div>
+              `,
+            },
+          });
+          await db.collection('invitations').doc(inviteRef.id).update({ emailSent: true, emailSentAt: timestamp() });
+          btn.textContent = '✓ Enviado';
+          toast('Invitación enviada a ' + email, 'success');
+        } catch (e) {
+          btn.disabled = false;
+          btn.textContent = 'Enviar automático';
+          toast('Error al enviar: ' + e.message, 'error');
+        }
       });
 
     } catch (e) {
       toast(t('admin_invite_error') + ': ' + e.message, 'error');
     }
+  });
+}
+
+// ── Admin Routines Panel ──────────────────────
+let _routinesLoaded = false;
+
+async function loadAdminRoutines(container) {
+  const profile = getUserProfile();
+  const btnNew  = container.querySelector('#btn-new-routine-admin');
+  if (!_routinesLoaded) {
+    _routinesLoaded = true;
+    btnNew?.addEventListener('click', () => openAdminRoutineEditor(null, container));
+  }
+  await renderAdminRoutineCards(container, profile);
+}
+
+async function renderAdminRoutineCards(container, profile) {
+  const el = container.querySelector('#admin-routines-cards');
+  if (!el) return;
+  try {
+    const snap = await db.collection('routines').where('createdBy','==',profile.uid).limit(50).get();
+    if (snap.empty) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Sin rutinas creadas</div><div class="empty-subtitle">Pulsa "+ Nueva rutina" para crear la primera.</div></div>`;
+      return;
+    }
+    el.innerHTML = snap.docs.map(doc => {
+      const r = doc.data();
+      const muscles = [...new Set((r.exercises||[]).map(e=>e.muscleGroup).filter(Boolean))].slice(0,4).join(' · ');
+      const tags = r.tags?.map(tg=>`<span class="badge badge-gray">${tg}</span>`).join('') || '';
+      return `
+        <div class="glass-card" style="padding:var(--space-md);margin-bottom:var(--space-sm)">
+          <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:10px">
+            <span style="font-size:26px">💪</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:700;font-size:15px">${r.name}</div>
+              <div class="text-muted" style="font-size:12px;margin-top:2px">${r.exercises?.length||0} ejercicios${muscles?' · '+muscles:''}</div>
+              ${tags?`<div style="margin-top:5px;display:flex;gap:4px;flex-wrap:wrap">${tags}</div>`:''}
+            </div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-secondary" style="flex:1;font-size:12px;padding:8px" data-edit="${doc.id}">✏️ Editar</button>
+            <button class="btn-accent"    style="flex:1;font-size:12px;padding:8px" data-assign="${doc.id}" data-rname="${(r.name||'').replace(/"/g,'&quot;')}">📋 Asignar a cliente</button>
+          </div>
+        </div>`;
+    }).join('');
+    el.querySelectorAll('[data-edit]').forEach(btn =>
+      btn.addEventListener('click', () => openAdminRoutineEditor(btn.dataset.edit, container))
+    );
+    el.querySelectorAll('[data-assign]').forEach(btn =>
+      btn.addEventListener('click', () => openAdminAssignRoutine(btn.dataset.assign, btn.dataset.rname, profile))
+    );
+  } catch(e) { el.innerHTML = `<p class="text-muted">Error: ${e.message}</p>`; }
+}
+
+async function openAdminRoutineEditor(routineId, container) {
+  const profile = getUserProfile();
+  const _esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  let routine = { name:'', description:'', exercises:[], tags:[] };
+  if (routineId) {
+    const snap = await db.collection('routines').doc(routineId).get();
+    if (snap.exists) routine = { id:snap.id, ...snap.data() };
+  }
+  const { EXERCISES } = await import('../../data/data.js');
+  const muscleGroups = [...new Set(EXERCISES.map(e=>e.m).filter(Boolean))];
+
+  const html = `
+    <div class="modal-header">
+      <h3 class="modal-title">${routineId?'Editar':'Nueva'} Rutina</h3>
+      <button class="modal-close">✕</button>
+    </div>
+    <input type="text" id="rar-name" class="input-solo" placeholder="Nombre de la rutina" value="${_esc(routine.name)}" style="margin-bottom:8px">
+    <textarea id="rar-desc" class="input-solo" rows="2" placeholder="Descripción..." style="padding:10px;width:100%;margin-bottom:12px;box-sizing:border-box">${_esc(routine.description||'')}</textarea>
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:6px">Ejercicios</div>
+    <div id="rar-ex-list"></div>
+    <div style="position:relative;margin:8px 0 4px">
+      <input type="text" id="rar-ex-search" class="input-solo" placeholder="🔍 Buscar ejercicio o músculo..." style="font-size:12px" autocomplete="off">
+      <div id="rar-ex-results" style="display:none;position:absolute;top:100%;left:0;right:0;max-height:200px;overflow-y:auto;background:#1a1a2e;border:1px solid var(--glass-border);border-radius:var(--radius-sm);z-index:200;margin-top:2px"></div>
+    </div>
+    <button class="btn-accent btn-full" id="rar-add-ex" style="margin-bottom:12px">+ Añadir ejercicio seleccionado</button>
+    <button class="btn-primary btn-full" id="rar-save">💾 Guardar rutina</button>
+  `;
+  openModal(html, { noClickClose: false });
+  const m = document.getElementById('modal-content');
+  let exercises = [...(routine.exercises||[])];
+  let _selEx = null;
+
+  const renderList = () => {
+    const listEl = m.querySelector('#rar-ex-list');
+    if (!exercises.length) { listEl.innerHTML=`<p style="color:var(--color-text-muted);font-size:12px;margin-bottom:4px">Sin ejercicios aún</p>`; return; }
+    listEl.innerHTML = exercises.map((ex,i)=>`
+      <div style="display:flex;align-items:center;gap:6px;padding:7px;background:var(--glass-bg);border-radius:var(--radius-sm);margin-bottom:4px">
+        <span style="font-size:11px;font-weight:700;color:var(--color-text-muted);min-width:18px">${i+1}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${_esc(ex.name||ex.n||'')}</div>
+          <div style="font-size:10px;color:var(--color-text-muted)">${_esc(ex.muscleGroup||ex.m||'')}</div>
+        </div>
+        <input type="number" value="${ex.sets||3}" min="1" max="20" style="width:36px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:#fff;font-size:11px;text-align:center;padding:2px" data-sets="${i}">
+        <span style="font-size:10px;color:var(--color-text-muted)">×</span>
+        <input type="text" value="${ex.reps||'10'}" style="width:36px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:#fff;font-size:11px;text-align:center;padding:2px" data-reps="${i}">
+        <button style="background:none;border:none;color:var(--color-danger);cursor:pointer;font-size:15px;padding:0 2px" data-rm="${i}">✕</button>
+      </div>`).join('');
+    listEl.querySelectorAll('[data-rm]').forEach(b=>b.addEventListener('click',()=>{ exercises.splice(+b.dataset.rm,1); renderList(); }));
+    listEl.querySelectorAll('[data-sets]').forEach(b=>b.addEventListener('change',()=>{ exercises[+b.dataset.sets].sets=parseInt(b.value)||3; }));
+    listEl.querySelectorAll('[data-reps]').forEach(b=>b.addEventListener('change',()=>{ exercises[+b.dataset.reps].reps=b.value; }));
+  };
+  renderList();
+
+  // Search logic
+  const searchEl  = m.querySelector('#rar-ex-search');
+  const resultsEl = m.querySelector('#rar-ex-results');
+  searchEl.addEventListener('input', () => {
+    const q = searchEl.value.toLowerCase().trim();
+    if (!q) { resultsEl.style.display='none'; return; }
+    const hits = EXERCISES.filter(e => e.n.toLowerCase().includes(q) || e.m.toLowerCase().includes(q)).slice(0,20);
+    if (!hits.length) { resultsEl.innerHTML=`<div style="padding:10px;color:var(--color-text-muted);font-size:12px">Sin resultados</div>`; resultsEl.style.display=''; return; }
+    resultsEl.innerHTML = hits.map(e=>`
+      <div data-exn="${e.n.replace(/"/g,'&quot;')}" style="display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05)">
+        <div style="flex:1;font-size:12px;font-weight:600;color:#e2e8f0">${_esc(e.n)}</div>
+        <span style="font-size:10px;background:rgba(239,68,68,.2);color:#ef4444;padding:2px 7px;border-radius:10px;white-space:nowrap">${_esc(e.m)}</span>
+      </div>`).join('');
+    resultsEl.style.display='';
+    resultsEl.querySelectorAll('[data-exn]').forEach(item=>{
+      item.addEventListener('mouseenter',()=>item.style.background='rgba(255,255,255,.07)');
+      item.addEventListener('mouseleave',()=>item.style.background='');
+      item.addEventListener('click',()=>{ _selEx=EXERCISES.find(e=>e.n===item.dataset.exn); searchEl.value=_selEx?.n||''; resultsEl.style.display='none'; });
+    });
+  });
+  document.addEventListener('click', e=>{ if(!m.contains(e.target)) resultsEl.style.display='none'; });
+
+  m.querySelector('#rar-add-ex')?.addEventListener('click',()=>{
+    if(!_selEx){ toast('Selecciona un ejercicio del buscador','info'); return; }
+    exercises.push({ id:_selEx.n, name:_selEx.n, muscleGroup:_selEx.m, videoUrl:_selEx.v||'', setupNotes:(_selEx.instructions||[]).join(' '), sets:3, reps:'10', weight:0, restSeconds:60 });
+    renderList(); searchEl.value=''; _selEx=null;
+  });
+
+  m.querySelector('#rar-save')?.addEventListener('click',async()=>{
+    const name=m.querySelector('#rar-name').value.trim();
+    if(!name){ toast('Introduce un nombre','warning'); return; }
+    const data={ name, description:m.querySelector('#rar-desc').value.trim(), exercises, createdBy:profile.uid, updatedAt:timestamp() };
+    try {
+      if(routineId){ await db.collection('routines').doc(routineId).update(data); toast('Rutina actualizada ✅','success'); }
+      else { data.createdAt=timestamp(); await db.collection('routines').add(data); toast('Rutina creada ✅','success'); }
+      closeModal();
+      _routinesLoaded = false;
+      renderAdminRoutineCards(container, profile);
+    } catch(e){ toast('Error: '+e.message,'error'); }
+  });
+}
+
+async function openAdminAssignRoutine(routineId, routineName, profile) {
+  const _esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  let clients=[];
+  try {
+    const snap=await db.collection('users').where('role','in',['cliente','atleta']).limit(50).get();
+    clients=snap.docs.map(d=>({id:d.id,...d.data()}));
+  } catch {}
+  if(!clients.length){ toast('No hay clientes en el sistema','info'); return; }
+
+  const html=`
+    <div class="modal-header">
+      <h3 class="modal-title">📋 Asignar rutina</h3>
+      <button class="modal-close">✕</button>
+    </div>
+    <p class="text-muted" style="margin-bottom:12px;font-size:13px">"<strong>${_esc(routineName)}</strong>" → selecciona cliente:</p>
+    ${clients.map(c=>`
+      <div class="admin-user-card" data-cuid="${c.uid||c.id}" data-cname="${(c.name||'Cliente').replace(/"/g,'&quot;')}" style="cursor:pointer;margin-bottom:6px">
+        <div class="admin-user-avatar">${getInitials(c.name||'?')}</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:14px">${_esc(c.name||'Cliente')}</div>
+          <div class="text-muted" style="font-size:12px">${_esc(c.email||'')}</div>
+        </div>
+        <span class="badge badge-cyan">Asignar</span>
+      </div>`).join('')}
+  `;
+  openModal(html);
+  document.getElementById('modal-content')?.querySelectorAll('[data-cuid]').forEach(card=>{
+    card.addEventListener('click',async()=>{
+      await collections.assignments(card.dataset.cuid).add({
+        routineId, name:routineName, assignedBy:profile.uid, assignedAt:timestamp(), createdAt:timestamp(),
+      });
+      toast(`Rutina asignada a ${card.dataset.cname} ✅`,'success');
+      closeModal();
+    });
   });
 }
