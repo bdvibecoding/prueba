@@ -8,6 +8,44 @@ import { appState, setUser, clearUser } from './state.js';
 import { toast, validateEmail, getInitials, getGreeting } from './utils.js';
 import { navigate } from './router.js';
 
+// ── Read invite token from URL hash ──────────
+function getInviteToken() {
+  // URL format: #register?invite=TOKEN  or  #register?invite=TOKEN&...
+  const hash = window.location.hash || '';
+  const match = hash.match(/[?&]invite=([^&]+)/);
+  return match ? match[1] : null;
+}
+
+// ── Process invitation token after registration ─
+async function processInvitation(token, uid, email) {
+  if (!token) return {};
+  try {
+    const snap = await db.collection('invitations')
+      .where('token', '==', token)
+      .limit(1)
+      .get();
+    if (snap.empty) return {};
+    const invDoc = snap.docs[0];
+    const inv = invDoc.data();
+    // Only process pending or approved invitations
+    if (!['pending', 'approved'].includes(inv.status)) return {};
+    // Mark invitation as accepted
+    await invDoc.ref.update({
+      status:     'accepted',
+      acceptedBy: uid,
+      acceptedAt: timestamp(),
+    });
+    // Return profile overrides from invitation
+    return {
+      role:          inv.role || 'cliente',
+      accessGranted: inv.status === 'approved',
+    };
+  } catch (e) {
+    console.warn('[Auth] Could not process invitation:', e.message);
+    return {};
+  }
+}
+
 // ── Show/Hide Auth Views ──────────────────────
 function showAuthView(viewId) {
   document.querySelectorAll('.auth-view').forEach(v => v.classList.remove('active'));
@@ -33,7 +71,7 @@ async function createUserProfile(user, extra = {}) {
     uid:           user.uid,
     email:         user.email,
     name:          extra.name || user.displayName || '',
-    role:          'cliente',
+    role:          extra.role || 'cliente',
     gender:        '',
     birthDate:     '',
     height:        '',
@@ -44,6 +82,9 @@ async function createUserProfile(user, extra = {}) {
     updatedAt:     timestamp(),
     assignedCoach: null,
     subscriptionStatus: 'free',
+    accessGranted:   extra.accessGranted || false,
+    accessGrantedBy: extra.accessGranted ? 'invitation' : null,
+    accessGrantedAt: extra.accessGranted ? timestamp() : null,
     photoURL:      user.photoURL || '',
   };
   await db.collection('users').doc(user.uid).set(profile);
@@ -52,13 +93,26 @@ async function createUserProfile(user, extra = {}) {
 
 // ── Update top bar after login ────────────────
 function updateTopBar(profile) {
-  const greeting = document.getElementById('top-bar-greeting');
-  const initials = document.getElementById('avatar-initials');
+  const greeting   = document.getElementById('top-bar-greeting');
+  const initials   = document.getElementById('avatar-initials');
+  const avatarBtn  = document.getElementById('top-bar-avatar');
+
   if (greeting && profile?.name) {
     greeting.textContent = `${getGreeting()}, ${profile.name.split(' ')[0]}`;
   }
-  if (initials && profile?.name) {
-    initials.textContent = getInitials(profile.name);
+
+  // Use Google photo if available, otherwise show initials
+  if (avatarBtn && profile?.photoURL) {
+    avatarBtn.style.backgroundImage    = `url(${profile.photoURL})`;
+    avatarBtn.style.backgroundSize     = 'cover';
+    avatarBtn.style.backgroundPosition = 'center';
+    if (initials) initials.style.display = 'none';
+  } else {
+    if (avatarBtn) avatarBtn.style.backgroundImage = '';
+    if (initials) {
+      initials.style.display = '';
+      if (profile?.name) initials.textContent = getInitials(profile.name);
+    }
   }
 }
 
@@ -104,6 +158,19 @@ function showApp(profile) {
       panelBtn.addEventListener('click', () => {
         import('./router.js').then(({ navigate }) => navigate('admin'));
       });
+    }
+
+    // If staff/admin is also a client, show client nav items too
+    if (profile?.isClient && bottomNav && !bottomNav.querySelector('[data-client-nav]')) {
+      const homeBtn = document.createElement('button');
+      homeBtn.className = 'nav-item';
+      homeBtn.dataset.route = 'home';
+      homeBtn.dataset.clientNav = '1';
+      homeBtn.innerHTML = `<span class="nav-icon">🏠</span><span class="nav-label">Inicio</span>`;
+      homeBtn.addEventListener('click', () => {
+        import('./router.js').then(({ navigate }) => navigate('home'));
+      });
+      bottomNav.insertBefore(homeBtn, bottomNav.firstChild);
     }
   }
 }
@@ -164,7 +231,10 @@ export async function loginWithGoogle() {
   // Si es la primera vez (usuario nuevo), crear perfil en Firestore
   const profile = await loadUserProfile(user.uid);
   if (!profile) {
-    await createUserProfile(user, { name: user.displayName || '' });
+    // New user via Google — check for invite token
+    const token = getInviteToken();
+    const inviteData = await processInvitation(token, user.uid, user.email);
+    await createUserProfile(user, { name: user.displayName || '', ...inviteData });
   }
   return user;
 }
@@ -176,7 +246,10 @@ export async function register(name, email, password) {
   if (password?.length < 6) throw new Error('La contraseña debe tener al menos 6 caracteres');
   const cred = await auth.createUserWithEmailAndPassword(email, password);
   await cred.user.updateProfile({ displayName: name });
-  await createUserProfile(cred.user, { name });
+  // Process invite token if present
+  const token = getInviteToken();
+  const inviteData = await processInvitation(token, cred.user.uid, email);
+  await createUserProfile(cred.user, { name, ...inviteData });
   return cred.user;
 }
 

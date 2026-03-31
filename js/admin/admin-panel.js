@@ -773,6 +773,7 @@ async function openUserDetailSheet(user, allUsers) {
       ${t('admin_assign_routine')}
     </button>
 
+    ${['cliente','atleta'].includes(user.role) ? `
     <div class="section-title" style="margin-top:var(--space-lg)">${t('admin_actions')}</div>
     <div style="display:flex;gap:var(--space-sm)">
       <button class="btn-danger" id="btn-grant-sensitive" style="flex:1;font-size:12px">
@@ -782,6 +783,7 @@ async function openUserDetailSheet(user, allUsers) {
         ${t('admin_revoke_access')}
       </button>
     </div>
+    ` : ''}
   `;
 
   openSheet(html);
