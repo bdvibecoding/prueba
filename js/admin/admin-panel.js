@@ -1346,36 +1346,55 @@ async function openAdminRoutineEditor(routineId, container) {
 
 async function openAdminAssignRoutine(routineId, routineName, profile) {
   const _esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  let clients=[];
+  let clients = [];
   try {
-    const snap=await db.collection('users').where('role','in',['cliente','atleta']).limit(50).get();
-    clients=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const [snap1, snap2] = await Promise.all([
+      db.collection('users').where('role','in',['cliente','atleta']).limit(50).get(),
+      db.collection('users').where('isClient','==',true).limit(50).get(),
+    ]);
+    const seen = new Set();
+    for (const doc of [...snap1.docs, ...snap2.docs]) {
+      if (!seen.has(doc.id)) { seen.add(doc.id); clients.push({ id: doc.id, ...doc.data() }); }
+    }
   } catch {}
-  if(!clients.length){ toast('No hay clientes en el sistema','info'); return; }
 
-  const html=`
+  const selfUid = profile.uid;
+  const selfCard = `
+    <div class="admin-user-card" data-cuid="${selfUid}" data-cname="${_esc(profile.name||'Yo')}" style="cursor:pointer;margin-bottom:6px;border-color:var(--cyan)">
+      <div class="admin-user-avatar" style="background:rgba(0,200,255,.2);color:var(--cyan)">${getInitials(profile.name||'?')}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px">${_esc(profile.name||'Yo')} <span style="font-size:11px;color:var(--cyan)">(yo)</span></div>
+        <div class="text-muted" style="font-size:12px">${_esc(profile.email||'')}</div>
+      </div>
+      <span class="badge" style="background:rgba(0,200,255,.15);color:var(--cyan)">Asignarme</span>
+    </div>`;
+
+  const clientCards = clients.filter(c => (c.uid||c.id) !== selfUid).map(c => `
+    <div class="admin-user-card" data-cuid="${c.uid||c.id}" data-cname="${_esc(c.name||'Cliente')}" style="cursor:pointer;margin-bottom:6px">
+      <div class="admin-user-avatar">${getInitials(c.name||'?')}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px">${_esc(c.name||'Cliente')}${c.isClient && !['cliente','atleta'].includes(c.role) ? ` <span style="font-size:10px;background:rgba(0,200,255,.15);color:var(--cyan);padding:1px 5px;border-radius:4px;margin-left:4px">${c.role}</span>` : ''}</div>
+        <div class="text-muted" style="font-size:12px">${_esc(c.email||'')}</div>
+      </div>
+      <span class="badge badge-cyan">Asignar</span>
+    </div>`).join('');
+
+  const html = `
     <div class="modal-header">
       <h3 class="modal-title">📋 Asignar rutina</h3>
       <button class="modal-close">✕</button>
     </div>
-    <p class="text-muted" style="margin-bottom:12px;font-size:13px">"<strong>${_esc(routineName)}</strong>" → selecciona cliente:</p>
-    ${clients.map(c=>`
-      <div class="admin-user-card" data-cuid="${c.uid||c.id}" data-cname="${(c.name||'Cliente').replace(/"/g,'&quot;')}" style="cursor:pointer;margin-bottom:6px">
-        <div class="admin-user-avatar">${getInitials(c.name||'?')}</div>
-        <div style="flex:1">
-          <div style="font-weight:700;font-size:14px">${_esc(c.name||'Cliente')}</div>
-          <div class="text-muted" style="font-size:12px">${_esc(c.email||'')}</div>
-        </div>
-        <span class="badge badge-cyan">Asignar</span>
-      </div>`).join('')}
+    <p class="text-muted" style="margin-bottom:12px;font-size:13px">"<strong>${_esc(routineName)}</strong>" → selecciona destinatario:</p>
+    ${selfCard}
+    ${clientCards ? `<div style="border-top:1px solid var(--glass-border);margin:8px 0 10px"></div>${clientCards}` : ''}
   `;
   openModal(html);
-  document.getElementById('modal-content')?.querySelectorAll('[data-cuid]').forEach(card=>{
-    card.addEventListener('click',async()=>{
+  document.getElementById('modal-content')?.querySelectorAll('[data-cuid]').forEach(card => {
+    card.addEventListener('click', async () => {
       await collections.assignments(card.dataset.cuid).add({
-        routineId, name:routineName, assignedBy:profile.uid, assignedAt:timestamp(), createdAt:timestamp(),
+        routineId, name: routineName, assignedBy: profile.uid, assignedAt: timestamp(), createdAt: timestamp(),
       });
-      toast(`Rutina asignada a ${card.dataset.cname} ✅`,'success');
+      toast(`Rutina asignada a ${card.dataset.cname} ✅`, 'success');
       closeModal();
     });
   });
