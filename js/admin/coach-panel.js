@@ -452,6 +452,8 @@ async function openEditRoutineModal(routineId, profile, container) {
         refreshExerciseList();
       });
     });
+    listEl.querySelectorAll('[data-sets]').forEach(b => b.addEventListener('change', () => { exercises[+b.dataset.sets].sets = parseInt(b.value) || 3; }));
+    listEl.querySelectorAll('[data-reps]').forEach(b => b.addEventListener('change', () => { exercises[+b.dataset.reps].reps = b.value; }));
   }
 
   refreshExerciseList();
@@ -494,9 +496,9 @@ function buildRoutineExRow(ex, index) {
       <div style="flex:1">
         <div style="font-size:13px;font-weight:600">${ex.name}</div>
         <div style="display:flex;gap:8px;margin-top:2px">
-          <input type="number" value="${ex.sets || 3}" min="1" max="10" style="width:40px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:var(--white);font-size:11px;text-align:center;padding:2px" placeholder="Sets">
+          <input type="number" value="${ex.sets || 3}" min="1" max="10" style="width:40px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:var(--white);font-size:11px;text-align:center;padding:2px" data-sets="${index}">
           <span style="font-size:11px;color:var(--color-text-muted)">×</span>
-          <input type="text" value="${ex.reps || '10'}" style="width:40px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:var(--white);font-size:11px;text-align:center;padding:2px" placeholder="Reps">
+          <input type="text" value="${ex.reps || '10'}" placeholder="ej: 12 o 20-16-16" style="width:72px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:var(--white);font-size:11px;text-align:center;padding:2px" data-reps="${index}">
           <span style="font-size:11px;color:var(--color-text-muted)">kg</span>
           <input type="number" value="${ex.weight || 0}" step="0.5" style="width:44px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:var(--white);font-size:11px;text-align:center;padding:2px" placeholder="Peso">
         </div>

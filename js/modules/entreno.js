@@ -297,7 +297,9 @@ function buildSetsTable(ex, exIndex, session) {
   const rows = Array.from({ length: numSets }, (_, i) => {
     const done          = completedSets.includes(i);
     const prevSet       = ex.previousSets?.[i] || {};
-    const currentReps   = setDataStore[i]?.reps   ?? ex.reps ?? '';
+    const repArr        = ex.reps ? String(ex.reps).split('-').map(r => r.trim()).filter(Boolean) : [];
+    const defaultRep    = repArr[i] ?? repArr[0] ?? '';
+    const currentReps   = setDataStore[i]?.reps   ?? defaultRep;
     const currentWeight = setDataStore[i]?.weight ?? ex.weight ?? '';
     const prevLabel     = (prevSet.reps && prevSet.weight)
       ? `${prevSet.reps}r × ${prevSet.weight}kg`
@@ -333,7 +335,7 @@ function buildSetsTable(ex, exIndex, session) {
         <td class="set-prev">${prevLabel}</td>
         <td>
           <input type="number" class="set-input" data-exid="${ex.id}" data-setidx="${i}" data-field="reps"
-                 value="${currentReps}" placeholder="${ex.reps || '—'}" min="0" max="999">
+                 value="${currentReps}" placeholder="${defaultRep || '—'}" min="0" max="999">
         </td>
         <td>
           <input type="number" class="set-input" data-exid="${ex.id}" data-setidx="${i}" data-field="weight"

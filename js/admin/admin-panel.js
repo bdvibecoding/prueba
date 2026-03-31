@@ -1293,7 +1293,7 @@ async function openAdminRoutineEditor(routineId, container) {
         </div>
         <input type="number" value="${ex.sets||3}" min="1" max="20" style="width:36px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:#fff;font-size:11px;text-align:center;padding:2px" data-sets="${i}">
         <span style="font-size:10px;color:var(--color-text-muted)">×</span>
-        <input type="text" value="${ex.reps||'10'}" style="width:36px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:#fff;font-size:11px;text-align:center;padding:2px" data-reps="${i}">
+        <input type="text" value="${ex.reps||'10'}" placeholder="ej: 12 o 20-16-16" style="width:72px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:#fff;font-size:11px;text-align:center;padding:2px" data-reps="${i}">
         <button style="background:none;border:none;color:var(--color-danger);cursor:pointer;font-size:15px;padding:0 2px" data-rm="${i}">✕</button>
       </div>`).join('');
     listEl.querySelectorAll('[data-rm]').forEach(b=>b.addEventListener('click',()=>{ exercises.splice(+b.dataset.rm,1); renderList(); }));
