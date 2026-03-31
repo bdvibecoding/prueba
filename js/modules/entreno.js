@@ -1158,7 +1158,7 @@ async function cancelWorkout(container) {
   releaseWakeLock();
   endSession();
   toast(t('entreno_cancelled'), 'info');
-  loadRoutinesList(container);
+  import('../router.js').then(({ navigate }) => navigate('home'));
 }
 
 // ── Resume active session ─────────────────────
