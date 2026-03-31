@@ -267,10 +267,9 @@ function buildExerciseCard(ex, index, sessionActive, session) {
 
         <!-- Action row -->
         <div class="ex-action-row">
-          <a href="${ex.videoUrl || '#'}" target="_blank" class="video-btn" ${!ex.videoUrl ? 'onclick="return false"' : ''}>
-            🎬 ${t('entreno_watch_exercise')}
-          </a>
-          <button class="ex-icon-btn" data-action="info" data-exid="${ex.id}" data-exname="${(ex.name||ex.id).replace(/"/g,'&quot;')}" data-exindex="${index}" title="Ver técnica">ℹ️</button>
+          <button class="video-btn" data-action="info" data-exid="${ex.id}" data-exname="${(ex.name||ex.id).replace(/"/g,'&quot;')}" data-exindex="${index}" title="Ver técnica">
+            ℹ️ ${t('entreno_watch_exercise')}
+          </button>
           <button class="ex-icon-btn" data-action="swap" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_swap_exercise')}">🔄</button>
           <button class="ex-icon-btn" data-action="notes" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_notes')}">📝</button>
           <button class="ex-icon-btn" data-action="history" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_history')}">🕐</button>
@@ -685,28 +684,22 @@ async function openExerciseInfoModal(exName) {
 // ── Exercise Swap ─────────────────────────────
 async function openSwapExercise(currentEx, exIndex, container, allExercises) {
   const { EXERCISES } = await import('../../data/data.js');
-  const alternatives = EXERCISES.filter(ex =>
-    ex.muscleGroup === currentEx.muscleGroup && ex.id !== currentEx.id
-  ).slice(0, 6);
+  // Match by muscleGroup (Firestore field) vs ex.m (data.js field)
+  const muscle = currentEx.muscleGroup || currentEx.m || '';
+  const pool = EXERCISES.filter(ex => ex.m === muscle && ex.n !== (currentEx.name || currentEx.id));
 
   const html = `
     <div class="modal-header">
       <h3 class="modal-title">🔄 ${t('entreno_swap_exercise')}</h3>
       <button class="modal-close">✕</button>
     </div>
-    <p class="text-muted" style="margin-bottom:var(--space-md)">${t('entreno_alternatives_for')} <strong>${currentEx.name}</strong></p>
-    <div class="swap-dropdown">
-      ${alternatives.map(ex => `
-        <div class="swap-option" data-ex-id="${ex.id}" data-ex-name="${ex.name}">
-          <div>
-            <div class="swap-option-name">${ex.name}</div>
-            <div class="swap-option-muscle">${ex.muscleGroup} · ${ex.equipment || t('entreno_no_equipment')}</div>
-          </div>
-          <span class="badge badge-cyan">${ex.difficulty || ''}</span>
-        </div>
-      `).join('')}
-    </div>
-    <div style="margin-top:var(--space-md)">
+    <p class="text-muted" style="margin-bottom:8px;font-size:13px">${t('entreno_alternatives_for')} <strong>${currentEx.name}</strong></p>
+
+    <input type="text" id="swap-search" class="input-solo" placeholder="🔍 Buscar ejercicio..." style="margin-bottom:8px;font-size:13px" autocomplete="off">
+
+    <div id="swap-list" style="max-height:260px;overflow-y:auto;border:1px solid var(--glass-border);border-radius:var(--radius-sm);margin-bottom:12px"></div>
+
+    <div style="margin-top:4px">
       <label class="field-label">${t('entreno_swap_reason')} *</label>
       <textarea id="swap-reason" class="input-solo" placeholder="${t('entreno_swap_reason_placeholder')}" rows="2"
                 style="padding:var(--space-md);margin-top:var(--space-xs)"></textarea>
@@ -720,37 +713,55 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
   const modalEl = document.getElementById('modal-content');
   let selectedEx = null;
 
-  modalEl.querySelectorAll('.swap-option').forEach(opt => {
-    opt.addEventListener('click', () => {
-      modalEl.querySelectorAll('.swap-option').forEach(o => o.style.background = '');
-      opt.style.background = 'rgba(148,10,10,0.2)';
-      selectedEx = { id: opt.dataset.exId, name: opt.dataset.exName };
-      const confirmBtn = modalEl.querySelector('#btn-confirm-swap');
-      const reason = modalEl.querySelector('#swap-reason').value.trim();
-      if (selectedEx) confirmBtn.disabled = false;
+  function renderSwapList(items) {
+    const listEl = modalEl.querySelector('#swap-list');
+    if (!items.length) {
+      listEl.innerHTML = `<div style="padding:14px;text-align:center;color:var(--color-text-muted);font-size:13px">Sin resultados</div>`;
+      return;
+    }
+    listEl.innerHTML = items.map(ex => `
+      <div class="swap-option" data-ex-n="${ex.n.replace(/"/g,'&quot;')}"
+           style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05)">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:#e2e8f0">${ex.n}</div>
+          <div style="font-size:11px;color:var(--color-text-muted);margin-top:2px">${ex.m}${ex.t==='c'?' · Compuesto':ex.t==='i'?' · Aislado':''}</div>
+        </div>
+        <span style="font-size:18px">${ex.t==='c'?'🏋️':'💪'}</span>
+      </div>`).join('');
+
+    listEl.querySelectorAll('.swap-option').forEach(opt => {
+      opt.addEventListener('mouseenter', () => { if(opt.dataset.exN !== selectedEx?.n) opt.style.background='rgba(255,255,255,.05)'; });
+      opt.addEventListener('mouseleave', () => { if(opt.dataset.exN !== selectedEx?.n) opt.style.background=''; });
+      opt.addEventListener('click', () => {
+        listEl.querySelectorAll('.swap-option').forEach(o => o.style.background='');
+        opt.style.background = 'rgba(148,10,10,0.2)';
+        selectedEx = pool.find(e => e.n === opt.dataset.exN);
+        modalEl.querySelector('#btn-confirm-swap').disabled = !modalEl.querySelector('#swap-reason').value.trim();
+      });
     });
+  }
+
+  renderSwapList(pool);
+
+  modalEl.querySelector('#swap-search').addEventListener('input', (e) => {
+    const q = e.target.value.toLowerCase().trim();
+    renderSwapList(q ? pool.filter(ex => ex.n.toLowerCase().includes(q)) : pool);
   });
 
   modalEl.querySelector('#swap-reason').addEventListener('input', (e) => {
-    const confirmBtn = modalEl.querySelector('#btn-confirm-swap');
-    confirmBtn.disabled = !selectedEx || !e.target.value.trim();
+    modalEl.querySelector('#btn-confirm-swap').disabled = !selectedEx || !e.target.value.trim();
   });
 
   modalEl.querySelector('#btn-confirm-swap').addEventListener('click', async () => {
     const reason = modalEl.querySelector('#swap-reason').value.trim();
     if (!reason) { toast(t('entreno_swap_reason_required'), 'warning'); return; }
     closeModal();
-    toast(t('entreno_swapped_to').replace('{name}', selectedEx.name), 'success');
-    // Log swap note
+    toast(t('entreno_swapped_to').replace('{name}', selectedEx.n), 'success');
     const profile = getUserProfile();
     if (profile?.uid) {
       await collections.notes(profile.uid).add({
-        type: 'swap',
-        exerciseId: currentEx.id,
-        exerciseName: currentEx.name,
-        swappedTo: selectedEx.name,
-        reason,
-        date: timestamp(),
+        type: 'swap', exerciseId: currentEx.id, exerciseName: currentEx.name,
+        swappedTo: selectedEx.n, reason, date: timestamp(),
       }).catch(() => {});
     }
   });
