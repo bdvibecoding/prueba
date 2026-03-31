@@ -275,6 +275,15 @@ function buildExerciseCard(ex, index, sessionActive, session) {
           <button class="ex-icon-btn" data-action="history" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_history')}">🕐</button>
         </div>
 
+        <!-- Rest config -->
+        <div style="display:flex;align-items:center;gap:8px;margin:6px 0 4px;opacity:.7">
+          <span style="font-size:11px;color:var(--color-text-muted)">⏱ Descanso:</span>
+          <input type="number" class="rest-secs-input" data-exid="${ex.id}"
+                 value="${ex.restSeconds || 60}" min="10" max="600" step="5"
+                 style="width:52px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:var(--color-text);font-size:11px;text-align:center;padding:2px">
+          <span style="font-size:11px;color:var(--color-text-muted)">seg</span>
+        </div>
+
         <!-- Sets Table -->
         ${buildSetsTable(ex, index, session)}
 
@@ -329,16 +338,16 @@ function buildSetsTable(ex, exIndex, session) {
     `).join('');
 
     return `
-      <tr class="set-row ${done ? 'completed' : ''}" data-exid="${ex.id}" data-setidx="${i}">
+      <tr class="set-row ${done ? 'completed locked' : ''}" data-exid="${ex.id}" data-setidx="${i}">
         <td class="set-num">${i + 1}</td>
         <td class="set-prev">${prevLabel}</td>
         <td>
           <input type="number" class="set-input" data-exid="${ex.id}" data-setidx="${i}" data-field="reps"
-                 value="${currentReps}" placeholder="${defaultRep || '—'}" min="0" max="999">
+                 value="${currentReps}" placeholder="${defaultRep || '—'}" min="0" max="999" ${done ? 'disabled' : ''}>
         </td>
         <td>
           <input type="number" class="set-input" data-exid="${ex.id}" data-setidx="${i}" data-field="weight"
-                 value="${currentWeight}" placeholder="${ex.weight || '0'}" min="0" max="999" step="0.5">
+                 value="${currentWeight}" placeholder="${ex.weight || '0'}" min="0" max="999" step="0.5" ${done ? 'disabled' : ''}>
         </td>
         <td>
           <div class="set-actions-cell">
@@ -346,8 +355,8 @@ function buildSetsTable(ex, exIndex, session) {
                     data-exid="${ex.id}" data-setidx="${i}" data-done="${done}">
               ${done ? '✓' : '○'}
             </button>
-            <button class="btn-add-drop" data-exid="${ex.id}" data-setidx="${i}"
-                    title="${t('entreno_add_drop')}">${t('entreno_add_drop')}</button>
+            ${!done ? `<button class="btn-add-drop" data-exid="${ex.id}" data-setidx="${i}"
+                    title="${t('entreno_add_drop')}">${t('entreno_add_drop')}</button>` : ''}
           </div>
         </td>
       </tr>
@@ -398,7 +407,25 @@ function initExerciseList(container, exercises, sessionActive) {
         btn.classList.remove('done');
         btn.textContent = '○';
         btn.dataset.done = 'false';
-        btn.closest('.set-row')?.classList.remove('completed');
+        const row = btn.closest('.set-row');
+        row?.classList.remove('completed', 'locked');
+        row?.querySelectorAll('.set-input').forEach(inp => inp.disabled = false);
+        // Re-show drop button
+        const actCell = row?.querySelector('.set-actions-cell');
+        if (actCell && !actCell.querySelector('.btn-add-drop')) {
+          const dropBtn = document.createElement('button');
+          dropBtn.className = 'btn-add-drop';
+          dropBtn.dataset.exid = exId;
+          dropBtn.dataset.setidx = String(setIdx);
+          dropBtn.title = t('entreno_add_drop');
+          dropBtn.textContent = t('entreno_add_drop');
+          dropBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!sessionActive) { toast(t('entreno_start_first'), 'info'); return; }
+            _addDropRow(container, exId, setIdx);
+          });
+          actCell.appendChild(dropBtn);
+        }
       } else {
         // Read actual reps/weight from inputs (only non-drop inputs on this row)
         const row         = btn.closest('.set-row');
@@ -411,7 +438,11 @@ function initExerciseList(container, exercises, sessionActive) {
         btn.classList.add('done');
         btn.textContent = '✓';
         btn.dataset.done = 'true';
-        btn.closest('.set-row')?.classList.add('completed');
+        row?.classList.add('completed', 'locked');
+        // Lock inputs
+        row?.querySelectorAll('.set-input').forEach(inp => inp.disabled = true);
+        // Remove drop button
+        row?.querySelector('.btn-add-drop')?.remove();
 
         // Start rest timer
         const exercise = exercises.find(ex => ex.id === exId);
@@ -488,6 +519,14 @@ function initExerciseList(container, exercises, sessionActive) {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       openExerciseInfoModal(btn.dataset.exname || btn.dataset.exid);
+    });
+  });
+
+  // Rest seconds config
+  container.querySelectorAll('.rest-secs-input').forEach(inp => {
+    inp.addEventListener('change', () => {
+      const ex = exercises.find(e => e.id === inp.dataset.exid);
+      if (ex) ex.restSeconds = Math.max(10, parseInt(inp.value) || 60);
     });
   });
 }
@@ -587,17 +626,37 @@ function _reindexDropRows(container, exId, setIdx) {
 function showRestTimer(container, exId, seconds) {
   const widget = container.querySelector(`#rest-widget-${exId}`);
   if (!widget) return;
-  widget.innerHTML = buildRestTimerHTML(seconds);
+
+  // Read live value from the config input if available
+  const liveInput = container.querySelector(`.rest-secs-input[data-exid="${exId}"]`);
+  const secs = liveInput ? (Math.max(10, parseInt(liveInput.value) || seconds)) : seconds;
+
+  widget.innerHTML = buildRestTimerHTML(secs);
   widget.classList.remove('hidden');
+
+  // Scroll widget into view
+  widget.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
   initRestTimerWidget(widget, () => {
     widget.classList.add('hidden');
     clearRestTimer();
   });
 
-  startRestTimer(seconds, () => {
+  startRestTimer(secs, () => {
     widget.classList.add('hidden');
-    toast(t('entreno_rest_done'), 'info');
+    toast('¡Descanso terminado! 💪 Siguiente serie', 'success');
+    // System notification
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('¡Descanso terminado!', {
+        body: 'Es hora de la siguiente serie 💪',
+        icon: '/logotipo/jus W Logo/TGWL --07.png',
+        silent: false,
+      });
+    } else if ('Notification' in window && Notification.permission !== 'denied') {
+      Notification.requestPermission().then(p => {
+        if (p === 'granted') new Notification('¡Descanso terminado!', { body: 'Es hora de la siguiente serie 💪' });
+      });
+    }
   }, `#rest-widget-${exId} .timer-ring`);
 }
 

@@ -194,6 +194,15 @@ body.light-mode .app-icon-label {
   overflow: hidden;
   border: 1px solid var(--glass-border);
   background: var(--glass-bg);
+  transition: border-color var(--transition-fast);
+}
+.exercise-item.open {
+  border-color: rgba(25,249,249,0.25);
+  border-left: 3px solid var(--cyan);
+}
+.exercise-item.ex-all-done {
+  border-left: 3px solid var(--color-success);
+  opacity: 0.75;
 }
 .exercise-header {
   display: flex;
@@ -218,21 +227,52 @@ body.light-mode .app-icon-label {
   color: var(--red-light);
   flex-shrink: 0;
 }
-.exercise-name { flex: 1; font-weight: 600; font-size: var(--fs-base); }
-.exercise-sets { font-size: var(--fs-xs); color: var(--color-text-muted); white-space: nowrap; }
+.exercise-name { font-weight: 700; font-size: var(--fs-base); }
+.exercise-sets { font-size: var(--fs-xs); color: var(--color-text-muted); margin-top: 2px; }
+.ex-done-check {
+  color: var(--color-success);
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
 .exercise-chevron {
   font-size: 10px;
   color: var(--color-text-muted);
   transition: transform var(--transition-base);
+  flex-shrink: 0;
 }
 .exercise-item.open .exercise-chevron { transform: rotate(180deg); }
 
 .exercise-body {
   display: none;
-  padding: 0 var(--space-md) var(--space-md);
+  padding: var(--space-sm) var(--space-md) var(--space-md);
   border-top: 1px solid var(--glass-border);
 }
 .exercise-item.open .exercise-body { display: block; }
+
+/* ── Exercise Action Row ────────────────────── */
+.ex-action-row {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.ex-icon-btn {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  color: var(--color-text);
+  flex-shrink: 0;
+}
+.ex-icon-btn:hover { background: var(--glass-bg-strong); }
 
 /* ── Setup Note (always highlighted) ────────── */
 .setup-note {
@@ -261,7 +301,7 @@ body.light-mode .app-icon-label {
 }
 .setup-note textarea::placeholder { color: rgba(25,249,249,0.4); }
 
-/* ── Set Rows ────────────────────────────────── */
+/* ── Sets Table ──────────────────────────────── */
 .sets-table {
   width: 100%;
   border-collapse: collapse;
@@ -277,10 +317,45 @@ body.light-mode .app-icon-label {
   text-align: center;
 }
 .sets-table td {
-  padding: 8px 4px;
+  padding: 6px 4px;
   text-align: center;
   border-top: 1px solid rgba(255,255,255,0.04);
+  vertical-align: middle;
 }
+
+/* ── Set Row ─────────────────────────────────── */
+.set-row { transition: background var(--transition-base), opacity var(--transition-base); }
+.set-row.completed {
+  background: rgba(34, 197, 94, 0.08);
+  border-left: 3px solid rgba(34, 197, 94, 0.5);
+}
+.set-row.completed .set-num { color: rgba(34,197,94,.8); }
+.set-row.locked .set-input {
+  opacity: 0.45;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+.set-num {
+  font-weight: 700;
+  color: var(--color-text-muted);
+  width: 24px;
+  font-size: var(--fs-sm);
+}
+.set-prev {
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* Cell holding check + DROP buttons stacked */
+.set-actions-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Set Done Button ─────────────────────────── */
 .set-done-btn {
   width: 32px; height: 32px;
   border-radius: 50%;
@@ -289,11 +364,11 @@ body.light-mode .app-icon-label {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto;
   cursor: pointer;
   font-size: 14px;
   transition: all var(--transition-fast);
   color: var(--color-text-muted);
+  flex-shrink: 0;
 }
 .set-done-btn.done {
   background: var(--color-success);
@@ -301,6 +376,60 @@ body.light-mode .app-icon-label {
   color: var(--white);
   box-shadow: 0 0 12px rgba(34,197,94,0.4);
 }
+.set-done-btn:active { transform: scale(0.9); }
+
+/* ── Drop Button (add dropset) ───────────────── */
+.btn-add-drop {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 2px 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(25,249,249,0.4);
+  background: transparent;
+  color: var(--cyan);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  line-height: 1.4;
+}
+.btn-add-drop:hover { background: rgba(25,249,249,0.1); }
+
+/* ── Dropset Row ─────────────────────────────── */
+.dropset-row {
+  border-left: 3px solid var(--color-warning);
+  background: rgba(245,158,11,0.04);
+}
+.dropset-row td {
+  padding: 5px 4px;
+  border-top: none;
+}
+.dropset-label {
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--color-warning);
+  padding-left: var(--space-sm);
+}
+
+/* ── Remove Dropset Button ───────────────────── */
+.btn-remove-drop {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 1px solid rgba(239,68,68,0.5);
+  background: rgba(239,68,68,0.1);
+  color: var(--color-danger);
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  margin: 0 auto;
+}
+.btn-remove-drop:hover { background: rgba(239,68,68,0.25); }
+
+/* ── Set Input ───────────────────────────────── */
 .set-input {
   width: 52px;
   background: var(--glass-bg);
@@ -311,6 +440,19 @@ body.light-mode .app-icon-label {
   font-weight: 600;
   text-align: center;
   padding: 6px 4px;
+}
+.set-input:focus {
+  border-color: var(--cyan-dim);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(25,249,249,0.12);
+}
+.drop-input {
+  background: rgba(245,158,11,0.06);
+  border-color: rgba(245,158,11,0.25);
+}
+.drop-input:focus {
+  border-color: rgba(245,158,11,0.6);
+  box-shadow: 0 0 0 2px rgba(245,158,11,0.1);
 }
 
 /* ── Rest Timer Ring ────────────────────────── */
@@ -795,7 +937,7 @@ body.light-mode .toast {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 500;
+  z-index: 600;
   background: rgba(0,0,0,0.65);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
