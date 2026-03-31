@@ -107,7 +107,7 @@ async function loadRoutinesList(container) {
       return `
         <div class="routine-card glass-card glass-shimmer" data-assignment-id="${a.assignmentId}" data-routine-id="${a.routineId || a.id}">
           <div class="routine-card-header">
-            <div class="routine-card-icon">💪</div>
+            <div class="routine-card-icon"><img src="logotipo/jus%20W%20Logo/TGWL%20--07.png" alt="W" style="height:36px;width:36px;object-fit:contain"></div>
             <div>
               <div class="routine-card-title">${r.name || a.name || 'Rutina'}</div>
               <div class="text-muted" style="font-size:12px">${r.description || ''}</div>
@@ -213,44 +213,73 @@ function renderRoutineDetail(container, routine) {
   initExerciseList(container, exercises, isActive);
 }
 
+// ── Muscle Group Bars ─────────────────────────
+function buildMuscleBars(ex) {
+  const primary = ex.muscleGroup;
+  const secondary = Array.isArray(ex.secondary) ? ex.secondary : [];
+  if (!primary) return '';
+
+  const totalSecondary = secondary.length;
+  const primaryPct = totalSecondary === 0 ? 100 : totalSecondary === 1 ? 90 : 90;
+  const secPct = totalSecondary === 0 ? [] : totalSecondary === 1 ? [10] : [5, 5];
+
+  const bars = [
+    { name: primary, pct: primaryPct, color: 'var(--color-primary)' },
+    ...secondary.slice(0, 2).map((m, i) => ({ name: m, pct: secPct[i] || 5, color: 'var(--color-warning)' })),
+  ];
+
+  return `
+    <div style="margin-bottom:var(--space-sm)">
+      ${bars.map(b => `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <div style="font-size:11px;color:var(--color-text-muted);width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.name}</div>
+          <div style="flex:1;height:5px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${b.pct}%;background:${b.color};border-radius:3px;transition:width 0.6s ease"></div>
+          </div>
+          <div style="font-size:11px;color:var(--color-text-muted);width:28px;text-align:right">${b.pct}%</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
 // ── Exercise Card Builder ──────────────────────
 function buildExerciseCard(ex, index, sessionActive, session) {
   const completedSets = session?.completedSets?.[ex.id] || [];
   const allDone = completedSets.length >= (ex.sets || 3);
 
   return `
-    <div class="exercise-item ${allDone ? 'done' : ''}" data-ex-id="${ex.id}" data-ex-index="${index}">
+    <div class="exercise-item ${allDone ? 'ex-all-done' : ''}" data-ex-id="${ex.id}" data-ex-index="${index}">
       <div class="exercise-header">
         <div class="exercise-num">${index + 1}</div>
-        <div style="flex:1">
+        <div style="flex:1;min-width:0">
           <div class="exercise-name">${ex.name}</div>
-          <div class="exercise-sets text-muted">${ex.sets || 3}×${ex.reps || '—'} ${ex.weight ? '· ' + ex.weight + 'kg' : ''}</div>
+          <div class="exercise-sets">${ex.sets || 3} × ${ex.reps || '—'}${ex.weight ? ' · ' + ex.weight + 'kg' : ''}</div>
         </div>
-        ${allDone ? '<span style="color:var(--color-success)">✓</span>' : ''}
+        ${allDone ? '<span class="ex-done-check">✓</span>' : ''}
         <span class="exercise-chevron">▼</span>
       </div>
 
       <div class="exercise-body">
-        <!-- Setup Note -->
-        <div class="setup-note" id="setup-${ex.id}">
-          <span class="setup-note-icon">📌</span>
-          <textarea class="setup-note-text" placeholder="${t('entreno_setup_placeholder')}" data-exid="${ex.id}">${ex.setupNotes || ''}</textarea>
-        </div>
 
-        <!-- Action buttons -->
-        <div style="display:flex;gap:8px;margin-bottom:var(--space-sm);flex-wrap:wrap">
+        <!-- Muscle activation bars -->
+        ${buildMuscleBars(ex)}
+
+        <!-- Action row -->
+        <div class="ex-action-row">
           <a href="${ex.videoUrl || '#'}" target="_blank" class="video-btn" ${!ex.videoUrl ? 'onclick="return false"' : ''}>
             🎬 ${t('entreno_watch_exercise')}
           </a>
-          <button class="btn-icon" data-action="swap" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_swap_exercise')}">🔄</button>
-          <button class="btn-icon" data-action="notes" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_notes')}">📝</button>
-          <button class="btn-icon" data-action="history" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_history')}">🕐</button>
+          <button class="ex-icon-btn" data-action="info" data-exid="${ex.id}" data-exname="${(ex.name||ex.id).replace(/"/g,'&quot;')}" data-exindex="${index}" title="Ver técnica">ℹ️</button>
+          <button class="ex-icon-btn" data-action="swap" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_swap_exercise')}">🔄</button>
+          <button class="ex-icon-btn" data-action="notes" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_notes')}">📝</button>
+          <button class="ex-icon-btn" data-action="history" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_history')}">🕐</button>
         </div>
 
         <!-- Sets Table -->
         ${buildSetsTable(ex, index, session)}
 
-        <!-- Rest Timer (shown after set done) -->
+        <!-- Rest Timer -->
         <div id="rest-widget-${ex.id}" class="hidden"></div>
       </div>
     </div>
@@ -259,22 +288,49 @@ function buildExerciseCard(ex, index, sessionActive, session) {
 
 // ── Sets Table ────────────────────────────────
 function buildSetsTable(ex, exIndex, session) {
-  const numSets = ex.sets || 3;
+  const numSets       = ex.sets || 3;
   const completedSets = session?.completedSets?.[ex.id] || [];
-  const setDataStore = session?.setData?.[ex.id]?.sets || [];
+  const setDataStore  = session?.setData?.[ex.id]?.sets || [];
+  // dropsets stored as { [setIdx]: [{reps,weight},...] }
+  const dropData      = session?.setData?.[ex.id]?.drops || {};
 
   const rows = Array.from({ length: numSets }, (_, i) => {
-    const done = completedSets.includes(i);
-    const prevSet = ex.previousSets?.[i] || {};
+    const done          = completedSets.includes(i);
+    const prevSet       = ex.previousSets?.[i] || {};
     const currentReps   = setDataStore[i]?.reps   ?? ex.reps ?? '';
     const currentWeight = setDataStore[i]?.weight ?? ex.weight ?? '';
+    const prevLabel     = (prevSet.reps && prevSet.weight)
+      ? `${prevSet.reps}r × ${prevSet.weight}kg`
+      : '—';
+
+    // Build any existing dropset rows for this set
+    const drops = Array.isArray(dropData[i]) ? dropData[i] : [];
+    const dropRows = drops.map((drop, di) => `
+      <tr class="dropset-row" data-exid="${ex.id}" data-setidx="${i}" data-dropidx="${di}">
+        <td colspan="2">
+          <span class="dropset-label">${t('entreno_dropset_label')}</span>
+        </td>
+        <td>
+          <input type="number" class="set-input drop-input"
+                 data-exid="${ex.id}" data-setidx="${i}" data-dropidx="${di}" data-field="reps"
+                 value="${drop.reps ?? ''}" placeholder="—" min="0" max="999">
+        </td>
+        <td>
+          <input type="number" class="set-input drop-input"
+                 data-exid="${ex.id}" data-setidx="${i}" data-dropidx="${di}" data-field="weight"
+                 value="${drop.weight ?? ''}" placeholder="0" min="0" max="999" step="0.5">
+        </td>
+        <td>
+          <button class="btn-remove-drop" data-exid="${ex.id}" data-setidx="${i}" data-dropidx="${di}"
+                  title="${t('entreno_remove_drop')}">✕</button>
+        </td>
+      </tr>
+    `).join('');
 
     return `
-      <tr>
-        <td style="font-weight:700;color:var(--color-text-muted)">${i + 1}</td>
-        <td>
-          <div style="font-size:10px;color:var(--color-text-muted)">${prevSet.reps || '—'}/${prevSet.weight || '—'}kg</div>
-        </td>
+      <tr class="set-row ${done ? 'completed' : ''}" data-exid="${ex.id}" data-setidx="${i}">
+        <td class="set-num">${i + 1}</td>
+        <td class="set-prev">${prevLabel}</td>
         <td>
           <input type="number" class="set-input" data-exid="${ex.id}" data-setidx="${i}" data-field="reps"
                  value="${currentReps}" placeholder="${ex.reps || '—'}" min="0" max="999">
@@ -284,12 +340,17 @@ function buildSetsTable(ex, exIndex, session) {
                  value="${currentWeight}" placeholder="${ex.weight || '0'}" min="0" max="999" step="0.5">
         </td>
         <td>
-          <button class="set-done-btn ${done ? 'done' : ''}"
-                  data-exid="${ex.id}" data-setidx="${i}" data-done="${done}">
-            ${done ? '✓' : '○'}
-          </button>
+          <div class="set-actions-cell">
+            <button class="set-done-btn ${done ? 'done' : ''}"
+                    data-exid="${ex.id}" data-setidx="${i}" data-done="${done}">
+              ${done ? '✓' : '○'}
+            </button>
+            <button class="btn-add-drop" data-exid="${ex.id}" data-setidx="${i}"
+                    title="${t('entreno_add_drop')}">${t('entreno_add_drop')}</button>
+          </div>
         </td>
       </tr>
+      ${dropRows}
     `;
   }).join('');
 
@@ -301,10 +362,10 @@ function buildSetsTable(ex, exIndex, session) {
           <th>${t('entreno_prev')}</th>
           <th>${t('entreno_reps')}</th>
           <th>Kg</th>
-          <th>✓</th>
+          <th></th>
         </tr>
       </thead>
-      <tbody>${rows}</tbody>
+      <tbody id="sets-body-${ex.id}">${rows}</tbody>
     </table>
   `;
 }
@@ -336,17 +397,20 @@ function initExerciseList(container, exercises, sessionActive) {
         btn.classList.remove('done');
         btn.textContent = '○';
         btn.dataset.done = 'false';
+        btn.closest('.set-row')?.classList.remove('completed');
       } else {
-        // Read actual reps/weight from inputs
-        const repsInput   = container.querySelector(`.set-input[data-exid="${exId}"][data-setidx="${setIdx}"][data-field="reps"]`);
-        const weightInput = container.querySelector(`.set-input[data-exid="${exId}"][data-setidx="${setIdx}"][data-field="weight"]`);
-        if (repsInput?.value) updateSetData(exId, setIdx, 'reps', repsInput.value);
+        // Read actual reps/weight from inputs (only non-drop inputs on this row)
+        const row         = btn.closest('.set-row');
+        const repsInput   = row?.querySelector(`.set-input[data-field="reps"]:not(.drop-input)`);
+        const weightInput = row?.querySelector(`.set-input[data-field="weight"]:not(.drop-input)`);
+        if (repsInput?.value)   updateSetData(exId, setIdx, 'reps', repsInput.value);
         if (weightInput?.value) updateSetData(exId, setIdx, 'weight', weightInput.value);
 
         markSetDone(exId, setIdx);
         btn.classList.add('done');
         btn.textContent = '✓';
         btn.dataset.done = 'true';
+        btn.closest('.set-row')?.classList.add('completed');
 
         // Start rest timer
         const exercise = exercises.find(ex => ex.id === exId);
@@ -356,11 +420,44 @@ function initExerciseList(container, exercises, sessionActive) {
     });
   });
 
-  // Set input changes
-  container.querySelectorAll('.set-input').forEach(input => {
+  // Set input changes (normal sets)
+  container.querySelectorAll('.set-input:not(.drop-input)').forEach(input => {
     input.addEventListener('change', () => {
       if (!sessionActive) return;
       updateSetData(input.dataset.exid, parseInt(input.dataset.setidx), input.dataset.field, input.value);
+    });
+  });
+
+  // Dropset input changes
+  container.querySelectorAll('.drop-input').forEach(input => {
+    input.addEventListener('change', () => {
+      if (!sessionActive) return;
+      _updateDropData(input.dataset.exid, parseInt(input.dataset.setidx), parseInt(input.dataset.dropidx), input.dataset.field, input.value);
+    });
+  });
+
+  // Add dropset button
+  container.querySelectorAll('.btn-add-drop').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!sessionActive) { toast(t('entreno_start_first'), 'info'); return; }
+      const exId   = btn.dataset.exid;
+      const setIdx = parseInt(btn.dataset.setidx);
+      _addDropRow(container, exId, setIdx);
+    });
+  });
+
+  // Remove dropset button
+  container.querySelectorAll('.btn-remove-drop').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const exId    = btn.dataset.exid;
+      const setIdx  = parseInt(btn.dataset.setidx);
+      const dropIdx = parseInt(btn.dataset.dropidx);
+      btn.closest('.dropset-row')?.remove();
+      _removeDropData(exId, setIdx, dropIdx);
+      // Re-index remaining drop rows
+      _reindexDropRows(container, exId, setIdx);
     });
   });
 
@@ -385,6 +482,104 @@ function initExerciseList(container, exercises, sessionActive) {
       openExerciseHistory(exercises[parseInt(btn.dataset.exindex)]);
     });
   });
+
+  container.querySelectorAll('[data-action="info"]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openExerciseInfoModal(btn.dataset.exname || btn.dataset.exid);
+    });
+  });
+}
+
+// ── Dropset DOM helpers ───────────────────────
+function _addDropRow(container, exId, setIdx) {
+  const tbody  = container.querySelector(`#sets-body-${exId}`);
+  if (!tbody) return;
+
+  // Count existing drop rows for this set to get new index
+  const existing = tbody.querySelectorAll(`.dropset-row[data-setidx="${setIdx}"]`);
+  const dropIdx  = existing.length;
+
+  const tr = document.createElement('tr');
+  tr.className = 'dropset-row';
+  tr.dataset.exid    = exId;
+  tr.dataset.setidx  = String(setIdx);
+  tr.dataset.dropidx = String(dropIdx);
+  tr.innerHTML = `
+    <td colspan="2">
+      <span class="dropset-label">${t('entreno_dropset_label')}</span>
+    </td>
+    <td>
+      <input type="number" class="set-input drop-input"
+             data-exid="${exId}" data-setidx="${setIdx}" data-dropidx="${dropIdx}" data-field="reps"
+             value="" placeholder="—" min="0" max="999">
+    </td>
+    <td>
+      <input type="number" class="set-input drop-input"
+             data-exid="${exId}" data-setidx="${setIdx}" data-dropidx="${dropIdx}" data-field="weight"
+             value="" placeholder="0" min="0" max="999" step="0.5">
+    </td>
+    <td>
+      <button class="btn-remove-drop" data-exid="${exId}" data-setidx="${setIdx}" data-dropidx="${dropIdx}"
+              title="${t('entreno_remove_drop')}">✕</button>
+    </td>
+  `;
+
+  // Insert after the last drop row (or after the set row itself)
+  const lastDrop = tbody.querySelector(`.dropset-row[data-setidx="${setIdx}"]:last-of-type`);
+  const setRow   = tbody.querySelector(`.set-row[data-setidx="${setIdx}"]`);
+  const anchor   = lastDrop || setRow;
+  if (anchor?.nextSibling) {
+    tbody.insertBefore(tr, anchor.nextSibling);
+  } else {
+    tbody.appendChild(tr);
+  }
+
+  // Bind events on new row
+  tr.querySelector('.drop-input')?.addEventListener('change', (e) => {
+    const inp = e.target;
+    _updateDropData(inp.dataset.exid, parseInt(inp.dataset.setidx), parseInt(inp.dataset.dropidx), inp.dataset.field, inp.value);
+  });
+  tr.querySelectorAll('.drop-input').forEach(inp => {
+    inp.addEventListener('change', (e) => {
+      _updateDropData(e.target.dataset.exid, parseInt(e.target.dataset.setidx), parseInt(e.target.dataset.dropidx), e.target.dataset.field, e.target.value);
+    });
+  });
+  tr.querySelector('.btn-remove-drop')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const btn = e.currentTarget;
+    btn.closest('.dropset-row')?.remove();
+    _removeDropData(btn.dataset.exid, parseInt(btn.dataset.setidx), parseInt(btn.dataset.dropidx));
+    _reindexDropRows(container, btn.dataset.exid, parseInt(btn.dataset.setidx));
+  });
+}
+
+function _updateDropData(exId, setIdx, dropIdx, field, value) {
+  const session = getActiveSession();
+  if (!session) return;
+  if (!session.setData) session.setData = {};
+  if (!session.setData[exId]) session.setData[exId] = { sets: [], drops: {} };
+  if (!session.setData[exId].drops) session.setData[exId].drops = {};
+  if (!Array.isArray(session.setData[exId].drops[setIdx])) session.setData[exId].drops[setIdx] = [];
+  while (session.setData[exId].drops[setIdx].length <= dropIdx) {
+    session.setData[exId].drops[setIdx].push({});
+  }
+  session.setData[exId].drops[setIdx][dropIdx][field] = value;
+}
+
+function _removeDropData(exId, setIdx, dropIdx) {
+  const session = getActiveSession();
+  if (!session?.setData?.[exId]?.drops?.[setIdx]) return;
+  session.setData[exId].drops[setIdx].splice(dropIdx, 1);
+}
+
+function _reindexDropRows(container, exId, setIdx) {
+  const tbody = container.querySelector(`#sets-body-${exId}`);
+  if (!tbody) return;
+  tbody.querySelectorAll(`.dropset-row[data-setidx="${setIdx}"]`).forEach((row, i) => {
+    row.dataset.dropidx = String(i);
+    row.querySelectorAll('[data-dropidx]').forEach(el => { el.dataset.dropidx = String(i); });
+  });
 }
 
 // ── Rest Timer Widget ─────────────────────────
@@ -403,6 +598,86 @@ function showRestTimer(container, exId, seconds) {
     widget.classList.add('hidden');
     toast(t('entreno_rest_done'), 'info');
   }, `#rest-widget-${exId} .timer-ring`);
+}
+
+// ── Exercise Info Modal ───────────────────────
+async function openExerciseInfoModal(exName) {
+  const { EXERCISES } = await import('../../data/data.js');
+  const exData = EXERCISES.find(e => e.n === exName);
+  if (!exData || (!exData.localVideo && !exData.localImg?.length)) {
+    toast('Sin contenido multimedia para este ejercicio', 'info');
+    return;
+  }
+
+  const imgs = exData.localImg || [];
+  const vid  = exData.localVideo;
+  const steps = exData.instructions || [];
+
+  const html = `
+    <div class="modal-header">
+      <h3 class="modal-title" style="font-size:14px">${exName}</h3>
+      <button class="modal-close">✕</button>
+    </div>
+
+    ${imgs.length ? `
+    <div style="position:relative;margin-bottom:12px">
+      <div style="overflow:hidden;border-radius:var(--radius-md)">
+        ${imgs.map((src, i) => `<img src="${encodeURI(src)}" alt="Posición ${i+1}" class="ex-info-img" data-imgidx="${i}" style="width:100%;display:${i===0?'block':'none'};max-height:260px;object-fit:cover;border-radius:var(--radius-md)">`).join('')}
+      </div>
+      ${imgs.length > 1 ? `
+      <div style="display:flex;justify-content:center;gap:10px;margin-top:8px">
+        ${imgs.map((_, i) => `<button class="ex-img-dot" data-imgidx="${i}" style="width:10px;height:10px;border-radius:50%;border:none;cursor:pointer;padding:0;background:${i===0?'var(--cyan)':'rgba(255,255,255,.3)'}"></button>`).join('')}
+      </div>
+      <div style="display:flex;justify-content:center;gap:4px;margin-top:6px">
+        ${imgs.map((_, i) => `<span style="font-size:11px;color:var(--color-text-muted)">Posición ${i+1}${i===0?' · Inicio':' · Final'}</span>${i<imgs.length-1?'<span style="font-size:11px;color:var(--color-text-muted);margin:0 4px">|</span>':''}`).join('')}
+      </div>
+      ` : ''}
+    </div>
+    ` : ''}
+
+    ${vid ? `
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:6px;letter-spacing:.5px">🎬 Vídeo técnica</div>
+      <video controls playsinline style="width:100%;border-radius:var(--radius-md);background:#000;max-height:220px;display:block">
+        <source src="${encodeURI(vid)}" type="video/mp4">
+      </video>
+    </div>
+    ` : ''}
+
+    ${steps.length ? `
+    <button id="ex-info-steps-btn" style="width:100%;padding:10px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:var(--radius-sm);color:#ef4444;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">
+      📋 Ver pasos de ejecución
+    </button>
+    <div id="ex-info-steps" style="display:none;margin-top:8px">
+      ${steps.map((s, i) => `
+        <div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <div style="min-width:22px;height:22px;border-radius:50%;background:var(--cyan);color:#000;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">${i+1}</div>
+          <div style="font-size:13px;color:var(--color-text);line-height:1.5">${s}</div>
+        </div>`).join('')}
+    </div>
+    ` : ''}
+  `;
+
+  openModal(html);
+  const m = document.getElementById('modal-content');
+
+  // Image carousel dots
+  m.querySelectorAll('.ex-img-dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      const idx = parseInt(dot.dataset.imgidx);
+      m.querySelectorAll('.ex-info-img').forEach((img, i) => { img.style.display = i === idx ? 'block' : 'none'; });
+      m.querySelectorAll('.ex-img-dot').forEach((d, i) => { d.style.background = i === idx ? 'var(--cyan)' : 'rgba(255,255,255,.3)'; });
+    });
+  });
+
+  // Steps toggle
+  m.querySelector('#ex-info-steps-btn')?.addEventListener('click', () => {
+    const el  = m.querySelector('#ex-info-steps');
+    const btn = m.querySelector('#ex-info-steps-btn');
+    const open = el.style.display === 'none';
+    el.style.display = open ? 'block' : 'none';
+    btn.innerHTML = open ? '📋 Ocultar pasos' : '📋 Ver pasos de ejecución';
+  });
 }
 
 // ── Exercise Swap ─────────────────────────────
