@@ -1348,14 +1348,8 @@ async function openAdminAssignRoutine(routineId, routineName, profile) {
   const _esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   let clients = [];
   try {
-    const [snap1, snap2] = await Promise.all([
-      db.collection('users').where('role','in',['cliente','atleta']).limit(50).get(),
-      db.collection('users').where('isClient','==',true).limit(50).get(),
-    ]);
-    const seen = new Set();
-    for (const doc of [...snap1.docs, ...snap2.docs]) {
-      if (!seen.has(doc.id)) { seen.add(doc.id); clients.push({ id: doc.id, ...doc.data() }); }
-    }
+    const snap = await db.collection('users').orderBy('name').limit(100).get();
+    clients = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch {}
 
   const selfUid = profile.uid;

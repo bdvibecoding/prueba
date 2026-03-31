@@ -353,17 +353,8 @@ async function loadClients(container, role, cfg) {
   let snap;
   try {
     if (role === 'admin') {
-      // Query clients/athletes + staff marked as clients
-      const [snap1, snap2] = await Promise.all([
-        db.collection('users').where('role', 'in', ['cliente', 'atleta']).orderBy('name').limit(100).get(),
-        db.collection('users').where('isClient', '==', true).limit(50).get(),
-      ]);
-      const seen = new Set();
-      const docs = [];
-      for (const doc of [...snap1.docs, ...snap2.docs]) {
-        if (!seen.has(doc.id)) { seen.add(doc.id); docs.push(doc); }
-      }
-      snap = { empty: docs.length === 0, docs };
+      // Admin sees all users (admins/staff are also clients)
+      snap = await db.collection('users').orderBy('name').limit(100).get();
     } else {
       snap = await db.collection('users')
         .where(cfg.field, '==', _profile.uid)
