@@ -624,7 +624,8 @@ function _reindexDropRows(container, exId, setIdx) {
 
 // ── Rest Timer Widget ─────────────────────────
 function showRestTimer(container, exId, seconds) {
-  const widget = container.querySelector(`#rest-widget-${exId}`);
+  // Use attribute selector — ex.id may contain spaces which break #id CSS selectors
+  const widget = container.querySelector(`[id="rest-widget-${exId}"]`);
   if (!widget) return;
 
   // Read live value from the config input if available
@@ -642,6 +643,7 @@ function showRestTimer(container, exId, seconds) {
     clearRestTimer();
   });
 
+  // Attribute selector also needed for the ring inside the widget
   startRestTimer(secs, () => {
     widget.classList.add('hidden');
     toast('¡Descanso terminado! 💪 Siguiente serie', 'success');
@@ -657,7 +659,7 @@ function showRestTimer(container, exId, seconds) {
         if (p === 'granted') new Notification('¡Descanso terminado!', { body: 'Es hora de la siguiente serie 💪' });
       });
     }
-  }, `#rest-widget-${exId} .timer-ring`);
+  }, `[id="rest-widget-${exId}"] .timer-ring`);
 }
 
 // ── Exercise Info Modal ───────────────────────
