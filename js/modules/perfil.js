@@ -235,10 +235,6 @@ export async function init(container) {
       await db.collection('users').doc(user.uid).update(updates);
       const newProfile = { ...profile, ...updates };
       setUser(user, newProfile);
-      // Update top bar
-      const greetingEl = document.getElementById('top-bar-greeting');
-      if (greetingEl) greetingEl.textContent = `${t('greeting')}, ${updates.name.split(' ')[0]}`;
-      document.getElementById('avatar-initials').textContent = getInitials(updates.name);
       toast(t('perfil_updated'), 'success');
       editMode = false;
       editBtn.textContent = '✏️';

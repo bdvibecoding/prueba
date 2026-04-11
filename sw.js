@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════
    TGWL Service Worker — PWA offline support
 ═══════════════════════════════════════════════ */
-const CACHE_NAME = 'tgwl-v1.10';
-const STATIC_CACHE = 'tgwl-static-v7.1';
-const DYNAMIC_CACHE = 'tgwl-dynamic-v7.1';
+const CACHE_NAME = 'tgwl-v1.11';
+const STATIC_CACHE = 'tgwl-static-v7.2';
+const DYNAMIC_CACHE = 'tgwl-dynamic-v7.2';
 
 const STATIC_ASSETS = [
   '/',
@@ -46,6 +46,13 @@ const STATIC_ASSETS = [
   '/admin/js/panels/fisio.js',
   '/admin/js/panels/psych.js',
   '/data/data.js',
+  '/assets/fonts/SF-Pro-Display/SFPRODISPLAYREGULAR.OTF',
+  '/assets/fonts/SF-Pro-Display/SFPRODISPLAYMEDIUM.OTF',
+  '/assets/fonts/SF-Pro-Display/SFPRODISPLAYBOLD.OTF',
+  '/assets/fonts/SF-Pro-Text/SFProText-Regular.ttf',
+  '/assets/fonts/SF-Pro-Text/SFProText-Medium.ttf',
+  '/assets/fonts/SF-Pro-Text/SFProText-Semibold.ttf',
+  '/assets/fonts/SF-Pro-Text/SFProText-Bold.ttf',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
 ];
 

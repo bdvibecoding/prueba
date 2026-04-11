@@ -23,7 +23,7 @@ const ROLE_BADGE_COLORS = {
 
 function roleBadgeHtml(role) {
   const style = ROLE_BADGE_COLORS[role] || 'background:#6b7280;color:#fff';
-  return `<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;${style}">${translateRole(role)}</span>`;
+  return `<span style="display:inline-block;padding:2px 8px;border-radius:var(--r-full);font-size:10px;font-weight:700;${style}">${translateRole(role)}</span>`;
 }
 
 export async function render(container) {
@@ -93,7 +93,7 @@ export async function render(container) {
         <div id="pending-access-section" style="
           margin-bottom:var(--space-md);
           border:1px solid rgba(234,179,8,0.3);
-          border-radius:12px;
+          border-radius:var(--r-md);
           padding:var(--space-md);
           background:rgba(234,179,8,0.05)
         ">
@@ -107,7 +107,7 @@ export async function render(container) {
                 font-size:14px;padding:2px 4px;line-height:1
               ">↺</button>
               <span id="pending-count-badge" style="
-                font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;
+                font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--r-full);
                 background:rgba(234,179,8,0.2);color:#eab308;border:1px solid rgba(234,179,8,0.3)
               ">0</span>
             </div>
@@ -124,7 +124,7 @@ export async function render(container) {
         <div id="admin-elevation-section" style="
           margin-bottom:var(--space-md);
           border:1px solid rgba(148,10,10,0.4);
-          border-radius:12px;
+          border-radius:var(--r-md);
           padding:var(--space-md);
           background:rgba(148,10,10,0.08)
         ">
@@ -133,7 +133,7 @@ export async function render(container) {
               🔑 ${t('admin_current_admins')}
             </div>
             <span id="admin-slot-badge" style="
-              font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;
+              font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--r-full);
               background:rgba(148,10,10,0.3);color:#ef4444;border:1px solid rgba(148,10,10,0.4)
             ">— / 3</span>
           </div>
@@ -330,7 +330,7 @@ export async function init(container) {
     el.innerHTML = admins.map(u => `
       <div style="
         display:flex;align-items:center;gap:10px;
-        padding:8px 10px;border-radius:8px;
+        padding:8px 10px;border-radius:var(--r-sm);
         background:rgba(255,255,255,0.04);
         margin-bottom:6px
       ">
@@ -349,7 +349,7 @@ export async function init(container) {
           </div>
         </div>
         <span style="
-          font-size:10px;font-weight:700;padding:2px 6px;border-radius:999px;
+          font-size:10px;font-weight:700;padding:2px 6px;border-radius:var(--r-full);
           background:#ef4444;color:#fff;flex-shrink:0
         ">Admin</span>
       </div>
@@ -390,7 +390,7 @@ export async function init(container) {
     const invitesHtml = pendingInvites.map(inv => `
       <div style="
         display:flex;align-items:center;gap:10px;
-        padding:8px 10px;border-radius:8px;
+        padding:8px 10px;border-radius:var(--r-sm);
         background:rgba(255,255,255,0.03);
         border:1px solid rgba(234,179,8,0.15);
         margin-bottom:6px
@@ -411,12 +411,12 @@ export async function init(container) {
         </div>
         <div style="display:flex;gap:6px;flex-shrink:0">
           <button class="btn-approve-invite" data-invid="${inv.id}" style="
-            font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;
+            font-size:11px;font-weight:700;padding:4px 10px;border-radius:var(--r-sm);
             background:rgba(25,249,249,0.1);color:var(--cyan);
             border:1px solid rgba(25,249,249,0.3);cursor:pointer;white-space:nowrap
           ">${t('admin_invite_approve') || '✓ Aprobar'}</button>
           <button class="btn-reject-invite" data-invid="${inv.id}" style="
-            font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;
+            font-size:11px;font-weight:700;padding:4px 10px;border-radius:var(--r-sm);
             background:rgba(148,10,10,0.15);color:#ef4444;
             border:1px solid rgba(148,10,10,0.3);cursor:pointer;white-space:nowrap
           ">${t('admin_invite_reject') || '✗ Rechazar'}</button>
@@ -428,7 +428,7 @@ export async function init(container) {
     const usersHtml = pendingUsers.map(u => `
       <div style="
         display:flex;align-items:center;gap:10px;
-        padding:8px 10px;border-radius:8px;
+        padding:8px 10px;border-radius:var(--r-sm);
         background:rgba(255,255,255,0.04);
         border:1px solid rgba(25,249,249,0.1);
         margin-bottom:6px
@@ -448,7 +448,7 @@ export async function init(container) {
           </div>
         </div>
         <button class="btn-grant-access" data-uid="${u.uid || u.id}" style="
-          font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;
+          font-size:11px;font-weight:700;padding:4px 10px;border-radius:var(--r-sm);
           background:rgba(25,249,249,0.1);color:var(--cyan);
           border:1px solid rgba(25,249,249,0.3);cursor:pointer;
           white-space:nowrap;flex-shrink:0
@@ -608,7 +608,7 @@ export async function init(container) {
           if (card) {
             const badgeWrap = card.querySelector('.admin-user-info [style*="display:flex"]');
             if (badgeWrap) {
-              const badgeEl = badgeWrap.querySelector('span[style*="border-radius:999px"]');
+              const badgeEl = badgeWrap.querySelector('span[style*="border-radius:var(--r-full)"]');
               if (badgeEl) badgeEl.outerHTML = roleBadgeHtml(newRole);
             }
           }
@@ -1157,7 +1157,7 @@ function openInviteUserModal() {
             message: {
               subject: t('admin_invite_subject'),
               html: `
-                <div style="font-family:sans-serif;max-width:480px;margin:0 auto;background:#0a0a0a;color:#fff;border-radius:12px;overflow:hidden">
+                <div style="font-family:sans-serif;max-width:480px;margin:0 auto;background:#0a0a0a;color:#fff;border-radius:var(--r-md);overflow:hidden">
                   <div style="background:#940a0a;padding:24px;text-align:center">
                     <h1 style="margin:0;font-size:24px;letter-spacing:2px">THE GROWTH LAB</h1>
                   </div>
@@ -1167,7 +1167,7 @@ function openInviteUserModal() {
                       Has sido invitado/a a unirte a The Growth Lab como <strong style="color:#19f9f9">${translateRole(role)}</strong>.
                     </p>
                     <a href="${inviteUrl}"
-                       style="display:block;background:#940a0a;color:#fff;text-align:center;padding:14px 24px;border-radius:8px;text-decoration:none;font-weight:700;font-size:16px">
+                       style="display:block;background:#940a0a;color:#fff;text-align:center;padding:14px 24px;border-radius:var(--r-sm);text-decoration:none;font-weight:700;font-size:16px">
                       Activar mi cuenta
                     </a>
                     <p style="color:#555;font-size:12px;margin-top:24px;text-align:center">
@@ -1292,15 +1292,15 @@ async function openAdminRoutineEditor(routineId, container) {
           <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${_esc(ex.name||ex.n||'')}</div>
           <div style="font-size:10px;color:var(--color-text-muted)">${_esc(ex.muscleGroup||ex.m||'')}</div>
         </div>
-        <input type="number" value="${ex.sets||3}" min="1" max="20" style="width:36px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:#fff;font-size:11px;text-align:center;padding:2px" data-sets="${i}">
+        <input type="number" value="${ex.sets||3}" min="1" max="20" style="width:36px;background:transparent;border:1px solid var(--glass-border);border-radius:var(--r-xs);color:#fff;font-size:11px;text-align:center;padding:2px" data-sets="${i}">
         <div style="display:flex;align-items:center;gap:4px">
           <input type="number" class="ex-warmup-input" data-index="${i}"
                  value="${ex.warmupSets||0}" min="0" max="10"
-                 style="width:40px;background:rgba(251,146,60,.15);border:1px solid rgba(251,146,60,.4);border-radius:4px;color:var(--color-text);font-size:11px;text-align:center;padding:2px">
+                 style="width:40px;background:rgba(251,146,60,.15);border:1px solid rgba(251,146,60,.4);border-radius:var(--r-xs);color:var(--color-text);font-size:11px;text-align:center;padding:2px">
           <span style="font-size:10px;color:rgba(251,146,60,.8)">🔥</span>
         </div>
         <span style="font-size:10px;color:var(--color-text-muted)">×</span>
-        <input type="text" value="${ex.reps||'10'}" placeholder="ej: 12 o 20-16-16" style="width:72px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:#fff;font-size:11px;text-align:center;padding:2px" data-reps="${i}">
+        <input type="text" value="${ex.reps||'10'}" placeholder="ej: 12 o 20-16-16" style="width:72px;background:transparent;border:1px solid var(--glass-border);border-radius:var(--r-xs);color:#fff;font-size:11px;text-align:center;padding:2px" data-reps="${i}">
         <button style="background:none;border:none;color:var(--color-danger);cursor:pointer;font-size:15px;padding:0 2px" data-rm="${i}">✕</button>
       </div>`).join('');
     listEl.querySelectorAll('[data-rm]').forEach(b=>b.addEventListener('click',()=>{ exercises.splice(+b.dataset.rm,1); renderList(); }));
@@ -1321,7 +1321,7 @@ async function openAdminRoutineEditor(routineId, container) {
     resultsEl.innerHTML = hits.map(e=>`
       <div data-exn="${e.n.replace(/"/g,'&quot;')}" style="display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05)">
         <div style="flex:1;font-size:12px;font-weight:600;color:#e2e8f0">${_esc(e.n)}</div>
-        <span style="font-size:10px;background:rgba(239,68,68,.2);color:#ef4444;padding:2px 7px;border-radius:10px;white-space:nowrap">${_esc(e.m)}</span>
+        <span style="font-size:10px;background:rgba(239,68,68,.2);color:#ef4444;padding:2px 7px;border-radius:var(--r-md);white-space:nowrap">${_esc(e.m)}</span>
       </div>`).join('');
     resultsEl.style.display='';
     resultsEl.querySelectorAll('[data-exn]').forEach(item=>{
@@ -1375,7 +1375,7 @@ async function openAdminAssignRoutine(routineId, routineName, profile) {
     <div class="admin-user-card" data-cuid="${c.uid||c.id}" data-cname="${_esc(c.name||'Cliente')}" style="cursor:pointer;margin-bottom:6px">
       <div class="admin-user-avatar">${getInitials(c.name||'?')}</div>
       <div style="flex:1">
-        <div style="font-weight:700;font-size:14px">${_esc(c.name||'Cliente')}${c.isClient && !['cliente','atleta'].includes(c.role) ? ` <span style="font-size:10px;background:rgba(0,200,255,.15);color:var(--cyan);padding:1px 5px;border-radius:4px;margin-left:4px">${c.role}</span>` : ''}</div>
+        <div style="font-weight:700;font-size:14px">${_esc(c.name||'Cliente')}${c.isClient && !['cliente','atleta'].includes(c.role) ? ` <span style="font-size:10px;background:rgba(0,200,255,.15);color:var(--cyan);padding:1px 5px;border-radius:var(--r-xs);margin-left:4px">${c.role}</span>` : ''}</div>
         <div class="text-muted" style="font-size:12px">${_esc(c.email||'')}</div>
       </div>
       <span class="badge badge-cyan">Asignar</span>

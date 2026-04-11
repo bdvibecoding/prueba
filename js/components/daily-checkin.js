@@ -60,7 +60,7 @@ function _buildAndShow(uid, todayStr, lsKey) {
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     backdrop-filter: blur(24px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 24px;
+    border-radius: var(--r-xl);
     box-shadow:
       0 24px 64px rgba(0, 0, 0, 0.7),
       0 2px 8px rgba(0, 0, 0, 0.4),
@@ -150,7 +150,7 @@ function _buildAndShow(uid, todayStr, lsKey) {
             width:80px;
             background:rgba(255,255,255,0.08);
             border:1px solid rgba(255,255,255,0.15);
-            border-radius:12px;
+            border-radius:var(--r-md);
             color:#fff;
             font-size:22px;
             font-weight:700;
@@ -179,7 +179,7 @@ function _buildAndShow(uid, todayStr, lsKey) {
           width:100%;
           background:rgba(255,255,255,0.07);
           border:1px solid rgba(255,255,255,0.12);
-          border-radius:14px;
+          border-radius:var(--r-md);
           color:#fff;
           font-size:14px;
           line-height:1.55;
@@ -208,7 +208,7 @@ function _buildAndShow(uid, todayStr, lsKey) {
           aria-checked="false"
           style="
             width:48px;height:27px;
-            border-radius:999px;
+            border-radius:var(--r-full);
             background:rgba(255,255,255,0.12);
             border:1px solid rgba(255,255,255,0.15);
             position:relative;
@@ -236,7 +236,7 @@ function _buildAndShow(uid, todayStr, lsKey) {
             width:100%;
             background:rgba(255,255,255,0.07);
             border:1px solid rgba(255,255,255,0.12);
-            border-radius:12px;
+            border-radius:var(--r-md);
             color:#fff;
             font-size:14px;
             padding:10px 14px;
@@ -399,7 +399,7 @@ function _emojiRow(items, group) {
         gap:4px;
         background:rgba(255,255,255,0.06);
         border:1.5px solid rgba(255,255,255,0.1);
-        border-radius:14px;
+        border-radius:var(--r-md);
         padding:10px 4px 8px;
         cursor:pointer;
         transition:all 0.18s ease;

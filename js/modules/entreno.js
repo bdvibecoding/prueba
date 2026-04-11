@@ -289,8 +289,8 @@ function buildMuscleBars(ex) {
       ${bars.map(b => `
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
           <div style="font-size:11px;color:var(--color-text-muted);width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.name}</div>
-          <div style="flex:1;height:5px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden">
-            <div style="height:100%;width:${b.pct}%;background:${b.color};border-radius:3px;transition:width 0.6s ease"></div>
+          <div style="flex:1;height:5px;background:rgba(255,255,255,0.1);border-radius:var(--r-xs);overflow:hidden">
+            <div style="height:100%;width:${b.pct}%;background:${b.color};border-radius:var(--r-xs);transition:width 0.6s ease"></div>
           </div>
           <div style="font-size:11px;color:var(--color-text-muted);width:28px;text-align:right">${b.pct}%</div>
         </div>
@@ -341,7 +341,7 @@ function buildExerciseCard(ex, index, sessionActive, session, exDataCache) {
           <span style="font-size:11px;color:var(--color-text-muted)">⏱ Descanso:</span>
           <input type="number" class="rest-secs-input" data-exid="${ex.id}"
                  value="${ex.restSeconds || 60}" min="10" max="600" step="5"
-                 style="width:52px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:var(--color-text);font-size:11px;text-align:center;padding:2px">
+                 style="width:52px;background:transparent;border:1px solid var(--glass-border);border-radius:var(--r-xs);color:var(--color-text);font-size:11px;text-align:center;padding:2px">
           <span style="font-size:11px;color:var(--color-text-muted)">seg</span>
         </div>
 
@@ -934,7 +934,7 @@ async function openExerciseInfoModal(exName) {
       </div>
       ${imgs.length > 1 ? `
       <div style="display:flex;gap:8px;margin-top:10px;justify-content:center">
-        ${imgs.map((_, i) => `<button class="ex-img-nav-btn ${i===0?'active':''}" data-imgidx="${i}" style="padding:6px 18px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--glass-border);background:${i===0?'var(--cyan)':'transparent'};color:${i===0?'#000':'var(--color-text)'}">
+        ${imgs.map((_, i) => `<button class="ex-img-nav-btn ${i===0?'active':''}" data-imgidx="${i}" style="padding:6px 18px;border-radius:var(--r-lg);font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--glass-border);background:${i===0?'var(--cyan)':'transparent'};color:${i===0?'#000':'var(--color-text)'}">
           ${i===0?'Inicio':'Final'}
         </button>`).join('')}
       </div>
@@ -1504,11 +1504,11 @@ function renderBasicOnboarding(container, listEl, profile) {
           <label class="field-label" style="margin-bottom:8px">Género</label>
           <div style="display:flex;gap:8px">
             <button class="basic-gender-btn ${selectedGender==='hombre'?'active':''}" data-gender="hombre"
-              style="flex:1;padding:10px;border-radius:10px;border:1px solid ${selectedGender==='hombre'?'var(--cyan)':'rgba(255,255,255,0.1)'};background:${selectedGender==='hombre'?'rgba(25,249,249,0.1)':'rgba(255,255,255,0.03)'};color:var(--color-text);cursor:pointer;font-size:14px;font-weight:600">
+              style="flex:1;padding:10px;border-radius:var(--r-md);border:1px solid ${selectedGender==='hombre'?'var(--cyan)':'rgba(255,255,255,0.1)'};background:${selectedGender==='hombre'?'rgba(25,249,249,0.1)':'rgba(255,255,255,0.03)'};color:var(--color-text);cursor:pointer;font-size:14px;font-weight:600">
               👨 Hombre
             </button>
             <button class="basic-gender-btn ${selectedGender==='mujer'?'active':''}" data-gender="mujer"
-              style="flex:1;padding:10px;border-radius:10px;border:1px solid ${selectedGender==='mujer'?'var(--cyan)':'rgba(255,255,255,0.1)'};background:${selectedGender==='mujer'?'rgba(25,249,249,0.1)':'rgba(255,255,255,0.03)'};color:var(--color-text);cursor:pointer;font-size:14px;font-weight:600">
+              style="flex:1;padding:10px;border-radius:var(--r-md);border:1px solid ${selectedGender==='mujer'?'var(--cyan)':'rgba(255,255,255,0.1)'};background:${selectedGender==='mujer'?'rgba(25,249,249,0.1)':'rgba(255,255,255,0.03)'};color:var(--color-text);cursor:pointer;font-size:14px;font-weight:600">
               👩 Mujer
             </button>
           </div>
@@ -1519,7 +1519,7 @@ function renderBasicOnboarding(container, listEl, profile) {
           <div style="display:flex;gap:8px">
             ${[2,3,4,5].map(d => `
               <button class="basic-days-btn" data-days="${d}"
-                style="flex:1;padding:10px;border-radius:10px;border:1px solid ${selectedDays===d?'var(--red)':'rgba(255,255,255,0.1)'};background:${selectedDays===d?'rgba(148,10,10,0.2)':'rgba(255,255,255,0.03)'};color:var(--color-text);cursor:pointer;font-size:15px;font-weight:700">
+                style="flex:1;padding:10px;border-radius:var(--r-md);border:1px solid ${selectedDays===d?'var(--red)':'rgba(255,255,255,0.1)'};background:${selectedDays===d?'rgba(148,10,10,0.2)':'rgba(255,255,255,0.03)'};color:var(--color-text);cursor:pointer;font-size:15px;font-weight:700">
                 ${d}
               </button>`).join('')}
           </div>

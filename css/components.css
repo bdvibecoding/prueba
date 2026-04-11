@@ -6,7 +6,7 @@
 /* ── Bottom Navigation ──────────────────────── */
 .bottom-nav {
   position: fixed;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 2px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
   left: 50%;
   transform: translateX(-50%);
   border-radius: var(--r-full);
@@ -92,11 +92,6 @@
 /* Staff panel nav item accent */
 .nav-item-staff .nav-icon svg { color: var(--cyan) !important; }
 
-/* Light mode: top-bar uses dark logos (data-logo-dark) */
-body.light-mode .logo-dark-only { display: block !important; }
-body.light-mode .logo-light-only { display: none !important; }
-body.dark-mode  .logo-dark-only  { display: none !important; }
-body.dark-mode  .logo-light-only { display: block !important; }
 
 /* ── Light mode nav & bar overrides ── */
 body.light-mode .bottom-nav {
@@ -104,12 +99,6 @@ body.light-mode .bottom-nav {
   border: 0.5px solid #E0E0E0;
 }
 body.light-mode .nav-item.active::after { background: #333333; }
-body.light-mode .top-bar {
-  background: rgba(245,245,247,0.88);
-  border-color: rgba(0,0,0,0.09);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
-}
 body.light-mode .nav-item.active {
   color: var(--red);
 }
@@ -866,7 +855,7 @@ body.light-mode .nutrition-macro-bar {
   font-size: 12px;
   font-weight: 700;
   padding: 3px 8px;
-  border-radius: var(--radius-full, 999px);
+  border-radius: var(--r-full);
 }
 .nmb-pill-p { background: rgba(239,68,68,.18); color: #f87171; }
 .nmb-pill-c { background: rgba(234,179,8,.18);  color: #fbbf24; }
@@ -897,7 +886,7 @@ body.light-mode .nutrition-macro-bar {
   padding: var(--space-md);
   background: linear-gradient(135deg, rgba(251,191,36,.12), rgba(251,191,36,.04));
   border: 1px solid rgba(251,191,36,.25);
-  border-radius: var(--radius-lg, 14px);
+  border-radius: var(--r-md);
   margin-bottom: var(--space-xs, 4px);
 }
 .nsf-icon {
@@ -927,7 +916,7 @@ body.light-mode .nutrition-macro-bar {
   font-size: 12px;
   background: rgba(251,191,36,.12);
   border: 1px solid rgba(251,191,36,.25);
-  border-radius: var(--radius-full, 999px);
+  border-radius: var(--r-full);
   padding: 3px 10px;
   color: #fbbf24;
   white-space: nowrap;
@@ -953,7 +942,7 @@ body.light-mode .nutrition-macro-bar {
   padding: 14px var(--space-md);
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg, 14px);
+  border-radius: var(--r-md);
   color: var(--color-text);
   cursor: pointer;
   font-family: inherit;
@@ -995,7 +984,7 @@ body.light-mode .nutrition-macro-bar {
 .nmb-supp-icon {
   background: rgba(99,102,241,.18);
   border: 1px solid rgba(99,102,241,.35);
-  border-radius: var(--radius-sm, 8px);
+  border-radius: var(--r-sm);
   font-size: 16px;
   padding: 4px 7px;
   cursor: pointer;
@@ -1023,7 +1012,7 @@ body.light-mode .nutrition-macro-bar {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-top: none;
-  border-radius: 0 0 var(--radius-lg, 14px) var(--radius-lg, 14px);
+  border-radius: 0 0 var(--r-md) var(--r-md);
   padding: var(--space-md);
   margin-top: -2px;
   animation: slideDown .18s ease;

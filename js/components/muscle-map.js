@@ -235,13 +235,13 @@ export function renderMuscleMap(container, exercises = []) {
     </div>
     <div class="muscle-legend" style="display:flex;flex-wrap:wrap;gap:8px;padding:0 16px 16px;justify-content:center">
       <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--color-text-muted)">
-        <span style="width:12px;height:12px;border-radius:3px;background:rgba(245,158,11,0.5);display:inline-block"></span> Baja
+        <span style="width:12px;height:12px;border-radius:var(--r-xs);background:rgba(245,158,11,0.5);display:inline-block"></span> Baja
       </span>
       <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--color-text-muted)">
-        <span style="width:12px;height:12px;border-radius:3px;background:rgba(239,68,68,0.6);display:inline-block"></span> Media
+        <span style="width:12px;height:12px;border-radius:var(--r-xs);background:rgba(239,68,68,0.6);display:inline-block"></span> Media
       </span>
       <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--color-text-muted)">
-        <span style="width:12px;height:12px;border-radius:3px;background:rgba(148,10,10,0.8);display:inline-block"></span> Alta
+        <span style="width:12px;height:12px;border-radius:var(--r-xs);background:rgba(148,10,10,0.8);display:inline-block"></span> Alta
       </span>
     </div>
   `;

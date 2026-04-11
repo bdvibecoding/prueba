@@ -79,7 +79,7 @@ function showUpdateBanner() {
     border: 1px solid rgba(25,249,249,0.3);
     backdrop-filter: blur(20px);
     padding: 12px 20px;
-    border-radius: 12px;
+    border-radius: var(--r-md);
     z-index: 9000;
     display: flex;
     align-items: center;
@@ -95,7 +95,7 @@ function showUpdateBanner() {
     <button onclick="window.location.reload()" style="
       background: linear-gradient(135deg, #c01010, #940a0a);
       border: none; color: white; padding: 6px 14px;
-      border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700;
+      border-radius: var(--r-sm); cursor: pointer; font-size: 12px; font-weight: 700;
     ">Actualizar</button>
     <button onclick="this.parentElement.remove()" style="
       background: none; border: none; color: rgba(255,255,255,0.5);
@@ -140,7 +140,7 @@ bootstrap().catch(err => {
         <h2>Error al iniciar</h2>
         <p style="color:#a7a7a7;margin:12px 0">${err.message}</p>
         <button onclick="window.location.reload()"
-          style="background:linear-gradient(135deg,#c01010,#940a0a);color:white;border:none;padding:12px 24px;border-radius:12px;font-size:15px;cursor:pointer;margin-top:12px">
+          style="background:linear-gradient(135deg,#c01010,#940a0a);color:white;border:none;padding:12px 24px;border-radius:var(--r-md);font-size:15px;cursor:pointer;margin-top:12px">
           Reintentar
         </button>
       </div>

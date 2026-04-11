@@ -5,7 +5,7 @@
 
 import { auth, db, collections, timestamp } from './firebase-config.js';
 import { appState, setUser, clearUser } from './state.js';
-import { toast, validateEmail, getInitials, getGreeting } from './utils.js';
+import { toast, validateEmail, getInitials } from './utils.js';
 import { navigate } from './router.js';
 
 // ── Read invite token from URL hash ──────────
@@ -91,36 +91,6 @@ async function createUserProfile(user, extra = {}) {
   return profile;
 }
 
-// ── Update top bar after login ────────────────
-function updateTopBar(profile) {
-  const greeting   = document.getElementById('top-bar-greeting');
-  const initials   = document.getElementById('avatar-initials');
-  const avatarBtn  = document.getElementById('top-bar-avatar');
-
-  if (greeting && profile?.name) {
-    greeting.textContent = `${getGreeting()}, ${profile.name.split(' ')[0]}`;
-  }
-
-  // Use Google photo if available, otherwise show initials
-  if (avatarBtn && profile?.photoURL) {
-    avatarBtn.style.backgroundImage    = `url(${profile.photoURL})`;
-    avatarBtn.style.backgroundSize     = 'cover';
-    avatarBtn.style.backgroundPosition = 'center';
-    if (initials) initials.style.display = 'none';
-  } else {
-    if (avatarBtn) avatarBtn.style.backgroundImage = '';
-    if (initials) {
-      initials.style.display = '';
-      if (profile?.name) initials.textContent = getInitials(profile.name);
-    }
-  }
-}
-
-// Re-update greeting when language changes
-window.addEventListener('langchange', () => {
-  const profile = appState.get('userProfile');
-  if (profile) updateTopBar(profile);
-});
 
 // All staff roles (not counting admin separately)
 export const STAFF_ROLES   = ['coach','medico','fisio','psicologo','nutricionista'];
@@ -132,8 +102,6 @@ function showApp(profile) {
   document.getElementById('loading-screen')?.classList.remove('active');
   document.getElementById('auth-section')?.classList.add('hidden');
   document.getElementById('app-section')?.classList.remove('hidden');
-  updateTopBar(profile);
-
   const role = profile?.role;
   const bottomNav = document.getElementById('bottom-nav');
 

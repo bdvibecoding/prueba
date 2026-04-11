@@ -39,7 +39,6 @@ function injectStyles() {
     /* ── Hub container ── */
     .sh-hub {
       height: calc(100dvh
-        - var(--top-bar-h, 56px)
         - var(--safe-top, env(safe-area-inset-top, 0px))
         - var(--bottom-nav-h, 72px)
         - var(--safe-bottom, env(safe-area-inset-bottom, 0px))
@@ -91,7 +90,7 @@ function injectStyles() {
       width: 100%; box-sizing: border-box;
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
-      border-radius: 20px; padding: 7px 12px;
+      border-radius: var(--r-lg); padding: 7px 12px;
       color: var(--color-text); font-size: 12px;
       font-family: inherit; outline: none;
     }
@@ -135,7 +134,7 @@ function injectStyles() {
     .sh-bubble-out {
       max-width: 72%; padding: 9px 13px;
       background: linear-gradient(135deg,var(--red-light),var(--red));
-      border-radius: 18px 18px 4px 18px;
+      border-radius: var(--r-lg) var(--r-lg) var(--r-xs) var(--r-lg);
       font-size: 14px; color: #fff; line-height: 1.45; word-break: break-word;
     }
     .sh-msg-in  { display: flex; gap: 8px; align-items: flex-end; }
@@ -143,7 +142,7 @@ function injectStyles() {
       max-width: 72%; padding: 9px 13px;
       background: var(--glass-bg-strong);
       border: 1px solid var(--glass-border);
-      border-radius: 18px 18px 18px 4px;
+      border-radius: var(--r-lg) var(--r-lg) var(--r-lg) var(--r-xs);
       font-size: 14px; color: var(--color-text); line-height: 1.45; word-break: break-word;
     }
     .sh-msg-time { font-size: 10px; opacity: .6; margin-top: 3px; }
@@ -156,7 +155,7 @@ function injectStyles() {
     .sh-input {
       flex: 1; background: var(--glass-bg);
       border: 1px solid var(--glass-border);
-      border-radius: 22px; padding: 9px 14px;
+      border-radius: var(--r-xl); padding: 9px 14px;
       color: var(--color-text); font-size: 14px;
       font-family: inherit; outline: none;
     }
@@ -198,7 +197,7 @@ function injectStyles() {
     }
     .sh-info-tabs::-webkit-scrollbar { display: none; }
     .sh-info-tab {
-      padding: 5px 10px; border-radius: 20px;
+      padding: 5px 10px; border-radius: var(--r-lg);
       background: var(--glass-bg); border: 1px solid var(--glass-border);
       font-size: 11px; font-weight: 600; white-space: nowrap;
       color: var(--color-text-muted); cursor: pointer;
@@ -387,7 +386,7 @@ function renderClientList(container, clients) {
     <div class="sh-client-row" data-uid="${c.uid}">
       <div class="sh-avatar">${getInitials(c.name || '?')}</div>
       <div style="flex:1;min-width:0">
-        <div class="sh-client-name">${_esc(c.name || 'Cliente')}${c.isClient && !['cliente','atleta'].includes(c.role) ? ` <span style="font-size:10px;background:rgba(0,200,255,.15);color:var(--cyan);padding:1px 5px;border-radius:4px;margin-left:4px">${c.role}</span>` : ''}</div>
+        <div class="sh-client-name">${_esc(c.name || 'Cliente')}${c.isClient && !['cliente','atleta'].includes(c.role) ? ` <span style="font-size:10px;background:rgba(0,200,255,.15);color:var(--cyan);padding:1px 5px;border-radius:var(--r-xs);margin-left:4px">${c.role}</span>` : ''}</div>
         <div class="sh-client-sub">${_esc(c.email || '')}</div>
       </div>
     </div>`).join('');
@@ -815,7 +814,7 @@ async function loadTeamTab(infoEl, client) {
             <div style="display:flex;gap:6px;flex-wrap:wrap">
               ${members.map(m => `
                 <button class="btn-icon" data-assign-uid="${m.uid}" data-assign-field="${roleField}"
-                  style="font-size:11px;padding:4px 8px;border-radius:20px;background:var(--glass-bg);border:1px solid var(--glass-border);cursor:pointer;color:var(--color-text)">
+                  style="font-size:11px;padding:4px 8px;border-radius:var(--r-lg);background:var(--glass-bg);border:1px solid var(--glass-border);cursor:pointer;color:var(--color-text)">
                   ${getInitials(m.name)} ${m.name?.split(' ')[0]}
                 </button>`).join('')}
               ${members.length === 0 ? `<span style="font-size:11px;color:var(--color-text-muted)">Sin personal de este rol</span>` : ''}
@@ -1080,7 +1079,7 @@ async function openAssignDietModal(clientUid, clientName) {
     const el = mc.querySelector('#meals-config');
     if (!el) return;
     el.innerHTML = Array.from({ length: mealCount }, (_, i) => `
-      <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:10px;padding:12px;margin-bottom:8px">
+      <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--r-md);padding:12px;margin-bottom:8px">
         <div style="font-weight:700;font-size:13px;margin-bottom:6px">🍽️ Comida ${i + 1}</div>
         <input type="text" id="meal-${i}-label" class="input-solo" placeholder="Ej: Desayuno, Media mañana..." style="margin-bottom:6px">
         <textarea id="meal-${i}-desc" class="input-solo" rows="2" placeholder="Contenido de la comida..." style="padding:8px;width:100%;margin-bottom:4px"></textarea>
@@ -1244,15 +1243,15 @@ async function openRoutineEditor(routineId, mc) {
           <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${_esc(ex.name||ex.n||'')}</div>
           <div style="font-size:10px;color:var(--color-text-muted)">${_esc(ex.muscleGroup||ex.m||'')}</div>
         </div>
-        <input type="number" value="${ex.sets||3}" min="1" max="20" style="width:36px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:var(--white);font-size:11px;text-align:center;padding:2px" data-sets="${i}">
+        <input type="number" value="${ex.sets||3}" min="1" max="20" style="width:36px;background:transparent;border:1px solid var(--glass-border);border-radius:var(--r-xs);color:var(--white);font-size:11px;text-align:center;padding:2px" data-sets="${i}">
         <div style="display:flex;align-items:center;gap:4px">
           <input type="number" class="ex-warmup-input" data-index="${i}"
                  value="${ex.warmupSets||0}" min="0" max="10"
-                 style="width:40px;background:rgba(251,146,60,.15);border:1px solid rgba(251,146,60,.4);border-radius:4px;color:var(--color-text);font-size:11px;text-align:center;padding:2px">
+                 style="width:40px;background:rgba(251,146,60,.15);border:1px solid rgba(251,146,60,.4);border-radius:var(--r-xs);color:var(--color-text);font-size:11px;text-align:center;padding:2px">
           <span style="font-size:10px;color:rgba(251,146,60,.8)">🔥</span>
         </div>
         <span style="font-size:10px;color:var(--color-text-muted)">×</span>
-        <input type="text" value="${ex.reps||'10'}" placeholder="ej: 12 o 20-16-16" style="width:72px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:var(--white);font-size:11px;text-align:center;padding:2px" data-reps="${i}">
+        <input type="text" value="${ex.reps||'10'}" placeholder="ej: 12 o 20-16-16" style="width:72px;background:transparent;border:1px solid var(--glass-border);border-radius:var(--r-xs);color:var(--white);font-size:11px;text-align:center;padding:2px" data-reps="${i}">
         <button style="background:none;border:none;color:var(--color-danger);cursor:pointer;font-size:15px;padding:0 2px" data-rm="${i}">✕</button>
       </div>`).join('');
     el.querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', ()=>{ exercises.splice(+b.dataset.rm,1); renderExList(); }));
@@ -1272,7 +1271,7 @@ async function openRoutineEditor(routineId, mc) {
     resultsEl.innerHTML = hits.map(e=>`
       <div data-exn="${e.n.replace(/"/g,'&quot;')}" style="display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05)">
         <div style="flex:1;font-size:12px;font-weight:600;color:#e2e8f0">${_esc(e.n)}</div>
-        <span style="font-size:10px;background:rgba(239,68,68,.2);color:#ef4444;padding:2px 7px;border-radius:10px;white-space:nowrap">${_esc(e.m)}</span>
+        <span style="font-size:10px;background:rgba(239,68,68,.2);color:#ef4444;padding:2px 7px;border-radius:var(--r-md);white-space:nowrap">${_esc(e.m)}</span>
       </div>`).join('');
     resultsEl.style.display='';
     resultsEl.querySelectorAll('[data-exn]').forEach(item=>{

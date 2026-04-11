@@ -290,7 +290,7 @@ async function renderCheckinData(el, uid, userName, isStaff) {
         <div style="display:flex;align-items:flex-end;gap:3px;height:50px">
           ${last14rev.map(c=>{
             const h = Math.round(((c.mood||0)/5)*44)+4;
-            return `<div style="flex:1;min-width:0;height:${h}px;background:${MOOD_COLORS[c.mood]||'#6b7280'};border-radius:3px 3px 0 0;opacity:0.85" title="${c.date}: ${MOOD_EMOJIS[c.mood]||'—'}"></div>`;
+            return `<div style="flex:1;min-width:0;height:${h}px;background:${MOOD_COLORS[c.mood]||'#6b7280'};border-radius:var(--r-xs) var(--r-xs) 0 0;opacity:0.85" title="${c.date}: ${MOOD_EMOJIS[c.mood]||'—'}"></div>`;
           }).join('')}
         </div>
         <div style="display:flex;justify-content:space-between;margin-top:6px">
@@ -307,7 +307,7 @@ async function renderCheckinData(el, uid, userName, isStaff) {
             const hrs = Math.min(c.sleepHours||0,10);
             const h   = Math.round((hrs/10)*44)+4;
             const col = hrs>=7?'#22c55e':hrs>=5?'#f59e0b':'#ef4444';
-            return `<div style="flex:1;min-width:0;height:${h}px;background:${col};border-radius:3px 3px 0 0;opacity:0.8" title="${c.date}: ${c.sleepHours||0}h"></div>`;
+            return `<div style="flex:1;min-width:0;height:${h}px;background:${col};border-radius:var(--r-xs) var(--r-xs) 0 0;opacity:0.8" title="${c.date}: ${c.sleepHours||0}h"></div>`;
           }).join('')}
         </div>
         <div style="display:flex;justify-content:space-between;margin-top:6px">

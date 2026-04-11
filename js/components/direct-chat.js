@@ -89,7 +89,7 @@ export function openDirectChat({ myUid, myName, otherUid, otherName, otherRole =
           flex:1;
           background:var(--glass-bg);
           border:1px solid var(--glass-border);
-          border-radius:22px;
+          border-radius:var(--r-xl);
           padding:10px 16px;
           color:var(--color-text);
           font-size:14px;
@@ -183,7 +183,7 @@ function renderMessages(snapshot, myUid, otherName, overlay) {
           <div style="
             max-width:75%; padding:10px 14px;
             background:linear-gradient(135deg,var(--red-light),var(--red));
-            border-radius:18px 18px 4px 18px;
+            border-radius:var(--r-lg) var(--r-lg) var(--r-xs) var(--r-lg);
             font-size:14px; color:#fff; line-height:1.45;
             word-break:break-word;
           ">
@@ -205,7 +205,7 @@ function renderMessages(snapshot, myUid, otherName, overlay) {
             max-width:75%; padding:10px 14px;
             background:var(--glass-bg-strong);
             border:1px solid var(--glass-border);
-            border-radius:18px 18px 18px 4px;
+            border-radius:var(--r-lg) var(--r-lg) var(--r-lg) var(--r-xs);
             font-size:14px; color:var(--color-text); line-height:1.45;
             word-break:break-word;
           ">

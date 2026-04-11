@@ -67,8 +67,8 @@ export async function render(container) {
       <div class="section">
         <div class="section-title">${t('recent_activity')}</div>
         <div id="recent-activity">
-          <div class="skeleton skeleton-card" style="height:70px;border-radius:14px;margin-bottom:8px"></div>
-          <div class="skeleton skeleton-card" style="height:70px;border-radius:14px"></div>
+          <div class="skeleton skeleton-card" style="height:70px;border-radius:var(--r-md);margin-bottom:8px"></div>
+          <div class="skeleton skeleton-card" style="height:70px;border-radius:var(--r-md)"></div>
         </div>
       </div>
 

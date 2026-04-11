@@ -42,12 +42,12 @@ export function showUpgradeModal(feature = '') {
   overlay.id = 'upgrade-modal-overlay';
   overlay.style.cssText = 'position:fixed;inset:0;z-index:99990;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);padding:20px';
   overlay.innerHTML = `
-    <div style="background:var(--color-surface,#1a1a2e);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px 24px;max-width:340px;width:100%;text-align:center">
+    <div style="background:var(--color-surface,#1a1a2e);border:1px solid rgba(255,255,255,0.1);border-radius:var(--r-lg);padding:32px 24px;max-width:340px;width:100%;text-align:center">
       <div style="font-size:48px;margin-bottom:12px">🔒</div>
       <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:8px">Función Premium</h2>
       <p style="color:var(--color-text-muted,#888);font-size:14px;margin-bottom:24px;line-height:1.5">${desc}</p>
-      <button id="upgrade-btn-more" style="width:100%;padding:14px;background:linear-gradient(135deg,var(--red,#dc2626),#b91c1c);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px">Saber más</button>
-      <button id="upgrade-btn-close" style="width:100%;padding:12px;background:rgba(255,255,255,0.05);color:var(--color-text-muted,#888);border:1px solid rgba(255,255,255,0.1);border-radius:12px;font-size:14px;cursor:pointer">Cerrar</button>
+      <button id="upgrade-btn-more" style="width:100%;padding:14px;background:linear-gradient(135deg,var(--red,#dc2626),#b91c1c);color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px">Saber más</button>
+      <button id="upgrade-btn-close" style="width:100%;padding:12px;background:rgba(255,255,255,0.05);color:var(--color-text-muted,#888);border:1px solid rgba(255,255,255,0.1);border-radius:var(--r-md);font-size:14px;cursor:pointer">Cerrar</button>
     </div>
   `;
   document.body.appendChild(overlay);
@@ -198,10 +198,6 @@ async function renderRoute(route, params) {
       window.__activeModule = module;
     }
 
-    // Update top-bar title
-    const topTitle = document.getElementById('top-bar-title');
-    if (topTitle && ROUTES[route]) topTitle.textContent = t('route_' + route) || ROUTES[route].title;
-
   } catch (err) {
     console.error('[Router] Error rendering route:', route, err);
     container.innerHTML = `
@@ -228,10 +224,6 @@ export function initRouter() {
   document.querySelectorAll('.nav-item[data-route]').forEach(btn => {
     btn.addEventListener('click', () => navigate(btn.dataset.route));
   });
-
-  // Top-bar avatar click → profile
-  const avatar = document.getElementById('top-bar-avatar');
-  if (avatar) avatar.addEventListener('click', () => navigate('perfil'));
 
   // Re-render current page when language changes
   window.addEventListener('langchange', () => {

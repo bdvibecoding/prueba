@@ -197,7 +197,7 @@ function buildPlanCard(plan, current) {
   const cardStyle = [
     `background:${plan.glowColor}`,
     `border:1px solid transparent`,
-    `border-radius:16px`,
+    `border-radius:var(--r-lg)`,
     `padding:var(--space-lg)`,
     `position:relative`,
     `overflow:hidden`,
@@ -206,7 +206,7 @@ function buildPlanCard(plan, current) {
 
   // Gradient border via pseudo-approach using wrapper
   return `
-    <div style="position:relative;border-radius:16px;padding:1px;background:${plan.gradientBorder};
+    <div style="position:relative;border-radius:var(--r-lg);padding:1px;background:${plan.gradientBorder};
                 ${isPro ? 'box-shadow:0 0 48px ' + plan.glowColor + ',0 0 80px rgba(148,10,10,0.15)' : ''}">
       <div class="pack-card ${isActive ? 'selected' : ''}" data-plan-id="${plan.id}"
            style="${cardStyle};backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
@@ -274,9 +274,9 @@ function buildSingleSessionCard() {
         ${t('sub_one_time')}
       </div>
 
-      <div style="position:relative;border-radius:16px;padding:1px;
+      <div style="position:relative;border-radius:var(--r-lg);padding:1px;
                   background:linear-gradient(135deg,rgba(250,204,21,0.6),rgba(234,179,8,0.3))">
-        <div style="background:rgba(10,10,10,0.85);border-radius:15px;padding:var(--space-lg);
+        <div style="background:rgba(10,10,10,0.85);border-radius:var(--r-lg);padding:var(--space-lg);
                     backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)">
 
           <div style="display:flex;align-items:center;justify-content:space-between;
@@ -296,13 +296,13 @@ function buildSingleSessionCard() {
               </p>
               <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:var(--space-sm)">
                 <span style="font-size:11px;background:rgba(250,204,21,0.12);
-                             border:1px solid rgba(250,204,21,0.25);border-radius:20px;
+                             border:1px solid rgba(250,204,21,0.25);border-radius:var(--r-lg);
                              padding:3px 10px;color:#FACC15">${t('sub_no_subscription')}</span>
                 <span style="font-size:11px;background:rgba(250,204,21,0.12);
-                             border:1px solid rgba(250,204,21,0.25);border-radius:20px;
+                             border:1px solid rgba(250,204,21,0.25);border-radius:var(--r-lg);
                              padding:3px 10px;color:#FACC15">${t('sub_60_min')}</span>
                 <span style="font-size:11px;background:rgba(250,204,21,0.12);
-                             border:1px solid rgba(250,204,21,0.25);border-radius:20px;
+                             border:1px solid rgba(250,204,21,0.25);border-radius:var(--r-lg);
                              padding:3px 10px;color:#FACC15">${t('sub_online_or_in_person')}</span>
               </div>
             </div>
@@ -343,9 +343,9 @@ function openInquiryModal(planId) {
       <button class="modal-close">✕</button>
     </div>
 
-    <div style="padding:1px;border-radius:12px;
+    <div style="padding:1px;border-radius:var(--r-md);
                 background:${plan.gradientBorder};margin-bottom:var(--space-md)">
-      <div style="background:rgba(10,10,10,0.9);border-radius:11px;
+      <div style="background:rgba(10,10,10,0.9);border-radius:var(--r-md);
                   padding:var(--space-md);display:flex;justify-content:space-between;align-items:center">
         <div>
           <div style="font-weight:800;font-size:16px;color:${plan.accentColor}">${plan.name}</div>
@@ -405,10 +405,10 @@ function openSessionModal() {
       <button class="modal-close">✕</button>
     </div>
 
-    <div style="padding:1px;border-radius:12px;
+    <div style="padding:1px;border-radius:var(--r-md);
                 background:linear-gradient(135deg,rgba(250,204,21,0.6),rgba(234,179,8,0.3));
                 margin-bottom:var(--space-md)">
-      <div style="background:rgba(10,10,10,0.9);border-radius:11px;
+      <div style="background:rgba(10,10,10,0.9);border-radius:var(--r-md);
                   padding:var(--space-md);display:flex;justify-content:space-between;align-items:center">
         <div>
           <div style="font-weight:800;font-size:16px;color:#FACC15">${t('sub_single_title')}</div>

@@ -422,7 +422,7 @@ async function openEditRoutineModal(routineId, profile, container) {
     cpResults.innerHTML = hits.map(e => `
       <div data-ex="${e.n}" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--glass-border);display:flex;justify-content:space-between;align-items:center" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
         <span style="color:#e2e8f0;font-size:13px">${e.n}</span>
-        <span style="background:#ef4444;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:8px;white-space:nowrap">${e.m}</span>
+        <span style="background:#ef4444;color:#fff;font-size:10px;padding:2px 6px;border-radius:var(--r-xs);margin-left:8px;white-space:nowrap">${e.m}</span>
       </div>`).join('');
     cpResults.style.display = 'block';
     cpResults.querySelectorAll('[data-ex]').forEach(row => {
@@ -497,17 +497,17 @@ function buildRoutineExRow(ex, index) {
       <div style="flex:1">
         <div style="font-size:13px;font-weight:600">${ex.name}</div>
         <div style="display:flex;gap:8px;margin-top:2px">
-          <input type="number" value="${ex.sets || 3}" min="1" max="10" style="width:40px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:var(--white);font-size:11px;text-align:center;padding:2px" data-sets="${index}">
+          <input type="number" value="${ex.sets || 3}" min="1" max="10" style="width:40px;background:transparent;border:1px solid var(--glass-border);border-radius:var(--r-xs);color:var(--white);font-size:11px;text-align:center;padding:2px" data-sets="${index}">
           <div style="display:flex;align-items:center;gap:4px">
             <input type="number" class="ex-warmup-input" data-index="${index}"
                    value="${ex.warmupSets||0}" min="0" max="10"
-                   style="width:40px;background:rgba(251,146,60,.15);border:1px solid rgba(251,146,60,.4);border-radius:4px;color:var(--color-text);font-size:11px;text-align:center;padding:2px">
+                   style="width:40px;background:rgba(251,146,60,.15);border:1px solid rgba(251,146,60,.4);border-radius:var(--r-xs);color:var(--color-text);font-size:11px;text-align:center;padding:2px">
             <span style="font-size:10px;color:rgba(251,146,60,.8)">🔥</span>
           </div>
           <span style="font-size:11px;color:var(--color-text-muted)">×</span>
-          <input type="text" value="${ex.reps || '10'}" placeholder="ej: 12 o 20-16-16" style="width:72px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:var(--white);font-size:11px;text-align:center;padding:2px" data-reps="${index}">
+          <input type="text" value="${ex.reps || '10'}" placeholder="ej: 12 o 20-16-16" style="width:72px;background:transparent;border:1px solid var(--glass-border);border-radius:var(--r-xs);color:var(--white);font-size:11px;text-align:center;padding:2px" data-reps="${index}">
           <span style="font-size:11px;color:var(--color-text-muted)">kg</span>
-          <input type="number" value="${ex.weight || 0}" step="0.5" style="width:44px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:var(--white);font-size:11px;text-align:center;padding:2px" placeholder="Peso">
+          <input type="number" value="${ex.weight || 0}" step="0.5" style="width:44px;background:transparent;border:1px solid var(--glass-border);border-radius:var(--r-xs);color:var(--white);font-size:11px;text-align:center;padding:2px" placeholder="Peso">
         </div>
       </div>
       <button style="background:none;border:none;color:var(--color-danger);cursor:pointer;font-size:16px" data-remove-ex="${index}">✕</button>
