@@ -531,6 +531,7 @@ export async function init(container) {
       return;
     }
 
+    console.log('[ADMIN] Users photoURL debug:', users.map(u => ({ name: u.name, photoURL: u.photoURL })));
     el.innerHTML = users.map(user => `
       <div class="admin-user-card" data-uid="${user.uid || user.id}">
         <div class="admin-user-avatar">${user.photoURL ? `<img src="${user.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : (getInitials(user.name) || '?')}</div>

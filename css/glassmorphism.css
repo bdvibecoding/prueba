@@ -927,6 +927,7 @@ body.light-mode .pack-price {
   font-weight: 700;
   font-size: var(--fs-md);
   flex-shrink: 0;
+  overflow: hidden;
 }
 .admin-user-info { flex: 1; min-width: 0; }
 .admin-user-name { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
