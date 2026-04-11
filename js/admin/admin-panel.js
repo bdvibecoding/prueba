@@ -347,6 +347,7 @@ export async function init(container) {
           <div style="font-size:11px;color:var(--color-text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
             ${u.email || ''}
           </div>
+          <div style="font-size:9px;color:#ff0;word-break:break-all">📸 ${u.photoURL || 'NO photoURL'}</div>
         </div>
         <span style="
           font-size:10px;font-weight:700;padding:2px 6px;border-radius:var(--r-full);
