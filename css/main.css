@@ -673,14 +673,14 @@ body.light-mode .app-section {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   padding-top: calc(var(--safe-top) + 16px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
 }
 
 
 /* ── Page Sections ──────────────────────────── */
 .page {
   display: none;
-  padding: var(--page-pad);
+  padding: var(--page-pad) var(--page-pad) 0;
   animation: pageIn 0.3s ease;
   height: 100%;
 }

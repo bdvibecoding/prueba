@@ -28,7 +28,7 @@ function roleBadgeHtml(role) {
 
 export async function render(container) {
   container.innerHTML = `
-    <div class="page active" id="admin-page" style="display:flex;flex-direction:column;height:100%;overflow:hidden">
+    <div class="page active" id="admin-page" style="display:flex;flex-direction:column;height:100%;overflow:hidden;padding-bottom:0">
 
       <!-- ── Main tab bar ── -->
       <div style="
@@ -53,7 +53,7 @@ export async function render(container) {
       </div>
 
       <!-- ── Users panel ── -->
-      <div id="admin-tab-users" style="flex:1;overflow-y:auto;padding:var(--page-pad)">
+      <div id="admin-tab-users" style="flex:1;overflow-y:auto;padding:var(--page-pad);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 80px)">
 
         <div class="page-header">
           <div>
@@ -155,7 +155,7 @@ export async function render(container) {
       <div id="admin-tab-hub" style="flex:1;display:none;overflow:hidden;min-height:0">
 
       <!-- ── Rutinas panel ── -->
-      </div><div id="admin-tab-routines" style="flex:1;display:none;overflow-y:auto;padding:var(--page-pad)">
+      </div><div id="admin-tab-routines" style="flex:1;display:none;overflow-y:auto;padding:var(--page-pad);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 80px)">
         <div class="page-header" style="margin-bottom:var(--space-lg)">
           <div>
             <h2 class="page-title">💪 Mis Rutinas</h2>
