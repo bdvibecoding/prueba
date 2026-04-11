@@ -335,11 +335,11 @@ export async function init(container) {
         margin-bottom:6px
       ">
         <div style="
-          width:30px;height:30px;border-radius:50%;flex-shrink:0;
-          ${u.photoURL ? `background:url(${u.photoURL}) center/cover no-repeat;color:transparent` : 'background:#940a0a;color:#fff'};
+          width:30px;height:30px;border-radius:50%;flex-shrink:0;overflow:hidden;
+          ${u.photoURL ? '' : 'background:#940a0a;color:#fff;'}
           display:flex;align-items:center;justify-content:center;
           font-size:12px;font-weight:700
-        ">${getInitials(u.name) || '?'}</div>
+        ">${u.photoURL ? `<img src="${u.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover">` : (getInitials(u.name) || '?')}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
             ${u.name || t('admin_no_name')}
@@ -434,11 +434,11 @@ export async function init(container) {
         margin-bottom:6px
       ">
         <div style="
-          width:32px;height:32px;border-radius:50%;flex-shrink:0;
-          ${u.photoURL ? `background:url(${u.photoURL}) center/cover no-repeat;color:transparent` : 'background:rgba(25,249,249,0.1);color:var(--cyan)'};
+          width:32px;height:32px;border-radius:50%;flex-shrink:0;overflow:hidden;
+          ${u.photoURL ? '' : 'background:rgba(25,249,249,0.1);color:var(--cyan);'}
           display:flex;align-items:center;justify-content:center;
           font-size:12px;font-weight:700;border:1px solid rgba(25,249,249,0.2)
-        ">${getInitials(u.name) || '?'}</div>
+        ">${u.photoURL ? `<img src="${u.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover">` : (getInitials(u.name) || '?')}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
             ${u.name || u.email || '—'}
@@ -533,7 +533,7 @@ export async function init(container) {
 
     el.innerHTML = users.map(user => `
       <div class="admin-user-card" data-uid="${user.uid || user.id}">
-        <div class="admin-user-avatar"${user.photoURL ? ` style="background:url(${user.photoURL}) center/cover no-repeat;color:transparent"` : ''}>${getInitials(user.name) || '?'}</div>
+        <div class="admin-user-avatar">${user.photoURL ? `<img src="${user.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : (getInitials(user.name) || '?')}</div>
         <div class="admin-user-info">
           <div class="admin-user-name">${user.name || t('admin_no_name')}</div>
           <div class="admin-user-email">${user.email || ''}</div>
@@ -1363,7 +1363,7 @@ async function openAdminAssignRoutine(routineId, routineName, profile) {
   const selfUid = profile.uid;
   const selfCard = `
     <div class="admin-user-card" data-cuid="${selfUid}" data-cname="${_esc(profile.name||'Yo')}" style="cursor:pointer;margin-bottom:6px;border-color:var(--cyan)">
-      <div class="admin-user-avatar"${profile.photoURL ? ` style="background:url(${profile.photoURL}) center/cover no-repeat;color:transparent"` : ' style="background:rgba(0,200,255,.2);color:var(--cyan)"'}>${getInitials(profile.name||'?')}</div>
+      <div class="admin-user-avatar"${profile.photoURL ? ' style="overflow:hidden"' : ' style="background:rgba(0,200,255,.2);color:var(--cyan)"'}>${profile.photoURL ? `<img src="${profile.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : getInitials(profile.name||'?')}</div>
       <div style="flex:1">
         <div style="font-weight:700;font-size:14px">${_esc(profile.name||'Yo')} <span style="font-size:11px;color:var(--cyan)">(yo)</span></div>
         <div class="text-muted" style="font-size:12px">${_esc(profile.email||'')}</div>
@@ -1373,7 +1373,7 @@ async function openAdminAssignRoutine(routineId, routineName, profile) {
 
   const clientCards = clients.filter(c => (c.uid||c.id) !== selfUid).map(c => `
     <div class="admin-user-card" data-cuid="${c.uid||c.id}" data-cname="${_esc(c.name||'Cliente')}" style="cursor:pointer;margin-bottom:6px">
-      <div class="admin-user-avatar"${c.photoURL ? ` style="background:url(${c.photoURL}) center/cover no-repeat;color:transparent"` : ''}>${getInitials(c.name||'?')}</div>
+      <div class="admin-user-avatar"${c.photoURL ? ' style="overflow:hidden"' : ''}>${c.photoURL ? `<img src="${c.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : (getInitials(c.name||'?'))}</div>
       <div style="flex:1">
         <div style="font-weight:700;font-size:14px">${_esc(c.name||'Cliente')}${c.isClient && !['cliente','atleta'].includes(c.role) ? ` <span style="font-size:10px;background:rgba(0,200,255,.15);color:var(--cyan);padding:1px 5px;border-radius:var(--r-xs);margin-left:4px">${c.role}</span>` : ''}</div>
         <div class="text-muted" style="font-size:12px">${_esc(c.email||'')}</div>
