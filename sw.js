@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════
    TGWL Service Worker — PWA offline support
 ═══════════════════════════════════════════════ */
-const CACHE_NAME = 'tgwl-v1.14';
-const STATIC_CACHE = 'tgwl-static-v7.5';
-const DYNAMIC_CACHE = 'tgwl-dynamic-v7.5';
+const CACHE_NAME = 'tgwl-v1.15';
+const STATIC_CACHE = 'tgwl-static-v7.6';
+const DYNAMIC_CACHE = 'tgwl-dynamic-v7.6';
 
 const STATIC_ASSETS = [
   '/',
