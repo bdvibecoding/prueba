@@ -347,7 +347,6 @@ export async function init(container) {
           <div style="font-size:11px;color:var(--color-text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
             ${u.email || ''}
           </div>
-          <div style="font-size:9px;color:#ff0;word-break:break-all">📸 ${u.photoURL || 'NO photoURL'}</div>
         </div>
         <span style="
           font-size:10px;font-weight:700;padding:2px 6px;border-radius:var(--r-full);
@@ -532,7 +531,6 @@ export async function init(container) {
       return;
     }
 
-    console.log('[ADMIN] Users photoURL debug:', users.map(u => ({ name: u.name, photoURL: u.photoURL })));
     el.innerHTML = users.map(user => `
       <div class="admin-user-card" data-uid="${user.uid || user.id}">
         <div class="admin-user-avatar">${user.photoURL ? `<img src="${user.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : (getInitials(user.name) || '?')}</div>
