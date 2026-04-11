@@ -1,14 +1,15 @@
 /* ═══════════════════════════════════════════════
    TGWL Service Worker — PWA offline support
 ═══════════════════════════════════════════════ */
-const CACHE_NAME = 'tgwl-v1.3.7';
-const STATIC_CACHE = 'tgwl-static-v4.4';
-const DYNAMIC_CACHE = 'tgwl-dynamic-v4.4';
+const CACHE_NAME = 'tgwl-v1.10';
+const STATIC_CACHE = 'tgwl-static-v7.1';
+const DYNAMIC_CACHE = 'tgwl-dynamic-v7.1';
 
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/css/fonts.css',
   '/css/main.css',
   '/css/glassmorphism.css',
   '/css/animations.css',
@@ -35,6 +36,15 @@ const STATIC_ASSETS = [
   '/js/components/muscle-map.js',
   '/js/components/before-after-slider.js',
   '/js/admin/admin-panel.js',
+  '/js/admin/specialist-hub.js',
+  '/admin/index.html',
+  '/admin/js/admin-app.js',
+  '/admin/js/panels/users.js',
+  '/admin/js/panels/routines.js',
+  '/admin/js/panels/diet.js',
+  '/admin/js/panels/health.js',
+  '/admin/js/panels/fisio.js',
+  '/admin/js/panels/psych.js',
   '/data/data.js',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
 ];

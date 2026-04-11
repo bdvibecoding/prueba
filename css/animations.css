@@ -71,7 +71,7 @@
   position: relative;
   overflow: hidden;
   background: rgba(255,255,255,0.05);
-  border-radius: var(--radius-sm);
+  border-radius: var(--r-sm);
 }
 .skeleton::after {
   content: '';
@@ -141,7 +141,7 @@
 .confetti-piece {
   position: absolute;
   width: 10px; height: 10px;
-  border-radius: 2px;
+  border-radius: var(--r-xs);
   animation: confettiFall linear forwards;
   top: -20px;
 }

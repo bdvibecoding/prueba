@@ -436,7 +436,7 @@ async function openEditRoutineModal(routineId, profile, container) {
 
   modal.querySelector('#btn-add-ex-to-routine')?.addEventListener('click', () => {
     if (!_cpSelEx) return;
-    exercises.push({ id:_cpSelEx.n, name:_cpSelEx.n, muscleGroup:_cpSelEx.m, videoUrl:_cpSelEx.v||'', setupNotes:(_cpSelEx.instructions||[]).join(' '), sets:3, reps:'10', weight:0, restSeconds:60 });
+    exercises.push({ id:_cpSelEx.n, name:_cpSelEx.n, muscleGroup:_cpSelEx.m, videoUrl:_cpSelEx.v||'', setupNotes:(_cpSelEx.instructions||[]).join(' '), sets:3, reps:'10', weight:0, restSeconds:60, warmupSets:0 });
     _cpSelEx = null;
     cpSearch.value = '';
     refreshExerciseList();
@@ -454,6 +454,7 @@ async function openEditRoutineModal(routineId, profile, container) {
     });
     listEl.querySelectorAll('[data-sets]').forEach(b => b.addEventListener('change', () => { exercises[+b.dataset.sets].sets = parseInt(b.value) || 3; }));
     listEl.querySelectorAll('[data-reps]').forEach(b => b.addEventListener('change', () => { exercises[+b.dataset.reps].reps = b.value; }));
+    listEl.querySelectorAll('.ex-warmup-input').forEach(b => b.addEventListener('change', () => { exercises[+b.dataset.index].warmupSets = parseInt(b.value) || 0; }));
   }
 
   refreshExerciseList();
@@ -497,6 +498,12 @@ function buildRoutineExRow(ex, index) {
         <div style="font-size:13px;font-weight:600">${ex.name}</div>
         <div style="display:flex;gap:8px;margin-top:2px">
           <input type="number" value="${ex.sets || 3}" min="1" max="10" style="width:40px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:var(--white);font-size:11px;text-align:center;padding:2px" data-sets="${index}">
+          <div style="display:flex;align-items:center;gap:4px">
+            <input type="number" class="ex-warmup-input" data-index="${index}"
+                   value="${ex.warmupSets||0}" min="0" max="10"
+                   style="width:40px;background:rgba(251,146,60,.15);border:1px solid rgba(251,146,60,.4);border-radius:4px;color:var(--color-text);font-size:11px;text-align:center;padding:2px">
+            <span style="font-size:10px;color:rgba(251,146,60,.8)">🔥</span>
+          </div>
           <span style="font-size:11px;color:var(--color-text-muted)">×</span>
           <input type="text" value="${ex.reps || '10'}" placeholder="ej: 12 o 20-16-16" style="width:72px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:var(--white);font-size:11px;text-align:center;padding:2px" data-reps="${index}">
           <span style="font-size:11px;color:var(--color-text-muted)">kg</span>

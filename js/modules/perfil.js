@@ -35,6 +35,46 @@ export async function render(container) {
           ${profile?.birthDate ? `<p class="text-muted">${getAge(profile.birthDate)} ${t('perfil_years_old')}</p>` : ''}
         </div>
 
+        <!-- Mis datos: acceso rápido a submódulos -->
+        <div class="section-title" style="margin-top:var(--space-lg)">Mis datos</div>
+        <div class="profile-subnav-grid">
+          <div class="glass-card profile-subnav-card" data-nav="biomedidas" style="cursor:pointer">
+            <span class="profile-subnav-icon">📏</span>
+            <div class="profile-subnav-info">
+              <div class="profile-subnav-title">Biomedidas</div>
+              <div class="profile-subnav-desc">Peso, talla y composición corporal</div>
+            </div>
+            <span class="profile-subnav-arrow">›</span>
+          </div>
+          <div class="glass-card profile-subnav-card" data-nav="salud" style="cursor:pointer">
+            <span class="profile-subnav-icon">❤️</span>
+            <div class="profile-subnav-info">
+              <div class="profile-subnav-title">Salud</div>
+              <div class="profile-subnav-desc">Métricas de salud y bienestar</div>
+            </div>
+            <span class="profile-subnav-arrow">›</span>
+          </div>
+          <div class="glass-card profile-subnav-card" data-nav="progreso" style="cursor:pointer">
+            <span class="profile-subnav-icon">📈</span>
+            <div class="profile-subnav-info">
+              <div class="profile-subnav-title">Progreso</div>
+              <div class="profile-subnav-desc">Evolución y estadísticas</div>
+            </div>
+            <span class="profile-subnav-arrow">›</span>
+          </div>
+        </div>
+
+        <!-- Datos de usuario: collapsible -->
+        <div class="glass-card profile-subnav-card" id="btn-datos-usuario" style="cursor:pointer;margin-top:var(--space-md)">
+          <span class="profile-subnav-icon">👤</span>
+          <div class="profile-subnav-info">
+            <div class="profile-subnav-title">Datos de usuario</div>
+            <div class="profile-subnav-desc">Nombre, correo, datos físicos</div>
+          </div>
+          <span class="profile-subnav-arrow" id="datos-arrow">›</span>
+        </div>
+        <div id="datos-usuario-form" style="display:none">
+
         <!-- Profile Form -->
         <form id="profile-form" class="profile-form">
           <div class="settings-group">
@@ -85,6 +125,10 @@ export async function render(container) {
             ])}
           </div>
           <div class="form-row" style="margin-top:var(--space-md)">
+            <label class="field-label">🎯 Objetivo semanal (entrenos)</label>
+            <input type="number" id="field-weekly-goal" class="input-solo" min="1" max="7" placeholder="3" value="${profile?.weeklyGoal || 3}" style="margin-top:4px">
+          </div>
+          <div class="form-row" style="margin-top:var(--space-md)">
             <label class="field-label">${t('perfil_sports_goals')}</label>
             <textarea id="profile-goals" class="input-solo" rows="3"
               placeholder="${t('perfil_goals_placeholder')}"
@@ -96,6 +140,8 @@ export async function render(container) {
             💾 ${t('perfil_save_changes')}
           </button>
         </form>
+
+        </div><!-- /datos-usuario-form -->
 
         <!-- Account section -->
         <div class="section-title" style="margin-top:var(--space-lg)">${t('perfil_account')}</div>
@@ -123,6 +169,24 @@ export async function render(container) {
 export async function init(container) {
   const profile = getUserProfile();
   let editMode = false;
+
+  // Subnav cards → navigate
+  container.querySelectorAll('.profile-subnav-card[data-nav]').forEach(card => {
+    card.addEventListener('click', () => {
+      const route = card.dataset.nav;
+      if (route) import('../router.js').then(({ navigate }) => navigate(route));
+    });
+  });
+
+  // Datos de usuario accordion toggle
+  const btnDatos = container.querySelector('#btn-datos-usuario');
+  const datosForm = container.querySelector('#datos-usuario-form');
+  const datosArrow = container.querySelector('#datos-arrow');
+  btnDatos?.addEventListener('click', () => {
+    const isOpen = datosForm.style.display !== 'none';
+    datosForm.style.display = isOpen ? 'none' : 'block';
+    if (datosArrow) datosArrow.textContent = isOpen ? '›' : '↓';
+  });
 
   const form    = container.querySelector('#profile-form');
   const saveBtn = container.querySelector('#btn-save-profile');
@@ -162,6 +226,7 @@ export async function init(container) {
       height:     parseFloat(container.querySelector('#profile-height').value) || null,
       weight:     parseFloat(container.querySelector('#profile-weight').value) || null,
       experience: container.querySelector('#profile-experience').value,
+      weeklyGoal: parseInt(container.querySelector('#field-weekly-goal')?.value) || 3,
       goals:      container.querySelector('#profile-goals').value.trim(),
       updatedAt:  timestamp(),
     };
@@ -171,7 +236,8 @@ export async function init(container) {
       const newProfile = { ...profile, ...updates };
       setUser(user, newProfile);
       // Update top bar
-      document.getElementById('top-bar-greeting').textContent = `${t('greeting')}, ${updates.name.split(' ')[0]}`;
+      const greetingEl = document.getElementById('top-bar-greeting');
+      if (greetingEl) greetingEl.textContent = `${t('greeting')}, ${updates.name.split(' ')[0]}`;
       document.getElementById('avatar-initials').textContent = getInitials(updates.name);
       toast(t('perfil_updated'), 'success');
       editMode = false;

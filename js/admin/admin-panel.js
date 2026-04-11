@@ -544,6 +544,7 @@ export async function init(container) {
         </div>
         <div class="admin-user-role">
           <select class="role-select" data-uid="${user.uid || user.id}" data-current-role="${user.role}">
+            <option value="basico"         ${user.role === 'basico'         ? 'selected' : ''}>Básico</option>
             <option value="cliente"        ${user.role === 'cliente'        ? 'selected' : ''}>${translateRole('cliente')}</option>
             <option value="atleta"         ${user.role === 'atleta'         ? 'selected' : ''}>${translateRole('atleta')}</option>
             <option value="coach"          ${user.role === 'coach'          ? 'selected' : ''}>${translateRole('coach')}</option>
@@ -1292,6 +1293,12 @@ async function openAdminRoutineEditor(routineId, container) {
           <div style="font-size:10px;color:var(--color-text-muted)">${_esc(ex.muscleGroup||ex.m||'')}</div>
         </div>
         <input type="number" value="${ex.sets||3}" min="1" max="20" style="width:36px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:#fff;font-size:11px;text-align:center;padding:2px" data-sets="${i}">
+        <div style="display:flex;align-items:center;gap:4px">
+          <input type="number" class="ex-warmup-input" data-index="${i}"
+                 value="${ex.warmupSets||0}" min="0" max="10"
+                 style="width:40px;background:rgba(251,146,60,.15);border:1px solid rgba(251,146,60,.4);border-radius:4px;color:var(--color-text);font-size:11px;text-align:center;padding:2px">
+          <span style="font-size:10px;color:rgba(251,146,60,.8)">🔥</span>
+        </div>
         <span style="font-size:10px;color:var(--color-text-muted)">×</span>
         <input type="text" value="${ex.reps||'10'}" placeholder="ej: 12 o 20-16-16" style="width:72px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:#fff;font-size:11px;text-align:center;padding:2px" data-reps="${i}">
         <button style="background:none;border:none;color:var(--color-danger);cursor:pointer;font-size:15px;padding:0 2px" data-rm="${i}">✕</button>
@@ -1299,6 +1306,7 @@ async function openAdminRoutineEditor(routineId, container) {
     listEl.querySelectorAll('[data-rm]').forEach(b=>b.addEventListener('click',()=>{ exercises.splice(+b.dataset.rm,1); renderList(); }));
     listEl.querySelectorAll('[data-sets]').forEach(b=>b.addEventListener('change',()=>{ exercises[+b.dataset.sets].sets=parseInt(b.value)||3; }));
     listEl.querySelectorAll('[data-reps]').forEach(b=>b.addEventListener('change',()=>{ exercises[+b.dataset.reps].reps=b.value; }));
+    listEl.querySelectorAll('.ex-warmup-input').forEach(b=>b.addEventListener('change',()=>{ exercises[+b.dataset.index].warmupSets=parseInt(b.value)||0; }));
   };
   renderList();
 
@@ -1326,7 +1334,7 @@ async function openAdminRoutineEditor(routineId, container) {
 
   m.querySelector('#rar-add-ex')?.addEventListener('click',()=>{
     if(!_selEx){ toast('Selecciona un ejercicio del buscador','info'); return; }
-    exercises.push({ id:_selEx.n, name:_selEx.n, muscleGroup:_selEx.m, videoUrl:_selEx.v||'', setupNotes:(_selEx.instructions||[]).join(' '), sets:3, reps:'10', weight:0, restSeconds:60 });
+    exercises.push({ id:_selEx.n, name:_selEx.n, muscleGroup:_selEx.m, videoUrl:_selEx.v||'', setupNotes:(_selEx.instructions||[]).join(' '), sets:3, reps:'10', weight:0, restSeconds:60, warmupSets:0 });
     renderList(); searchEl.value=''; _selEx=null;
   });
 

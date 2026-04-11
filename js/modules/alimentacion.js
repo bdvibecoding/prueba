@@ -1,402 +1,445 @@
 /* ═══════════════════════════════════════════════
    TGWL — modules/alimentacion.js
-   Nutrition & Meal Tracking Module
+   Nutrition & Meal Tracking Module (v2)
+   ▸ Header fijo con macros del día
+   ▸ Sección "Nada más despertar" (suplementos morning)
+   ▸ Botones de comida dinámicos (accordion)
+   ▸ Botón Entreno (pre/post suplementos)
+   ▸ Botón Antes de acostarse (timing:night / preSleep)
+   ▸ Compatible con schema antiguo y nuevo de dietas
 ═══════════════════════════════════════════════ */
 
 import { getUserProfile } from '../state.js';
 import { collections, timestamp, db } from '../firebase-config.js';
 import { toast, formatDate, todayString } from '../utils.js';
-import { openModal, closeModal, openSheet, closeSheet } from '../components/modal.js';
+import { openModal, closeModal } from '../components/modal.js';
 import { t } from '../i18n.js';
 
-function getMealTypes3() {
-  return [
-    { id: 'breakfast', name: t('meal_breakfast'),   icon: '🌅', time: '08:00' },
-    { id: 'lunch',     name: t('meal_lunch'),        icon: '🍽️', time: '14:00' },
-    { id: 'dinner',    name: t('meal_dinner'),       icon: '🌙', time: '21:00' },
-  ];
-}
-function getMealTypes5() {
-  return [
-    { id: 'breakfast',  name: t('meal_breakfast'),   icon: '🌅', time: '08:00' },
-    { id: 'midmorning', name: t('meal_midmorning'),  icon: '🍎', time: '11:00' },
-    { id: 'lunch',      name: t('meal_lunch'),       icon: '🍽️', time: '14:00' },
-    { id: 'snack',      name: t('meal_snack'),       icon: '🥪', time: '18:00' },
-    { id: 'dinner',     name: t('meal_dinner'),      icon: '🌙', time: '21:00' },
-  ];
-}
-
+// ── Render (HTML placeholder, datos cargados en init) ─
 export async function render(container) {
   container.innerHTML = `
     <div class="page active" id="alimentacion-page">
-      <div style="padding:var(--page-pad)">
-        <div class="page-header">
-          <div>
-            <h2 class="page-title">🥗 ${t('alim_title')}</h2>
-            <p class="page-subtitle">${t('alim_subtitle')}</p>
-          </div>
-          <button class="btn-icon" id="btn-diet-settings" title="${t('alim_settings_title')}">⚙️</button>
-        </div>
 
-        <!-- Wake-up Supplement Banner -->
-        <div class="glass-card" id="supplement-banner" style="padding:var(--space-md);margin-bottom:var(--space-md)">
-          <div style="display:flex;align-items:center;gap:var(--space-md)">
-            <span style="font-size:28px">🌟</span>
-            <div style="flex:1">
-              <div style="font-weight:700;margin-bottom:4px">${t('alim_wakeup')}</div>
-              <div id="supplement-list" class="text-muted" style="font-size:13px">${t('alim_loading_supps')}</div>
-            </div>
-            <button class="btn-accent" id="btn-see-supplements">${t('view')}</button>
-          </div>
+      <!-- ① Header fijo: macros del día -->
+      <div class="nutrition-macro-bar" id="nutrition-macro-bar">
+        <div class="nutrition-macro-cals" id="nmb-cals">
+          <span class="nmb-cals-value" id="nmb-cals-value">—</span>
+          <span class="nmb-cals-label">kcal</span>
         </div>
-
-        <!-- Tabs -->
-        <div class="tabs">
-          <button class="tab-btn active" data-tab="tracker">${t('alim_tab_tracker')}</button>
-          <button class="tab-btn" data-tab="menus">${t('alim_tab_menus')}</button>
-          <button class="tab-btn" data-tab="restaurants">${t('alim_tab_restaurants')}</button>
+        <div class="nutrition-macro-pills">
+          <span class="nmb-pill nmb-pill-p" id="nmb-p">P: —</span>
+          <span class="nmb-separator">·</span>
+          <span class="nmb-pill nmb-pill-c" id="nmb-c">C: —</span>
+          <span class="nmb-separator">·</span>
+          <span class="nmb-pill nmb-pill-g" id="nmb-g">G: —</span>
         </div>
+        <div class="nmb-diet-name" id="nmb-diet-name"></div>
+      </div>
 
-        <!-- Tab Content -->
-        <div id="tab-tracker" class="tab-content">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-md)">
-            <span class="section-title" style="margin:0">${t('today')} — ${formatDate(new Date())}</span>
-            <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-muted)">
-              <span>${t('alim_5meals')}</span>
-              <label class="toggle-switch" title="${t('alim_toggle_meals')}">
-                <input type="checkbox" id="toggle-meals">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-          </div>
-          <div id="meal-list" class="meal-grid">
-            <div class="overlay-spinner"><div class="spinner-sm"></div></div>
+      <!-- ② Contenido desplazable -->
+      <div class="nutrition-scroll-body" id="nutrition-scroll-body">
+
+        <!-- ② Sección fija: Nada más despertar -->
+        <div class="nutrition-section-fixed hidden" id="section-wakeup">
+          <div class="nsf-icon">🌅</div>
+          <div class="nsf-content">
+            <div class="nsf-title">Nada más despertar</div>
+            <div class="nsf-body" id="wakeup-body"></div>
           </div>
         </div>
 
-        <div id="tab-menus" class="tab-content hidden">
-          <div id="menus-list"><div class="overlay-spinner"><div class="spinner-sm"></div></div></div>
+        <!-- ③ Botones de comidas (generados dinámicamente) -->
+        <div id="nutrition-meals-list" class="nutrition-meals-list">
+          <div class="overlay-spinner"><div class="spinner-sm"></div></div>
         </div>
 
-        <div id="tab-restaurants" class="tab-content hidden">
-          <div id="restaurants-list"><div class="overlay-spinner"><div class="spinner-sm"></div></div></div>
+        <!-- ④ Botón Entreno -->
+        <div id="section-workout" class="hidden">
+          <button class="nutrition-meal-btn" id="btn-workout" data-open="false">
+            <span class="nmb-icon">🏋️</span>
+            <span class="nmb-label">Suplementación Entreno</span>
+            <span class="nmb-arrow" id="arrow-workout">›</span>
+          </button>
+          <div class="nutrition-meal-accordion hidden" id="acc-workout">
+            <div id="acc-workout-body"></div>
+          </div>
         </div>
+
+        <!-- ⑤ Botón Antes de acostarse -->
+        <div id="section-presleep" class="hidden">
+          <button class="nutrition-meal-btn" id="btn-presleep" data-open="false">
+            <span class="nmb-icon">🌙</span>
+            <span class="nmb-label">Antes de acostarse</span>
+            <span class="nmb-arrow" id="arrow-presleep">›</span>
+          </button>
+          <div class="nutrition-meal-accordion hidden" id="acc-presleep">
+            <div id="acc-presleep-body"></div>
+          </div>
+        </div>
+
+        <!-- Espaciado inferior -->
+        <div style="height: 24px"></div>
       </div>
     </div>
   `;
 }
 
+// ── Init: carga datos y renderiza ─────────────────
 export async function init(container) {
   const profile = getUserProfile();
 
-  // Load supplements
-  loadSupplements(container, profile);
-
-  // Tabs
-  container.querySelectorAll('.tab-btn').forEach(btn => {
+  // Acordeón helper
+  function bindAccordion(btnId, accId, arrowId) {
+    const btn = container.querySelector(`#${btnId}`);
+    const acc = container.querySelector(`#${accId}`);
+    const arrow = container.querySelector(`#${arrowId}`);
+    if (!btn || !acc) return;
     btn.addEventListener('click', () => {
-      container.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      container.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-      container.querySelector(`#tab-${btn.dataset.tab}`)?.classList.remove('hidden');
-      if (btn.dataset.tab === 'tracker')     loadMealTracker(container, profile);
-      if (btn.dataset.tab === 'menus')       loadMenus(container, profile);
-      if (btn.dataset.tab === 'restaurants') loadRestaurants(container);
+      const open = btn.dataset.open === 'true';
+      btn.dataset.open = open ? 'false' : 'true';
+      acc.classList.toggle('hidden', open);
+      if (arrow) arrow.textContent = open ? '›' : '⌄';
     });
-  });
+  }
 
-  // Toggle 3/5 meals
-  container.querySelector('#toggle-meals')?.addEventListener('change', (e) => {
-    loadMealTracker(container, profile, e.target.checked ? 5 : 3);
-  });
+  bindAccordion('btn-workout',  'acc-workout',  'arrow-workout');
+  bindAccordion('btn-presleep', 'acc-presleep', 'arrow-presleep');
 
-  // See supplements
-  container.querySelector('#btn-see-supplements')?.addEventListener('click', () => openSupplementsSheet(profile));
+  try {
+    // Cargar dieta activa y suplementos en paralelo
+    const [dietSnap, suppSnap] = await Promise.all([
+      collections.dietas(profile.uid).orderBy('assignedAt', 'desc').limit(1).get(),
+      collections.supplements(profile.uid).get().catch(() => null),
+    ]);
 
-  // Initial load
-  loadMealTracker(container, profile, 3);
+    const dietDoc  = !dietSnap.empty ? dietSnap.docs[0].data() : null;
+    const suppDocs = suppSnap ? suppSnap.docs.map(d => ({ id: d.id, ...d.data() })) : [];
+
+    // Actualizar barra de macros
+    _renderMacroBar(container, dietDoc);
+
+    // Suplementos por timing
+    const suppsByTiming = {};
+    suppDocs.forEach(s => {
+      const key = s.timing || 'anytime';
+      if (!suppsByTiming[key]) suppsByTiming[key] = [];
+      suppsByTiming[key].push(s);
+    });
+
+    // ② Nada más despertar
+    _renderWakeup(container, dietDoc, suppsByTiming['morning'] || []);
+
+    // ③ Comidas
+    await _renderMeals(container, profile, dietDoc);
+
+    // ④ Entreno
+    _renderWorkout(container, dietDoc, suppsByTiming);
+
+    // ⑤ Pre-sleep
+    _renderPreSleep(container, dietDoc, suppsByTiming['night'] || []);
+
+  } catch (e) {
+    container.querySelector('#nutrition-meals-list').innerHTML =
+      `<p class="text-muted" style="padding:16px">Error cargando datos: ${e.message}</p>`;
+  }
 }
 
-// ── Load Meal Tracker ─────────────────────────
-async function loadMealTracker(container, profile, count = 3) {
-  const listEl = container.querySelector('#meal-list');
-  const today  = todayString();
-  const meals  = count === 5 ? getMealTypes5() : getMealTypes3();
+// ── ① Barra de macros ─────────────────────────────
+function _renderMacroBar(container, diet) {
+  if (!diet) return;
 
+  // Soportar campo legacy 'kcal' y nuevo 'calories'
+  const cals    = diet.calories ?? diet.kcal ?? null;
+  const protein = diet.protein  ?? diet.proteins ?? null;
+  const carbs   = diet.carbs    ?? diet.carbohydrates ?? null;
+  const fat     = diet.fat      ?? diet.fats ?? null;
+
+  if (cals   != null) container.querySelector('#nmb-cals-value').textContent = cals;
+  if (protein != null) container.querySelector('#nmb-p').textContent = `P: ${protein}g`;
+  if (carbs   != null) container.querySelector('#nmb-c').textContent = `C: ${carbs}g`;
+  if (fat     != null) container.querySelector('#nmb-g').textContent = `G: ${fat}g`;
+
+  const nameEl = container.querySelector('#nmb-diet-name');
+  if (nameEl && diet.name) nameEl.textContent = diet.name;
+}
+
+// ── ② Nada más despertar ──────────────────────────
+function _renderWakeup(container, diet, morningSups) {
+  const section = container.querySelector('#section-wakeup');
+  const bodyEl  = container.querySelector('#wakeup-body');
+
+  // Fuentes: diet.wakeUp (nuevo schema) + suplementos con timing:morning
+  const wakeUpFromDiet = diet?.wakeUp;
+  const hasDietWakeup  = wakeUpFromDiet && (wakeUpFromDiet.description || (wakeUpFromDiet.supplements?.length > 0));
+  const hasMorningSups = morningSups.length > 0;
+
+  if (!hasDietWakeup && !hasMorningSups) return;
+
+  section.classList.remove('hidden');
+
+  let html = '';
+
+  if (wakeUpFromDiet?.description) {
+    html += `<div class="nsf-desc">${_esc(wakeUpFromDiet.description)}</div>`;
+  }
+
+  // Suplementos del schema nuevo (diet.wakeUp.supplements)
+  const dietWakeSupps = wakeUpFromDiet?.supplements || [];
+  // Suplementos de la colección supplements con timing:morning
+  const allSupps = [
+    ...dietWakeSupps.map(s => ({ ...s, _source: 'diet' })),
+    ...morningSups.filter(ms => !dietWakeSupps.some(ds => ds.name === ms.name)),
+  ];
+
+  if (allSupps.length) {
+    html += `<div class="nsf-supps">${allSupps.map(s =>
+      `<span class="nsf-supp-pill">💊 ${_esc(s.name)}${s.dose ? ` ${s.dose}${s.unit || ''}` : ''}</span>`
+    ).join('')}</div>`;
+  }
+
+  bodyEl.innerHTML = html;
+}
+
+// ── ③ Comidas ─────────────────────────────────────
+async function _renderMeals(container, profile, diet) {
+  const listEl = container.querySelector('#nutrition-meals-list');
+  const today  = todayString();
+
+  // Obtener registro de hoy
+  let todayData = {};
   try {
     const snap = await collections.meals(profile.uid).doc(today).get();
-    const data = snap.exists ? snap.data() : {};
+    todayData = snap.exists ? snap.data() : {};
+  } catch { /* sin registro */ }
 
-    listEl.innerHTML = meals.map(meal => {
-      const logged = data[meal.id];
-      return buildMealSlot(meal, logged);
-    }).join('');
-
-    listEl.querySelectorAll('.meal-slot').forEach(slot => {
-      slot.addEventListener('click', () => {
-        const mealId = slot.dataset.mealId;
-        const meal = meals.find(m => m.id === mealId);
-        openMealModal(meal, data[mealId], profile, today, listEl, meals);
-      });
-    });
-  } catch (e) {
-    listEl.innerHTML = `<p class="text-muted">${t('error_loading')}: ${e.message}</p>`;
+  // Determinar comidas desde schema nuevo o construir fallback
+  let meals = [];
+  if (diet?.meals && diet.meals.length > 0) {
+    meals = diet.meals;
+  } else {
+    const count = diet?.mealCount || 3;
+    meals = _defaultMeals(count);
   }
+
+  if (!meals.length) {
+    listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">🥗</div><div class="empty-title">Sin comidas configuradas</div></div>`;
+    return;
+  }
+
+  listEl.innerHTML = meals.map((meal, i) => _buildMealBtn(meal, i, todayData)).join('');
+
+  // Bind accordions de comidas + checkbox completar
+  meals.forEach((meal, i) => {
+    const btnId  = `btn-meal-${i}`;
+    const accId  = `acc-meal-${i}`;
+    const arrowId = `arrow-meal-${i}`;
+    const btn  = listEl.querySelector(`#${btnId}`);
+    const acc  = listEl.querySelector(`#${accId}`);
+    const arrow = listEl.querySelector(`#${arrowId}`);
+
+    btn?.addEventListener('click', () => {
+      const open = btn.dataset.open === 'true';
+      btn.dataset.open = open ? 'false' : 'true';
+      acc?.classList.toggle('hidden', open);
+      if (arrow) arrow.textContent = open ? '›' : '⌄';
+    });
+
+    // Checkbox completar
+    const chk = listEl.querySelector(`#chk-meal-${i}`);
+    chk?.addEventListener('change', async (e) => {
+      e.stopPropagation();
+      const key = `meal_${i + 1}`;
+      try {
+        await collections.meals(profile.uid).doc(today).set(
+          { [key]: { completed: e.target.checked, completedAt: timestamp() } },
+          { merge: true }
+        );
+        btn?.classList.toggle('nmb-completed', e.target.checked);
+        toast(e.target.checked ? 'Comida marcada ✅' : 'Comida desmarcada', 'success');
+      } catch (err) {
+        toast('Error: ' + err.message, 'error');
+        e.target.checked = !e.target.checked;
+      }
+    });
+
+    // Icono suplementos de comida
+    const suppBtn = listEl.querySelector(`#btn-meal-supps-${i}`);
+    if (suppBtn && meal.supplements?.length) {
+      suppBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        _openMealSuppsModal(meal.label || `Comida ${i + 1}`, meal.supplements);
+      });
+    }
+  });
 }
 
-function buildMealSlot(meal, logged) {
-  const status = logged?.skipped ? 'skipped' : logged?.completed ? 'completed' : '';
-  const statusIcon = logged?.skipped ? '⚠️' : logged?.completed ? '✅' : '○';
+function _buildMealBtn(meal, i, todayData) {
+  const key       = `meal_${i + 1}`;
+  const logged    = todayData[key];
+  const completed = logged?.completed === true;
+  const label     = meal.label || `Comida ${i + 1}`;
+  const hasSups   = meal.supplements && meal.supplements.length > 0;
+  const desc      = meal.description || meal.content || '';
 
   return `
-    <div class="meal-slot ${status}" data-meal-id="${meal.id}" style="cursor:pointer">
-      <div class="meal-slot-header">
-        <span class="meal-slot-icon">${meal.icon}</span>
-        <div>
-          <div class="meal-slot-name">${meal.name}</div>
-          <div class="meal-slot-time">${meal.time}</div>
-        </div>
-        <span style="font-size:20px">${statusIcon}</span>
-      </div>
-      ${logged?.foods ? `<div class="text-muted" style="font-size:12px;padding-top:4px;border-top:1px solid rgba(255,255,255,0.05)">${logged.foods}</div>` : ''}
-      ${logged?.skipped ? `<div style="font-size:12px;color:var(--color-warning)">⚠️ ${logged.skipReason || t('alim_skipped')}</div>` : ''}
-    </div>
-  `;
-}
-
-// ── Meal Modal ────────────────────────────────
-function openMealModal(meal, logged, profile, today, listEl, meals) {
-  const html = `
-    <div class="modal-header">
-      <h3 class="modal-title">${meal.icon} ${meal.name}</h3>
-      <button class="modal-close">✕</button>
-    </div>
-    <div class="form-row">
-      <label class="field-label">${t('alim_what_ate')}</label>
-      <textarea id="meal-foods" class="input-solo" rows="3"
-        placeholder="${t('alim_foods_placeholder')}"
-        style="padding:var(--space-md);width:100%;margin-top:4px">${logged?.foods || ''}</textarea>
-    </div>
-    <div class="form-row">
-      <div style="display:flex;align-items:center;gap:var(--space-md)">
-        <label class="field-label" style="margin:0">${t('alim_skip_question')}</label>
-        <label class="toggle-switch">
-          <input type="checkbox" id="meal-skipped" ${logged?.skipped ? 'checked' : ''}>
-          <span class="toggle-slider"></span>
-        </label>
+    <div class="nutrition-meal-item">
+      <button class="nutrition-meal-btn ${completed ? 'nmb-completed' : ''}" id="btn-meal-${i}" data-open="false">
+        <span class="nmb-icon">🍽️</span>
+        <span class="nmb-label">${_esc(label)}</span>
+        <span class="nmb-actions">
+          ${hasSups ? `<button class="nmb-supp-icon" id="btn-meal-supps-${i}" title="Ver suplementos">💊</button>` : ''}
+          <label class="nmb-check-label" title="Marcar completada" onclick="event.stopPropagation()">
+            <input type="checkbox" class="nmb-check" id="chk-meal-${i}" ${completed ? 'checked' : ''}>
+            <span class="nmb-check-box">${completed ? '✅' : '○'}</span>
+          </label>
+        </span>
+        <span class="nmb-arrow" id="arrow-meal-${i}">›</span>
+      </button>
+      <div class="nutrition-meal-accordion hidden" id="acc-meal-${i}">
+        ${desc
+          ? `<div class="nma-desc">${_esc(desc)}</div>`
+          : `<div class="nma-empty">Sin descripción configurada</div>`}
+        ${hasSups ? `
+          <div class="nma-supps-section">
+            <div class="nma-supps-title">💊 Suplementos</div>
+            ${meal.supplements.map(s =>
+              `<div class="nma-supp-row">
+                <span>💊</span>
+                <span>${_esc(s.name)}</span>
+                ${s.dose ? `<span class="nma-supp-dose">${_esc(s.dose)}${_esc(s.unit||'')}</span>` : ''}
+              </div>`
+            ).join('')}
+          </div>` : ''}
       </div>
     </div>
-    <div id="skip-reason-row" class="form-row" style="${logged?.skipped ? '' : 'display:none'}">
-      <label class="field-label">${t('alim_skip_reason')}</label>
-      <textarea id="meal-skip-reason" class="input-solo" rows="2"
-        placeholder="${t('alim_skip_reason_placeholder')}"
-        style="padding:var(--space-md);width:100%;margin-top:4px">${logged?.skipReason || ''}</textarea>
-    </div>
-    <div id="replacement-row" class="form-row" style="${logged?.skipped ? '' : 'display:none'}">
-      <label class="field-label">${t('alim_replacement')}</label>
-      <input id="meal-replacement" type="text" class="input-solo"
-        placeholder="${t('alim_replacement_placeholder')}" value="${logged?.replacement || ''}">
-    </div>
-    <div style="display:flex;gap:8px;margin-top:var(--space-md)">
-      <button class="btn-secondary btn-full" id="btn-meal-delete">${t('clear')}</button>
-      <button class="btn-primary btn-full" id="btn-meal-save">💾 ${t('save')}</button>
-    </div>
   `;
-
-  openModal(html);
-  const modal = document.getElementById('modal-content');
-
-  modal.querySelector('#meal-skipped').addEventListener('change', (e) => {
-    const show = e.target.checked;
-    modal.querySelector('#skip-reason-row').style.display  = show ? '' : 'none';
-    modal.querySelector('#replacement-row').style.display  = show ? '' : 'none';
-  });
-
-  modal.querySelector('#btn-meal-save').addEventListener('click', async () => {
-    const foods      = modal.querySelector('#meal-foods').value.trim();
-    const skipped    = modal.querySelector('#meal-skipped').checked;
-    const skipReason = modal.querySelector('#meal-skip-reason')?.value.trim();
-    const replacement= modal.querySelector('#meal-replacement')?.value.trim();
-
-    const mealData = {
-      foods, skipped, skipReason, replacement,
-      completed: !!foods && !skipped,
-      loggedAt: timestamp(),
-    };
-
-    try {
-      await collections.meals(profile.uid).doc(today).set(
-        { [meal.id]: mealData }, { merge: true }
-      );
-      toast(t('alim_meal_saved'), 'success');
-      closeModal();
-      // Refresh list
-      const data = (await collections.meals(profile.uid).doc(today).get()).data() || {};
-      listEl.innerHTML = meals.map(m => buildMealSlot(m, data[m.id])).join('');
-      listEl.querySelectorAll('.meal-slot').forEach(slot => {
-        slot.addEventListener('click', () => {
-          const m = meals.find(x => x.id === slot.dataset.mealId);
-          openMealModal(m, data[m.id], profile, today, listEl, meals);
-        });
-      });
-    } catch (e) { toast(t('error') + ': ' + e.message, 'error'); }
-  });
-
-  modal.querySelector('#btn-meal-delete').addEventListener('click', async () => {
-    await collections.meals(profile.uid).doc(today).set(
-      { [meal.id]: firebase.firestore.FieldValue.delete() }, { merge: true }
-    ).catch(() => {});
-    closeModal();
-    loadMealTracker(document.getElementById('alimentacion-page'), profile);
-  });
 }
 
-// ── Load Menus ────────────────────────────────
-async function loadMenus(container, profile) {
-  const el = container.querySelector('#menus-list');
-  try {
-    const snap = await collections.dietas(profile.uid).orderBy('assignedAt','desc').limit(10).get();
-    if (snap.empty) {
-      el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">${t('alim_no_menus')}</div><div class="empty-subtitle">${t('alim_no_menus_sub')}</div></div>`;
-      return;
-    }
-    el.innerHTML = snap.docs.map(doc => {
-      const d = doc.data();
-      return `
-        <div class="glass-card" style="padding:var(--space-md);margin-bottom:var(--space-sm);cursor:pointer;display:flex;align-items:center;gap:var(--space-md)"
-             data-diet-id="${doc.id}" data-diet-type="${d.type}">
-          <span style="font-size:28px">📄</span>
-          <div style="flex:1">
-            <div style="font-weight:700">${d.name || 'Menú'}</div>
-            <div class="text-muted">${d.type || ''} · ${formatDate(d.assignedAt?.toDate?.() || d.assignedAt)}</div>
-          </div>
-          <span class="badge badge-cyan">${t('view')}</span>
-        </div>
-      `;
-    }).join('');
-
-    el.querySelectorAll('[data-diet-id]').forEach(card => {
-      card.addEventListener('click', () => openDietMenu(card.dataset.dietId, card.dataset.dietType));
-    });
-  } catch (e) { el.innerHTML = `<p class="text-muted">${t('error')}: ${e.message}</p>`; }
+function _defaultMeals(count) {
+  const all = [
+    { label: 'Desayuno',       icon: '🌅' },
+    { label: 'Media mañana',   icon: '🍎' },
+    { label: 'Almuerzo',       icon: '🍽️' },
+    { label: 'Merienda',       icon: '🥪' },
+    { label: 'Cena',           icon: '🌙' },
+  ];
+  if (count === 3) return [all[0], all[2], all[4]];
+  if (count === 4) return [all[0], all[2], all[3], all[4]];
+  return all.slice(0, count);
 }
 
-function openDietMenu(dietId, dietType) {
-  const dietMap = {
-    volumen:     '../dietas/dieta-volumen.html',
-    definicion:  '../dietas/dieta-definicion.html',
-    mantenimiento: '../dietas/dieta-mantenimiento.html',
-  };
-  const url = dietMap[dietType] || `../dietas/${dietType}.html`;
-
+function _openMealSuppsModal(mealLabel, supps) {
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">📋 ${t('alim_assigned_menu')}</h3>
+      <h3 class="modal-title">💊 ${_esc(mealLabel)} — Suplementos</h3>
       <button class="modal-close">✕</button>
     </div>
-    <div style="height:70vh;overflow:hidden;border-radius:var(--radius-md)">
-      <iframe src="${url}" style="width:100%;height:100%;border:none;background:#fff;border-radius:var(--radius-md)"
-              title="Menú nutricional"></iframe>
-    </div>
-  `;
-  openModal(html);
-}
-
-// ── Load Restaurants ──────────────────────────
-async function loadRestaurants(container) {
-  const el = container.querySelector('#restaurants-list');
-  try {
-    const snap = await db.collection('restaurants').limit(20).get();
-    if (snap.empty) {
-      el.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">🍽️</div>
-          <div class="empty-title">${t('alim_no_restaurants')}</div>
-          <div class="empty-subtitle">${t('alim_no_restaurants_sub')}</div>
-        </div>
-      `;
-      return;
-    }
-    el.innerHTML = snap.docs.map(doc => {
-      const r = doc.data();
-      return `
-        <div class="restaurant-card">
-          <div class="restaurant-img">${r.emoji || '🍽️'}</div>
-          <div class="restaurant-info">
-            <div class="restaurant-name">${r.name}</div>
-            <div class="restaurant-desc">${r.description || t('alim_healthy_restaurant')}</div>
-            <div class="restaurant-rating">
-              ⭐ ${r.rating || '5.0'}
-              <span class="text-muted" style="margin-left:8px">📍 ${r.city || ''}</span>
-            </div>
-          </div>
-        </div>
-      `;
-    }).join('');
-  } catch (e) { el.innerHTML = `<p class="text-muted">${t('error')}: ${e.message}</p>`; }
-}
-
-// ── Load Supplements ─────────────────────────
-async function loadSupplements(container, profile) {
-  const el = container.querySelector('#supplement-list');
-  try {
-    const snap = await collections.supplements(profile.uid).get();
-    if (snap.empty) {
-      el.textContent = t('alim_no_supps');
-      return;
-    }
-    const morning = snap.docs.filter(d => d.data().timing === 'morning' || d.data().timing === 'anytime');
-    el.textContent = morning.length
-      ? morning.map(d => d.data().name).slice(0, 3).join(' · ')
-      : t('alim_check_supps');
-  } catch { el.textContent = t('alim_see_supps'); }
-}
-
-// ── Supplements Sheet ─────────────────────────
-async function openSupplementsSheet(profile) {
-  const html = `
-    <h4 style="margin-bottom:var(--space-md)">💊 ${t('alim_supplementation')}</h4>
-    <div id="supplements-sheet-list"><div class="overlay-spinner"><div class="spinner-sm"></div></div></div>
-    <p class="text-muted" style="margin-top:var(--space-md);font-size:12px">
-      ${t('alim_supps_disclaimer')}
-    </p>
-  `;
-  openSheet(html);
-
-  try {
-    const snap = await collections.supplements(profile.uid).get();
-    const el = document.getElementById('sheet-content').querySelector('#supplements-sheet-list');
-    if (snap.empty) {
-      el.innerHTML = `<div class="empty-state"><div class="empty-icon">💊</div><div class="empty-title">${t('alim_no_supps')}</div></div>`;
-      return;
-    }
-    const groups = {};
-    snap.docs.forEach(doc => {
-      const s = doc.data();
-      if (!groups[s.timing]) groups[s.timing] = [];
-      groups[s.timing].push(s);
-    });
-
-    const timingLabels = {
-      morning:     `🌅 ${t('supp_morning')}`,
-      preworkout:  `⚡ ${t('supp_preworkout')}`,
-      postworkout: `🔄 ${t('supp_postworkout')}`,
-      anytime:     `🕒 ${t('supp_anytime')}`,
-    };
-    el.innerHTML = Object.entries(groups).map(([timing, supps]) => `
-      <div class="section-title">${timingLabels[timing] || timing}</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
       ${supps.map(s => `
-        <div class="supplement-card">
-          <span class="supplement-icon">💊</span>
-          <div class="supplement-info">
-            <div class="supplement-name">${s.name}</div>
-            <div class="supplement-dose">${s.dose || ''} ${s.notes ? '· ' + s.notes : ''}</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-md)">
+          <span style="font-size:22px">💊</span>
+          <div>
+            <div style="font-weight:700">${_esc(s.name)}</div>
+            ${s.dose ? `<div style="font-size:12px;color:var(--color-text-muted)">${_esc(s.dose)}${_esc(s.unit||'')}</div>` : ''}
           </div>
-        </div>
-      `).join('')}
-    `).join('');
-  } catch (e) {
-    const el = document.getElementById('sheet-content')?.querySelector('#supplements-sheet-list');
-    if (el) el.innerHTML = `<p class="text-muted">${t('error')}: ${e.message}</p>`;
+        </div>`).join('')}
+    </div>
+  `;
+  openModal(html);
+}
+
+// ── ④ Entreno ─────────────────────────────────────
+function _renderWorkout(container, diet, suppsByTiming) {
+  const preSupps  = diet?.workout?.pre  || suppsByTiming['pre']  || suppsByTiming['preworkout']  || [];
+  const postSupps = diet?.workout?.post || suppsByTiming['post'] || suppsByTiming['postworkout'] || [];
+
+  if (!preSupps.length && !postSupps.length) return;
+
+  container.querySelector('#section-workout')?.classList.remove('hidden');
+
+  const bodyEl = container.querySelector('#acc-workout-body');
+  if (!bodyEl) return;
+
+  let html = '';
+  if (preSupps.length) {
+    html += `<div class="nma-supps-title">⚡ Pre-entreno</div>`;
+    html += preSupps.map(s =>
+      `<div class="nma-supp-row">
+        <span>💊</span>
+        <span>${_esc(s.name)}</span>
+        ${s.dose ? `<span class="nma-supp-dose">${_esc(s.dose)}${_esc(s.unit||'')}</span>` : ''}
+      </div>`
+    ).join('');
   }
+  if (postSupps.length) {
+    html += `<div class="nma-supps-title" style="margin-top:12px">🔄 Post-entreno</div>`;
+    html += postSupps.map(s =>
+      `<div class="nma-supp-row">
+        <span>💊</span>
+        <span>${_esc(s.name)}</span>
+        ${s.dose ? `<span class="nma-supp-dose">${_esc(s.dose)}${_esc(s.unit||'')}</span>` : ''}
+      </div>`
+    ).join('');
+  }
+
+  bodyEl.innerHTML = html;
+}
+
+// ── ⑤ Pre-sleep ───────────────────────────────────
+function _renderPreSleep(container, diet, nightSupps) {
+  const preSleepData = diet?.preSleep;
+  const lastMeal     = diet?.meals?.at(-1);
+  const lastIsPreSleep = lastMeal?.isPreSleep === true;
+
+  const hasContent = preSleepData?.description
+    || preSleepData?.supplements?.length
+    || nightSupps.length
+    || lastIsPreSleep;
+
+  if (!hasContent) return;
+
+  container.querySelector('#section-presleep')?.classList.remove('hidden');
+
+  const bodyEl = container.querySelector('#acc-presleep-body');
+  if (!bodyEl) return;
+
+  let html = '';
+
+  if (lastIsPreSleep && lastMeal.description) {
+    html += `<div class="nma-desc"><strong>Última comida:</strong> ${_esc(lastMeal.description)}</div>`;
+  }
+
+  if (preSleepData?.description) {
+    html += `<div class="nma-desc">${_esc(preSleepData.description)}</div>`;
+  }
+
+  const allNightSupps = [
+    ...(preSleepData?.supplements || []),
+    ...nightSupps.filter(ns =>
+      !(preSleepData?.supplements || []).some(ds => ds.name === ns.name)
+    ),
+  ];
+
+  if (allNightSupps.length) {
+    html += `<div class="nma-supps-title">🌙 Suplementos</div>`;
+    html += allNightSupps.map(s =>
+      `<div class="nma-supp-row">
+        <span>💊</span>
+        <span>${_esc(s.name)}</span>
+        ${s.dose ? `<span class="nma-supp-dose">${_esc(s.dose)}${_esc(s.unit||'')}</span>` : ''}
+      </div>`
+    ).join('');
+  }
+
+  bodyEl.innerHTML = html;
+}
+
+// ── Helpers ───────────────────────────────────────
+function _esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }

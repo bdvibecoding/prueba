@@ -23,7 +23,7 @@ const translations = {
     forgot_password: '¿Olvidaste tu contraseña?',
     sign_in:         'Iniciar Sesión',
     new_here:        '¿nuevo aquí?',
-    get_started:     '🚀 Empieza con nosotros',
+    get_started:     'Empieza con nosotros',
     create_account:  'Crear cuenta',
     join_community:  'Únete a nuestra comunidad',
     back:            '← Volver',
@@ -602,6 +602,46 @@ const translations = {
     admin_invite_subject: 'Invitación TGWL',
     admin_invite_body:   'Hola,\n\nTe han invitado a unirse a TGWL.\n\nHaz clic en el siguiente enlace para crear tu cuenta:\n{url}\n\nEste enlace es personal e intransferible.\n\nSaludos,\nEl equipo TGWL',
     admin_routine_label: 'Rutina',
+    admin_current_admins:      'Admins actuales',
+    admin_current_admins_desc: 'El sistema permite un máximo de 3 administradores.',
+    admin_no_admins:           'No hay administradores registrados.',
+    admin_admin_limit_reached: 'Límite alcanzado: ya hay 3 administradores. Revoca el rol a uno antes de elevar a otro.',
+    admin_elevate_confirm:     '¿Elevar a este usuario al rol de administrador? Esta acción le otorga acceso total al sistema.',
+    admin_elevate_warning:     'Quedan {n} de 3 plazas de administrador disponibles.',
+
+    // Pantalla de bloqueo de acceso
+    access_blocked_title:      'Acceso pendiente de activación',
+    access_blocked_msg:        'Tu cuenta está siendo revisada por nuestro equipo. Recibirás un email cuando tu acceso esté activo.',
+    access_view_plans:         'Ver planes',
+    access_blocked_sub:        '¿Ya tienes suscripción activa? Contacta con soporte.',
+
+    // Modal de invitación — aviso staff
+    invite_staff_only_client:  'Como staff solo puedes invitar clientes. Los admins pueden invitar cualquier rol.',
+    invite_role_locked:        'Rol fijo: Cliente',
+
+    // Admin — Control de Acceso
+    admin_access_control:      'Control de Acceso',
+    admin_access_status:       'Estado de acceso',
+    admin_access_granted_toggle: 'Desbloquear acceso manualmente',
+    admin_access_note_placeholder: 'Nota (ej: Prueba 30 días, Promo enero...)',
+    admin_access_save_note:    'Guardar nota',
+    admin_access_granted_by:   'Desbloqueado por',
+    admin_access_active_sub:   '✅ Suscripción activa',
+    admin_access_manual_override: '🔓 Acceso manual (admin)',
+    admin_access_none:         '🔒 Sin acceso',
+    admin_access_revoked:      'Acceso revocado',
+    admin_access_unlocked:     'Acceso desbloqueado para {name}',
+    admin_pending_title:       'Pendientes de activación',
+    admin_pending_desc:        'Clientes registrados que esperan autorización para usar la app.',
+    admin_no_pending:          'No hay clientes pendientes de activación',
+    admin_grant_access:        'Activar acceso',
+    admin_pending_manual_note: 'Activado manualmente por admin',
+    admin_invite_sent:         'Invitación enviada',
+    admin_invite_pending:      'En espera',
+    admin_invite_approve:      '✓ Aprobar',
+    admin_invite_reject:       '✗ Rechazar',
+    admin_invite_approved:     'Aprobado — tendrá acceso al registrarse',
+    admin_invite_rejected:     'Invitación rechazada',
 
     // Staff panel
     staff_client_view:   'Vista cliente →',
@@ -827,6 +867,29 @@ const translations = {
     dc_start_convo:     'Inicia la conversación con ',
     dc_placeholder:     'Escribe un mensaje...',
 
+    // Specialist Hub
+    sh_my_clients:      'Mis clientes',
+    sh_search:          'Buscar cliente...',
+    sh_no_clients:      'Sin clientes asignados',
+    sh_no_clients_sub:  'El administrador te asignará clientes',
+    sh_select_client:   'Selecciona un cliente para chatear',
+    sh_start_convo:     'Inicia la conversación',
+    sh_write_msg:       'Escribe un mensaje...',
+    sh_client_info:     'Info del cliente',
+    sh_stats:           'Estadísticas',
+    sh_actions:         'Acciones',
+    sh_notes:           'Notas privadas',
+    sh_save_notes:      'Guardar notas',
+    sh_assign_routine:  'Asignar rutina',
+    sh_assign_diet:     'Asignar menú',
+    sh_view_health:     'Ver historial salud',
+    sh_tab_clients:     'Clientes',
+    sh_tab_chat:        'Chat',
+    sh_tab_info:        'Info',
+    sh_workouts:        'Entrenos totales',
+    sh_avg_rpe:         'RPE medio',
+    sh_last_workout:    'Último',
+
     // Subscription
     sub_active_badge:   'sub_active',
 
@@ -891,7 +954,7 @@ const translations = {
     forgot_password: 'Forgot your password?',
     sign_in:         'Sign In',
     new_here:        'new here?',
-    get_started:     '🚀 Get started',
+    get_started:     'Get started',
     create_account:  'Create account',
     join_community:  'Join our community',
     back:            '← Back',
@@ -1471,6 +1534,46 @@ const translations = {
     admin_invite_subject: 'TGWL Invitation',
     admin_invite_body:   'Hello,\n\nYou have been invited to join TGWL.\n\nClick the link below to create your account:\n{url}\n\nThis link is personal and non-transferable.\n\nBest regards,\nThe TGWL team',
     admin_routine_label: 'Routine',
+    admin_current_admins:      'Current admins',
+    admin_current_admins_desc: 'The system allows a maximum of 3 administrators.',
+    admin_no_admins:           'No administrators registered.',
+    admin_admin_limit_reached: 'Limit reached: there are already 3 administrators. Revoke one before elevating another.',
+    admin_elevate_confirm:     'Elevate this user to administrator? This grants full system access.',
+    admin_elevate_warning:     '{n} of 3 admin slots remaining.',
+
+    // Access blocked screen
+    access_blocked_title:      'Access Pending Activation',
+    access_blocked_msg:        "Your account is being reviewed by our team. You'll receive an email when your access is active.",
+    access_view_plans:         'View Plans',
+    access_blocked_sub:        'Already have an active subscription? Contact support.',
+
+    // Invite modal — staff warning
+    invite_staff_only_client:  'As staff you can only invite clients. Admins can invite any role.',
+    invite_role_locked:        'Fixed role: Client',
+
+    // Admin — Access Control
+    admin_access_control:      'Access Control',
+    admin_access_status:       'Access status',
+    admin_access_granted_toggle: 'Manually unlock access',
+    admin_access_note_placeholder: 'Note (e.g.: 30-day trial, January promo...)',
+    admin_access_save_note:    'Save note',
+    admin_access_granted_by:   'Unlocked by',
+    admin_access_active_sub:   '✅ Active subscription',
+    admin_access_manual_override: '🔓 Manual access (admin)',
+    admin_access_none:         '🔒 No access',
+    admin_access_revoked:      'Access revoked',
+    admin_access_unlocked:     'Access unlocked for {name}',
+    admin_pending_title:       'Pending Activation',
+    admin_pending_desc:        'Registered clients waiting for authorization to use the app.',
+    admin_no_pending:          'No clients pending activation',
+    admin_grant_access:        'Grant access',
+    admin_pending_manual_note: 'Manually activated by admin',
+    admin_invite_sent:         'Invitation sent',
+    admin_invite_pending:      'Waiting',
+    admin_invite_approve:      '✓ Approve',
+    admin_invite_reject:       '✗ Reject',
+    admin_invite_approved:     'Approved — will have access upon registration',
+    admin_invite_rejected:     'Invitation rejected',
 
     // Staff panel
     staff_client_view:   'Client view →',
@@ -1696,6 +1799,29 @@ const translations = {
     dc_start_convo:     'Start a conversation with ',
     dc_placeholder:     'Type a message...',
 
+    // Specialist Hub
+    sh_my_clients:      'My clients',
+    sh_search:          'Search client...',
+    sh_no_clients:      'No assigned clients',
+    sh_no_clients_sub:  'The administrator will assign clients to you',
+    sh_select_client:   'Select a client to chat',
+    sh_start_convo:     'Start a conversation',
+    sh_write_msg:       'Type a message...',
+    sh_client_info:     'Client info',
+    sh_stats:           'Statistics',
+    sh_actions:         'Actions',
+    sh_notes:           'Private notes',
+    sh_save_notes:      'Save notes',
+    sh_assign_routine:  'Assign routine',
+    sh_assign_diet:     'Assign menu',
+    sh_view_health:     'View health history',
+    sh_tab_clients:     'Clients',
+    sh_tab_chat:        'Chat',
+    sh_tab_info:        'Info',
+    sh_workouts:        'Total workouts',
+    sh_avg_rpe:         'Avg RPE',
+    sh_last_workout:    'Last',
+
     // Subscription
     sub_active_badge:   'sub_active',
 
@@ -1810,6 +1936,263 @@ translations.en.salud_affects_training_q  = translations.en.salud_affects;
 translations.en.salud_type_illness        = translations.en.salud_type_disease;
 translations.en.date                      = 'Date';
 translations.en.salud_record_saved        = translations.en.salud_saved;
+
+// ── Alias keys (perfil.js names) ─────────────────────────────────────────────
+// ES aliases
+translations.es.perfil_full_name        = translations.es.perfil_name_label;
+translations.es.perfil_email            = translations.es.perfil_email_label;
+translations.es.perfil_birth_date       = translations.es.perfil_birth_label;
+translations.es.perfil_gender           = translations.es.perfil_gender_label;
+translations.es.perfil_select           = translations.es.perfil_gender_select;
+translations.es.perfil_male             = translations.es.perfil_gender_male;
+translations.es.perfil_female           = translations.es.perfil_gender_female;
+translations.es.perfil_other_gender     = translations.es.perfil_gender_other;
+translations.es.perfil_physical_data    = translations.es.perfil_physical;
+translations.es.perfil_initial_weight   = translations.es.perfil_weight_init;
+translations.es.perfil_goals_experience = translations.es.perfil_goals_exp;
+translations.es.perfil_experience_level = translations.es.perfil_exp_label;
+translations.es.perfil_beginner         = 'Principiante';
+translations.es.perfil_intermediate     = 'Intermedio';
+translations.es.perfil_advanced         = 'Avanzado';
+translations.es.perfil_elite            = 'Élite';
+translations.es.perfil_sports_goals     = translations.es.perfil_goals_label;
+translations.es.perfil_save_changes     = 'Guardar cambios';
+translations.es.perfil_years_old        = translations.es.perfil_age;
+translations.es.user                    = translations.es.perfil_user;
+// EN aliases
+translations.en.perfil_full_name        = translations.en.perfil_name_label;
+translations.en.perfil_email            = translations.en.perfil_email_label;
+translations.en.perfil_birth_date       = translations.en.perfil_birth_label;
+translations.en.perfil_gender           = translations.en.perfil_gender_label;
+translations.en.perfil_select           = translations.en.perfil_gender_select;
+translations.en.perfil_male             = translations.en.perfil_gender_male;
+translations.en.perfil_female           = translations.en.perfil_gender_female;
+translations.en.perfil_other_gender     = translations.en.perfil_gender_other;
+translations.en.perfil_physical_data    = translations.en.perfil_physical;
+translations.en.perfil_initial_weight   = translations.en.perfil_weight_init;
+translations.en.perfil_goals_experience = translations.en.perfil_goals_exp;
+translations.en.perfil_experience_level = translations.en.perfil_exp_label;
+translations.en.perfil_beginner         = 'Beginner';
+translations.en.perfil_intermediate     = 'Intermediate';
+translations.en.perfil_advanced         = 'Advanced';
+translations.en.perfil_elite            = 'Elite';
+translations.en.perfil_sports_goals     = translations.en.perfil_goals_label;
+translations.en.perfil_save_changes     = 'Save changes';
+translations.en.perfil_years_old        = translations.en.perfil_age;
+translations.en.user                    = translations.en.perfil_user;
+
+// ── Alias keys (alimentacion.js names) ───────────────────────────────────────
+// ES aliases
+translations.es.alim_settings_title         = 'Ajustes de nutrición';
+translations.es.alim_wakeup                 = translations.es.alim_wake_up;
+translations.es.alim_loading_supps          = translations.es.alim_loading_suppl;
+translations.es.alim_5meals                 = translations.es.alim_5_meals;
+translations.es.alim_toggle_meals           = 'Cambiar número de comidas';
+translations.es.alim_skipped                = translations.es.alim_meal_skipped_label;
+translations.es.alim_what_ate               = translations.es.alim_meal_question;
+translations.es.alim_foods_placeholder      = translations.es.alim_meal_placeholder;
+translations.es.alim_skip_question          = translations.es.alim_meal_skipped;
+translations.es.alim_skip_reason            = translations.es.alim_meal_why;
+translations.es.alim_skip_reason_placeholder = translations.es.alim_meal_why_placeholder;
+translations.es.alim_replacement            = translations.es.alim_meal_replacement;
+translations.es.alim_replacement_placeholder = translations.es.alim_meal_replacement_placeholder;
+translations.es.alim_assigned_menu          = 'Menú asignado';
+translations.es.alim_no_supps               = translations.es.alim_no_suppl;
+translations.es.alim_check_supps            = translations.es.alim_consult_suppl;
+translations.es.alim_see_supps              = translations.es.alim_see_suppl;
+translations.es.alim_supplementation        = 'Suplementación';
+translations.es.alim_supps_disclaimer       = translations.es.alim_suppl_notice;
+translations.es.supp_morning                = 'Al despertar';
+translations.es.supp_preworkout             = 'Pre-entreno';
+translations.es.supp_postworkout            = 'Post-entreno';
+translations.es.today                       = 'Hoy';
+translations.es.clear                       = translations.es.alim_meal_clear;
+translations.es.error_loading               = 'Error al cargar';
+// EN aliases
+translations.en.alim_settings_title         = 'Nutrition settings';
+translations.en.alim_wakeup                 = translations.en.alim_wake_up;
+translations.en.alim_loading_supps          = translations.en.alim_loading_suppl;
+translations.en.alim_5meals                 = translations.en.alim_5_meals;
+translations.en.alim_toggle_meals           = 'Toggle meal count';
+translations.en.alim_skipped                = translations.en.alim_meal_skipped_label;
+translations.en.alim_what_ate               = translations.en.alim_meal_question;
+translations.en.alim_foods_placeholder      = translations.en.alim_meal_placeholder;
+translations.en.alim_skip_question          = translations.en.alim_meal_skipped;
+translations.en.alim_skip_reason            = translations.en.alim_meal_why;
+translations.en.alim_skip_reason_placeholder = translations.en.alim_meal_why_placeholder;
+translations.en.alim_replacement            = translations.en.alim_meal_replacement;
+translations.en.alim_replacement_placeholder = translations.en.alim_meal_replacement_placeholder;
+translations.en.alim_assigned_menu          = 'Assigned menu';
+translations.en.alim_no_supps               = translations.en.alim_no_suppl;
+translations.en.alim_check_supps            = translations.en.alim_consult_suppl;
+translations.en.alim_see_supps              = translations.en.alim_see_suppl;
+translations.en.alim_supplementation        = 'Supplementation';
+translations.en.alim_supps_disclaimer       = translations.en.alim_suppl_notice;
+translations.en.supp_morning                = 'Upon waking';
+translations.en.supp_preworkout             = 'Pre-workout';
+translations.en.supp_postworkout            = 'Post-workout';
+translations.en.today                       = 'Today';
+translations.en.clear                       = translations.en.alim_meal_clear;
+translations.en.error_loading               = 'Error loading';
+
+// ── Alias keys (biomedidas.js names) ─────────────────────────────────────────
+// ES aliases
+translations.es.bio_add_measurements  = 'Añadir medidas';
+translations.es.bio_body_fat_pct      = translations.es.bio_fat_pct;
+translations.es.bio_chest_abbr        = translations.es.bio_peri_chest_abbr;
+translations.es.bio_height_cm         = translations.es.bio_height;
+translations.es.bio_hip_abbr          = translations.es.bio_peri_hip_abbr;
+translations.es.bio_index             = translations.es.bio_visceral_unit;
+translations.es.bio_no_bio_data       = translations.es.bio_no_bio;
+translations.es.bio_no_perim_data     = translations.es.bio_no_perimetrals;
+translations.es.bio_no_skinfold_data  = translations.es.bio_no_skinfold;
+translations.es.bio_p_arm_l           = translations.es.bio_peri_arm_l;
+translations.es.bio_p_arm_r           = translations.es.bio_peri_arm_r;
+translations.es.bio_p_calf            = translations.es.bio_peri_calf;
+translations.es.bio_p_chest           = translations.es.bio_peri_chest;
+translations.es.bio_p_hip             = translations.es.bio_peri_hip;
+translations.es.bio_p_thigh_l         = translations.es.bio_peri_thigh_l;
+translations.es.bio_p_thigh_r         = translations.es.bio_peri_thigh_r;
+translations.es.bio_p_waist           = translations.es.bio_peri_waist;
+translations.es.bio_sf_abdominal      = translations.es.bio_skinfold_abdominal;
+translations.es.bio_sf_biceps         = translations.es.bio_skinfold_biceps;
+translations.es.bio_sf_calf           = translations.es.bio_skinfold_leg;
+translations.es.bio_sf_subscapular    = translations.es.bio_skinfold_subscapular;
+translations.es.bio_sf_supraspinal    = translations.es.bio_skinfold_supraspinal;
+translations.es.bio_sf_thigh          = translations.es.bio_skinfold_thigh;
+translations.es.bio_sf_triceps        = translations.es.bio_skinfold_triceps;
+translations.es.bio_tab_skinfolds     = translations.es.bio_tab_skinfold;
+translations.es.bio_visceral_fat      = translations.es.bio_visceral;
+translations.es.bio_waist_abbr        = translations.es.bio_peri_waist_abbr;
+translations.es.bio_weight_kg         = translations.es.bio_weight_label;
+// EN aliases
+translations.en.bio_add_measurements  = 'Add measurements';
+translations.en.bio_body_fat_pct      = translations.en.bio_fat_pct;
+translations.en.bio_chest_abbr        = translations.en.bio_peri_chest_abbr;
+translations.en.bio_height_cm         = translations.en.bio_height;
+translations.en.bio_hip_abbr          = translations.en.bio_peri_hip_abbr;
+translations.en.bio_index             = translations.en.bio_visceral_unit;
+translations.en.bio_no_bio_data       = translations.en.bio_no_bio;
+translations.en.bio_no_perim_data     = translations.en.bio_no_perimetrals;
+translations.en.bio_no_skinfold_data  = translations.en.bio_no_skinfold;
+translations.en.bio_p_arm_l           = translations.en.bio_peri_arm_l;
+translations.en.bio_p_arm_r           = translations.en.bio_peri_arm_r;
+translations.en.bio_p_calf            = translations.en.bio_peri_calf;
+translations.en.bio_p_chest           = translations.en.bio_peri_chest;
+translations.en.bio_p_hip             = translations.en.bio_peri_hip;
+translations.en.bio_p_thigh_l         = translations.en.bio_peri_thigh_l;
+translations.en.bio_p_thigh_r         = translations.en.bio_peri_thigh_r;
+translations.en.bio_p_waist           = translations.en.bio_peri_waist;
+translations.en.bio_sf_abdominal      = translations.en.bio_skinfold_abdominal;
+translations.en.bio_sf_biceps         = translations.en.bio_skinfold_biceps;
+translations.en.bio_sf_calf           = translations.en.bio_skinfold_leg;
+translations.en.bio_sf_subscapular    = translations.en.bio_skinfold_subscapular;
+translations.en.bio_sf_supraspinal    = translations.en.bio_skinfold_supraspinal;
+translations.en.bio_sf_thigh          = translations.en.bio_skinfold_thigh;
+translations.en.bio_sf_triceps        = translations.en.bio_skinfold_triceps;
+translations.en.bio_tab_skinfolds     = translations.en.bio_tab_skinfold;
+translations.en.bio_visceral_fat      = translations.en.bio_visceral;
+translations.en.bio_waist_abbr        = translations.en.bio_peri_waist_abbr;
+translations.en.bio_weight_kg         = translations.en.bio_weight_label;
+
+// ── Alias keys (entreno.js names) ────────────────────────────────────────────
+// ES aliases
+translations.es.entreno_alternatives_for       = translations.es.entreno_swap_alts;
+translations.es.entreno_completed              = '¡Entreno completado!';
+translations.es.entreno_confirm_swap           = translations.es.entreno_swap_confirm;
+translations.es.entreno_exercises_count        = translations.es.entreno_exercises_badge;
+translations.es.entreno_exercises_label        = translations.es.entreno_exercises_badge;
+translations.es.entreno_general_note           = 'Nota general del entreno';
+translations.es.entreno_general_note_placeholder = translations.es.entreno_note_prompt;
+translations.es.entreno_history                = 'Historial';
+translations.es.entreno_incident_note          = 'Nota de incidencia';
+translations.es.entreno_incident_placeholder   = translations.es.entreno_note_prompt;
+translations.es.entreno_incidents              = translations.es.entreno_incidences;
+translations.es.entreno_muscles_worked         = translations.es.entreno_muscles;
+translations.es.entreno_no_muscle_data         = translations.es.entreno_no_muscles;
+translations.es.entreno_no_sessions            = translations.es.entreno_no_history;
+translations.es.entreno_no_sessions_sub        = translations.es.entreno_no_history_sub;
+translations.es.entreno_notes                  = 'Notas';
+translations.es.entreno_set                    = translations.es.entreno_set_header;
+translations.es.entreno_sets_count             = translations.es.entreno_sets;
+translations.es.entreno_sets_performed         = translations.es.entreno_sets_done;
+translations.es.entreno_show_muscle_map        = translations.es.entreno_show_map;
+translations.es.entreno_start_first            = translations.es.entreno_start_first_info;
+translations.es.entreno_swap_exercise          = 'Cambiar ejercicio';
+translations.es.entreno_swap_reason_placeholder = 'Ej: Dolor en la articulación, no tengo el material...';
+translations.es.entreno_swapped_to             = translations.es.entreno_swap_done;
+translations.es.entreno_watch_exercise         = 'Ver ejercicio';
+// EN aliases
+translations.en.entreno_alternatives_for       = translations.en.entreno_swap_alts;
+translations.en.entreno_completed              = 'Workout complete!';
+translations.en.entreno_confirm_swap           = translations.en.entreno_swap_confirm;
+translations.en.entreno_exercises_count        = translations.en.entreno_exercises_badge;
+translations.en.entreno_exercises_label        = translations.en.entreno_exercises_badge;
+translations.en.entreno_general_note           = 'General workout note';
+translations.en.entreno_general_note_placeholder = translations.en.entreno_note_prompt;
+translations.en.entreno_history                = 'History';
+translations.en.entreno_incident_note          = 'Incident note';
+translations.en.entreno_incident_placeholder   = translations.en.entreno_note_prompt;
+translations.en.entreno_incidents              = translations.en.entreno_incidences;
+translations.en.entreno_muscles_worked         = translations.en.entreno_muscles;
+translations.en.entreno_no_muscle_data         = translations.en.entreno_no_muscles;
+translations.en.entreno_no_sessions            = translations.en.entreno_no_history;
+translations.en.entreno_no_sessions_sub        = translations.en.entreno_no_history_sub;
+translations.en.entreno_notes                  = 'Notes';
+translations.en.entreno_set                    = translations.en.entreno_set_header;
+translations.en.entreno_sets_count             = translations.en.entreno_sets;
+translations.en.entreno_sets_performed         = translations.en.entreno_sets_done;
+translations.en.entreno_show_muscle_map        = translations.en.entreno_show_map;
+translations.en.entreno_start_first            = translations.en.entreno_start_first_info;
+translations.en.entreno_swap_exercise          = 'Swap exercise';
+translations.en.entreno_swap_reason_placeholder = 'e.g. Joint pain, missing equipment...';
+translations.en.entreno_swapped_to             = translations.en.entreno_swap_done;
+translations.en.entreno_watch_exercise         = 'Watch exercise';
+// Dropset
+translations.es.entreno_add_drop               = 'DROP';
+translations.es.entreno_dropset_label          = 'DROPSET';
+translations.es.entreno_remove_drop            = 'Eliminar dropset';
+translations.en.entreno_add_drop               = 'DROP';
+translations.en.entreno_dropset_label          = 'DROPSET';
+translations.en.entreno_remove_drop            = 'Remove dropset';
+
+// ── Alias keys (progreso.js / perfil.js / general) ───────────────────────────
+// ES aliases
+translations.es.apply                  = translations.es.bio_apply;
+translations.es.change                 = 'Cambiar';
+translations.es.error_saving           = 'Error al guardar';
+translations.es.greeting               = 'Hola';
+translations.es.load                   = 'Cargar';
+translations.es.not_authenticated      = translations.es.entreno_no_auth;
+translations.es.note_saved             = translations.es.entreno_note_saved;
+translations.es.settings               = translations.es.settings_title;
+translations.es.perfil_age_calculated  = translations.es.perfil_age_toast;
+translations.es.perfil_change_password = translations.es.perfil_change_pass;
+translations.es.perfil_reset_email_sent = translations.es.perfil_pass_sent;
+translations.es.perfil_updated         = translations.es.perfil_saved;
+translations.es.prog_charts_error      = translations.es.prog_chart_error;
+translations.es.prog_comparison_error  = translations.es.prog_compare_error;
+translations.es.prog_photos_saved      = translations.es.prog_uploaded;
+translations.es.prog_upload            = 'Subir fotos';
+translations.es.supp_anytime           = 'En cualquier momento';
+// EN aliases
+translations.en.apply                  = translations.en.bio_apply;
+translations.en.change                 = 'Change';
+translations.en.error_saving           = 'Error saving';
+translations.en.greeting               = 'Hello';
+translations.en.load                   = 'Load';
+translations.en.not_authenticated      = translations.en.entreno_no_auth;
+translations.en.note_saved             = translations.en.entreno_note_saved;
+translations.en.settings               = translations.en.settings_title;
+translations.en.perfil_age_calculated  = translations.en.perfil_age_toast;
+translations.en.perfil_change_password = translations.en.perfil_change_pass;
+translations.en.perfil_reset_email_sent = translations.en.perfil_pass_sent;
+translations.en.perfil_updated         = translations.en.perfil_saved;
+translations.en.prog_charts_error      = translations.en.prog_chart_error;
+translations.en.prog_comparison_error  = translations.en.prog_compare_error;
+translations.en.prog_photos_saved      = translations.en.prog_uploaded;
+translations.en.prog_upload            = 'Upload photos';
+translations.en.supp_anytime           = 'Any time';
 
 let _lang = 'es';
 

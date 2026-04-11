@@ -995,9 +995,11 @@ async function openAssignRoutineModal(clientUid) {
 async function openAssignDietModal(clientUid, clientName) {
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">🥗 Asignar menú — ${_esc(clientName || 'Cliente')}</h3>
+      <h3 class="modal-title">🥗 Plan nutricional — ${_esc(clientName || 'Cliente')}</h3>
       <button class="modal-close">✕</button>
     </div>
+
+    <!-- Tipo + Nombre -->
     <div class="form-row">
       <label class="field-label">Tipo de dieta</label>
       <select id="diet-type" class="input-solo" style="margin-top:4px">
@@ -1008,27 +1010,142 @@ async function openAssignDietModal(clientUid, clientName) {
       </select>
     </div>
     <div class="form-row">
-      <label class="field-label">Nombre del menú</label>
-      <input type="text" id="diet-name" class="input-solo" placeholder="Ej: Menú semana 1">
+      <label class="field-label">Nombre del plan</label>
+      <input type="text" id="diet-name" class="input-solo" placeholder="Ej: Plan semana 1">
     </div>
-    <div class="form-row">
-      <label class="field-label">Calorías objetivo (opcional)</label>
-      <input type="number" id="diet-kcal" class="input-solo" placeholder="Ej: 2200">
+
+    <!-- Macros -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0">
+      <div>
+        <label class="field-label" style="font-size:11px">🔥 Calorías</label>
+        <input type="number" id="diet-calories" class="input-solo" placeholder="2200" style="margin-top:2px">
+      </div>
+      <div>
+        <label class="field-label" style="font-size:11px">🥩 Proteínas (g)</label>
+        <input type="number" id="diet-protein" class="input-solo" placeholder="180" style="margin-top:2px">
+      </div>
+      <div>
+        <label class="field-label" style="font-size:11px">🍞 Carbos (g)</label>
+        <input type="number" id="diet-carbs" class="input-solo" placeholder="220" style="margin-top:2px">
+      </div>
+      <div>
+        <label class="field-label" style="font-size:11px">🫒 Grasas (g)</label>
+        <input type="number" id="diet-fat" class="input-solo" placeholder="70" style="margin-top:2px">
+      </div>
     </div>
-    <button class="btn-primary btn-full" id="btn-confirm-diet" style="margin-top:var(--space-md)">Asignar</button>
+
+    <!-- Nº de comidas -->
+    <div class="form-row" style="margin-bottom:12px">
+      <label class="field-label">Número de comidas</label>
+      <div style="display:flex;gap:8px;margin-top:6px" id="meal-count-btns">
+        ${[3,4,5].map(n => `<button type="button" class="meal-count-opt chip" data-n="${n}" style="flex:1;padding:8px;cursor:pointer">${n} comidas</button>`).join('')}
+      </div>
+    </div>
+
+    <!-- Comidas dinámicas -->
+    <div id="meals-config"></div>
+
+    <!-- Nada más despertar -->
+    <div class="form-row" style="margin-bottom:8px">
+      <label class="field-label">🌅 Nada más despertar (suplementos/notas)</label>
+      <textarea id="diet-wakeup" class="input-solo" rows="2" placeholder="Ej: 1 vaso agua + creatina 5g" style="margin-top:4px;padding:8px;width:100%"></textarea>
+    </div>
+
+    <!-- Antes de acostarse -->
+    <div class="form-row" style="margin-bottom:8px">
+      <label class="field-label">🌙 Antes de acostarse</label>
+      <textarea id="diet-presleep" class="input-solo" rows="2" placeholder="Ej: Caseína 30g + magnesio" style="margin-top:4px;padding:8px;width:100%"></textarea>
+    </div>
+
+    <!-- Suplementación de entreno -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <div>
+        <label class="field-label" style="font-size:11px">🏋️ Pre-entreno</label>
+        <textarea id="diet-pre" class="input-solo" rows="2" placeholder="Cafeína 200mg, beta-alanina..." style="margin-top:2px;padding:8px;width:100%"></textarea>
+      </div>
+      <div>
+        <label class="field-label" style="font-size:11px">🔄 Post-entreno</label>
+        <textarea id="diet-post" class="input-solo" rows="2" placeholder="Whey 40g, plátano..." style="margin-top:2px;padding:8px;width:100%"></textarea>
+      </div>
+    </div>
+
+    <button class="btn-primary btn-full" id="btn-confirm-diet" style="margin-top:8px">💾 Asignar plan</button>
   `;
+
   openModal(html);
   const mc = document.getElementById('modal-content');
-  mc?.querySelector('#btn-confirm-diet')?.addEventListener('click', async () => {
-    const type = mc.querySelector('#diet-type')?.value || 'volumen';
-    const name = mc.querySelector('#diet-name')?.value.trim() || `Menú ${type}`;
-    const kcal = parseInt(mc.querySelector('#diet-kcal')?.value) || null;
-    await collections.dietas(clientUid).add({
-      type, name, kcal: kcal || undefined,
-      assignedBy: _profile.uid, assignedAt: timestamp(), createdAt: timestamp(),
+  let mealCount = 3;
+
+  function buildMealsConfig() {
+    const el = mc.querySelector('#meals-config');
+    if (!el) return;
+    el.innerHTML = Array.from({ length: mealCount }, (_, i) => `
+      <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:10px;padding:12px;margin-bottom:8px">
+        <div style="font-weight:700;font-size:13px;margin-bottom:6px">🍽️ Comida ${i + 1}</div>
+        <input type="text" id="meal-${i}-label" class="input-solo" placeholder="Ej: Desayuno, Media mañana..." style="margin-bottom:6px">
+        <textarea id="meal-${i}-desc" class="input-solo" rows="2" placeholder="Contenido de la comida..." style="padding:8px;width:100%;margin-bottom:4px"></textarea>
+        <input type="text" id="meal-${i}-supps" class="input-solo" placeholder="💊 Suplementos (opcional)" style="font-size:12px">
+      </div>
+    `).join('');
+  }
+
+  // Meal count selector
+  mc.querySelectorAll('.meal-count-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      mealCount = parseInt(btn.dataset.n);
+      mc.querySelectorAll('.meal-count-opt').forEach(b => {
+        b.style.background = b === btn ? 'rgba(25,249,249,0.15)' : '';
+        b.style.borderColor = b === btn ? 'var(--cyan)' : '';
+      });
+      buildMealsConfig();
     });
-    toast(`Menú "${name}" asignado ✅`, 'success');
-    closeModal();
+  });
+  // Default select 3
+  mc.querySelector('.meal-count-opt[data-n="3"]')?.click();
+
+  mc.querySelector('#btn-confirm-diet')?.addEventListener('click', async () => {
+    const type     = mc.querySelector('#diet-type')?.value || 'volumen';
+    const name     = mc.querySelector('#diet-name')?.value.trim() || `Menú ${type}`;
+    const calories = parseInt(mc.querySelector('#diet-calories')?.value) || null;
+    const protein  = parseInt(mc.querySelector('#diet-protein')?.value) || null;
+    const carbs    = parseInt(mc.querySelector('#diet-carbs')?.value) || null;
+    const fat      = parseInt(mc.querySelector('#diet-fat')?.value) || null;
+    const wakeUp   = mc.querySelector('#diet-wakeup')?.value.trim() || null;
+    const preSleep = mc.querySelector('#diet-presleep')?.value.trim() || null;
+    const preWorkout  = mc.querySelector('#diet-pre')?.value.trim() || null;
+    const postWorkout = mc.querySelector('#diet-post')?.value.trim() || null;
+
+    const meals = Array.from({ length: mealCount }, (_, i) => ({
+      label:       mc.querySelector(`#meal-${i}-label`)?.value.trim() || `Comida ${i + 1}`,
+      description: mc.querySelector(`#meal-${i}-desc`)?.value.trim() || '',
+      supplements: mc.querySelector(`#meal-${i}-supps`)?.value.trim() || '',
+    }));
+
+    const dietDoc = {
+      type, name, mealCount,
+      ...(calories && { calories }),
+      ...(protein  && { protein }),
+      ...(carbs    && { carbs }),
+      ...(fat      && { fat }),
+      meals,
+      ...(wakeUp   && { wakeUp: { description: wakeUp } }),
+      ...(preSleep && { preSleep: { description: preSleep } }),
+      workout: {
+        ...(preWorkout  && { pre:  preWorkout }),
+        ...(postWorkout && { post: postWorkout }),
+      },
+      assignedBy: _profile.uid,
+      assignedAt: timestamp(),
+      createdAt:  timestamp(),
+    };
+
+    try {
+      await collections.dietas(clientUid).add(dietDoc);
+      toast(`Plan "${name}" asignado ✅`, 'success');
+      closeModal();
+    } catch (e) {
+      toast('Error: ' + e.message, 'error');
+    }
   });
 }
 
@@ -1128,6 +1245,12 @@ async function openRoutineEditor(routineId, mc) {
           <div style="font-size:10px;color:var(--color-text-muted)">${_esc(ex.muscleGroup||ex.m||'')}</div>
         </div>
         <input type="number" value="${ex.sets||3}" min="1" max="20" style="width:36px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:var(--white);font-size:11px;text-align:center;padding:2px" data-sets="${i}">
+        <div style="display:flex;align-items:center;gap:4px">
+          <input type="number" class="ex-warmup-input" data-index="${i}"
+                 value="${ex.warmupSets||0}" min="0" max="10"
+                 style="width:40px;background:rgba(251,146,60,.15);border:1px solid rgba(251,146,60,.4);border-radius:4px;color:var(--color-text);font-size:11px;text-align:center;padding:2px">
+          <span style="font-size:10px;color:rgba(251,146,60,.8)">🔥</span>
+        </div>
         <span style="font-size:10px;color:var(--color-text-muted)">×</span>
         <input type="text" value="${ex.reps||'10'}" placeholder="ej: 12 o 20-16-16" style="width:72px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;color:var(--white);font-size:11px;text-align:center;padding:2px" data-reps="${i}">
         <button style="background:none;border:none;color:var(--color-danger);cursor:pointer;font-size:15px;padding:0 2px" data-rm="${i}">✕</button>
@@ -1135,6 +1258,7 @@ async function openRoutineEditor(routineId, mc) {
     el.querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', ()=>{ exercises.splice(+b.dataset.rm,1); renderExList(); }));
     el.querySelectorAll('[data-sets]').forEach(b => b.addEventListener('change', ()=>{ exercises[+b.dataset.sets].sets = parseInt(b.value)||3; }));
     el.querySelectorAll('[data-reps]').forEach(b => b.addEventListener('change', ()=>{ exercises[+b.dataset.reps].reps = b.value; }));
+    el.querySelectorAll('.ex-warmup-input').forEach(b => b.addEventListener('change', ()=>{ exercises[+b.dataset.index].warmupSets = parseInt(b.value)||0; }));
   };
   renderExList();
 
@@ -1161,7 +1285,7 @@ async function openRoutineEditor(routineId, mc) {
 
   m.querySelector('#re-add-ex')?.addEventListener('click', ()=>{
     if (!_selEx) { toast('Selecciona un ejercicio del buscador','info'); return; }
-    exercises.push({ id:_selEx.n, name:_selEx.n, muscleGroup:_selEx.m, videoUrl:_selEx.v||'', setupNotes:(_selEx.instructions||[]).join(' '), sets:3, reps:'10', weight:0, restSeconds:60 });
+    exercises.push({ id:_selEx.n, name:_selEx.n, muscleGroup:_selEx.m, videoUrl:_selEx.v||'', setupNotes:(_selEx.instructions||[]).join(' '), sets:3, reps:'10', weight:0, restSeconds:60, warmupSets:0 });
     renderExList(); searchEl.value=''; _selEx=null;
   });
 

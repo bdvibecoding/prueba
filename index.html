@@ -94,7 +94,7 @@
           </form>
           <div class="auth-divider"><span>¿nuevo aquí?</span></div>
           <button class="btn-secondary btn-full" id="btn-goto-register">
-            🚀 Empieza con nosotros
+            Empieza con nosotros
           </button>
         </div>
       </div>
@@ -191,22 +191,6 @@
   ═══════════════════════════════════════════ -->
   <div id="app-section" class="app-section hidden">
 
-    <!-- Top Bar -->
-    <header class="top-bar glass-nav" id="top-bar">
-      <div class="top-bar-left">
-        <!-- Light theme: use colored/dark logo (dark text on light bg) -->
-        <img src="logotipo/Horizonatal%20Logo/TGWL-08.png" alt="The Growth Lab" class="top-bar-logo logo-dark-only">
-        <!-- Dark theme: use white logo TGWL-10 -->
-        <img src="logotipo/Horizonatal%20Logo/TGWL-10.png" alt="The Growth Lab" class="top-bar-logo logo-light-only">
-      </div>
-      <div class="top-bar-right">
-        <span class="top-bar-greeting" id="top-bar-greeting"></span>
-        <div class="avatar-btn" id="top-bar-avatar">
-          <span id="avatar-initials">?</span>
-        </div>
-      </div>
-    </header>
-
     <!-- Page Container -->
     <main class="page-container" id="page-container">
       <!-- Pages rendered here dynamically -->
@@ -243,6 +227,15 @@
         </span>
         <span class="nav-label" data-i18n="nav_nutricion">Nutrición</span>
       </button>
+      <button class="nav-item" data-route="perfil">
+        <span class="nav-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="nav-label">Perfil</span>
+      </button>
     </nav>
   </div>
 
@@ -271,6 +264,17 @@
   ═══════════════════════════════════════════ -->
   <script type="module" src="js/firebase-config.js"></script>
   <script type="module" src="js/app.js"></script>
+
+  <!-- Force Cache Cleanup for Clients -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+          registration.unregister();
+        }
+      });
+    }
+  </script>
 
 </body>
 </html>
