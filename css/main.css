@@ -140,7 +140,7 @@ html {
   scroll-behavior: smooth;
   height: -webkit-fill-available;
   height: 100dvh;
-  background-color: #000000;
+  background-color: #0A0A0A;
   overflow: hidden;
 }
 
@@ -148,7 +148,7 @@ body {
   font-family: var(--font-sans);
   font-size: var(--fs-base);
   color: var(--color-text);
-  background-color: #000000;
+  background-color: #0A0A0A;
   line-height: 1.35;
   height: -webkit-fill-available;
   height: 100dvh;
@@ -174,7 +174,7 @@ h1, h2, h3, h4, h5, h6 {
 h1 { font-size: var(--fs-3xl); }
 h2 { font-size: var(--fs-2xl); }
 h3 { font-size: var(--fs-xl); line-height: 1.2; }
-h4 { font-size: var(--fs-lg); line-height: 1.2; }
+h4 { font-size: var(--fs-lg); font-family: var(--font-sans); line-height: 1.2; }
 h5 { font-size: var(--fs-md); font-family: var(--font-sans); line-height: 1.2; }
 h6 { font-size: var(--fs-base); font-family: var(--font-sans); line-height: 1.2; }
 
@@ -682,7 +682,7 @@ body.light-mode .app-section {
   display: none;
   padding: var(--page-pad);
   animation: pageIn 0.3s ease;
-  min-height: 100%;
+  height: 100%;
 }
 .page.active { display: block; }
 
