@@ -170,7 +170,8 @@ function _renderWakeup(container, diet, morningSups) {
 
   // Fuentes: diet.wakeUp (nuevo schema) + suplementos con timing:morning
   const wakeUpFromDiet = diet?.wakeUp;
-  const hasDietWakeup  = wakeUpFromDiet && (wakeUpFromDiet.description || (wakeUpFromDiet.supplements?.length > 0));
+  const wakeUpSuppsNorm = _normSupps(wakeUpFromDiet?.supplements);
+  const hasDietWakeup  = wakeUpFromDiet && (wakeUpFromDiet.description || wakeUpSuppsNorm.length > 0);
   const hasMorningSups = morningSups.length > 0;
 
   if (!hasDietWakeup && !hasMorningSups) return;
@@ -184,7 +185,7 @@ function _renderWakeup(container, diet, morningSups) {
   }
 
   // Suplementos del schema nuevo (diet.wakeUp.supplements)
-  const dietWakeSupps = wakeUpFromDiet?.supplements || [];
+  const dietWakeSupps = wakeUpSuppsNorm;
   // Suplementos de la colección supplements con timing:morning
   const allSupps = [
     ...dietWakeSupps.map(s => ({ ...s, _source: 'diet' })),
@@ -350,10 +351,17 @@ function _openMealSuppsModal(mealLabel, supps) {
   openModal(html);
 }
 
+// Normaliza suplementos: string → [{name}], array → as-is, falsy → []
+function _normSupps(val) {
+  if (Array.isArray(val)) return val;
+  if (typeof val === 'string' && val.trim()) return [{ name: val }];
+  return [];
+}
+
 // ── ④ Entreno ─────────────────────────────────────
 function _renderWorkout(container, diet, suppsByTiming) {
-  const preSupps  = diet?.workout?.pre  || suppsByTiming['pre']  || suppsByTiming['preworkout']  || [];
-  const postSupps = diet?.workout?.post || suppsByTiming['post'] || suppsByTiming['postworkout'] || [];
+  const preSupps  = _normSupps(diet?.workout?.pre).concat(_normSupps(suppsByTiming['pre']), _normSupps(suppsByTiming['preworkout']));
+  const postSupps = _normSupps(diet?.workout?.post).concat(_normSupps(suppsByTiming['post']), _normSupps(suppsByTiming['postworkout']));
 
   if (!preSupps.length && !postSupps.length) return;
 
@@ -393,8 +401,9 @@ function _renderPreSleep(container, diet, nightSupps) {
   const lastMeal     = diet?.meals?.at(-1);
   const lastIsPreSleep = lastMeal?.isPreSleep === true;
 
+  const preSleepSupps = _normSupps(preSleepData?.supplements);
   const hasContent = preSleepData?.description
-    || preSleepData?.supplements?.length
+    || preSleepSupps.length
     || nightSupps.length
     || lastIsPreSleep;
 
@@ -416,9 +425,9 @@ function _renderPreSleep(container, diet, nightSupps) {
   }
 
   const allNightSupps = [
-    ...(preSleepData?.supplements || []),
+    ...preSleepSupps,
     ...nightSupps.filter(ns =>
-      !(preSleepData?.supplements || []).some(ds => ds.name === ns.name)
+      !preSleepSupps.some(ds => ds.name === ns.name)
     ),
   ];
 

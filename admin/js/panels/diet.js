@@ -242,19 +242,27 @@ async function renderTemplatesList(container) {
         </div>`;
     }).join('');
 
-    // Load template into builder
+    // Load template into builder — preview or load into form
     el.querySelectorAll('[data-tpl-load]').forEach(btn => {
       btn.addEventListener('click', async () => {
         const docId = btn.dataset.tplLoad;
         try {
           const snap = await db.collection('dietTemplates').doc(docId).get();
           if (!snap.exists) { toast('Plantilla no encontrada', 'error'); return; }
+          const data = snap.data();
           if (!_selectedClient) {
-            toast('Selecciona un cliente primero (pestaña Clientes)', 'warning');
-            return;
+            // No client selected — render builder with a dummy client to allow editing
+            _selectedClient = { uid: '__preview__', name: 'Vista previa' };
+            renderDietBuilder(container);
           }
-          loadTemplateIntoForm(snap.data());
-          toast('Plantilla cargada en el formulario', 'success');
+          _editingDietId = null;
+          loadTemplateIntoForm(data);
+          // Update save button to reflect it's from a template
+          const submitBtn = document.getElementById('btn-submit-diet');
+          if (_selectedClient.uid === '__preview__') {
+            submitBtn.style.display = 'none';
+          }
+          toast('Plantilla cargada', 'success');
         } catch (e) { toast('Error: ' + e.message, 'error'); }
       });
     });
