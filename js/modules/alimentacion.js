@@ -290,7 +290,7 @@ function _buildMealBtn(meal, i, todayData) {
         <span class="nmb-icon">🍽️</span>
         <span class="nmb-label">${_esc(label)}</span>
         <span class="nmb-actions">
-          ${hasSups ? `<button class="nmb-supp-icon" id="btn-meal-supps-${i}" title="Ver suplementos">💊</button>` : ''}
+          ${hasSups ? `<span class="nmb-supp-icon" id="btn-meal-supps-${i}" title="Ver suplementos" role="button" tabindex="0">💊</span>` : ''}
           <label class="nmb-check-label" title="Marcar completada" onclick="event.stopPropagation()">
             <input type="checkbox" class="nmb-check" id="chk-meal-${i}" ${completed ? 'checked' : ''}>
             <span class="nmb-check-box">${completed ? '✅' : '○'}</span>
