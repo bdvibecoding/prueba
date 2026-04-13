@@ -55,11 +55,11 @@ export async function render(container) {
 
         <!-- ④ Botón Entreno -->
         <div id="section-workout" class="hidden">
-          <button class="nutrition-meal-btn" id="btn-workout" data-open="false">
+          <div class="nutrition-meal-btn" id="btn-workout" data-open="false" role="button" tabindex="0">
             <span class="nmb-icon">🏋️</span>
             <span class="nmb-label">Suplementación Entreno</span>
             <span class="nmb-arrow" id="arrow-workout">›</span>
-          </button>
+          </div>
           <div class="nutrition-meal-accordion hidden" id="acc-workout">
             <div id="acc-workout-body"></div>
           </div>
@@ -67,11 +67,11 @@ export async function render(container) {
 
         <!-- ⑤ Botón Antes de acostarse -->
         <div id="section-presleep" class="hidden">
-          <button class="nutrition-meal-btn" id="btn-presleep" data-open="false">
+          <div class="nutrition-meal-btn" id="btn-presleep" data-open="false" role="button" tabindex="0">
             <span class="nmb-icon">🌙</span>
             <span class="nmb-label">Antes de acostarse</span>
             <span class="nmb-arrow" id="arrow-presleep">›</span>
-          </button>
+          </div>
           <div class="nutrition-meal-accordion hidden" id="acc-presleep">
             <div id="acc-presleep-body"></div>
           </div>
@@ -286,18 +286,18 @@ function _buildMealBtn(meal, i, todayData) {
 
   return `
     <div class="nutrition-meal-item">
-      <button class="nutrition-meal-btn ${completed ? 'nmb-completed' : ''}" id="btn-meal-${i}" data-open="false">
+      <div class="nutrition-meal-btn ${completed ? 'nmb-completed' : ''}" id="btn-meal-${i}" data-open="false" role="button" tabindex="0">
         <span class="nmb-icon">🍽️</span>
         <span class="nmb-label">${_esc(label)}</span>
         <span class="nmb-actions">
-          ${hasSups ? `<span class="nmb-supp-icon" id="btn-meal-supps-${i}" title="Ver suplementos" role="button" tabindex="0">💊</span>` : ''}
+          ${hasSups ? `<span class="nmb-supp-icon" id="btn-meal-supps-${i}" title="Ver suplementos">💊</span>` : ''}
           <label class="nmb-check-label" title="Marcar completada" onclick="event.stopPropagation()">
             <input type="checkbox" class="nmb-check" id="chk-meal-${i}" ${completed ? 'checked' : ''}>
             <span class="nmb-check-box">${completed ? '✅' : '○'}</span>
           </label>
         </span>
         <span class="nmb-arrow" id="arrow-meal-${i}">›</span>
-      </button>
+      </div>
       <div class="nutrition-meal-accordion hidden" id="acc-meal-${i}">
         ${desc
           ? `<div class="nma-desc">${_esc(desc)}</div>`
