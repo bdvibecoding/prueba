@@ -264,10 +264,11 @@ async function _renderMeals(container, profile, diet) {
 
     // Icono suplementos de comida
     const suppBtn = listEl.querySelector(`#btn-meal-supps-${i}`);
-    if (suppBtn && meal.supplements?.length) {
+    const mealSupps = Array.isArray(meal.supplements) ? meal.supplements : (typeof meal.supplements === 'string' && meal.supplements.trim() ? [{ name: meal.supplements }] : []);
+    if (suppBtn && mealSupps.length) {
       suppBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        _openMealSuppsModal(meal.label || `Comida ${i + 1}`, meal.supplements);
+        _openMealSuppsModal(meal.label || `Comida ${i + 1}`, mealSupps);
       });
     }
   });
@@ -278,7 +279,8 @@ function _buildMealBtn(meal, i, todayData) {
   const logged    = todayData[key];
   const completed = logged?.completed === true;
   const label     = meal.label || `Comida ${i + 1}`;
-  const hasSups   = meal.supplements && meal.supplements.length > 0;
+  const supps     = Array.isArray(meal.supplements) ? meal.supplements : (typeof meal.supplements === 'string' && meal.supplements.trim() ? [{ name: meal.supplements }] : []);
+  const hasSups   = supps.length > 0;
   const desc      = meal.description || meal.content || '';
 
   return `
@@ -302,7 +304,7 @@ function _buildMealBtn(meal, i, todayData) {
         ${hasSups ? `
           <div class="nma-supps-section">
             <div class="nma-supps-title">💊 Suplementos</div>
-            ${meal.supplements.map(s =>
+            ${supps.map(s =>
               `<div class="nma-supp-row">
                 <span>💊</span>
                 <span>${_esc(s.name)}</span>
