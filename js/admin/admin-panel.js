@@ -50,6 +50,11 @@ export async function render(container) {
                  font-size:13px;font-weight:700;color:var(--color-text-muted);cursor:pointer;font-family:inherit">
           💪 Rutinas
         </button>
+        <button class="admin-main-tab" data-main-tab="diets"
+          style="flex:1;padding:12px 6px;background:none;border:none;border-bottom:2.5px solid transparent;
+                 font-size:13px;font-weight:700;color:var(--color-text-muted);cursor:pointer;font-family:inherit">
+          🥗 Dietas
+        </button>
       </div>
 
       <!-- ── Users panel ── -->
@@ -166,6 +171,18 @@ export async function render(container) {
         <div id="admin-routines-cards"><div class="overlay-spinner"><div class="spinner-sm"></div></div></div>
       </div>
 
+      <!-- ── Dietas panel ── -->
+      <div id="admin-tab-diets" style="flex:1;display:none;overflow-y:auto;padding:var(--page-pad);padding-bottom:100px">
+        <div class="page-header" style="margin-bottom:var(--space-lg)">
+          <div>
+            <h2 class="page-title">🥗 Mis Dietas</h2>
+            <p class="page-subtitle">Crea, edita y asigna dietas a tus clientes</p>
+          </div>
+          <button class="btn-primary" id="btn-new-diet-admin" style="padding:10px 16px;font-size:13px">+ Nueva dieta</button>
+        </div>
+        <div id="admin-diets-cards"><div class="overlay-spinner"><div class="spinner-sm"></div></div></div>
+      </div>
+
     </div>
   `;
 }
@@ -195,8 +212,10 @@ export async function init(container) {
       container.querySelector('#admin-tab-users'   ).style.display = which === 'users'    ? '' : 'none';
       container.querySelector('#admin-tab-hub'     ).style.display = which === 'hub'      ? '' : 'none';
       container.querySelector('#admin-tab-routines').style.display = which === 'routines' ? '' : 'none';
+      container.querySelector('#admin-tab-diets'   ).style.display = which === 'diets'    ? '' : 'none';
 
       if (which === 'routines') loadAdminRoutines(container);
+      if (which === 'diets') loadAdminDiets(container);
 
       // Lazy-load the specialist hub the first time
       if (which === 'hub' && !_hubLoaded) {
@@ -1352,7 +1371,7 @@ async function openAdminRoutineEditor(routineId, container) {
   });
 }
 
-async function openAdminAssignRoutine(routineId, routineName, profile) {
+async function openAdminAssignRoutine(routineId, routineName, profile, type = 'routine') {
   const _esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   let clients = [];
   try {
@@ -1398,6 +1417,273 @@ async function openAdminAssignRoutine(routineId, routineName, profile) {
       });
       toast(`Rutina asignada a ${card.dataset.cname} ✅`, 'success');
       closeModal();
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════
+//  Admin Diets Panel
+// ══════════════════════════════════════════════════
+let _dietsLoaded = false;
+
+const DIET_TYPES = [
+  { value: 'volumen',        label: 'Volumen',        color: '#ef4444' },
+  { value: 'definicion',     label: 'Definición',     color: '#3b82f6' },
+  { value: 'mantenimiento',  label: 'Mantenimiento',  color: '#22c55e' },
+  { value: 'terapeutica',    label: 'Terapéutica',    color: '#a855f7' },
+  { value: 'personalizada',  label: 'Personalizada',  color: '#f97316' },
+];
+
+async function loadAdminDiets(container) {
+  const profile = getUserProfile();
+  const btnNew  = container.querySelector('#btn-new-diet-admin');
+  if (!_dietsLoaded) {
+    _dietsLoaded = true;
+    btnNew?.addEventListener('click', () => openAdminDietEditor(null, container));
+  }
+  await renderAdminDietCards(container, profile);
+}
+
+async function renderAdminDietCards(container, profile) {
+  const el = container.querySelector('#admin-diets-cards');
+  if (!el) return;
+  try {
+    const snap = await db.collection('dietTemplates').where('createdBy','==',profile.uid).limit(50).get();
+    if (snap.empty) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">🥗</div><div class="empty-title">Sin dietas creadas</div><div class="empty-subtitle">Pulsa "+ Nueva dieta" para crear la primera.</div></div>`;
+      return;
+    }
+    el.innerHTML = snap.docs.map(doc => {
+      const d = doc.data();
+      const typeInfo = DIET_TYPES.find(t => t.value === d.type) || { label: d.type || 'Sin tipo', color: '#6b7280' };
+      const macros = [
+        d.calories ? `${d.calories} kcal` : null,
+        d.protein ? `${d.protein}g P` : null,
+        d.carbs ? `${d.carbs}g C` : null,
+        d.fat ? `${d.fat}g G` : null,
+      ].filter(Boolean).join(' · ');
+      return `
+        <div class="glass-card" style="padding:var(--space-md);margin-bottom:var(--space-sm)">
+          <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:10px">
+            <span style="font-size:26px">🥗</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:700;font-size:15px">${d.name || 'Sin nombre'}</div>
+              <div style="display:flex;gap:6px;align-items:center;margin-top:4px;flex-wrap:wrap">
+                <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:var(--r-full);background:${typeInfo.color}22;color:${typeInfo.color}">${typeInfo.label}</span>
+                ${macros ? `<span class="text-muted" style="font-size:11px">${macros}</span>` : ''}
+              </div>
+              <div class="text-muted" style="font-size:12px;margin-top:2px">${(d.meals||[]).length} comidas</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-secondary" style="flex:1;font-size:12px;padding:8px" data-diet-edit="${doc.id}">✏️ Editar</button>
+            <button class="btn-accent"    style="flex:1;font-size:12px;padding:8px" data-diet-assign="${doc.id}" data-dname="${(d.name||'').replace(/"/g,'&quot;')}">📋 Asignar a cliente</button>
+            <button style="font-size:12px;padding:8px;background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3);border-radius:var(--r-sm);cursor:pointer" data-diet-del="${doc.id}" data-delname="${(d.name||'').replace(/"/g,'&quot;')}">🗑️</button>
+          </div>
+        </div>`;
+    }).join('');
+
+    el.querySelectorAll('[data-diet-edit]').forEach(btn =>
+      btn.addEventListener('click', () => openAdminDietEditor(btn.dataset.dietEdit, container))
+    );
+    el.querySelectorAll('[data-diet-assign]').forEach(btn =>
+      btn.addEventListener('click', () => openAdminAssignDiet(btn.dataset.dietAssign, btn.dataset.dname))
+    );
+    el.querySelectorAll('[data-diet-del]').forEach(btn =>
+      btn.addEventListener('click', async () => {
+        const ok = await confirm(`¿Eliminar la dieta "${btn.dataset.delname}"?`);
+        if (!ok) return;
+        try {
+          await db.collection('dietTemplates').doc(btn.dataset.dietDel).delete();
+          toast('Dieta eliminada', 'success');
+          _dietsLoaded = false;
+          renderAdminDietCards(container, profile);
+        } catch (e) { toast('Error: ' + e.message, 'error'); }
+      })
+    );
+  } catch(e) { el.innerHTML = `<p class="text-muted">Error: ${e.message}</p>`; }
+}
+
+async function openAdminDietEditor(dietId, container) {
+  const profile = getUserProfile();
+  const _esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  let diet = { name:'', type:'personalizada', calories:'', protein:'', carbs:'', fat:'', meals:[], notes:'' };
+  if (dietId) {
+    const snap = await db.collection('dietTemplates').doc(dietId).get();
+    if (snap.exists) diet = { id:snap.id, ...snap.data() };
+  }
+
+  let meals = diet.meals?.length ? [...diet.meals] : [{ label:'Desayuno', description:'' }];
+
+  const typeOptions = DIET_TYPES.map(t =>
+    `<option value="${t.value}" ${diet.type===t.value?'selected':''}>${t.label}</option>`
+  ).join('');
+
+  const html = `
+    <div class="modal-header">
+      <h3 class="modal-title">${dietId?'Editar':'Nueva'} Dieta</h3>
+      <button class="modal-close">✕</button>
+    </div>
+    <div style="max-height:70vh;overflow-y:auto;padding:2px">
+      <input type="text" id="diet-name" class="input-solo" placeholder="Nombre de la dieta (ej: Dieta Hipercalórica 3500kcal)" value="${_esc(diet.name)}" style="margin-bottom:8px">
+
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div style="flex:1">
+          <label style="font-size:11px;color:var(--color-text-muted);font-weight:600;display:block;margin-bottom:4px">TIPO</label>
+          <select id="diet-type" class="input-solo" style="width:100%">${typeOptions}</select>
+        </div>
+        <div style="flex:1">
+          <label style="font-size:11px;color:var(--color-text-muted);font-weight:600;display:block;margin-bottom:4px">KCAL</label>
+          <input type="number" id="diet-kcal" class="input-solo" placeholder="2500" value="${diet.calories||''}" style="width:100%">
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div style="flex:1">
+          <label style="font-size:11px;color:var(--color-text-muted);font-weight:600;display:block;margin-bottom:4px">PROTEÍNA (g)</label>
+          <input type="number" id="diet-prot" class="input-solo" placeholder="180" value="${diet.protein||''}" style="width:100%">
+        </div>
+        <div style="flex:1">
+          <label style="font-size:11px;color:var(--color-text-muted);font-weight:600;display:block;margin-bottom:4px">CARBOS (g)</label>
+          <input type="number" id="diet-carbs" class="input-solo" placeholder="300" value="${diet.carbs||''}" style="width:100%">
+        </div>
+        <div style="flex:1">
+          <label style="font-size:11px;color:var(--color-text-muted);font-weight:600;display:block;margin-bottom:4px">GRASA (g)</label>
+          <input type="number" id="diet-fat" class="input-solo" placeholder="80" value="${diet.fat||''}" style="width:100%">
+        </div>
+      </div>
+
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:6px">Comidas</div>
+      <div id="diet-meals-list"></div>
+      <button class="btn-accent btn-full" id="diet-add-meal" style="margin-bottom:12px">+ Añadir comida</button>
+
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:6px">Notas adicionales</div>
+      <textarea id="diet-notes" class="input-solo" rows="3" placeholder="Observaciones, suplementos, restricciones..." style="padding:10px;width:100%;box-sizing:border-box;margin-bottom:12px">${_esc(diet.notes||'')}</textarea>
+
+      <button class="btn-primary btn-full" id="diet-save">💾 Guardar dieta</button>
+    </div>
+  `;
+  openModal(html, { noClickClose: false });
+  const m = document.getElementById('modal-content');
+
+  const renderMeals = () => {
+    const listEl = m.querySelector('#diet-meals-list');
+    if (!meals.length) { listEl.innerHTML=`<p style="color:var(--color-text-muted);font-size:12px;margin-bottom:4px">Sin comidas aún</p>`; return; }
+    listEl.innerHTML = meals.map((meal,i) => `
+      <div style="background:var(--glass-bg);border-radius:var(--r-sm);padding:10px;margin-bottom:8px;position:relative">
+        <button style="position:absolute;top:6px;right:6px;background:none;border:none;color:var(--color-danger);cursor:pointer;font-size:14px" data-meal-rm="${i}">✕</button>
+        <input type="text" class="input-solo" placeholder="Nombre (ej: Desayuno, Snack AM...)" value="${_esc(meal.label)}" data-meal-label="${i}" style="font-size:12px;font-weight:600;margin-bottom:6px;width:calc(100% - 24px)">
+        <textarea class="input-solo" placeholder="Descripción de la comida, alimentos, cantidades..." data-meal-desc="${i}" rows="3" style="font-size:12px;padding:8px;width:100%;box-sizing:border-box">${_esc(meal.description||'')}</textarea>
+      </div>
+    `).join('');
+    listEl.querySelectorAll('[data-meal-rm]').forEach(b => b.addEventListener('click', () => { meals.splice(+b.dataset.mealRm, 1); renderMeals(); }));
+    listEl.querySelectorAll('[data-meal-label]').forEach(b => b.addEventListener('input', () => { meals[+b.dataset.mealLabel].label = b.value; }));
+    listEl.querySelectorAll('[data-meal-desc]').forEach(b => b.addEventListener('input', () => { meals[+b.dataset.mealDesc].description = b.value; }));
+  };
+  renderMeals();
+
+  m.querySelector('#diet-add-meal')?.addEventListener('click', () => {
+    const defaults = ['Desayuno','Media Mañana','Almuerzo','Merienda','Cena','Pre-entreno','Post-entreno'];
+    const next = defaults[meals.length] || `Comida ${meals.length + 1}`;
+    meals.push({ label: next, description: '' });
+    renderMeals();
+  });
+
+  m.querySelector('#diet-save')?.addEventListener('click', async () => {
+    const name = m.querySelector('#diet-name').value.trim();
+    if (!name) { toast('Introduce un nombre para la dieta', 'warning'); return; }
+
+    const data = {
+      name,
+      type: m.querySelector('#diet-type').value,
+      calories: parseInt(m.querySelector('#diet-kcal').value) || 0,
+      protein: parseInt(m.querySelector('#diet-prot').value) || 0,
+      carbs: parseInt(m.querySelector('#diet-carbs').value) || 0,
+      fat: parseInt(m.querySelector('#diet-fat').value) || 0,
+      meals: meals.filter(ml => ml.label.trim()),
+      notes: m.querySelector('#diet-notes').value.trim(),
+      createdBy: profile.uid,
+      updatedAt: timestamp(),
+    };
+
+    try {
+      if (dietId) {
+        await db.collection('dietTemplates').doc(dietId).update(data);
+        toast('Dieta actualizada ✅', 'success');
+      } else {
+        data.createdAt = timestamp();
+        await db.collection('dietTemplates').add(data);
+        toast('Dieta creada ✅', 'success');
+      }
+      closeModal();
+      _dietsLoaded = false;
+      renderAdminDietCards(container, profile);
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  });
+}
+
+async function openAdminAssignDiet(dietId, dietName) {
+  const profile = getUserProfile();
+  const _esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  // Load the full diet template to copy into user's dietas subcollection
+  let dietData = {};
+  try {
+    const dSnap = await db.collection('dietTemplates').doc(dietId).get();
+    if (dSnap.exists) dietData = dSnap.data();
+  } catch {}
+
+  let clients = [];
+  try {
+    const snap = await db.collection('users').orderBy('name').limit(100).get();
+    clients = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch {}
+
+  const selfUid = profile.uid;
+  const selfCard = `
+    <div class="admin-user-card" data-cuid="${selfUid}" data-cname="${_esc(profile.name||'Yo')}" style="cursor:pointer;margin-bottom:6px;border-color:var(--cyan)">
+      <div class="admin-user-avatar"${profile.photoURL ? ' style="overflow:hidden"' : ' style="background:rgba(0,200,255,.2);color:var(--cyan)"'}>${profile.photoURL ? `<img src="${profile.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : getInitials(profile.name||'?')}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px">${_esc(profile.name||'Yo')} <span style="font-size:11px;color:var(--cyan)">(yo)</span></div>
+        <div class="text-muted" style="font-size:12px">${_esc(profile.email||'')}</div>
+      </div>
+      <span class="badge" style="background:rgba(0,200,255,.15);color:var(--cyan)">Asignarme</span>
+    </div>`;
+
+  const clientCards = clients.filter(c => (c.uid||c.id) !== selfUid).map(c => `
+    <div class="admin-user-card" data-cuid="${c.uid||c.id}" data-cname="${_esc(c.name||'Cliente')}" style="cursor:pointer;margin-bottom:6px">
+      <div class="admin-user-avatar"${c.photoURL ? ' style="overflow:hidden"' : ''}>${c.photoURL ? `<img src="${c.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : (getInitials(c.name||'?'))}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px">${_esc(c.name||'Cliente')}</div>
+        <div class="text-muted" style="font-size:12px">${_esc(c.email||'')}</div>
+      </div>
+      <span class="badge badge-cyan">Asignar</span>
+    </div>`).join('');
+
+  const html = `
+    <div class="modal-header">
+      <h3 class="modal-title">🥗 Asignar dieta</h3>
+      <button class="modal-close">✕</button>
+    </div>
+    <p class="text-muted" style="margin-bottom:12px;font-size:13px">"<strong>${_esc(dietName)}</strong>" → selecciona destinatario:</p>
+    ${selfCard}
+    ${clientCards ? `<div style="border-top:1px solid var(--glass-border);margin:8px 0 10px"></div>${clientCards}` : ''}
+  `;
+  openModal(html);
+  document.getElementById('modal-content')?.querySelectorAll('[data-cuid]').forEach(card => {
+    card.addEventListener('click', async () => {
+      try {
+        // Copy diet template into user's dietas subcollection
+        await collections.dietas(card.dataset.cuid).add({
+          ...dietData,
+          templateId: dietId,
+          assignedBy: profile.uid,
+          assignedAt: timestamp(),
+          createdAt: timestamp(),
+        });
+        toast(`Dieta asignada a ${card.dataset.cname} ✅`, 'success');
+        closeModal();
+      } catch (e) { toast('Error: ' + e.message, 'error'); }
     });
   });
 }

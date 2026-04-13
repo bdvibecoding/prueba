@@ -1,0 +1,165 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: returns true if the requesting user has role 'admin' in Firestore
+    function isAdmin() {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Helper: returns true if the requesting user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper: returns true if the user has a staff role (non-admin clinical/coaching staff)
+    function isStaff() {
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+          in ['coach', 'medico', 'fisio', 'psicologo', 'nutricionista'];
+    }
+
+    // ── users ────────────────────────────────────────────────────────────────
+    match /users/{userId} {
+      // Any authenticated user can read their own document
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      // Admins can read any user document
+      allow read: if isAdmin();
+
+      // Users can update their own document (profile fields only — not role)
+      allow update: if isAuthenticated()
+        && request.auth.uid == userId
+        && !('role' in request.resource.data.diff(resource.data).affectedKeys());
+
+      // Only admins can update any user document, including the 'role' field
+      allow update: if isAdmin();
+
+      // Only admins can create user documents (normal creation happens via Cloud Functions
+      // or the invite flow — adjust if you use client-side registration)
+      allow create: if isAdmin();
+
+      // Admins can delete user documents
+      allow delete: if isAdmin();
+    }
+
+    // ── users/{uid}/assignments ──────────────────────────────────────────────
+    match /users/{userId}/assignments/{assignmentId} {
+      allow read:   if isAuthenticated() && request.auth.uid == userId;
+      allow read:   if isAuthenticated() && (isAdmin() || isStaff());
+      allow write:  if isAdmin() || isStaff();
+    }
+
+    // ── users/{uid}/dietas ───────────────────────────────────────────────────
+    match /users/{userId}/dietas/{dietaId} {
+      allow read:   if isAuthenticated() && request.auth.uid == userId;
+      allow read:   if isAuthenticated() && (isAdmin() || isStaff());
+      allow write:  if isAdmin() || isStaff();
+    }
+
+    // ── users/{uid}/notes ───────────────────────────────────────────────────
+    match /users/{userId}/notes/{noteId} {
+      allow read:   if isAdmin() || isStaff();
+      allow write:  if isAdmin() || isStaff();
+    }
+
+    // ── users/{uid}/supplements ─────────────────────────────────────────────
+    match /users/{userId}/supplements/{suppId} {
+      allow read:   if isAuthenticated() && (request.auth.uid == userId || isAdmin() || isStaff());
+      allow write:  if isAdmin() || isStaff();
+    }
+
+    // ── users/{uid}/meals ───────────────────────────────────────────────────
+    match /users/{userId}/meals/{mealId} {
+      allow read, write: if isAuthenticated() && (request.auth.uid == userId || isAdmin() || isStaff());
+    }
+
+    // ── users/{uid}/workoutSessions ─────────────────────────────────────────
+    match /users/{userId}/workoutSessions/{sessionId} {
+      allow read:   if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && request.auth.uid == userId;
+      allow delete: if isAdmin();
+    }
+
+    // ── users/{uid}/health ───────────────────────────────────────────────────
+    // Users can read/write their own health records.
+    // Staff (coach, medico, fisio, psicologo, nutricionista) can read the health
+    // records of clients assigned to them via the corresponding assignedXxx field.
+    // Admins have full access.
+    match /users/{userId}/health/{healthId} {
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if isAdmin();
+      allow read: if isStaff() &&
+        get(/databases/$(database)/documents/users/$(userId)).data.keys().hasAny([
+          'assignedCoach', 'assignedMedico', 'assignedFisio',
+          'assignedPsicologo', 'assignedNutricionista'
+        ]) && (
+          get(/databases/$(database)/documents/users/$(userId)).data.get('assignedCoach',        null) == request.auth.uid ||
+          get(/databases/$(database)/documents/users/$(userId)).data.get('assignedMedico',       null) == request.auth.uid ||
+          get(/databases/$(database)/documents/users/$(userId)).data.get('assignedFisio',        null) == request.auth.uid ||
+          get(/databases/$(database)/documents/users/$(userId)).data.get('assignedPsicologo',    null) == request.auth.uid ||
+          get(/databases/$(database)/documents/users/$(userId)).data.get('assignedNutricionista',null) == request.auth.uid
+        );
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && request.auth.uid == userId;
+      allow delete: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+    }
+
+    // ── routines ─────────────────────────────────────────────────────────────
+    match /routines/{routineId} {
+      // Staff (admin, coach) can read all routines; clients read their assigned ones via assignments
+      allow read:   if isAuthenticated();
+      allow write:  if isAdmin();
+    }
+
+    // ── dietTemplates (plantillas de dieta reutilizables) ────────────────────
+    match /dietTemplates/{dietId} {
+      allow read:   if isAuthenticated();
+      allow write:  if isAdmin() || isStaff();
+    }
+
+    // ── invitations ──────────────────────────────────────────────────────────
+    match /invitations/{invitationId} {
+      // Public read so the register page can validate an invite token
+      allow read: if true;
+
+      // Admins can create invitations with any role
+      // Staff can only create invitations where the target role is 'cliente'
+      allow create: if isAdmin()
+        || (isStaff() && request.resource.data.role == 'cliente');
+
+      // Admins can update any invitation
+      // Staff can update their own invitations (e.g. mark emailSent)
+      allow update: if isAdmin()
+        || (isStaff() && resource.data.createdBy == request.auth.uid);
+
+      allow delete: if isAdmin();
+    }
+
+    // ── mail (Trigger Email extension) ───────────────────────────────────────
+    // Admins and staff can create mail documents (staff need this to send invite emails)
+    // The extension reads the collection server-side; no client reads needed beyond admin
+    match /mail/{mailId} {
+      allow read:   if isAdmin();
+      allow create: if isAdmin() || isStaff();
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ── chats ────────────────────────────────────────────────────────────────
+    match /chats/{chatId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // ── cuestionarios (ficha inicial de cliente) ──────────────────────────────
+    // Escritura pública: cualquier visitante puede enviar el formulario sin login
+    // Lectura restringida: solo admins y staff pueden consultar las respuestas
+    match /cuestionarios/{docId} {
+      allow create: if true;
+      allow read:   if isAdmin() || isStaff();
+      allow update, delete: if isAdmin();
+    }
+
+  }
+}

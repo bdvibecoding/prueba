@@ -32,6 +32,7 @@ export const increment = (n = 1) => firebase.firestore.FieldValue.increment(n);
 export const collections = {
   users:           () => db.collection('users'),
   routines:        () => db.collection('routines'),
+  dietTemplates:   () => db.collection('dietTemplates'),
   assignments:     (uid) => db.collection('users').doc(uid).collection('assignments'),
   workoutSessions: (uid) => db.collection('users').doc(uid).collection('workoutSessions'),
   meals:           (uid) => db.collection('users').doc(uid).collection('meals'),
