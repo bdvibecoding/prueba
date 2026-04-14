@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <title>TGWL Admin Dashboard</title>
+
+  <!-- CSS from root -->
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/glassmorphism.css" />
+  <link rel="stylesheet" href="../css/animations.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+
+  <!-- Specific admin styles -->
+  <style>
+    :root {
+      --sidebar-width: 260px;
+      --admin-top-height: 70px;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow: hidden;
+    }
+    /* Dashboard Shell */
+    .dash-layout {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+    }
+    .dash-sidebar {
+      width: var(--sidebar-width);
+      flex-shrink: 0;
+      background: var(--glass-bg-strong);
+      border-right: 1px solid var(--glass-border);
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+    }
+    .dash-sidebar-header {
+      height: var(--admin-top-height);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .dash-sidebar-logo {
+      height: 28px;
+    }
+    .dash-nav {
+      flex: 1;
+      padding: 24px 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .dash-nav-group {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin: 16px 0 8px 8px;
+    }
+    .dash-nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border: none;
+      background: transparent;
+      color: var(--color-text);
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .dash-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .dash-nav-btn.active {
+      background: rgba(25, 249, 249, 0.15); /* cyan light */
+      color: var(--cyan);
+      box-shadow: inset 3px 0 0 var(--cyan);
+    }
+    .dash-nav-icon {
+      font-size: 18px;
+      opacity: 0.8;
+      width: 24px;
+      display: flex;
+      justify-content: center;
+    }
+    .dash-nav-btn.active .dash-nav-icon {
+      opacity: 1;
+    }
+
+    /* Main Area */
+    .dash-main-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      background: var(--color-bg);
+    }
+    .dash-topbar {
+      height: var(--admin-top-height);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      border-bottom: 1px solid var(--glass-border);
+      flex-shrink: 0;
+    }
+    .dash-topbar-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--white);
+    }
+    .dash-topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .dash-user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .dash-user-text {
+      text-align: right;
+    }
+    .dash-user-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .dash-user-role {
+      font-size: 11px;
+      color: var(--cyan);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    
+    .dash-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Access Denied */
+    .admin-access-denied {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      text-align: center;
+      height: 100%;
+    }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+</head>
+<body class="dark-mode">
+
+  <div class="dash-layout">
+    
+    <!-- Sidebar -->
+    <aside class="dash-sidebar">
+      <div class="dash-sidebar-header">
+        <img src="../logotipo/Horizonatal%20Logo/TGWL-10.png" alt="TGWL Admin" class="dash-sidebar-logo">
+      </div>
+      <nav class="dash-nav" id="dash-nav">
+        <!-- Buttons injected dynamically by admin-app.js based on role -->
+        <div style="text-align:center;padding:24px;opacity:0.5"><div class="spinner-sm"></div></div>
+      </nav>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="dash-main-wrapper">
+      
+      <!-- Top Bar -->
+      <header class="dash-topbar">
+        <div class="dash-topbar-title" id="dash-title">Cargando...</div>
+        <div class="dash-topbar-actions">
+          <div class="dash-user-info">
+            <div class="dash-user-text">
+              <div class="dash-user-name" id="dash-user-name"></div>
+              <div class="dash-user-role" id="dash-user-role"></div>
+            </div>
+          </div>
+          <button id="btn-admin-logout" class="btn-secondary" style="padding:8px 16px;font-size:12px;height:36px">Cerrar sesión</button>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <main class="dash-content" id="dash-content">
+        <div style="display:flex;align-items:center;justify-content:center;height:100%">
+          <div class="spinner-sm"></div>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- Global Modals (Required strictly for compatibility if we reuse any components) -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div id="modal-container" class="modal-container glass-card">
+      <div id="modal-content"></div>
+    </div>
+  </div>
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Force Cache Cleanup -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+          registration.unregister();
+        }
+      });
+      caches.keys().then(function(names) {
+        for (let name of names) caches.delete(name);
+      });
+    }
+  </script>
+
+  <!-- Admin Entry Script (Cache Busted) -->
+  <script>
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.src = 'js/admin-app.js?v=' + Date.now();
+    document.body.appendChild(script);
+  </script>
+
+</body>
+</html>

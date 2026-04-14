@@ -985,12 +985,14 @@ body.light-mode .nutrition-macro-bar {
   background: rgba(99,102,241,.18);
   border: 1px solid rgba(99,102,241,.35);
   border-radius: var(--r-sm);
-  font-size: 16px;
-  padding: 4px 7px;
+  padding: 4px 6px;
   cursor: pointer;
-  line-height: 1;
+  line-height: 0;
   color: var(--color-text);
   transition: background .15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .nmb-supp-icon:hover { background: rgba(99,102,241,.3); }
 .nmb-check-label {
@@ -1057,3 +1059,32 @@ body.light-mode .nutrition-macro-bar {
   font-weight: 600;
   flex-shrink: 0;
 }
+
+/* ── Inline SVG icon system (reemplaza emojis) ─────────── */
+.tgwl-icon {
+  width: 22px;
+  height: 22px;
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  color: currentColor;
+}
+/* Tamaños contextuales */
+.nmb-icon .tgwl-icon { width: 24px; height: 24px; color: var(--color-text); }
+.nmb-supp-icon .tgwl-icon { width: 18px; height: 18px; color: var(--indigo, #818cf8); }
+.nmb-check-box .tgwl-icon { width: 20px; height: 20px; }
+.nmb-check-box .tgwl-icon-check { color: #4ade80; }
+.nmb-check-box .tgwl-icon-circle { color: var(--color-text-muted); }
+.nma-supps-title .tgwl-icon { width: 14px; height: 14px; color: var(--color-text-muted); margin-right: 4px; vertical-align: -2px; }
+.nma-supps-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.nma-supp-row .tgwl-icon { width: 16px; height: 16px; color: var(--indigo, #818cf8); }
+.nsf-supp-pill .tgwl-icon { width: 14px; height: 14px; color: var(--indigo, #818cf8); margin-right: 4px; }
+.nsf-supp-pill { display: inline-flex; align-items: center; gap: 4px; }
+.nsf-icon .tgwl-icon { width: 28px; height: 28px; color: var(--amber, #fbbf24); }
+.empty-icon .tgwl-icon { width: 48px; height: 48px; opacity: .5; }
+/* Modal close con icono SVG */
+.modal-close .tgwl-icon { width: 18px; height: 18px; }

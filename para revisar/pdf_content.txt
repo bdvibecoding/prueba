@@ -1,0 +1,267 @@
+01 · Radius System & Visual Harmony 
+Principio base 
+Todos los elementos de la UI deben compartir un único radius token system. El radio mayor de la 
+escala define el "tono" visual de toda la app; los radios inferiores son proporcionales a él. Esto se 
+conoce como visual harmony through ratio: ningún componente debe tener un radio que rompa la 
+progresión de la escala. 
+Estilo de esquinas global 
+Usar Squircle-like corners en todos los elementos de contenido (cards, inputs, modales, chips, iconos). 
+No esquinas rectas, no bordes completamente circulares. El perfil visual objetivo es el del sistema de 
+iconos de iOS (superellipse / squircle): una curvatura que entra suavemente desde el centro de cada 
+lado, más natural que un border-radius estándar. 
+Implementación técnica: usar border-radius generoso en proporción al tamaño del elemento. Para 
+squircle auténtico en iconos SVG, usar clip-path con una superelipse o el valor aproximado de 
+iOS (~27.5% del tamaño del icono). 
+Radius scale (tokens) 
+Escala de 6 niveles. Cada componente debe usar el token correspondiente a su jerarquía visual, 
+nunca valores ad hoc. 
+ 
+r-xs 
+4px 
+Badges 
+etiquetas 
+r-sm 
+8px 
+Inputs 
+botones sm 
+r-md 
+14px 
+Cards 
+modales 
+r-lg 
+20px 
+Sheets 
+banners 
+r-xl 
+26px 
+Iconos app 
+thumbnails 
+r-full 
+9999px 
+Bottom nav 
+(pill shape) 
+ 
+Regla de consistencia 
+Prohibido Mezclar componentes con esquinas rectas (0px) junto a componentes con radios grandes. 
+Todo debe seguir la escala. 
+Correcto Un icono de acción usa r-xl (~26px). La card que lo contiene usa r-md (14px). El badge sobre 
+la card usa r-xs (4px). Proporcional, armónico. 
+ 
+
+02 · Bottom Navigation Bar — Floating Pill Island 
+ 
+ 
+ 
+ 
+ 
+Concepto 
+ 
+Eliminar la bottom nav bar actual (barra recta pegada al borde inferior). Sustituirla por una floating 
+pill island: un componente con border-radius: 9999px (r-full), separado del borde inferior de la 
+pantalla, con posición fija (position: fixed; bottom: 24px), centrada horizontalmente. El 
+componente flota sobre el contenido, no forma parte del layout del documento. 
+ 
+Modo claro / modo oscuro 
+ 
+Modo oscuro — dark mode (pill negro) 
+ 
+Modo claro — light mode (pill blanco) 
+ 
+ 
+Especificaciones técnicas 
+position: fixed · bottom: 24px · left: 50% · transform: translateX(-50%) 
+Padding interno: 12px vertical, 24px horizontal · Gap entre iconos: 32px 
+Fondo dark mode: #111111 · Fondo light mode: #FFFFFF con border: 0.5px solid #E0E0E0 
+Icono activo: opacidad 100% · Iconos inactivos: opacidad 40% 
+Indicador de pestaña activa: punto de 4px bajo el icono, color contrastante (blanco en dark, negro en 
+light) 
+El componente debe incluir backdrop-filter: blur(12px) y leve transparencia (85–90%) para 
+el efecto de isla flotante sobre el contenido. 
+ 
+
+03 · Color System — Light & Dark Mode 
+Principio de jerarquía cromática 
+La paleta sigue el principio de semantic color tokens: cada color tiene un rol funcional fijo (fondo, 
+superficie, borde, texto) y no se usa fuera de él. Dominancia clara del blanco en light mode, del negro 
+en dark mode. Los grises actúan como capas de elevación (cuanto más claro = más cerca del fondo; 
+cuanto más oscuro = más elevado o interactivo). 
+Paleta base — Light Mode 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+#FFFFFF 
+White — bg 
+principal 
+#FAFAFA 
+Off-white — 
+bg app 
+#F2F2F2 
+Light gray 1 
+— bg & 
+border 
+#E8E8E8 
+Light gray 2 
+— border & 
+bg 
+#E0E0E0 
+Light gray 3 
+— border 
+#757575 
+Medium gray 
+— texto 
+secundario 
+#333333 
+Dark — texto 
+principal 
+10% black 
+Overlay sutil 
+ 
+Paleta base — Dark Mode 
+Inversión semántica: los roles se mantienen, los valores se invierten. El fondo principal pasa a negro 
+profundo, los grises se escalan hacia tonos oscuros. La bottom nav en dark mode es negra; en light 
+mode es blanca. (Detalle importante: esto es una inversión deliberada, no un error — la isla de 
+navegación es el elemento de mayor contraste con el fondo en cada modo.) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+#0A0A0A 
+Black — bg 
+principal 
+#111111 
+Near-black — 
+superficie 
+#1A1A1A 
+Dark gray 1 — 
+cards 
+#252525 
+Dark gray 2 — 
+bordes 
+#3A3A3A 
+Dark gray 3 — 
+bordes altos 
+#8A8A8A 
+Mid gray — 
+texto sec. 
+#F0F0F0 
+Off-white — 
+texto principal 
+ 
+Branding gradient — uso exclusivamente sutil 
+El degradado de marca se aplica únicamente como detalle decorativo de muy baja opacidad 
+(8–15%). Usos aceptados: borde superior de una card destacada, shimmer de carga, indicador de 
+estado activo, ilustraciones de onboarding. Prohibido usarlo como fondo de componentes funcionales, 
+texto, o cualquier elemento de navegación. 
+ 
+ 
+ 
+ 
+ 
+#000000 
+Color 1 
+#C10801 
+Color 2 
+#F16001 
+Color 3 
+#D9C3AB 
+Color 4 
+Muestra del degradado al 18% de opacidad — referencia de cómo debe aparecer en la UI 
+ 
+
+04 · Tipografía — Type System 
+ 
+Fuentes -  (https://font.download/dl/font/sf-pro-display.zip) 
+ 
+SF Pro Display — headings de 21px en adelante. 
+SF Pro Text — body text, párrafos, UI labels, todos los tamaños de texto funcional. 
+ 
+Esta es la tipografía nativa del sistema iOS/macOS. Su uso es correcto y alineado con el perfil visual 
+de la app. Nota para el diseñador Si la app tiene versión Android o web, definir un fallback system: 
+-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif. En Figma usar la 
+variable de fuente del sistema para fidelidad de prototipo. 
+ 
+Escala tipográfica 
+ 
+Heading / SF Pro Display / xxlarge 
+The Growth Lab 
+ 
+Heading / SF Pro Display / xlarge 
+Today's Overview 
+ 
+Heading / SF Pro Display / large 
+Health & Wellness 
+ 
+Heading / SF Pro Display / default (≥21px, usa SF Pro Display) 
+Section title 
+ 
+Heading / SF Pro Text / small (bajo 21px, usa SF Pro Text) 
+Subsection label 
+ 
+Heading / SF Pro Text / xsmall · All-caps 
+Category 
+ 
+ 
+Body / SF Pro Text / xlarge · Multi-line · line-height optimizado para párrafo 
+The quick brown fox jumps over the lazy dog 
+ 
+Body / SF Pro Text / large 
+The quick brown fox jumps over the lazy dog 
+ 
+Body / SF Pro Text / default 
+The quick brown fox jumps over the lazy dog 
+ 
+Body / SF Pro Text / small · Secondary color 
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et 
+dolore magna aliqua. 
+ 
+Reglas de line-height 
+ 
+Single-line UI (labels, tabs, botones): line-height: 1 o 1.2. 
+Body text de una línea: line-height: 1.35. 
+Párrafos multi-línea: line-height: 1.6. 
+ 
+Headings: line-height: 1.1 – 1.2 según tamaño. 
+
+ 
+05 · Eliminación de la Top Bar (Header) 
+ 
+ 
+ 
+ 
+ 
+Cambio propuesto 
+ 
+Eliminar completamente la barra superior con logo e icono de perfil. Este patrón (persistent top 
+header with logo) es un patrón de navegación web (web navigation pattern), no de app nativa. En 
+apps móviles nativas el logo no ocupa espacio de chrome permanente — el contexto de marca se 
+establece en onboarding y en la propia identidad visual de la app. 
+Justificación de diseño 
+ 
+Problema actual La top bar consume entre 44–56px de espacio de pantalla en toda la app, reduce el 
+área de contenido útil, y rompe la ilusión de app nativa creando una experiencia de "web envuelta en 
+app" (web-wrapped feel). 
+ 
+Principio aplicado Content-first navigation: en apps nativas (iOS HIG, Material Design 3) la identidad 
+visual se percibe a través del sistema de colores, tipografía y componentes, no a través de un logo en 
+la barra superior. 
+ 
+Referentes Spotify, Notion, Linear, Monzo — ninguno muestra su logo en la barra superior durante el 
+uso normal de la app. 
+ 
+Rediseño del acceso al perfil 
+ 
+El acceso al perfil de usuario se mueve a uno de los ítems de la bottom navigation pill, o bien se 
+integra como avatar en la esquina de una pantalla específica (ej: pantalla de configuración o inicio). 
+No necesita ser persistente en toda la app. Esto sigue el patrón de contextual profile access 
+adoptado por la mayoría de apps nativas de consumo actuales. 
+ 

@@ -1,4 +1,13 @@
+# BD CENTER: RED PROTOCOL
+
+## CRITICAL: TOKEN SHIELD
+
+- **PROHIBITED**: Never use bare `ls`, `git`, `grep`, `cat`, or `find`.
+- **MANDATORY**: Always use `rtk` prefix, even inside bash chains.
+- Failure to use `rtk` results in token leakage.
+
 <!-- rtk-instructions v2 -->
+
 # RTK (Rust Token Killer) - Token-Optimized Commands
 
 ## Golden Rule
@@ -7,10 +16,10 @@
 
 **Important**: Even in command chains with `&&`, use `rtk`:
 ```bash
-# ❌ Wrong
+# Wrong
 git add . && git commit -m "msg" && git push
 
-# ✅ Correct
+# Correct
 rtk git add . && rtk git commit -m "msg" && rtk git push
 ```
 
@@ -50,8 +59,6 @@ rtk git fetch           # Compact fetch
 rtk git stash           # Compact stash
 rtk git worktree        # Compact worktree
 ```
-
-Note: Git passthrough works for ALL subcommands, even those not explicitly listed.
 
 ### GitHub (26-87% savings)
 ```bash
@@ -112,22 +119,21 @@ rtk gain                # View token savings statistics
 rtk gain --history      # View command history with savings
 rtk discover            # Analyze Claude Code sessions for missed RTK usage
 rtk proxy <cmd>         # Run command without filtering (for debugging)
-rtk init                # Add RTK instructions to CLAUDE.md
-rtk init --global       # Add RTK to ~/.claude/CLAUDE.md
 ```
 
 ## Token Savings Overview
 
-| Category | Commands | Typical Savings |
-|----------|----------|-----------------|
-| Tests | vitest, playwright, cargo test | 90-99% |
-| Build | next, tsc, lint, prettier | 70-87% |
-| Git | status, log, diff, add, commit | 59-80% |
-| GitHub | gh pr, gh run, gh issue | 26-87% |
-| Package Managers | pnpm, npm, npx | 70-90% |
-| Files | ls, read, grep, find | 60-75% |
-| Infrastructure | docker, kubectl | 85% |
-| Network | curl, wget | 65-70% |
+| Category        | Commands                       | Typical Savings |
+|-----------------|--------------------------------|-----------------|
+| Tests           | vitest, playwright, cargo test | 90-99%          |
+| Build           | next, tsc, lint, prettier      | 70-87%          |
+| Git             | status, log, diff, add, commit | 59-80%          |
+| GitHub          | gh pr, gh run, gh issue        | 26-87%          |
+| Package Managers| pnpm, npm, npx                 | 70-90%          |
+| Files           | ls, read, grep, find           | 60-75%          |
+| Infrastructure  | docker, kubectl                | 85%             |
+| Network         | curl, wget                     | 65-70%          |
 
 Overall average: **60-90% token reduction** on common development operations.
+
 <!-- /rtk-instructions -->

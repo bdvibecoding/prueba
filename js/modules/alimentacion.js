@@ -11,9 +11,39 @@
 
 import { getUserProfile } from '../state.js';
 import { collections, timestamp, db } from '../firebase-config.js';
-import { toast, formatDate, todayString } from '../utils.js';
+import { toast, formatDate, todayString, msUntilLocalMidnight } from '../utils.js';
 import { openModal, closeModal } from '../components/modal.js';
 import { t } from '../i18n.js';
+
+// ── SVG Icons (reemplazan emojis) ─────────────────
+const ICON = {
+  // Píldora/suplemento
+  pill: `<svg class="tgwl-icon tgwl-icon-pill" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="8" width="18" height="8" rx="4" stroke="currentColor" stroke-width="1.8"/><line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" stroke-width="1.8"/></svg>`,
+  // Cubiertos (comida genérica)
+  meal: `<svg class="tgwl-icon tgwl-icon-meal" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3v8a2 2 0 0 0 2 2v8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7 3v6M5 3v6M9 3v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M17 3c-1.5 0-3 1-3 4v5h3v9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  // Manzana (media mañana / snack)
+  apple: `<svg class="tgwl-icon tgwl-icon-apple" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 7c-1-2-3-3-5-3-3 0-5 2.5-5 6 0 5 4 11 6 11 1 0 2-1 3-1s2 1 3 1c2 0 6-6 6-11 0-3.5-2-6-5-6-2 0-4 1-3 3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 7c0-2 1-4 3-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+  // Sandwich
+  sandwich: `<svg class="tgwl-icon tgwl-icon-sandwich" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 8l9-4 9 4-9 4-9-4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M3 13l9 4 9-4" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M3 17l9 4 9-4" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+  // Sol (mañana / wakeup)
+  sun: `<svg class="tgwl-icon tgwl-icon-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+  // Luna (noche / pre-sleep)
+  moon: `<svg class="tgwl-icon tgwl-icon-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+  // Pesas (entreno)
+  barbell: `<svg class="tgwl-icon tgwl-icon-barbell" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6.5 6.5H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h2.5M17.5 6.5H20a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="6.5" y="4" width="3" height="16" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="14.5" y="4" width="3" height="16" rx="1.5" stroke="currentColor" stroke-width="1.8"/><line x1="9.5" y1="12" x2="14.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+  // Rayo (pre-entreno)
+  bolt: `<svg class="tgwl-icon tgwl-icon-bolt" viewBox="0 0 24 24" fill="none" aria-hidden="true"><polygon points="13 2 4 14 11 14 10 22 20 10 13 10 13 2" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+  // Refresh (post-entreno)
+  refresh: `<svg class="tgwl-icon tgwl-icon-refresh" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 3v5h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 21v-5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  // Cuenco (ensalada / empty)
+  bowl: `<svg class="tgwl-icon tgwl-icon-bowl" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 11h18a9 9 0 0 1-18 0z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 11a5 5 0 0 1 10 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="9" cy="8" r="1" fill="currentColor"/><circle cx="14" cy="7" r="1" fill="currentColor"/><circle cx="12" cy="9.5" r="1" fill="currentColor"/></svg>`,
+  // Check (completado)
+  check: `<svg class="tgwl-icon tgwl-icon-check" viewBox="0 0 24 24" fill="none" aria-hidden="true"><polyline points="4 12 10 18 20 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  // Círculo vacío
+  circle: `<svg class="tgwl-icon tgwl-icon-circle" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/></svg>`,
+  // Cerrar
+  close: `<svg class="tgwl-icon tgwl-icon-close" viewBox="0 0 24 24" fill="none" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
+};
 
 // ── Render (HTML placeholder, datos cargados en init) ─
 export async function render(container) {
@@ -41,7 +71,7 @@ export async function render(container) {
 
         <!-- ② Sección fija: Nada más despertar -->
         <div class="nutrition-section-fixed hidden" id="section-wakeup">
-          <div class="nsf-icon">🌅</div>
+          <div class="nsf-icon">${ICON.sun}</div>
           <div class="nsf-content">
             <div class="nsf-title">Nada más despertar</div>
             <div class="nsf-body" id="wakeup-body"></div>
@@ -56,7 +86,7 @@ export async function render(container) {
         <!-- ④ Botón Entreno -->
         <div id="section-workout" class="hidden">
           <div class="nutrition-meal-btn" id="btn-workout" data-open="false" role="button" tabindex="0">
-            <span class="nmb-icon">🏋️</span>
+            <span class="nmb-icon">${ICON.barbell}</span>
             <span class="nmb-label">Suplementación Entreno</span>
             <span class="nmb-arrow" id="arrow-workout">›</span>
           </div>
@@ -68,7 +98,7 @@ export async function render(container) {
         <!-- ⑤ Botón Antes de acostarse -->
         <div id="section-presleep" class="hidden">
           <div class="nutrition-meal-btn" id="btn-presleep" data-open="false" role="button" tabindex="0">
-            <span class="nmb-icon">🌙</span>
+            <span class="nmb-icon">${ICON.moon}</span>
             <span class="nmb-label">Antes de acostarse</span>
             <span class="nmb-arrow" id="arrow-presleep">›</span>
           </div>
@@ -82,6 +112,29 @@ export async function render(container) {
       </div>
     </div>
   `;
+}
+
+// Timer global para reset a medianoche (se reprograma al recargar)
+let _midnightTimer = null;
+
+function _scheduleMidnightReset(container) {
+  if (_midnightTimer) { clearTimeout(_midnightTimer); _midnightTimer = null; }
+  const ms = msUntilLocalMidnight();
+  _midnightTimer = setTimeout(async () => {
+    // A las 00:00 hora local: recargar comidas para el nuevo día
+    try {
+      const stillMounted = container && container.isConnected && container.querySelector('#nutrition-meals-list');
+      if (stillMounted) {
+        const profile = getUserProfile();
+        const dietSnap = await collections.dietas(profile.uid).orderBy('assignedAt', 'desc').limit(1).get();
+        const dietDoc  = !dietSnap.empty ? dietSnap.docs[0].data() : null;
+        await _renderMeals(container, profile, dietDoc);
+        toast('Nuevo día — comidas reiniciadas', 'info');
+      }
+    } catch (_) { /* noop */ }
+    // Reprogramar para el siguiente día
+    _scheduleMidnightReset(container);
+  }, ms);
 }
 
 // ── Init: carga datos y renderiza ─────────────────
@@ -137,6 +190,9 @@ export async function init(container) {
 
     // ⑤ Pre-sleep
     _renderPreSleep(container, dietDoc, suppsByTiming['night'] || []);
+
+    // Programar reset automático a las 00:00 hora local
+    _scheduleMidnightReset(container);
 
   } catch (e) {
     container.querySelector('#nutrition-meals-list').innerHTML =
@@ -194,7 +250,7 @@ function _renderWakeup(container, diet, morningSups) {
 
   if (allSupps.length) {
     html += `<div class="nsf-supps">${allSupps.map(s =>
-      `<span class="nsf-supp-pill">💊 ${_esc(s.name)}${s.dose ? ` ${s.dose}${s.unit || ''}` : ''}</span>`
+      `<span class="nsf-supp-pill">${ICON.pill}<span>${_esc(s.name)}${s.dose ? ` ${s.dose}${s.unit || ''}` : ''}</span></span>`
     ).join('')}</div>`;
   }
 
@@ -223,7 +279,7 @@ async function _renderMeals(container, profile, diet) {
   }
 
   if (!meals.length) {
-    listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">🥗</div><div class="empty-title">Sin comidas configuradas</div></div>`;
+    listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">${ICON.bowl}</div><div class="empty-title">Sin comidas configuradas</div></div>`;
     return;
   }
 
@@ -256,7 +312,10 @@ async function _renderMeals(container, profile, diet) {
           { merge: true }
         );
         btn?.classList.toggle('nmb-completed', e.target.checked);
-        toast(e.target.checked ? 'Comida marcada ✅' : 'Comida desmarcada', 'success');
+        // Actualizar visual del checkbox inline (icono SVG)
+        const boxEl = chk.closest('.nmb-check-label')?.querySelector('.nmb-check-box');
+        if (boxEl) boxEl.innerHTML = e.target.checked ? ICON.check : ICON.circle;
+        toast(e.target.checked ? 'Comida marcada' : 'Comida desmarcada', 'success');
       } catch (err) {
         toast('Error: ' + err.message, 'error');
         e.target.checked = !e.target.checked;
@@ -287,13 +346,13 @@ function _buildMealBtn(meal, i, todayData) {
   return `
     <div class="nutrition-meal-item">
       <div class="nutrition-meal-btn ${completed ? 'nmb-completed' : ''}" id="btn-meal-${i}" data-open="false" role="button" tabindex="0">
-        <span class="nmb-icon">🍽️</span>
+        <span class="nmb-icon">${_mealIconFor(meal, i)}</span>
         <span class="nmb-label">${_esc(label)}</span>
         <span class="nmb-actions">
-          ${hasSups ? `<span class="nmb-supp-icon" id="btn-meal-supps-${i}" title="Ver suplementos">💊</span>` : ''}
+          ${hasSups ? `<span class="nmb-supp-icon" id="btn-meal-supps-${i}" title="Ver suplementos">${ICON.pill}</span>` : ''}
           <label class="nmb-check-label" title="Marcar completada" onclick="event.stopPropagation()">
             <input type="checkbox" class="nmb-check" id="chk-meal-${i}" ${completed ? 'checked' : ''}>
-            <span class="nmb-check-box">${completed ? '✅' : '○'}</span>
+            <span class="nmb-check-box">${completed ? ICON.check : ICON.circle}</span>
           </label>
         </span>
         <span class="nmb-arrow" id="arrow-meal-${i}">›</span>
@@ -304,10 +363,10 @@ function _buildMealBtn(meal, i, todayData) {
           : `<div class="nma-empty">Sin descripción configurada</div>`}
         ${hasSups ? `
           <div class="nma-supps-section">
-            <div class="nma-supps-title">💊 Suplementos</div>
+            <div class="nma-supps-title">${ICON.pill}<span>Suplementos</span></div>
             ${supps.map(s =>
               `<div class="nma-supp-row">
-                <span>💊</span>
+                <span>${ICON.pill}</span>
                 <span>${_esc(s.name)}</span>
                 ${s.dose ? `<span class="nma-supp-dose">${_esc(s.dose)}${_esc(s.unit||'')}</span>` : ''}
               </div>`
@@ -320,27 +379,38 @@ function _buildMealBtn(meal, i, todayData) {
 
 function _defaultMeals(count) {
   const all = [
-    { label: 'Desayuno',       icon: '🌅' },
-    { label: 'Media mañana',   icon: '🍎' },
-    { label: 'Almuerzo',       icon: '🍽️' },
-    { label: 'Merienda',       icon: '🥪' },
-    { label: 'Cena',           icon: '🌙' },
+    { label: 'Desayuno',       iconKey: 'sun' },
+    { label: 'Media mañana',   iconKey: 'apple' },
+    { label: 'Almuerzo',       iconKey: 'meal' },
+    { label: 'Merienda',       iconKey: 'sandwich' },
+    { label: 'Cena',           iconKey: 'moon' },
   ];
   if (count === 3) return [all[0], all[2], all[4]];
   if (count === 4) return [all[0], all[2], all[3], all[4]];
   return all.slice(0, count);
 }
 
+// Elige el icono de una comida según su label o iconKey
+function _mealIconFor(meal, i) {
+  if (meal?.iconKey && ICON[meal.iconKey]) return ICON[meal.iconKey];
+  const lbl = (meal?.label || '').toLowerCase();
+  if (/desayuno|wake|morning/.test(lbl)) return ICON.sun;
+  if (/media ma[ñn]ana|snack|tentempi|fruta/.test(lbl)) return ICON.apple;
+  if (/merienda/.test(lbl)) return ICON.sandwich;
+  if (/cena|noche|sleep/.test(lbl)) return ICON.moon;
+  return ICON.meal;
+}
+
 function _openMealSuppsModal(mealLabel, supps) {
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">💊 ${_esc(mealLabel)} — Suplementos</h3>
-      <button class="modal-close">✕</button>
+      <h3 class="modal-title" style="display:inline-flex;align-items:center;gap:8px">${ICON.pill}<span>${_esc(mealLabel)} — Suplementos</span></h3>
+      <button class="modal-close" aria-label="Cerrar">${ICON.close}</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
       ${supps.map(s => `
         <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-md)">
-          <span style="font-size:22px">💊</span>
+          <span class="nma-supp-icon-wrap">${ICON.pill}</span>
           <div>
             <div style="font-weight:700">${_esc(s.name)}</div>
             ${s.dose ? `<div style="font-size:12px;color:var(--color-text-muted)">${_esc(s.dose)}${_esc(s.unit||'')}</div>` : ''}
@@ -372,20 +442,20 @@ function _renderWorkout(container, diet, suppsByTiming) {
 
   let html = '';
   if (preSupps.length) {
-    html += `<div class="nma-supps-title">⚡ Pre-entreno</div>`;
+    html += `<div class="nma-supps-title">${ICON.bolt}<span>Pre-entreno</span></div>`;
     html += preSupps.map(s =>
       `<div class="nma-supp-row">
-        <span>💊</span>
+        <span>${ICON.pill}</span>
         <span>${_esc(s.name)}</span>
         ${s.dose ? `<span class="nma-supp-dose">${_esc(s.dose)}${_esc(s.unit||'')}</span>` : ''}
       </div>`
     ).join('');
   }
   if (postSupps.length) {
-    html += `<div class="nma-supps-title" style="margin-top:12px">🔄 Post-entreno</div>`;
+    html += `<div class="nma-supps-title" style="margin-top:12px">${ICON.refresh}<span>Post-entreno</span></div>`;
     html += postSupps.map(s =>
       `<div class="nma-supp-row">
-        <span>💊</span>
+        <span>${ICON.pill}</span>
         <span>${_esc(s.name)}</span>
         ${s.dose ? `<span class="nma-supp-dose">${_esc(s.dose)}${_esc(s.unit||'')}</span>` : ''}
       </div>`
@@ -432,10 +502,10 @@ function _renderPreSleep(container, diet, nightSupps) {
   ];
 
   if (allNightSupps.length) {
-    html += `<div class="nma-supps-title">🌙 Suplementos</div>`;
+    html += `<div class="nma-supps-title">${ICON.moon}<span>Suplementos</span></div>`;
     html += allNightSupps.map(s =>
       `<div class="nma-supp-row">
-        <span>💊</span>
+        <span>${ICON.pill}</span>
         <span>${_esc(s.name)}</span>
         ${s.dose ? `<span class="nma-supp-dose">${_esc(s.dose)}${_esc(s.unit||'')}</span>` : ''}
       </div>`

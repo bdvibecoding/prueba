@@ -43,7 +43,19 @@ export function getAge(birthDateStr) {
 }
 
 export function todayString() {
-  return new Date().toISOString().split('T')[0];
+  // Local date (YYYY-MM-DD) — rollover at 00:00 hora local, no UTC
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+// Milisegundos hasta la próxima medianoche local (para timers de reset diario)
+export function msUntilLocalMidnight() {
+  const now = new Date();
+  const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 1, 0);
+  return next.getTime() - now.getTime();
 }
 
 export function getGreeting() {
