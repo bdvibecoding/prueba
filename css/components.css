@@ -6,7 +6,9 @@
 /* ── Bottom Navigation ──────────────────────── */
 .bottom-nav {
   position: fixed;
-  bottom: env(safe-area-inset-bottom, 0px);
+  /* Pegado al borde inferior de la pantalla. Sin safe-area para que quede
+     realmente abajo del todo (el padding interno ya aleja los iconos del borde). */
+  bottom: 0;
   left: 50%;
   transform: translateX(-50%);
   border-radius: var(--r-full);

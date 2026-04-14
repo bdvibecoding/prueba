@@ -79,8 +79,8 @@
   --bottom-nav-h: 72px;
   --page-pad:     16px;
   /* Clearance exacto: contenido llega justo hasta el borde superior del menú
-     flotante. Sin holgura extra (evita zonas negras visibles). */
-  --nav-clearance: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px));
+     flotante (nav pegado a bottom:0, solo altura del nav). */
+  --nav-clearance: var(--bottom-nav-h);
 
   /* Safe areas (iOS notch) */
   --safe-top:    env(safe-area-inset-top, 0px);
