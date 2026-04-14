@@ -58,7 +58,7 @@ export async function render(container) {
       </div>
 
       <!-- ── Users panel ── -->
-      <div id="admin-tab-users" style="flex:1;overflow-y:auto;padding:var(--page-pad);padding-bottom:var(--nav-clearance, 152px)">
+      <div id="admin-tab-users" style="flex:1;overflow-y:auto;padding:var(--page-pad);padding-bottom:var(--nav-clearance, 152px);display:flex;flex-direction:column">
 
         <div class="page-header">
           <div>
@@ -154,13 +154,16 @@ export async function render(container) {
         <div id="users-list">
           <div class="overlay-spinner"><div class="spinner-sm"></div></div>
         </div>
+
+        <!-- Spacer: rellena altura restante cuando el contenido es corto -->
+        <div style="flex:1 1 auto;min-height:0" aria-hidden="true"></div>
       </div>
 
       <!-- ── Hub Clientes panel (lazy-loaded) ── -->
       <div id="admin-tab-hub" style="flex:1;display:none;overflow:hidden;min-height:0">
 
       <!-- ── Rutinas panel ── -->
-      </div><div id="admin-tab-routines" style="flex:1;display:none;overflow-y:auto;padding:var(--page-pad);padding-bottom:var(--nav-clearance, 152px)">
+      </div><div id="admin-tab-routines" style="flex:1;display:none;overflow-y:auto;padding:var(--page-pad);padding-bottom:var(--nav-clearance, 152px);flex-direction:column">
         <div class="page-header" style="margin-bottom:var(--space-lg)">
           <div>
             <h2 class="page-title">💪 Mis Rutinas</h2>
@@ -169,10 +172,11 @@ export async function render(container) {
           <button class="btn-primary" id="btn-new-routine-admin" style="padding:10px 16px;font-size:13px">+ Nueva rutina</button>
         </div>
         <div id="admin-routines-cards"><div class="overlay-spinner"><div class="spinner-sm"></div></div></div>
+        <div style="flex:1 1 auto;min-height:0" aria-hidden="true"></div>
       </div>
 
       <!-- ── Dietas panel ── -->
-      <div id="admin-tab-diets" style="flex:1;display:none;overflow-y:auto;padding:var(--page-pad);padding-bottom:var(--nav-clearance, 152px)">
+      <div id="admin-tab-diets" style="flex:1;display:none;overflow-y:auto;padding:var(--page-pad);padding-bottom:var(--nav-clearance, 152px);flex-direction:column">
         <div class="page-header" style="margin-bottom:var(--space-lg)">
           <div>
             <h2 class="page-title">🥗 Mis Dietas</h2>
@@ -181,6 +185,7 @@ export async function render(container) {
           <button class="btn-primary" id="btn-new-diet-admin" style="padding:10px 16px;font-size:13px">+ Nueva dieta</button>
         </div>
         <div id="admin-diets-cards"><div class="overlay-spinner"><div class="spinner-sm"></div></div></div>
+        <div style="flex:1 1 auto;min-height:0" aria-hidden="true"></div>
       </div>
 
     </div>
@@ -209,10 +214,12 @@ export async function init(container) {
       tab.style.borderBottomColor = 'var(--cyan)';
 
       const which = tab.dataset.mainTab;
-      container.querySelector('#admin-tab-users'   ).style.display = which === 'users'    ? '' : 'none';
-      container.querySelector('#admin-tab-hub'     ).style.display = which === 'hub'      ? '' : 'none';
-      container.querySelector('#admin-tab-routines').style.display = which === 'routines' ? '' : 'none';
-      container.querySelector('#admin-tab-diets'   ).style.display = which === 'diets'    ? '' : 'none';
+      // Los tabs scrollables usan flex-column para el spacer que rellena altura.
+      // Hub usa flex row para su layout interno.
+      container.querySelector('#admin-tab-users'   ).style.display = which === 'users'    ? 'flex' : 'none';
+      container.querySelector('#admin-tab-hub'     ).style.display = which === 'hub'      ? 'flex' : 'none';
+      container.querySelector('#admin-tab-routines').style.display = which === 'routines' ? 'flex' : 'none';
+      container.querySelector('#admin-tab-diets'   ).style.display = which === 'diets'    ? 'flex' : 'none';
 
       if (which === 'routines') loadAdminRoutines(container);
       if (which === 'diets') loadAdminDiets(container);
