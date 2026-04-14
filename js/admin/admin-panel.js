@@ -28,7 +28,7 @@ function roleBadgeHtml(role) {
 
 export async function render(container) {
   container.innerHTML = `
-    <div class="page active" id="admin-page" style="display:flex;flex-direction:column;height:100%;overflow:hidden;padding-bottom:0">
+    <div class="page active" id="admin-page" style="display:flex;flex-direction:column;height:100%;overflow:hidden;padding:0 0 var(--nav-clearance, 152px)">
 
       <!-- ── Main tab bar ── -->
       <div style="
@@ -58,7 +58,7 @@ export async function render(container) {
       </div>
 
       <!-- ── Users panel ── -->
-      <div id="admin-tab-users" style="flex:1;overflow-y:auto;padding:var(--page-pad);padding-bottom:var(--nav-clearance, 152px)">
+      <div id="admin-tab-users" style="flex:1;overflow-y:auto;padding:var(--page-pad);padding-bottom:24px">
 
         <div class="page-header">
           <div>
@@ -160,7 +160,7 @@ export async function render(container) {
       <div id="admin-tab-hub" style="flex:1;display:none;overflow:hidden;min-height:0">
 
       <!-- ── Rutinas panel ── -->
-      </div><div id="admin-tab-routines" style="flex:1;display:none;overflow-y:auto;padding:var(--page-pad);padding-bottom:var(--nav-clearance, 152px)">
+      </div><div id="admin-tab-routines" style="flex:1;display:none;overflow-y:auto;padding:var(--page-pad);padding-bottom:24px">
         <div class="page-header" style="margin-bottom:var(--space-lg)">
           <div>
             <h2 class="page-title">💪 Mis Rutinas</h2>
@@ -172,7 +172,7 @@ export async function render(container) {
       </div>
 
       <!-- ── Dietas panel ── -->
-      <div id="admin-tab-diets" style="flex:1;display:none;overflow-y:auto;padding:var(--page-pad);padding-bottom:var(--nav-clearance, 152px)">
+      <div id="admin-tab-diets" style="flex:1;display:none;overflow-y:auto;padding:var(--page-pad);padding-bottom:24px">
         <div class="page-header" style="margin-bottom:var(--space-lg)">
           <div>
             <h2 class="page-title">🥗 Mis Dietas</h2>
