@@ -78,9 +78,10 @@
   /* Layout */
   --bottom-nav-h: 72px;
   --page-pad:     16px;
-  /* Espacio libre bajo el contenido scrollable para que el menú flotante
-     no tape los últimos elementos. nav-h + gap(24) + safe-bottom + holgura(56) */
-  --nav-clearance: calc(var(--bottom-nav-h) + 24px + env(safe-area-inset-bottom, 0px) + 56px);
+  /* Espacio libre bajo el contenido scrollable — sólo lo justo para que el
+     menú flotante no tape la última fila (nav-h + safe + pequeña holgura).
+     Más que esto genera "zonas negras" visibles en páginas con poco contenido. */
+  --nav-clearance: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px) + 20px);
 
   /* Safe areas (iOS notch) */
   --safe-top:    env(safe-area-inset-top, 0px);
