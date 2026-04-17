@@ -11,14 +11,14 @@ import { t } from '../i18n.js';
 
 // Role badge colors
 const ROLE_BADGE_COLORS = {
-  admin:         'background:#ef4444;color:#fff',
-  coach:         'background:#06b6d4;color:#fff',
+  admin:         'background:#C10801;color:#fff',
+  coach:         'background:#C10801;color:#fff',
   medico:        'background:#22c55e;color:#fff',
-  fisio:         'background:#3b82f6;color:#fff',
-  psicologo:     'background:#a855f7;color:#fff',
-  nutricionista: 'background:#f97316;color:#fff',
-  atleta:        'background:#eab308;color:#000',
-  cliente:       'background:#6b7280;color:#fff',
+  fisio:         'background:#8A8A8A;color:#fff',
+  psicologo:     'background:#8A8A8A;color:#fff',
+  nutricionista: 'background:#F16001;color:#fff',
+  atleta:        'background:#3A3A3A;color:#F0F0F0',
+  cliente:       'background:#252525;color:#F0F0F0',
 };
 
 function roleBadgeHtml(role) {
@@ -36,24 +36,24 @@ export async function render(container) {
         flex-shrink:0; background:var(--color-bg); padding:0 var(--page-pad);
       ">
         <button class="admin-main-tab active" data-main-tab="users"
-          style="flex:1;padding:12px 6px;background:none;border:none;border-bottom:2.5px solid var(--cyan);
-                 font-size:13px;font-weight:700;color:var(--cyan);cursor:pointer;font-family:inherit">
-          👥 Usuarios
+          style="flex:1;padding:12px 6px;background:none;border:none;border-bottom:2.5px solid var(--red);
+                 font-size:13px;font-weight:700;color:var(--red);cursor:pointer;font-family:inherit">
+          Usuarios
         </button>
         <button class="admin-main-tab" data-main-tab="hub"
           style="flex:1;padding:12px 6px;background:none;border:none;border-bottom:2.5px solid transparent;
                  font-size:13px;font-weight:700;color:var(--color-text-muted);cursor:pointer;font-family:inherit">
-          💬 Hub Clientes
+          Hub
         </button>
         <button class="admin-main-tab" data-main-tab="routines"
           style="flex:1;padding:12px 6px;background:none;border:none;border-bottom:2.5px solid transparent;
                  font-size:13px;font-weight:700;color:var(--color-text-muted);cursor:pointer;font-family:inherit">
-          💪 Rutinas
+          Rutinas
         </button>
         <button class="admin-main-tab" data-main-tab="diets"
           style="flex:1;padding:12px 6px;background:none;border:none;border-bottom:2.5px solid transparent;
                  font-size:13px;font-weight:700;color:var(--color-text-muted);cursor:pointer;font-family:inherit">
-          🥗 Dietas
+          Dietas
         </button>
       </div>
 

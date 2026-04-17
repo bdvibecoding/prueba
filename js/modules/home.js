@@ -35,7 +35,7 @@ export async function render(container) {
           <div style="font-weight:700">${t('active_session')}</div>
           <div class="text-muted">${session.routineName || 'Rutina activa'}</div>
         </div>
-        <span style="color:var(--cyan);font-size:13px;font-weight:600">${t('continue')}</span>
+        <span style="color:var(--red);font-size:13px;font-weight:600">${t('continue')}</span>
       </div>` : ''}
 
       <!-- Quick Stats -->
@@ -138,10 +138,10 @@ function buildIconGrid(profile) {
 
   // Especialistas asignados — mostrar icono de chat si el usuario los tiene asignados
   const specialistMap = [
-    { key: 'assignedNutricionista', route: 'alimentacion', svg: SVG_ICONS.nutricionista, label: 'Nutricionista', cls: 'icon-nutricionista', accent: '#10b981' },
-    { key: 'assignedFisio',         route: 'salud',         svg: SVG_ICONS.fisio,         label: 'Fisio',         cls: 'icon-fisio',         accent: '#3b82f6' },
-    { key: 'assignedPsicologo',     route: 'salud',         svg: SVG_ICONS.psicologo,     label: 'Psicólogo',     cls: 'icon-psicologo',     accent: '#8b5cf6' },
-    { key: 'assignedMedico',        route: 'salud',         svg: SVG_ICONS.medico,        label: 'Médico',        cls: 'icon-medico',        accent: '#ef4444' },
+    { key: 'assignedNutricionista', route: 'alimentacion', svg: SVG_ICONS.nutricionista, label: 'Nutricionista', cls: 'icon-nutricionista', accent: '#F16001' },
+    { key: 'assignedFisio',         route: 'salud',         svg: SVG_ICONS.fisio,         label: 'Fisio',         cls: 'icon-fisio',         accent: '#8A8A8A' },
+    { key: 'assignedPsicologo',     route: 'salud',         svg: SVG_ICONS.psicologo,     label: 'Psicólogo',     cls: 'icon-psicologo',     accent: '#8A8A8A' },
+    { key: 'assignedMedico',        route: 'salud',         svg: SVG_ICONS.medico,        label: 'Médico',        cls: 'icon-medico',        accent: '#C10801' },
   ];
   const clientRoles = ['cliente', 'atleta', 'basico'];
   if (clientRoles.includes(profile?.role)) {
@@ -151,8 +151,8 @@ function buildIconGrid(profile) {
   }
 
   icons.push(
-    { route: 'suscripcion',   svg: SVG_ICONS.suscripcion,   label: t('icon_suscripcion'),   cls: 'icon-suscripcion',   accent: '#f59e0b' },
-    { route: 'configuracion', svg: SVG_ICONS.configuracion, label: t('icon_configuracion'), cls: 'icon-configuracion', accent: '#6b7280' },
+    { route: 'suscripcion',   svg: SVG_ICONS.suscripcion,   label: t('icon_suscripcion'),   cls: 'icon-suscripcion',   accent: '#D9C3AB' },
+    { route: 'configuracion', svg: SVG_ICONS.configuracion, label: t('icon_configuracion'), cls: 'icon-configuracion', accent: '#8A8A8A' },
   );
 
   const staffRoles = ['admin','coach','medico','fisio','psicologo','nutricionista'];
@@ -301,14 +301,14 @@ async function loadSpecialists(container) {
 
   el.innerHTML = cards.map(sp => `
     <div class="glass-card" style="padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer" data-sp-uid="${sp.uid}" data-sp-name="${sp.name}" data-sp-label="${sp.label}">
-      <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--cyan));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">
+      <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--brand-3,#F16001));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">
         ${sp.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()}
       </div>
       <div style="flex:1">
         <div style="font-weight:600;font-size:14px">${sp.name}</div>
         <div style="font-size:12px;color:var(--color-text-muted)">${sp.label}</div>
       </div>
-      <span style="font-size:12px;color:var(--cyan);font-weight:600">${t('message')}</span>
+      <span style="font-size:12px;color:var(--red);font-weight:600">${t('message')}</span>
     </div>
   `).join('');
 

@@ -19,8 +19,8 @@ export async function render(container) {
         <div class="page-header">
           <h2 class="page-title">${t('perfil_title')}</h2>
           <div style="display:flex;gap:8px">
-            <button class="btn-icon" id="btn-edit-toggle" title="${t('edit')}">✎</button>
-            <button class="btn-icon" id="btn-logout" title="${t('perfil_logout')}" style="color:var(--color-danger)">←</button>
+            <button class="btn-icon" id="btn-edit-toggle" title="${t('edit')}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            <button class="btn-icon" id="btn-logout" title="${t('perfil_logout')}" style="color:var(--color-danger)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
           </div>
         </div>
 
@@ -39,7 +39,7 @@ export async function render(container) {
         <div class="section-title" style="margin-top:var(--space-lg)">Mis datos</div>
         <div class="profile-subnav-grid">
           <div class="glass-card profile-subnav-card" data-nav="biomedidas" style="cursor:pointer">
-            <span class="profile-subnav-icon"></span>
+            <span class="profile-subnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M3 17L8 12L12 16L17 9L21 13"/><rect x="3" y="3" width="18" height="18" rx="var(--r-sm)"/></svg></span>
             <div class="profile-subnav-info">
               <div class="profile-subnav-title">Biomedidas</div>
               <div class="profile-subnav-desc">Peso, talla y composición corporal</div>
@@ -47,7 +47,7 @@ export async function render(container) {
             <span class="profile-subnav-arrow">›</span>
           </div>
           <div class="glass-card profile-subnav-card" data-nav="salud" style="cursor:pointer">
-            <span class="profile-subnav-icon"></span>
+            <span class="profile-subnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M12 21C12 21 3 14.5 3 8.5C3 6 5 4 7.5 4C9.24 4 10.91 5 12 6.5C13.09 5 14.76 4 16.5 4C19 4 21 6 21 8.5C21 14.5 12 21 12 21Z"/></svg></span>
             <div class="profile-subnav-info">
               <div class="profile-subnav-title">Salud</div>
               <div class="profile-subnav-desc">Métricas de salud y bienestar</div>
@@ -55,7 +55,7 @@ export async function render(container) {
             <span class="profile-subnav-arrow">›</span>
           </div>
           <div class="glass-card profile-subnav-card" data-nav="progreso" style="cursor:pointer">
-            <span class="profile-subnav-icon"></span>
+            <span class="profile-subnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
             <div class="profile-subnav-info">
               <div class="profile-subnav-title">Progreso</div>
               <div class="profile-subnav-desc">Evolución y estadísticas</div>
@@ -66,7 +66,7 @@ export async function render(container) {
 
         <!-- Datos de usuario: collapsible -->
         <div class="glass-card profile-subnav-card" id="btn-datos-usuario" style="cursor:pointer;margin-top:var(--space-md)">
-          <span class="profile-subnav-icon"></span>
+          <span class="profile-subnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
           <div class="profile-subnav-info">
             <div class="profile-subnav-title">Datos de usuario</div>
             <div class="profile-subnav-desc">Nombre, correo, datos físicos</div>
@@ -93,7 +93,7 @@ export async function render(container) {
           <div class="section-title">${t('perfil_physical_data')}</div>
           <div class="settings-group">
             <div class="settings-item">
-              <div class="settings-item-icon" style="background:rgba(25,249,249,0.1)"></div>
+              <div class="settings-item-icon" style="background:rgba(193,8,1,0.08)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
               <div class="settings-item-info">
                 <div class="settings-item-label">${t('perfil_height')}</div>
               </div>
@@ -103,7 +103,7 @@ export async function render(container) {
               </div>
             </div>
             <div class="settings-item">
-              <div class="settings-item-icon" style="background:rgba(148,10,10,0.1)"></div>
+              <div class="settings-item-icon" style="background:rgba(193,8,1,0.08)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v4"/></svg></div>
               <div class="settings-item-info">
                 <div class="settings-item-label">${t('perfil_initial_weight')}</div>
               </div>
@@ -147,14 +147,14 @@ export async function render(container) {
         <div class="section-title" style="margin-top:var(--space-lg)">${t('perfil_account')}</div>
         <div class="settings-group">
           <div class="settings-item" id="btn-change-password" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(148,10,10,0.1)"></div>
+            <div class="settings-item-icon" style="background:rgba(193,8,1,0.08)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('perfil_change_password')}</div>
             </div>
             <div class="settings-item-right">›</div>
           </div>
           <div class="settings-item" id="btn-logout-item" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(239,68,68,0.1)"></div>
+            <div class="settings-item-icon" style="background:rgba(193,8,1,0.08)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
             <div class="settings-item-info">
               <div class="settings-item-label" style="color:var(--color-danger)">${t('perfil_logout')}</div>
             </div>
@@ -195,7 +195,9 @@ export async function init(container) {
   // Toggle edit mode
   editBtn?.addEventListener('click', () => {
     editMode = !editMode;
-    editBtn.textContent = editMode ? '✕' : '✎';
+    editBtn.innerHTML = editMode
+      ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`
+      : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
     saveBtn.classList.toggle('hidden', !editMode);
     form?.querySelectorAll('input:not([readonly]), select, textarea').forEach(input => {
       input.disabled = !editMode;
@@ -237,7 +239,7 @@ export async function init(container) {
       setUser(user, newProfile);
       toast(t('perfil_updated'), 'success');
       editMode = false;
-      editBtn.textContent = '✎';
+      editBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
       saveBtn.classList.add('hidden');
       form?.querySelectorAll('input, select, textarea').forEach(input => { input.disabled = true; });
     } catch (err) {

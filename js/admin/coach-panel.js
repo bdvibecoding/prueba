@@ -13,9 +13,9 @@ export async function render(container) {
   const role    = profile?.role || 'coach';
 
   const roleConfig = {
-    coach:          { title: '🏋️ Panel Coach',   subtitle: 'Gestiona tus clientes y rutinas' },
-    medico:         { title: '🩺 Panel Médico',  subtitle: 'Registros de salud de tus pacientes' },
-    nutricionista:  { title: '🥗 Panel Nutrición', subtitle: 'Menús y suplementación de tus clientes' },
+    coach:          { title: 'Panel Coach',    subtitle: 'Gestiona tus clientes y rutinas' },
+    medico:         { title: 'Panel Médico',   subtitle: 'Registros de salud de tus pacientes' },
+    nutricionista:  { title: 'Panel Nutrición', subtitle: 'Menús y suplementación de tus clientes' },
   };
   const config = roleConfig[role] || roleConfig.coach;
 
