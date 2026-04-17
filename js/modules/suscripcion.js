@@ -110,10 +110,10 @@ export async function render(container) {
 
         <!-- Active plan banner -->
         ${currentPlan !== 'free' ? `
-          <div class="glass-card glass-card-cyan"
+          <div class="glass-card glass-card-accent"
                style="padding:var(--space-md);margin-bottom:var(--space-lg);
                       display:flex;align-items:center;gap:var(--space-md)">
-            <span style="font-size:28px">✅</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:28px;height:28px"><polyline points="20 6 9 17 4 12"/></svg>
             <div>
               <div style="font-weight:700">${t('sub_active_plan')} ${capitalizeFirst(currentPlan)}</div>
               <div class="text-muted">${t('sub_active_desc')}</div>
@@ -256,7 +256,7 @@ function buildPlanCard(plan, current) {
         <button class="btn-${isActive ? 'secondary' : 'primary'} btn-full"
                 style="pointer-events:none;font-weight:700;letter-spacing:0.5px;
                        ${isPro && !isActive ? 'background:' + plan.accentColor + ';border-color:' + plan.accentColor : ''}">
-          ${isActive ? `✅ ${t('sub_current_plan')}` : t('sub_request_info')}
+          ${isActive ? t('sub_current_plan') : t('sub_request_info')}
         </button>
 
       </div>

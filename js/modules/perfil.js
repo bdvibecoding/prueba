@@ -17,10 +17,10 @@ export async function render(container) {
     <div class="page active" id="perfil-page">
       <div style="padding:var(--page-pad)">
         <div class="page-header">
-          <h2 class="page-title">👤 ${t('perfil_title')}</h2>
+          <h2 class="page-title">${t('perfil_title')}</h2>
           <div style="display:flex;gap:8px">
-            <button class="btn-icon" id="btn-edit-toggle" title="${t('edit')}">✏️</button>
-            <button class="btn-icon" id="btn-logout" title="${t('perfil_logout')}" style="color:var(--color-danger)">🚪</button>
+            <button class="btn-icon" id="btn-edit-toggle" title="${t('edit')}">✎</button>
+            <button class="btn-icon" id="btn-logout" title="${t('perfil_logout')}" style="color:var(--color-danger)">←</button>
           </div>
         </div>
 
@@ -28,7 +28,7 @@ export async function render(container) {
         <div class="profile-avatar-wrap">
           <div class="profile-avatar" id="profile-avatar" style="cursor:pointer">
             ${profile?.photoURL ? `<img src="${profile.photoURL}" alt="Avatar">` : getInitials(profile?.name || '?')}
-            <div style="position:absolute;bottom:0;right:0;width:28px;height:28px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid var(--color-bg)">📷</div>
+            <div style="position:absolute;bottom:0;right:0;width:28px;height:28px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid var(--color-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
           </div>
           <div class="profile-name">${profile?.name || t('user')}</div>
           <span class="profile-role-badge badge ${getRoleBadgeClass(profile?.role)}">${translateRole(profile?.role || 'cliente')}</span>
@@ -39,7 +39,7 @@ export async function render(container) {
         <div class="section-title" style="margin-top:var(--space-lg)">Mis datos</div>
         <div class="profile-subnav-grid">
           <div class="glass-card profile-subnav-card" data-nav="biomedidas" style="cursor:pointer">
-            <span class="profile-subnav-icon">📏</span>
+            <span class="profile-subnav-icon"></span>
             <div class="profile-subnav-info">
               <div class="profile-subnav-title">Biomedidas</div>
               <div class="profile-subnav-desc">Peso, talla y composición corporal</div>
@@ -47,7 +47,7 @@ export async function render(container) {
             <span class="profile-subnav-arrow">›</span>
           </div>
           <div class="glass-card profile-subnav-card" data-nav="salud" style="cursor:pointer">
-            <span class="profile-subnav-icon">❤️</span>
+            <span class="profile-subnav-icon"></span>
             <div class="profile-subnav-info">
               <div class="profile-subnav-title">Salud</div>
               <div class="profile-subnav-desc">Métricas de salud y bienestar</div>
@@ -55,7 +55,7 @@ export async function render(container) {
             <span class="profile-subnav-arrow">›</span>
           </div>
           <div class="glass-card profile-subnav-card" data-nav="progreso" style="cursor:pointer">
-            <span class="profile-subnav-icon">📈</span>
+            <span class="profile-subnav-icon"></span>
             <div class="profile-subnav-info">
               <div class="profile-subnav-title">Progreso</div>
               <div class="profile-subnav-desc">Evolución y estadísticas</div>
@@ -66,7 +66,7 @@ export async function render(container) {
 
         <!-- Datos de usuario: collapsible -->
         <div class="glass-card profile-subnav-card" id="btn-datos-usuario" style="cursor:pointer;margin-top:var(--space-md)">
-          <span class="profile-subnav-icon">👤</span>
+          <span class="profile-subnav-icon"></span>
           <div class="profile-subnav-info">
             <div class="profile-subnav-title">Datos de usuario</div>
             <div class="profile-subnav-desc">Nombre, correo, datos físicos</div>
@@ -78,9 +78,9 @@ export async function render(container) {
         <!-- Profile Form -->
         <form id="profile-form" class="profile-form">
           <div class="settings-group">
-            ${profileField('text',   'profile-name-input',  t('perfil_full_name'),    profile?.name || '',     '👤', false)}
-            ${profileField('email',  'profile-email',       t('perfil_email'),        profile?.email || '',    '✉️', true)}
-            ${profileField('date',   'profile-birth',       t('perfil_birth_date'),   profile?.birthDate || '','🎂', false)}
+            ${profileField('text',   'profile-name-input',  t('perfil_full_name'),    profile?.name || '',     '', false)}
+            ${profileField('email',  'profile-email',       t('perfil_email'),        profile?.email || '',    '', true)}
+            ${profileField('date',   'profile-birth',       t('perfil_birth_date'),   profile?.birthDate || '','', false)}
             ${profileSelectField('profile-gender', t('perfil_gender'), profile?.gender || '', [
               { value: '', label: t('perfil_select') },
               { value: 'masculino', label: t('perfil_male') },
@@ -93,7 +93,7 @@ export async function render(container) {
           <div class="section-title">${t('perfil_physical_data')}</div>
           <div class="settings-group">
             <div class="settings-item">
-              <div class="settings-item-icon" style="background:rgba(25,249,249,0.1)">📏</div>
+              <div class="settings-item-icon" style="background:rgba(25,249,249,0.1)"></div>
               <div class="settings-item-info">
                 <div class="settings-item-label">${t('perfil_height')}</div>
               </div>
@@ -103,7 +103,7 @@ export async function render(container) {
               </div>
             </div>
             <div class="settings-item">
-              <div class="settings-item-icon" style="background:rgba(148,10,10,0.1)">⚖️</div>
+              <div class="settings-item-icon" style="background:rgba(148,10,10,0.1)"></div>
               <div class="settings-item-info">
                 <div class="settings-item-label">${t('perfil_initial_weight')}</div>
               </div>
@@ -118,14 +118,14 @@ export async function render(container) {
           <div class="section-title">${t('perfil_goals_experience')}</div>
           <div class="settings-group">
             ${profileSelectField('profile-experience', t('perfil_experience_level'), profile?.experience || 'principiante', [
-              { value: 'principiante', label: `🌱 ${t('perfil_beginner')}` },
-              { value: 'intermedio',   label: `💪 ${t('perfil_intermediate')}` },
-              { value: 'avanzado',     label: `🏆 ${t('perfil_advanced')}` },
-              { value: 'elite',        label: `⭐ ${t('perfil_elite')}` },
+              { value: 'principiante', label: `${t('perfil_beginner')}` },
+              { value: 'intermedio',   label: `${t('perfil_intermediate')}` },
+              { value: 'avanzado',     label: `${t('perfil_advanced')}` },
+              { value: 'elite',        label: `${t('perfil_elite')}` },
             ])}
           </div>
           <div class="form-row" style="margin-top:var(--space-md)">
-            <label class="field-label">🎯 Objetivo semanal (entrenos)</label>
+            <label class="field-label">Objetivo semanal (entrenos)</label>
             <input type="number" id="field-weekly-goal" class="input-solo" min="1" max="7" placeholder="3" value="${profile?.weeklyGoal || 3}" style="margin-top:4px">
           </div>
           <div class="form-row" style="margin-top:var(--space-md)">
@@ -137,7 +137,7 @@ export async function render(container) {
 
           <!-- Save button (hidden until edit mode) -->
           <button type="submit" class="btn-primary btn-full hidden" id="btn-save-profile" style="margin-top:var(--space-md)">
-            💾 ${t('perfil_save_changes')}
+            ${t('perfil_save_changes')}
           </button>
         </form>
 
@@ -147,14 +147,14 @@ export async function render(container) {
         <div class="section-title" style="margin-top:var(--space-lg)">${t('perfil_account')}</div>
         <div class="settings-group">
           <div class="settings-item" id="btn-change-password" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(148,10,10,0.1)">🔑</div>
+            <div class="settings-item-icon" style="background:rgba(148,10,10,0.1)"></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('perfil_change_password')}</div>
             </div>
             <div class="settings-item-right">›</div>
           </div>
           <div class="settings-item" id="btn-logout-item" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(239,68,68,0.1)">🚪</div>
+            <div class="settings-item-icon" style="background:rgba(239,68,68,0.1)"></div>
             <div class="settings-item-info">
               <div class="settings-item-label" style="color:var(--color-danger)">${t('perfil_logout')}</div>
             </div>
@@ -195,7 +195,7 @@ export async function init(container) {
   // Toggle edit mode
   editBtn?.addEventListener('click', () => {
     editMode = !editMode;
-    editBtn.textContent = editMode ? '✕' : '✏️';
+    editBtn.textContent = editMode ? '✕' : '✎';
     saveBtn.classList.toggle('hidden', !editMode);
     form?.querySelectorAll('input:not([readonly]), select, textarea').forEach(input => {
       input.disabled = !editMode;
@@ -237,7 +237,7 @@ export async function init(container) {
       setUser(user, newProfile);
       toast(t('perfil_updated'), 'success');
       editMode = false;
-      editBtn.textContent = '✏️';
+      editBtn.textContent = '✎';
       saveBtn.classList.add('hidden');
       form?.querySelectorAll('input, select, textarea').forEach(input => { input.disabled = true; });
     } catch (err) {
@@ -288,7 +288,7 @@ export async function init(container) {
         const newProfile = { ...profile, photoURL: url };
         setUser(user, newProfile);
         avatarEl.innerHTML = `<img src="${url}" alt="Avatar">
-          <div style="position:absolute;bottom:0;right:0;width:28px;height:28px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid var(--color-bg)">📷</div>`;
+          <div style="position:absolute;bottom:0;right:0;width:28px;height:28px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid var(--color-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>`;
         toast(t('perfil_photo_updated'), 'success');
       } catch (e) { toast(t('perfil_photo_error') + ': ' + e.message, 'error'); }
     });

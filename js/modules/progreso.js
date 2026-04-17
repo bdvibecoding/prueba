@@ -13,10 +13,10 @@ import { t } from '../i18n.js';
 
 function getAngles() {
   return [
-    { id: 'front',  label: t('prog_angle_front'), icon: '🧍' },
-    { id: 'left',   label: t('prog_angle_left'),  icon: '🧍' },
-    { id: 'back',   label: t('prog_angle_back'),  icon: '🧍' },
-    { id: 'right',  label: t('prog_angle_right'), icon: '🧍' },
+    { id: 'front',  label: t('prog_angle_front'), icon: '' },
+    { id: 'left',   label: t('prog_angle_left'),  icon: '' },
+    { id: 'back',   label: t('prog_angle_back'),  icon: '' },
+    { id: 'right',  label: t('prog_angle_right'), icon: '' },
   ];
 }
 
@@ -26,10 +26,10 @@ export async function render(container) {
       <div style="padding:var(--page-pad)">
         <div class="page-header">
           <div>
-            <h2 class="page-title">📈 ${t('prog_title')}</h2>
+            <h2 class="page-title">${t('prog_title')}</h2>
             <p class="page-subtitle">${t('prog_subtitle')}</p>
           </div>
-          <button class="btn-primary" id="btn-upload-photos" style="padding:10px 16px;font-size:13px">📸 ${t('prog_upload')}</button>
+          <button class="btn-primary" id="btn-upload-photos" style="padding:10px 16px;font-size:13px">${t('prog_upload')}</button>
         </div>
 
         <!-- Tabs -->
@@ -43,7 +43,6 @@ export async function render(container) {
         <div id="tab-photos" class="tab-content">
           <!-- Week selector -->
           <div class="date-range" style="margin-bottom:var(--space-md)">
-            <span>📅</span>
             <input type="date" id="photo-week-selector" value="${todayString()}">
             <button class="btn-accent" id="btn-load-photos" style="padding:6px 12px;font-size:12px">${t('load')}</button>
           </div>
@@ -58,7 +57,7 @@ export async function render(container) {
           <!-- Photo display -->
           <div id="current-photo-wrap" style="max-width:320px;margin:0 auto">
             <div class="photo-slot" id="main-photo-slot" style="aspect-ratio:3/4;cursor:default">
-              <div class="photo-slot-icon">📷</div>
+              <div class="photo-slot-icon"></div>
               <div class="photo-slot-label">${t('prog_no_photo')}</div>
             </div>
           </div>
@@ -89,7 +88,6 @@ export async function render(container) {
         <!-- Tab: Charts -->
         <div id="tab-charts" class="tab-content hidden">
           <div class="date-range" style="margin-bottom:var(--space-md)">
-            <span>📅</span>
             <input type="date" id="chart-from" value="${getDateMinus(90)}">
             <span>—</span>
             <input type="date" id="chart-to" value="${todayString()}">
@@ -193,13 +191,13 @@ async function loadPhotosForWeek(container, profile, date, angle) {
       slot.innerHTML = `
         <img src="${photoURL}" alt="${angle}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-md)">
         <div class="photo-slot-overlay">
-          <span style="font-size:24px;color:white;cursor:pointer" id="btn-expand-photo">🔍</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;cursor:pointer" id="btn-expand-photo"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </div>
       `;
       slot.querySelector('#btn-expand-photo')?.addEventListener('click', () => openPhotoModal(photoURL, formatDate(date)));
     } else {
       slot.innerHTML = `
-        <div class="photo-slot-icon">📷</div>
+        <div class="photo-slot-icon"></div>
         <div class="photo-slot-label">${t('prog_no_photo')} · ${angle}</div>
       `;
     }
@@ -259,7 +257,7 @@ function openUploadModal(profile, container) {
   const today = todayString();
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">📸 ${t('prog_upload_title')}</h3>
+      <h3 class="modal-title">${t('prog_upload_title')}</h3>
       <button class="modal-close">✕</button>
     </div>
     <div class="form-row">
@@ -270,14 +268,14 @@ function openUploadModal(profile, container) {
     <div class="photo-grid" id="upload-photo-grid">
       ${getAngles().map(a => `
         <div class="photo-slot upload-slot" data-angle="${a.id}" style="cursor:pointer">
-          <div class="photo-slot-icon">📷</div>
+          <div class="photo-slot-icon"></div>
           <div class="photo-slot-label">${a.label}</div>
           <input type="file" accept="image/*" capture="environment" style="display:none" class="photo-file-input" data-angle="${a.id}">
         </div>
       `).join('')}
     </div>
     <button class="btn-primary btn-full" id="btn-upload-save" style="margin-top:var(--space-md)" disabled>
-      💾 ${t('prog_save_photos')}
+      ${t('prog_save_photos')}
     </button>
   `;
 

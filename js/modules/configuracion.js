@@ -15,7 +15,7 @@ export async function render(container) {
       <div style="padding:var(--page-pad)">
         <div class="page-header">
           <div>
-            <h2 class="page-title">⚙️ ${t('settings_title')}</h2>
+            <h2 class="page-title">${t('settings_title')}</h2>
             <p class="page-subtitle">${t('settings_subtitle')}</p>
           </div>
         </div>
@@ -24,7 +24,7 @@ export async function render(container) {
         <div class="section-title">${t('appearance')}</div>
         <div class="settings-group">
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(107,114,128,0.2)">🌙</div>
+            <div class="settings-item-icon" style="background:rgba(107,114,128,0.2)"></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('dark_mode')}</div>
               <div class="settings-item-desc">${t('dark_mode_desc')}</div>
@@ -35,7 +35,7 @@ export async function render(container) {
             </label>
           </div>
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(25,249,249,0.15)">🗺️</div>
+            <div class="settings-item-icon" style="background:rgba(25,249,249,0.15)"></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('muscle_map')}</div>
               <div class="settings-item-desc">${t('muscle_map_desc')}</div>
@@ -51,14 +51,14 @@ export async function render(container) {
         <div class="section-title">${t('language')}</div>
         <div class="settings-group">
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(59,130,246,0.2)">🌐</div>
+            <div class="settings-item-icon" style="background:rgba(59,130,246,0.2)"></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('language_app')}</div>
             </div>
             <div class="settings-item-right">
               <select id="select-language" style="background:transparent;border:none;color:var(--color-text-muted);font-size:13px">
-                <option value="es" ${settings.language === 'es' ? 'selected' : ''}>🇪🇸 Español</option>
-                <option value="en" ${settings.language === 'en' ? 'selected' : ''}>🇬🇧 English</option>
+                <option value="es" ${settings.language === 'es' ? 'selected' : ''}>Español</option>
+                <option value="en" ${settings.language === 'en' ? 'selected' : ''}>English</option>
               </select>
             </div>
           </div>
@@ -68,7 +68,7 @@ export async function render(container) {
         <div class="section-title">${t('notifications')}</div>
         <div class="settings-group">
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(245,158,11,0.2)">🔔</div>
+            <div class="settings-item-icon" style="background:rgba(245,158,11,0.2)"></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('push_notif')}</div>
               <div class="settings-item-desc">${t('push_notif_desc')}</div>
@@ -79,7 +79,7 @@ export async function render(container) {
             </label>
           </div>
           <div class="settings-item" id="notification-status-row" ${settings.notifications !== false ? '' : 'style="opacity:0.5"'}>
-            <div class="settings-item-icon" style="background:rgba(34,197,94,0.15)">📱</div>
+            <div class="settings-item-icon" style="background:rgba(34,197,94,0.15)"></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('notif_status')}</div>
               <div class="settings-item-desc" id="notif-permission-desc">${t('notif_checking')}</div>
@@ -92,7 +92,7 @@ export async function render(container) {
         <div class="section-title">${t('screen')}</div>
         <div class="settings-group">
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(168,85,247,0.2)">💡</div>
+            <div class="settings-item-icon" style="background:rgba(168,85,247,0.2)"></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('keep_awake')}</div>
               <div class="settings-item-desc">${t('keep_awake_desc')}</div>
@@ -108,7 +108,7 @@ export async function render(container) {
         <div class="section-title">${t('app')}</div>
         <div class="settings-group">
           <div class="settings-item" id="btn-install-pwa" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(148,10,10,0.2)">📲</div>
+            <div class="settings-item-icon" style="background:rgba(148,10,10,0.2)"></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('install')}</div>
               <div class="settings-item-desc">${t('install_desc')}</div>
@@ -116,7 +116,7 @@ export async function render(container) {
             <div class="settings-item-right">›</div>
           </div>
           <div class="settings-item" id="btn-clear-cache" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(107,114,128,0.15)">🗑️</div>
+            <div class="settings-item-icon" style="background:rgba(107,114,128,0.15)"></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('clear_cache')}</div>
               <div class="settings-item-desc">${t('clear_cache_desc')}</div>
@@ -129,21 +129,21 @@ export async function render(container) {
         <div class="section-title">${t('about')}</div>
         <div class="settings-group">
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(148,10,10,0.2)">ℹ️</div>
+            <div class="settings-item-icon" style="background:rgba(148,10,10,0.2)"></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('version')}</div>
             </div>
             <div class="settings-item-right" style="font-size:13px;color:var(--color-text-muted)">1.0.0</div>
           </div>
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(25,249,249,0.1)">🔒</div>
+            <div class="settings-item-icon" style="background:rgba(193,8,1,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('privacy')}</div>
             </div>
             <div class="settings-item-right">›</div>
           </div>
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(107,114,128,0.15)">📄</div>
+            <div class="settings-item-icon" style="background:rgba(107,114,128,0.15)"></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('terms')}</div>
             </div>
@@ -183,7 +183,7 @@ export async function init(container) {
     const lang = e.target.value;
     updateSettings({ language: lang });
     setLang(lang);
-    toast(lang === 'es' ? 'Idioma: Español 🇪🇸' : 'Language: English 🇬🇧', 'info');
+    toast(lang === 'es' ? 'Idioma: Español' : 'Language: English', 'info');
   });
 
   // Notifications toggle

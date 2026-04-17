@@ -25,16 +25,10 @@ export async function render(container) {
   container.innerHTML = `
     <div class="page active" id="entreno-page">
       <div style="padding:var(--page-pad)">
-        <div class="page-header">
-          <div>
-            <h2 class="page-title">💪 ${t('entreno_title')}</h2>
-            <p class="page-subtitle" id="entreno-subtitle">${t('entreno_subtitle')}</p>
-          </div>
-        </div>
         <!-- Tabs -->
-        <div class="tabs" style="margin-bottom:var(--space-md)">
-          <button class="tab-btn active" data-tab="rutinas">${t('entreno_tab_routines')}</button>
-          <button class="tab-btn" data-tab="historial">${t('entreno_tab_history')}</button>
+        <div class="tab-bar-underline" id="entreno-tab-bar" style="margin-bottom:var(--space-md)">
+          <button class="tab-btn-underline active" data-tab="rutinas">${t('entreno_tab_routines')}</button>
+          <button class="tab-btn-underline" data-tab="historial">${t('entreno_tab_history')}</button>
         </div>
         <!-- Routines tab -->
         <div id="tab-rutinas" class="tab-content">
@@ -62,19 +56,38 @@ export async function init(container) {
   }
   await loadRoutinesList(container);
 
-  // Tab switching
-  container.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
+  // Tab switching — underline style
+  function updateTabIndicator(activeBtn) {
+    const bar = document.getElementById('entreno-tab-bar');
+    if (!bar || !activeBtn) return;
+    requestAnimationFrame(() => {
+      const btnRect = activeBtn.getBoundingClientRect();
+      const barRect = bar.getBoundingClientRect();
+      const offset = btnRect.left - barRect.left;
+      bar.style.setProperty('--indicator-width', btnRect.width + 'px');
+      bar.style.setProperty('--indicator-offset', offset + 'px');
+    });
+  }
+
+  const tabBtns = container.querySelectorAll('.tab-btn-underline');
+  tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      container.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
-      container.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+      tabBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      container.querySelector(`#tab-${btn.dataset.tab}`)?.classList.remove('hidden');
+      document.querySelectorAll('#entreno-page .tab-content').forEach(tc => tc.classList.add('hidden'));
+      const target = document.getElementById('tab-' + btn.dataset.tab);
+      if (target) target.classList.remove('hidden');
+      updateTabIndicator(btn);
       if (btn.dataset.tab === 'historial' && !historialLoaded) {
         historialLoaded = true;
         loadHistorialTab(container);
       }
     });
   });
+
+  // Position indicator on initial active tab
+  const activeTab = container.querySelector('.tab-btn-underline.active');
+  if (activeTab) setTimeout(() => updateTabIndicator(activeTab), 50);
 }
 
 // ── Load Routines List ─────────────────────────
@@ -91,7 +104,7 @@ async function loadRoutinesList(container) {
       } else {
         listEl.innerHTML = `
           <div class="empty-state">
-            <div class="empty-icon">📋</div>
+            <div class="empty-icon"><svg style="width:32px;height:32px;opacity:0.4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="3" rx="1"/><path d="M16 3h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="15" y2="14"/></svg></div>
             <div class="empty-title">${t('entreno_no_routines')}</div>
             <div class="empty-subtitle">${t('entreno_no_routines_sub')}</div>
           </div>
@@ -126,7 +139,7 @@ async function loadRoutinesList(container) {
     if (visibleRoutines.length === 0 && routines.length > 0) {
       listEl.innerHTML = `
         <div class="empty-state">
-          <div class="empty-icon">✅</div>
+          <div class="empty-icon"><svg style="width:32px;height:32px;opacity:0.4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           <div class="empty-title">¡Semana completada!</div>
           <div class="empty-subtitle">Las rutinas vuelven a estar disponibles el lunes a las 00:00</div>
         </div>`;
@@ -161,7 +174,7 @@ async function loadRoutinesList(container) {
     });
 
   } catch (e) {
-    listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">${t('error_loading')}</div><div class="empty-subtitle">${e.message}</div></div>`;
+    listEl.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg style="width:32px;height:32px;opacity:0.4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="empty-title">${t('error_loading')}</div><div class="empty-subtitle">${e.message}</div></div>`;
   }
 }
 
@@ -222,7 +235,7 @@ async function renderRoutineDetail(container, routine) {
 
       ${exercises.length === 0 ? `
         <div class="empty-state">
-          <div class="empty-icon">📋</div>
+          <div class="empty-icon"><svg style="width:32px;height:32px;opacity:0.4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="3" rx="1"/><path d="M16 3h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="15" y2="14"/></svg></div>
           <div class="empty-title">${t('entreno_no_exercises')}</div>
           <div class="empty-subtitle">${t('entreno_no_exercises_sub')}</div>
         </div>
@@ -230,8 +243,8 @@ async function renderRoutineDetail(container, routine) {
 
       ${isActive ? `
       <div style="display:flex;gap:12px;padding:var(--space-lg) 0;margin-top:var(--space-md)">
-        <button id="btn-finish-bottom" class="btn-primary btn-full" style="flex:1">✅ Finalizar entreno</button>
-        <button id="btn-cancel-bottom" class="btn-secondary" style="min-width:80px">✕ Cancelar</button>
+        <button id="btn-finish-bottom" class="btn-primary btn-full" style="flex:1">Finalizar entreno</button>
+        <button id="btn-cancel-bottom" class="btn-secondary" style="min-width:80px">Cancelar</button>
       </div>
       ` : ''}
     </div>
@@ -317,7 +330,7 @@ function buildExerciseCard(ex, index, sessionActive, session, exDataCache) {
           <div class="exercise-name">${ex.name}</div>
           <div class="exercise-sets">${ex.sets || 3} × ${ex.reps || '—'}${ex.weight ? ' · ' + ex.weight + 'kg' : ''}</div>
         </div>
-        ${allDone ? '<span class="ex-done-check">✓</span>' : ''}
+        ${allDone ? '<span class="ex-done-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="20 6 9 17 4 12"/></svg></span>' : ''}
         <span class="exercise-chevron">▼</span>
       </div>
 
@@ -331,14 +344,14 @@ function buildExerciseCard(ex, index, sessionActive, session, exDataCache) {
           <button class="video-btn" data-action="info" data-exid="${ex.id}" data-exname="${(ex.name||ex.id).replace(/"/g,'&quot;')}" data-exindex="${index}" title="Ver técnica">
             ${t('entreno_watch_exercise')}
           </button>
-          <button class="ex-icon-btn" data-action="swap" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_swap_exercise')}">🔄</button>
-          <button class="ex-icon-btn" data-action="notes" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_notes')}">📝</button>
-          <button class="ex-icon-btn" data-action="history" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_history')}">🕐</button>
+          <button class="ex-icon-btn" data-action="swap" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_swap_exercise')}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10"/><path d="M3.51 15a9 9 0 0 0 14.85 3.36L23 14"/></svg></button>
+          <button class="ex-icon-btn" data-action="notes" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_notes')}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="ex-icon-btn" data-action="history" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_history')}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>
         </div>
 
         <!-- Rest config -->
         <div style="display:flex;align-items:center;gap:8px;margin:6px 0 4px;opacity:.7">
-          <span style="font-size:11px;color:var(--color-text-muted)">⏱ Descanso:</span>
+          <span style="font-size:11px;color:var(--color-text-muted)">Descanso:</span>
           <input type="number" class="rest-secs-input" data-exid="${ex.id}"
                  value="${ex.restSeconds || 60}" min="10" max="600" step="5"
                  style="width:52px;background:transparent;border:1px solid var(--glass-border);border-radius:var(--r-xs);color:var(--color-text);font-size:11px;text-align:center;padding:2px">
@@ -805,7 +818,7 @@ function showRestTimer(container, exId, seconds) {
 
   const titleEl = document.createElement('div');
   titleEl.className = 'rest-timer-modal-title';
-  titleEl.textContent = '⏱ Descanso';
+  titleEl.textContent = 'Descanso';
 
   const nameEl = document.createElement('div');
   nameEl.className = 'rest-timer-modal-exname';
@@ -888,11 +901,11 @@ function showRestTimer(container, exId, seconds) {
 
   function onDone() {
     closeRestModal();
-    toast('¡Descanso terminado! 💪 Siguiente serie', 'success');
+    toast('¡Descanso terminado! Siguiente serie', 'success');
     playAlarm();
     navigator.vibrate?.([200, 100, 200, 100, 400]);
     if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('¡Descanso terminado!', { body: 'Es hora de la siguiente serie 💪', icon: '/logotipo/jus W Logo/TGWL --07.png' });
+      new Notification('¡Descanso terminado!', { body: 'Es hora de la siguiente serie', icon: '/logotipo/jus W Logo/TGWL --07.png' });
     }
   }
 
@@ -999,12 +1012,12 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">🔄 ${t('entreno_swap_exercise')}</h3>
+      <h3 class="modal-title">${t('entreno_swap_exercise')}</h3>
       <button class="modal-close">✕</button>
     </div>
     <p class="text-muted" style="margin-bottom:8px;font-size:13px">${t('entreno_alternatives_for')} <strong>${currentEx.name}</strong></p>
 
-    <input type="text" id="swap-search" class="input-solo" placeholder="🔍 Buscar ejercicio..." style="margin-bottom:8px;font-size:13px" autocomplete="off">
+    <input type="text" id="swap-search" class="input-solo" placeholder="Buscar ejercicio..." style="margin-bottom:8px;font-size:13px" autocomplete="off">
 
     <div id="swap-list" style="max-height:260px;overflow-y:auto;border:1px solid var(--glass-border);border-radius:var(--radius-sm);margin-bottom:12px"></div>
 
@@ -1035,7 +1048,7 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
           <div style="font-size:13px;font-weight:600;color:#e2e8f0">${ex.n}</div>
           <div style="font-size:11px;color:var(--color-text-muted);margin-top:2px">${ex.m}${ex.t==='c'?' · Compuesto':ex.t==='i'?' · Aislado':''}</div>
         </div>
-        <span style="font-size:18px">${ex.t==='c'?'🏋️':'💪'}</span>
+        <span style="font-size:11px;color:var(--color-text-muted)">${ex.t==='c'?'C':'I'}</span>
       </div>`).join('');
 
     listEl.querySelectorAll('.swap-option').forEach(opt => {
@@ -1079,7 +1092,7 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
 // ── Exercise Notes ────────────────────────────
 async function openExerciseNotes(exId) {
   const profile = getUserProfile();
-  const note = await promptModal(`📝 ${t('entreno_incident_note')}`, t('entreno_incident_placeholder'));
+  const note = await promptModal(t('entreno_incident_note'), t('entreno_incident_placeholder'));
   if (note && profile?.uid) {
     await collections.notes(profile.uid).add({
       type: 'incidence',
@@ -1098,7 +1111,7 @@ async function openExerciseHistory(exercise) {
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">🕐 ${t('entreno_history')}: ${exercise.name}</h3>
+      <h3 class="modal-title">${t('entreno_history')}: ${exercise.name}</h3>
       <button class="modal-close">✕</button>
     </div>
     <div id="history-content">${historyHTML}</div>
@@ -1148,7 +1161,7 @@ async function openExerciseHistory(exercise) {
       });
     }
 
-    if (histEl) histEl.innerHTML = html2 || `<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">${t('entreno_no_history')}</div></div>`;
+    if (histEl) histEl.innerHTML = html2 || `<div class="empty-state"><div class="empty-title">${t('entreno_no_history')}</div></div>`;
   } catch (e) {
     const histEl = document.getElementById('modal-content')?.querySelector('#history-content');
     if (histEl) histEl.innerHTML = `<p class="text-muted">${t('entreno_history_error')}</p>`;
@@ -1165,7 +1178,7 @@ async function loadHistorialTab(container) {
   const histEl   = container.querySelector('#history-container');
 
   if (!profile?.uid) {
-    histEl.innerHTML = `<div class="empty-state"><div class="empty-icon">🔒</div><div class="empty-title">${t('not_authenticated')}</div></div>`;
+    histEl.innerHTML = `<div class="empty-state"><div class="empty-title">${t('not_authenticated')}</div></div>`;
     return;
   }
 
@@ -1178,7 +1191,6 @@ async function loadHistorialTab(container) {
     if (snap.empty) {
       histEl.innerHTML = `
         <div class="empty-state">
-          <div class="empty-icon">📭</div>
           <div class="empty-title">${t('entreno_no_sessions')}</div>
           <div class="empty-subtitle">${t('entreno_no_sessions_sub')}</div>
         </div>
@@ -1224,7 +1236,7 @@ async function loadHistorialTab(container) {
     });
 
   } catch (e) {
-    histEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">${t('error_loading')}</div><div class="empty-subtitle">${e.message}</div></div>`;
+    histEl.innerHTML = `<div class="empty-state"><div class="empty-title">${t('error_loading')}</div><div class="empty-subtitle">${e.message}</div></div>`;
   }
 }
 
@@ -1405,7 +1417,7 @@ async function finishWorkout(container) {
   const durationMs  = getElapsedMs();
 
   // 1. General note
-  const note = await promptModal(`📝 ${t('entreno_general_note')}`, t('entreno_general_note_placeholder'));
+  const note = await promptModal(t('entreno_general_note'), t('entreno_general_note_placeholder'));
 
   // 2. RPE
   const rpe = await openRPESheet(null);
@@ -1448,7 +1460,7 @@ function showWorkoutSummary(container, durationMs, session, rpe, note) {
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">🎉 ${t('entreno_completed')}</h3>
+      <h3 class="modal-title">${t('entreno_completed')}</h3>
     </div>
     <div class="summary-stat-grid">
       <div class="summary-stat"><span class="summary-stat-val">${formatTime(durationMs)}</span><span class="summary-stat-key">${t('entreno_duration')}</span></div>
@@ -1505,11 +1517,11 @@ function renderBasicOnboarding(container, listEl, profile) {
           <div style="display:flex;gap:8px">
             <button class="basic-gender-btn ${selectedGender==='hombre'?'active':''}" data-gender="hombre"
               style="flex:1;padding:10px;border-radius:var(--r-md);border:1px solid ${selectedGender==='hombre'?'var(--cyan)':'rgba(255,255,255,0.1)'};background:${selectedGender==='hombre'?'rgba(25,249,249,0.1)':'rgba(255,255,255,0.03)'};color:var(--color-text);cursor:pointer;font-size:14px;font-weight:600">
-              👨 Hombre
+              Hombre
             </button>
             <button class="basic-gender-btn ${selectedGender==='mujer'?'active':''}" data-gender="mujer"
               style="flex:1;padding:10px;border-radius:var(--r-md);border:1px solid ${selectedGender==='mujer'?'var(--cyan)':'rgba(255,255,255,0.1)'};background:${selectedGender==='mujer'?'rgba(25,249,249,0.1)':'rgba(255,255,255,0.03)'};color:var(--color-text);cursor:pointer;font-size:14px;font-weight:600">
-              👩 Mujer
+              Mujer
             </button>
           </div>
         </div>
@@ -1525,7 +1537,7 @@ function renderBasicOnboarding(container, listEl, profile) {
           </div>
         </div>
 
-        <button class="btn-primary btn-full" id="btn-apply-basic-plan">Obtener mi plan 🚀</button>
+        <button class="btn-primary btn-full" id="btn-apply-basic-plan">Obtener mi plan</button>
       </div>
     `;
 
@@ -1555,13 +1567,13 @@ function renderBasicOnboarding(container, listEl, profile) {
           .where('gender', 'in', [selectedGender, 'todos'])
           .limit(6).get();
         if (snap.empty) {
-          listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-title">¡Ya casi!</div><div class="empty-subtitle">Tu entrenador está preparando tu plan personalizado</div></div>`;
+          listEl.innerHTML = `<div class="empty-state"><div class="empty-title">¡Ya casi!</div><div class="empty-subtitle">Tu entrenador está preparando tu plan personalizado</div></div>`;
         } else {
           listEl.innerHTML = snap.docs.map(doc => {
             const r = doc.data();
             return `<div class="routine-card glass-card glass-shimmer" data-routine-id="${doc.id}" style="cursor:pointer">
               <div class="routine-card-header">
-                <div class="routine-card-icon">💪</div>
+                <div class="routine-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="width:36px;height:36px"><path d="M6.5 6.5H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h2.5M17.5 6.5H20a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-2.5"/><rect x="6.5" y="4" width="3" height="16" rx="1.5" stroke-width="1.8"/><rect x="14.5" y="4" width="3" height="16" rx="1.5" stroke-width="1.8"/><line x1="9.5" y1="12" x2="14.5" y2="12" stroke-width="1.8"/></svg></div>
                 <div><div class="routine-card-title">${r.name || 'Rutina'}</div>
                 <div class="text-muted" style="font-size:12px">${r.description || ''}</div></div>
                 <span class="badge badge-cyan">${r.exercises?.length || 0} ejercicios</span>
@@ -1572,7 +1584,7 @@ function renderBasicOnboarding(container, listEl, profile) {
           });
         }
       } catch (e) {
-        listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Error</div><div class="empty-subtitle">${e.message}</div></div>`;
+        listEl.innerHTML = `<div class="empty-state"><div class="empty-title">Error</div><div class="empty-subtitle">${e.message}</div></div>`;
       }
     });
   }

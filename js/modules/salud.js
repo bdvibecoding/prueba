@@ -9,9 +9,9 @@ import { toast, formatDate } from '../utils.js';
 import { openModal, closeModal, confirm } from '../components/modal.js';
 import { t, getLang } from '../i18n.js';
 
-const MOOD_EMOJIS  = ['', '😞', '😕', '😐', '🙂', '😄'];
-const SLEEP_EMOJIS = ['', '😫', '😪', '😴', '🌙', '✨'];
-const MOOD_COLORS  = ['', '#6b7280', '#f97316', '#eab308', '#19f9f9', '#22c55e'];
+const MOOD_LABELS  = ['', '1', '2', '3', '4', '5'];
+const SLEEP_LABELS = ['', '1', '2', '3', '4', '5'];
+const MOOD_COLORS  = ['', '#8A8A8A', '#C10801', '#F16001', '#D9C3AB', '#22c55e'];
 
 const STAFF_ROLES = ['coach', 'medico', 'fisio', 'psicologo', 'nutricionista', 'admin'];
 const ROLE_FIELD  = {
@@ -37,8 +37,8 @@ export async function render(container) {
 
         <div class="tabs">
           <button class="tab-btn active" data-tab="general">${t('salud_tab_general')}</button>
-          <button class="tab-btn" data-tab="sensible">🔒 ${t('salud_tab_sensitive')}</button>
-          <button class="tab-btn" data-tab="checkins">📊 ${t('salud_tab_checkins')}</button>
+          <button class="tab-btn" data-tab="sensible">${t('salud_tab_sensitive')}</button>
+          <button class="tab-btn" data-tab="checkins">${t('salud_tab_checkins')}</button>
         </div>
 
         <div id="tab-general" class="tab-content">
@@ -115,22 +115,22 @@ async function loadHealthRecords(container, profile) {
 }
 
 function buildHealthCard(id, record, profile) {
-  const icons = { lesion:'🤕', fractura:'🦴', operacion:'🏥', protesis:'🦾', enfermedad:'💊', alergia:'⚠️', otro:'📋' };
+  const icons = { lesion:'!', fractura:'!', operacion:'!', protesis:'!', enfermedad:'!', alergia:'!', otro:'!' };
   return `
     <div class="health-record glass-card">
       <div class="health-record-header">
-        <span class="health-record-icon">${icons[record.type]||'📋'}</span>
+        <span class="health-record-icon">${icons[record.type]||'!'}</span>
         <div style="flex:1">
           <div class="health-record-title">${record.title}</div>
           <div class="health-record-date">${record.type?record.type.charAt(0).toUpperCase()+record.type.slice(1):''} · ${formatDate(record.date)}</div>
         </div>
         <div style="display:flex;gap:6px">
           ${record.active?`<span class="badge badge-orange">${t('salud_active')}</span>`:`<span class="badge badge-gray">${t('salud_resolved')}</span>`}
-          <button class="btn-icon" data-delete-id="${id}" style="width:32px;height:32px;font-size:14px;color:var(--color-danger)">🗑</button>
+          <button class="btn-icon" data-delete-id="${id}" style="width:32px;height:32px;color:var(--color-danger);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
         </div>
       </div>
       ${record.description?`<p style="font-size:13px;color:var(--color-text-muted);line-height:1.5;margin-top:var(--space-xs)">${record.description}</p>`:''}
-      ${record.affectsTraining?`<p style="font-size:12px;color:var(--color-warning);margin-top:4px">⚠️ ${t('salud_affects_training')}: ${record.trainingNotes||''}</p>`:''}
+      ${record.affectsTraining?`<p style="font-size:12px;color:var(--color-warning);margin-top:4px">${t('salud_affects_training')}: ${record.trainingNotes||''}</p>`:''}
     </div>`;
 }
 
@@ -167,7 +167,7 @@ function loadSensitiveSection(container, profile) {
 async function loadSensitiveRecords(el, profile) {
   try {
     const snap = await collections.health(profile.uid).where('sensitive','==',true).orderBy('date','desc').get();
-    if (snap.empty) { el.innerHTML = `<div class="empty-state"><div class="empty-icon">🔒</div><div class="empty-title">${t('salud_no_sensitive')}</div></div>`; return; }
+    if (snap.empty) { el.innerHTML = `<div class="empty-state"><div class="empty-title">${t('salud_no_sensitive')}</div></div>`; return; }
     el.innerHTML = snap.docs.map(doc => buildHealthCard(doc.id, doc.data(), profile)).join('');
   } catch (e) { el.innerHTML = `<p class="text-muted">${t('error')}: ${e.message}</p>`; }
 }
@@ -229,7 +229,6 @@ async function renderCheckinData(el, uid, userName, isStaff) {
     if (!checkins.length) {
       el.innerHTML = `
         <div class="empty-state" style="padding:var(--space-2xl)">
-          <div class="empty-icon">📋</div>
           <div class="empty-title">${t('salud_no_checkins')}</div>
           <div class="empty-subtitle">${isStaff ? t('salud_no_checkins_staff').replace('{name}', userName) : t('salud_no_checkins_own')}</div>
         </div>`;
@@ -265,10 +264,10 @@ async function renderCheckinData(el, uid, userName, isStaff) {
       </div>` : ''}
 
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:var(--space-md)">
-        ${_pill('😊',t('salud_mood'),avgMood+'/5')}
-        ${_pill('😴',t('salud_sleep'),avgSleep+'/5')}
-        ${_pill('🕐',t('salud_hours'),avgHours+'h')}
-        ${_pill('🩹',t('salud_pain'),painDays+' '+t('salud_days'),painDays>3?'var(--color-danger)':painDays>0?'var(--color-warning)':undefined)}
+        ${_pill('',t('salud_mood'),avgMood+'/5')}
+        ${_pill('',t('salud_sleep'),avgSleep+'/5')}
+        ${_pill('',t('salud_hours'),avgHours+'h')}
+        ${_pill('',t('salud_pain'),painDays+' '+t('salud_days'),painDays>3?'var(--color-danger)':painDays>0?'var(--color-warning)':undefined)}
       </div>
 
       <div class="section-title" style="margin-bottom:8px">${t('salud_recent_days')}</div>
@@ -277,8 +276,8 @@ async function renderCheckinData(el, uid, userName, isStaff) {
           const lbl = new Date(c.date+'T12:00:00').toLocaleDateString(getLang(),{weekday:'short',day:'numeric'});
           return `<div class="glass-card" style="flex-shrink:0;min-width:72px;padding:10px 8px;text-align:center">
             <div style="font-size:10px;color:var(--color-text-muted);margin-bottom:4px">${lbl}</div>
-            <div style="font-size:20px">${MOOD_EMOJIS[c.mood]||'—'}</div>
-            <div style="font-size:16px;margin-top:2px">${SLEEP_EMOJIS[c.sleepQuality]||'—'}</div>
+            <div style="font-size:14px;font-weight:700;color:${MOOD_COLORS[c.mood]||'var(--color-text-muted)'}">${MOOD_LABELS[c.mood]||'—'}</div>
+            <div style="font-size:12px;margin-top:2px;color:var(--color-text-muted)">${SLEEP_LABELS[c.sleepQuality]||'—'}</div>
             <div style="font-size:11px;color:var(--color-text-muted);margin-top:2px">${c.sleepHours||'—'}h</div>
             ${c.pain?`<div style="width:8px;height:8px;border-radius:50%;background:var(--color-danger);margin:4px auto 0" title="${c.painLocation||'Dolor'}"></div>`:''}
           </div>`;
@@ -322,7 +321,7 @@ async function renderCheckinData(el, uid, userName, isStaff) {
       <div class="glass-card" style="padding:var(--space-md);margin-bottom:var(--space-md)">
         ${checkins.filter(c=>c.pain).slice(0,8).map(c=>`
           <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--glass-border)">
-            <span style="font-size:16px">🩹</span>
+            <span style="font-size:16px"></span>
             <div style="flex:1">
               <div style="font-size:13px;font-weight:600">${c.date}</div>
               <div style="font-size:12px;color:var(--color-text-muted)">${c.painLocation||t('salud_no_location')}</div>
@@ -335,7 +334,7 @@ async function renderCheckinData(el, uid, userName, isStaff) {
       <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:var(--space-md)">
         ${checkins.filter(c=>c.comment?.trim()).slice(0,10).map(c=>`
           <div class="glass-card" style="padding:var(--space-sm) var(--space-md);display:flex;gap:10px;align-items:flex-start">
-            <span style="font-size:14px;margin-top:2px">📝</span>
+            <span style="font-size:14px;margin-top:2px"></span>
             <div>
               <div style="font-size:11px;color:var(--color-text-muted);margin-bottom:2px">${c.date}</div>
               <div style="font-size:13px;line-height:1.5">${c.comment}</div>
@@ -350,9 +349,8 @@ async function renderCheckinData(el, uid, userName, isStaff) {
 
 function _pill(icon, label, value, color) {
   return `<div class="glass-card" style="padding:10px 6px;text-align:center">
-    <div style="font-size:18px">${icon}</div>
-    <div style="font-size:14px;font-weight:800;color:${color||'var(--color-text)'};margin-top:2px">${value}</div>
-    <div style="font-size:10px;color:var(--color-text-muted)">${label}</div>
+    <div style="font-size:14px;font-weight:800;color:${color||'var(--color-text)'}">${value}</div>
+    <div style="font-size:10px;color:var(--color-text-muted);margin-top:2px">${label}</div>
   </div>`;
 }
 
@@ -362,13 +360,13 @@ function _pill(icon, label, value, color) {
 function openAddHealthModal(profile, container, sensitive = false) {
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">${sensitive?`🔒 ${t('salud_sensitive_record')}`:`❤️ ${t('salud_health_record')}`}</h3>
+      <h3 class="modal-title">${sensitive?t('salud_sensitive_record'):t('salud_health_record')}</h3>
       <button class="modal-close">✕</button>
     </div>
     <div class="form-row">
       <label class="field-label">${t('salud_type')}</label>
       <div class="input-group" style="margin-top:4px">
-        <span class="input-icon">📋</span>
+        <span class="input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><rect x="9" y="2" width="6" height="3" rx="1"/><path d="M16 3h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2"/></svg></span>
         <select id="health-type">
           <option value="lesion">${t('salud_type_injury')}</option>
           <option value="fractura">${t('salud_type_fracture')}</option>
@@ -383,7 +381,7 @@ function openAddHealthModal(profile, container, sensitive = false) {
     <div class="form-row">
       <label class="field-label">${t('salud_title_diagnosis')}</label>
       <div class="input-group" style="margin-top:4px">
-        <span class="input-icon">📝</span>
+        <span class="input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>
         <input type="text" id="health-title" placeholder="${t('salud_title_placeholder')}">
       </div>
     </div>

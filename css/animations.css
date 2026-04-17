@@ -54,12 +54,12 @@
   50%       { transform: scale(1.04); }
 }
 @keyframes pulse-glow-red {
-  0%, 100% { box-shadow: 0 4px 20px rgba(148,10,10,0.3); }
-  50%       { box-shadow: 0 4px 40px rgba(148,10,10,0.7); }
+  0%, 100% { box-shadow: 0 4px 20px rgba(193,8,1,0.3); }
+  50%       { box-shadow: 0 4px 40px rgba(193,8,1,0.7); }
 }
-@keyframes pulse-glow-cyan {
-  0%, 100% { box-shadow: 0 4px 20px rgba(25,249,249,0.2); }
-  50%       { box-shadow: 0 4px 40px rgba(25,249,249,0.5); }
+@keyframes pulse-glow-accent {
+  0%, 100% { box-shadow: 0 4px 20px rgba(193,8,1,0.2); }
+  50%       { box-shadow: 0 4px 40px rgba(193,8,1,0.5); }
 }
 .animate-pulse       { animation: pulse 2s ease infinite; }
 .animate-pulse-scale { animation: pulse-scale 2s ease infinite; }
@@ -212,8 +212,8 @@
 
 /* ── Icon Glow ──────────────────────────────── */
 @keyframes iconGlow {
-  0%, 100% { filter: drop-shadow(0 0 4px rgba(25,249,249,0.3)); }
-  50%       { filter: drop-shadow(0 0 10px rgba(25,249,249,0.7)); }
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(193,8,1,0.3)); }
+  50%       { filter: drop-shadow(0 0 10px rgba(193,8,1,0.7)); }
 }
 .icon-glow { animation: iconGlow 3s ease infinite; }
 

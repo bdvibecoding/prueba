@@ -22,6 +22,7 @@
   backdrop-filter: blur(12px);
   z-index: 100;
   border: none;
+  box-shadow: var(--shadow-sm);
 }
 .nav-item {
   display: flex;
@@ -48,8 +49,8 @@
   bottom: -6px;
 }
 .nav-item.active .nav-icon-wrap {
-  background: rgba(148,10,10,0.12);
-  border-color: rgba(148,10,10,0.4);
+  background: rgba(193,8,1,0.12);
+  border-color: rgba(193,8,1,0.4);
 }
 .nav-icon-wrap {
   width: 44px; height: 32px;
@@ -92,7 +93,7 @@
 .bottom-nav .nav-item:hover .nav-icon svg { color: var(--white); }
 
 /* Staff panel nav item accent */
-.nav-item-staff .nav-icon svg { color: var(--cyan) !important; }
+.nav-item-staff .nav-icon svg { color: var(--red) !important; }
 
 
 /* ── Light mode nav & bar overrides ── */
@@ -105,8 +106,8 @@ body.light-mode .nav-item.active {
   color: var(--red);
 }
 body.light-mode .nav-item.active .nav-icon-wrap {
-  background: rgba(148,10,10,0.1);
-  border-color: rgba(148,10,10,0.25);
+  background: rgba(193,8,1,0.1);
+  border-color: rgba(193,8,1,0.25);
 }
 body.light-mode .bottom-nav .nav-item .nav-icon svg {
   color: var(--color-text-muted);
@@ -145,7 +146,7 @@ body.light-mode .chip {
 }
 body.light-mode .chip.active,
 body.light-mode .chip:hover {
-  background: rgba(148,10,10,0.1);
+  background: rgba(193,8,1,0.1);
   border-color: var(--red);
   color: var(--red);
 }
@@ -228,7 +229,7 @@ body.light-mode .chip:hover {
   font-weight: 800;
   color: var(--white);
   border: 3px solid rgba(255,255,255,0.15);
-  box-shadow: 0 8px 32px rgba(148,10,10,0.4), 0 0 0 6px rgba(148,10,10,0.1);
+  box-shadow: 0 8px 32px rgba(193,8,1,0.4), 0 0 0 6px rgba(193,8,1,0.1);
   position: relative;
   overflow: hidden;
 }
@@ -388,10 +389,10 @@ body.light-mode .chip:hover {
   align-items: center;
   gap: var(--space-sm);
   padding: var(--space-sm) var(--space-md);
-  background: rgba(25,249,249,0.08);
-  border: 1px solid rgba(25,249,249,0.2);
+  background: rgba(193,8,1,0.08);
+  border: 1px solid rgba(193,8,1,0.2);
   border-radius: var(--r-md);
-  color: var(--cyan);
+  color: var(--red);
   font-size: var(--fs-sm);
   font-weight: 600;
   cursor: pointer;
@@ -399,7 +400,7 @@ body.light-mode .chip:hover {
   text-decoration: none;
   display: flex;
 }
-.video-btn:hover { background: rgba(25,249,249,0.15); color: var(--cyan); }
+.video-btn:hover { background: rgba(193,8,1,0.15); color: var(--red); }
 
 /* ── Exercise Swap Dropdown ─────────────────── */
 .swap-dropdown {
@@ -475,7 +476,7 @@ body.light-mode .chip:hover {
 .summary-stat-val {
   font-size: var(--fs-xl);
   font-weight: 800;
-  color: var(--cyan);
+  color: var(--red);
   display: block;
 }
 .summary-stat-key {
@@ -491,9 +492,9 @@ body.light-mode .chip:hover {
   border-radius: var(--r-md);
   margin-bottom: var(--space-lg);
   background: linear-gradient(135deg,
-    rgba(148,10,10,0.3) 0%,
+    rgba(193,8,1,0.3) 0%,
     rgba(0,0,0,0.2) 100%);
-  border: 1px solid rgba(148,10,10,0.25);
+  border: 1px solid rgba(193,8,1,0.25);
   position: relative;
   overflow: hidden;
 }
@@ -503,7 +504,7 @@ body.light-mode .chip:hover {
   right: -20px; top: -20px;
   width: 120px; height: 120px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(25,249,249,0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(193,8,1,0.1) 0%, transparent 70%);
   pointer-events: none;
 }
 .welcome-time { font-size: var(--fs-xs); color: var(--color-text-muted); margin-bottom: 2px; }
@@ -530,8 +531,8 @@ body.light-mode .chip:hover {
   transition: background var(--transition-fast);
 }
 .notification-item.unread {
-  border-color: rgba(148,10,10,0.3);
-  background: rgba(148,10,10,0.05);
+  border-color: rgba(193,8,1,0.3);
+  background: rgba(193,8,1,0.05);
 }
 .notification-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
 .notification-body { flex: 1; }
@@ -562,13 +563,13 @@ input[type="range"]::-webkit-slider-thumb {
   width: 22px; height: 22px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--red-light), var(--red));
-  box-shadow: 0 2px 8px rgba(148,10,10,0.4);
+  box-shadow: 0 2px 8px rgba(193,8,1,0.4);
   cursor: pointer;
 }
 
 /* ── Color-coded role icons ─────────────────── */
-.role-admin        { background: rgba(148,10,10,0.2); color: #f87171; }
-.role-coach        { background: rgba(25,249,249,0.1); color: var(--cyan); }
+.role-admin        { background: rgba(193,8,1,0.2); color: #f87171; }
+.role-coach        { background: rgba(193,8,1,0.1); color: var(--red); }
 .role-medico       { background: rgba(34,197,94,0.1); color: #4ade80; }
 .role-nutricionista{ background: rgba(245,158,11,0.1); color: #fbbf24; }
 .role-cliente      { background: rgba(107,114,128,0.15); color: var(--gray); }
@@ -650,7 +651,7 @@ input[type="range"]::-webkit-slider-thumb {
 .stripe-input::placeholder { color: var(--color-text-muted); }
 .stripe-input:focus {
   border-color: var(--cyan-dim);
-  box-shadow: 0 0 0 3px rgba(25,249,249,0.08);
+  box-shadow: 0 0 0 3px rgba(193,8,1,0.08);
 }
 .stripe-secure {
   display: flex;
@@ -714,7 +715,7 @@ input[type="range"]::-webkit-slider-thumb {
   min-width: 52px;
 }
 .date-chip.active {
-  background: rgba(148,10,10,0.25);
+  background: rgba(193,8,1,0.25);
   border-color: var(--red);
 }
 .date-chip-day { font-size: var(--fs-xs); color: var(--color-text-muted); }
@@ -1062,7 +1063,7 @@ body.light-mode .nutrition-macro-bar {
 .nma-supp-dose {
   margin-left: auto;
   font-size: 12px;
-  color: var(--cyan, #19f9f9);
+  color: var(--red, #C10801);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -1095,3 +1096,89 @@ body.light-mode .nutrition-macro-bar {
 .empty-icon .tgwl-icon { width: 48px; height: 48px; opacity: .5; }
 /* Modal close con icono SVG */
 .modal-close .tgwl-icon { width: 18px; height: 18px; }
+
+/* ========================================
+   HOME GREETING — Split-weight display heading (Sección 09)
+   ======================================== */
+.home-greeting-display {
+  padding: var(--space-lg) var(--page-pad) var(--space-md);
+}
+
+.home-greeting-line1 {
+  font-family: 'SF Pro Display', var(--font-display, -apple-system), BlinkMacSystemFont, sans-serif;
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 41px;
+  color: #F0F0F0;
+  letter-spacing: -0.5px;
+}
+
+.home-greeting-line2 {
+  font-family: 'SF Pro Display', var(--font-display, -apple-system), BlinkMacSystemFont, sans-serif;
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 41px;
+  color: #555555;
+  letter-spacing: -0.5px;
+}
+
+body.light-mode .home-greeting-line1,
+[data-theme="light"] .home-greeting-line1 { color: #111111; }
+
+body.light-mode .home-greeting-line2,
+[data-theme="light"] .home-greeting-line2 { color: #BDBDBD; }
+
+/* ========================================
+   TAB BAR — Underline indicator (Sección 10)
+   ======================================== */
+.tab-bar-underline {
+  display: flex;
+  position: relative;
+  border-bottom: 0.5px solid #252525;
+  margin-bottom: var(--space-md);
+  gap: var(--space-lg);
+  padding: 0;
+}
+
+body.light-mode .tab-bar-underline,
+[data-theme="light"] .tab-bar-underline { border-bottom-color: #E0E0E0; }
+
+.tab-btn-underline {
+  position: relative;
+  font-family: 'SF Pro Display', var(--font-display, -apple-system), BlinkMacSystemFont, sans-serif;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.2;
+  padding: 0 0 12px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #555555;
+  transition: color 200ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab-btn-underline.active { color: #F0F0F0; }
+
+body.light-mode .tab-btn-underline,
+[data-theme="light"] .tab-btn-underline { color: #BDBDBD; }
+
+body.light-mode .tab-btn-underline.active,
+[data-theme="light"] .tab-btn-underline.active { color: #111111; }
+
+/* Indicador underline animado — posición controlada por JS */
+.tab-bar-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  border-radius: 1px;
+  background: #F0F0F0;
+  width: var(--indicator-width, 80px);
+  transform: translateX(var(--indicator-offset, 0px));
+  transition: transform 200ms ease, width 200ms ease;
+}
+
+body.light-mode .tab-bar-underline::after,
+[data-theme="light"] .tab-bar-underline::after { background: #111111; }

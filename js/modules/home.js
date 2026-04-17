@@ -20,20 +20,17 @@ export async function render(container) {
   container.innerHTML = `
     <div class="home-screen" id="home-page">
 
-      <!-- Welcome Banner -->
-      <div class="welcome-banner glass-card card-appear">
-        <div class="welcome-time">${getTimeLabel()} · ${formatDate(new Date())}</div>
-        <div class="welcome-greeting">${greeting}, ${name}! 👋</div>
-        <div class="welcome-subtext">
-          ${getMotivationPhrase()}
-        </div>
+      <!-- Greeting -->
+      <div class="home-greeting-display">
+        <div class="home-greeting-line1">${greeting},</div>
+        <div class="home-greeting-line2">${name}</div>
       </div>
 
       <!-- Active Session Resume Banner -->
       ${session?.routineId ? `
       <div class="glass-card glass-card-red" id="active-session-banner"
            style="padding:var(--space-md);margin-bottom:var(--space-md);cursor:pointer;display:flex;align-items:center;gap:var(--space-md)">
-        <span style="font-size:24px">💪</span>
+        <svg style="width:20px;height:20px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z"/></svg>
         <div style="flex:1">
           <div style="font-weight:700">${t('active_session')}</div>
           <div class="text-muted">${session.routineName || 'Rutina activa'}</div>
@@ -246,7 +243,7 @@ async function loadRecentActivity(container) {
       const dur = s.durationMs ? formatTime(s.durationMs) : '—';
       return `
         <div class="glass-card" style="padding:var(--space-md);margin-bottom:var(--space-sm);display:flex;align-items:center;gap:var(--space-md)">
-          <span style="font-size:24px;flex-shrink:0">💪</span>
+          <svg style="width:24px;height:24px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z"/></svg>
           <div style="flex:1;min-width:0">
             <div style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.routineName || 'Entreno'}</div>
             <div class="text-muted">${date} · ${dur}</div>

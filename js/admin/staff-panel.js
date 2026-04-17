@@ -595,7 +595,7 @@ function openHealthSheet(client) {
     <h4 style="margin-bottom:4px">${client.name}</h4>
     <p class="text-muted" style="margin-bottom:var(--space-md);font-size:13px">${t('staff_health_title')}</p>
     <div
-      class="glass-card glass-card-cyan"
+      class="glass-card glass-card-accent"
       style="padding:var(--space-md);text-align:center;margin-top:var(--space-lg)"
     >
       <div style="font-size:32px;margin-bottom:8px">🩺</div>
@@ -653,7 +653,7 @@ function openDietSheet(client) {
     <h4 style="margin-bottom:4px">${client.name}</h4>
     <p class="text-muted" style="margin-bottom:var(--space-md);font-size:13px">${t('staff_diet_title')}</p>
     <div
-      class="glass-card glass-card-cyan"
+      class="glass-card glass-card-accent"
       style="padding:var(--space-md);text-align:center;margin-top:var(--space-lg)"
     >
       <div style="font-size:32px;margin-bottom:8px">🥗</div>

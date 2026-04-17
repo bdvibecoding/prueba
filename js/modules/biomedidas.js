@@ -16,7 +16,7 @@ export async function render(container) {
       <div style="padding:var(--page-pad)">
         <div class="page-header">
           <div>
-            <h2 class="page-title">📊 ${t('bio_title')}</h2>
+            <h2 class="page-title">${t('bio_title')}</h2>
             <p class="page-subtitle">${t('bio_subtitle')}</p>
           </div>
           <button class="btn-primary" id="btn-add-bio" style="padding:10px 16px;font-size:13px">+ ${t('bio_add')}</button>
@@ -38,7 +38,6 @@ export async function render(container) {
 
         <!-- Date Range -->
         <div class="date-range" style="margin-bottom:var(--space-md)">
-          <span>📅</span>
           <input type="date" id="date-from" value="${getDateMinus(90)}">
           <span>—</span>
           <input type="date" id="date-to" value="${todayString()}">
@@ -231,7 +230,7 @@ function renderPerimetralTable(container, data) {
 function openAddBioSheet(profile, container) {
   const today = todayString();
   const html = `
-    <h4 style="margin-bottom:var(--space-md)">📊 ${t('bio_add_measurements')}</h4>
+    <h4 style="margin-bottom:var(--space-md)">${t('bio_add_measurements')}</h4>
     <div class="tabs" style="margin-bottom:var(--space-md)">
       <button class="tab-btn active" data-subtab="bio">${t('bio_tab_bio')}</button>
       <button class="tab-btn" data-subtab="skin">${t('bio_tab_skinfolds')}</button>
@@ -276,7 +275,7 @@ function openAddBioSheet(profile, container) {
       ].map(([id, label]) => buildMeasurementInput('peri-' + id, label, 'cm')).join('')}
     </div>
 
-    <button class="btn-primary btn-full" id="btn-save-bio" style="margin-top:var(--space-md)">💾 ${t('save')}</button>
+    <button class="btn-primary btn-full" id="btn-save-bio" style="margin-top:var(--space-md)">${t('save')}</button>
   `;
   openSheet(html);
 
