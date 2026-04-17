@@ -433,13 +433,13 @@ ul, ol { list-style: none; }
   backdrop-filter: blur(var(--glass-blur-sm));
 }
 .input-solo:focus {
-  border-color: var(--cyan-dim);
+  border-color: rgba(193,8,1,0.4);
   box-shadow: 0 0 0 3px rgba(193,8,1,0.1);
 }
 select.input-solo { color-scheme: dark; }
 select option, select optgroup {
-  background: #1a1a2e;
-  color: #e2e8f0;
+  background: #1A1A1A;
+  color: #F0F0F0;
 }
 
 .password-toggle {
@@ -502,7 +502,7 @@ select option, select optgroup {
   border: none;
   cursor: pointer;
   transition: all var(--transition-base);
-  box-shadow: 0 4px 20px rgba(193,8,1,0.4);
+  box-shadow: none;
   position: relative;
   overflow: hidden;
 }

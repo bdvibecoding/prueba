@@ -115,12 +115,12 @@ body.light-mode .glass-nav {
 /* Individual icon colors */
 .icon-entreno    { background: linear-gradient(145deg, rgba(193,8,1,0.15), rgba(193,8,1,0.08)); border-color: rgba(193,8,1,0.5); }
 .icon-alimentacion { background: linear-gradient(145deg, rgba(193,8,1,0.15), rgba(193,8,1,0.08)); border-color: rgba(193,8,1,0.3); }
-.icon-biomedidas { background: linear-gradient(145deg, rgba(59,130,246,0.15), rgba(59,130,246,0.08)); border-color: rgba(59,130,246,0.35); }
+.icon-biomedidas { background: linear-gradient(145deg, rgba(138,138,138,0.15), rgba(138,138,138,0.08)); border-color: rgba(138,138,138,0.35); }
 .icon-salud      { background: linear-gradient(145deg, rgba(239,68,68,0.15), rgba(239,68,68,0.08)); border-color: rgba(239,68,68,0.3); }
 .icon-progreso   { background: linear-gradient(145deg, rgba(34,197,94,0.15), rgba(34,197,94,0.08)); border-color: rgba(34,197,94,0.3); }
-.icon-perfil     { background: linear-gradient(145deg, rgba(168,85,247,0.15), rgba(168,85,247,0.08)); border-color: rgba(168,85,247,0.3); }
+.icon-perfil     { background: linear-gradient(145deg, rgba(138,138,138,0.15), rgba(138,138,138,0.08)); border-color: rgba(138,138,138,0.3); }
 .icon-suscripcion { background: linear-gradient(145deg, rgba(245,158,11,0.15), rgba(245,158,11,0.08)); border-color: rgba(245,158,11,0.35); }
-.icon-configuracion { background: linear-gradient(145deg, rgba(107,114,128,0.15), rgba(107,114,128,0.08)); border-color: rgba(107,114,128,0.3); }
+.icon-configuracion { background: linear-gradient(145deg, rgba(58,58,58,0.3), rgba(58,58,58,0.15)); border-color: rgba(138,138,138,0.25); }
 .icon-admin      { background: linear-gradient(145deg, rgba(193,8,1,0.15), rgba(193,8,1,0.08)); border-color: rgba(193,8,1,0.5); }
 
 /* Light glare on icon */
@@ -378,7 +378,7 @@ body.light-mode .app-icon-label {
   background: var(--color-success);
   border-color: var(--color-success);
   color: var(--white);
-  box-shadow: 0 0 12px rgba(34,197,94,0.4);
+  box-shadow: none;
 }
 .set-done-btn:active { transform: scale(0.9); }
 
@@ -400,8 +400,8 @@ body.light-mode .app-icon-label {
 .btn-add-drop:hover { background: rgba(193,8,1,0.1); }
 
 /* ── Warm-up Row ─────────────────────────────── */
-.set-row.warmup-row { border-left: 3px solid rgba(251,146,60,0.4); background: rgba(251,146,60,0.04); }
-.set-row.warmup-row .set-num { color: rgba(251,146,60,.8); }
+.set-row.warmup-row { border-left: 3px solid rgba(245,158,11,0.4); background: rgba(245,158,11,0.04); }
+.set-row.warmup-row .set-num { color: rgba(245,158,11,.8); }
 
 /* ── Dropset Row ─────────────────────────────── */
 .dropset-row {
@@ -815,7 +815,7 @@ body.light-mode .muscle-group {
 }
 .pack-card.selected {
   border-color: var(--red);
-  box-shadow: 0 0 0 2px var(--red), 0 12px 40px rgba(193,8,1,0.3);
+  box-shadow: 0 0 0 2px var(--red);
   transform: scale(1.02);
 }
 .pack-popular-badge {
@@ -886,7 +886,7 @@ body.light-mode .pack-price {
   background: linear-gradient(135deg, var(--red-light), var(--red));
   border-color: var(--red);
   color: var(--white);
-  box-shadow: 0 4px 16px rgba(193,8,1,0.4);
+  box-shadow: none;
 }
 
 /* ── Health Record Card ──────────────────────── */
@@ -975,7 +975,7 @@ body.light-mode .pack-price {
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  box-shadow: var(--shadow-md);
   animation: toastIn 0.35s var(--transition-spring);
   display: flex;
   align-items: center;

@@ -158,7 +158,7 @@ body.light-mode .chip:hover {
   align-items: center;
   gap: var(--space-sm);
   cursor: pointer;
-  color: var(--cyan);
+  color: var(--red);
   font-size: var(--fs-sm);
   font-weight: 600;
   -webkit-tap-highlight-color: transparent;
@@ -229,7 +229,7 @@ body.light-mode .chip:hover {
   font-weight: 800;
   color: var(--white);
   border: 3px solid rgba(255,255,255,0.15);
-  box-shadow: 0 8px 32px rgba(193,8,1,0.4), 0 0 0 6px rgba(193,8,1,0.1);
+  box-shadow: var(--shadow-md);
   position: relative;
   overflow: hidden;
 }
@@ -318,7 +318,7 @@ body.light-mode .chip:hover {
   -webkit-tap-highlight-color: transparent;
   transition: color var(--transition-fast);
 }
-.accordion-header:hover { color: var(--cyan); }
+.accordion-header:hover { color: var(--red); }
 .accordion-title { font-weight: 600; font-size: var(--fs-base); }
 .accordion-chevron {
   font-size: 12px;
@@ -380,7 +380,7 @@ body.light-mode .chip:hover {
 .tab-btn.active {
   background: var(--glass-bg-strong);
   color: var(--color-text);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: none;
 }
 
 /* ── Video Link Button ──────────────────────── */
@@ -563,7 +563,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 22px; height: 22px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--red-light), var(--red));
-  box-shadow: 0 2px 8px rgba(193,8,1,0.4);
+  box-shadow: none;
   cursor: pointer;
 }
 
@@ -572,7 +572,7 @@ input[type="range"]::-webkit-slider-thumb {
 .role-coach        { background: rgba(193,8,1,0.1); color: var(--red); }
 .role-medico       { background: rgba(34,197,94,0.1); color: #4ade80; }
 .role-nutricionista{ background: rgba(245,158,11,0.1); color: #fbbf24; }
-.role-cliente      { background: rgba(107,114,128,0.15); color: var(--gray); }
+.role-cliente      { background: rgba(138,138,138,0.15); color: var(--gray); }
 
 /* ── Permission Matrix (admin) ──────────────── */
 .permission-matrix {
@@ -650,7 +650,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .stripe-input::placeholder { color: var(--color-text-muted); }
 .stripe-input:focus {
-  border-color: var(--cyan-dim);
+  border-color: rgba(193,8,1,0.4);
   box-shadow: 0 0 0 3px rgba(193,8,1,0.08);
 }
 .stripe-secure {
@@ -723,7 +723,7 @@ input[type="range"]::-webkit-slider-thumb {
 .date-chip-dot {
   width: 4px; height: 4px;
   border-radius: 50%;
-  background: var(--cyan);
+  background: var(--red);
   margin-top: 4px;
 }
 
@@ -822,7 +822,7 @@ input[type="range"]::-webkit-slider-thumb {
   align-items: center;
   gap: var(--space-md);
   padding: 10px var(--page-pad, 16px);
-  background: rgba(10, 10, 20, 0.72);
+  background: rgba(10, 10, 10, 0.72);
   -webkit-backdrop-filter: blur(20px) saturate(1.4);
   backdrop-filter: blur(20px) saturate(1.4);
   border-bottom: 1px solid var(--glass-border);
@@ -830,7 +830,7 @@ input[type="range"]::-webkit-slider-thumb {
   row-gap: 6px;
 }
 body.light-mode .nutrition-macro-bar {
-  background: rgba(240, 240, 248, 0.88);
+  background: rgba(240, 240, 240, 0.88);
 }
 .nutrition-macro-cals {
   display: flex;
@@ -990,8 +990,8 @@ body.light-mode .nutrition-macro-bar {
   flex-shrink: 0;
 }
 .nmb-supp-icon {
-  background: rgba(99,102,241,.18);
-  border: 1px solid rgba(99,102,241,.35);
+  background: rgba(138,138,138,.12);
+  border: 1px solid rgba(138,138,138,.25);
   border-radius: var(--r-sm);
   padding: 4px 6px;
   cursor: pointer;
@@ -1002,7 +1002,7 @@ body.light-mode .nutrition-macro-bar {
   align-items: center;
   justify-content: center;
 }
-.nmb-supp-icon:hover { background: rgba(99,102,241,.3); }
+.nmb-supp-icon:hover { background: rgba(138,138,138,.22); }
 .nmb-check-label {
   cursor: pointer;
   display: flex;
@@ -1079,7 +1079,7 @@ body.light-mode .nutrition-macro-bar {
 }
 /* Tamaños contextuales */
 .nmb-icon .tgwl-icon { width: 24px; height: 24px; color: var(--color-text); }
-.nmb-supp-icon .tgwl-icon { width: 18px; height: 18px; color: var(--indigo, #818cf8); }
+.nmb-supp-icon .tgwl-icon { width: 18px; height: 18px; color: var(--color-text-muted); }
 .nmb-check-box .tgwl-icon { width: 20px; height: 20px; }
 .nmb-check-box .tgwl-icon-check { color: #4ade80; }
 .nmb-check-box .tgwl-icon-circle { color: var(--color-text-muted); }
@@ -1089,8 +1089,8 @@ body.light-mode .nutrition-macro-bar {
   align-items: center;
   gap: 4px;
 }
-.nma-supp-row .tgwl-icon { width: 16px; height: 16px; color: var(--indigo, #818cf8); }
-.nsf-supp-pill .tgwl-icon { width: 14px; height: 14px; color: var(--indigo, #818cf8); margin-right: 4px; }
+.nma-supp-row .tgwl-icon { width: 16px; height: 16px; color: var(--color-text-muted); }
+.nsf-supp-pill .tgwl-icon { width: 14px; height: 14px; color: var(--color-text-muted); margin-right: 4px; }
 .nsf-supp-pill { display: inline-flex; align-items: center; gap: 4px; }
 .nsf-icon .tgwl-icon { width: 28px; height: 28px; color: var(--amber, #fbbf24); }
 .empty-icon .tgwl-icon { width: 48px; height: 48px; opacity: .5; }
