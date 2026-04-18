@@ -60,12 +60,22 @@ export async function render(container) {
       <!-- ── Users panel ── -->
       <div id="admin-tab-users" style="flex:1;display:flex;flex-direction:column;min-height:0">
 
-        <!-- Sticky non-scrolling header (chips must not be inside overflow-y:auto) -->
-        <div style="flex-shrink:0;padding:var(--page-pad);padding-bottom:0;background:var(--color-bg)">
+        <!-- Sticky non-scrolling header -->
+        <div style="flex-shrink:0;padding:var(--page-pad);padding-bottom:12px;background:var(--color-bg)">
 
           <div class="page-header">
             <div>
-              <h2 class="page-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px;margin-right:6px"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6M15.5 7.5L19 4M18 5l2 2"/></svg>${t('admin_title')}</h2>
+              <h2 class="page-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                  stroke-linecap="round" stroke-linejoin="round"
+                  style="width:20px;height:20px;vertical-align:-4px;margin-right:6px;color:var(--red,#C10801)">
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  <path d="M21 21v-2a4 4 0 0 0-3-3.87"/>
+                </svg>
+                ${t('admin_title')}
+              </h2>
               <p class="page-subtitle">${t('admin_subtitle')}</p>
             </div>
             <button class="btn-primary" id="btn-invite-user" style="padding:10px 16px;font-size:13px">${t('invite')}</button>
@@ -79,13 +89,20 @@ export async function render(container) {
           </div>
 
           <!-- Search -->
-          <div class="input-group" style="margin-bottom:var(--space-sm)">
+          <div class="input-group" style="margin-bottom:8px">
             <span class="input-icon"></span>
             <input type="search" id="user-search" placeholder="${t('search_users')}" autocomplete="off">
           </div>
 
-          <!-- Role Filter chips — in sticky header, NOT inside overflow-y:auto -->
-          <div class="h-scroll" style="padding-top:var(--space-sm);padding-bottom:var(--space-md)">
+          <!-- Role Filter chips
+               overflow-y:hidden + overflow-x:auto = valid combo (no CSS spec coercion).
+               padding-bottom lives on the PARENT (above) so it's never inside an overflow container -->
+          <div style="
+            display:flex; flex-wrap:nowrap; gap:8px;
+            overflow-x:auto; overflow-y:hidden;
+            padding-top:8px;
+            scrollbar-width:none; -webkit-overflow-scrolling:touch;
+          ">
             <button class="chip active" data-filter="all">${t('all')}</button>
             <button class="chip" data-filter="admin">${translateRole('admin')}</button>
             <button class="chip" data-filter="coach">${translateRole('coach')}</button>
@@ -110,8 +127,9 @@ export async function render(container) {
           background:rgba(234,179,8,0.05)
  ">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-            <div style="font-size:13px;font-weight:700;color:#eab308">
-               ${t('admin_pending_title')}
+            <div style="font-size:13px;font-weight:700;color:#eab308;display:flex;align-items:center;gap:6px">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ${t('admin_pending_title')}
             </div>
             <div style="display:flex;align-items:center;gap:6px">
               <button id="btn-refresh-pending" title="Actualizar" style="
@@ -141,8 +159,9 @@ export async function render(container) {
           background:rgba(148,10,10,0.08)
  ">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-            <div style="font-size:13px;font-weight:700;color:#ef4444">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px;margin-right:4px"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6M15.5 7.5L19 4M18 5l2 2"/></svg>${t('admin_current_admins')}
+            <div style="font-size:13px;font-weight:700;color:#ef4444;display:flex;align-items:center;gap:6px">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;flex-shrink:0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              ${t('admin_current_admins')}
             </div>
             <span id="admin-slot-badge" style="
               font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--r-full);
