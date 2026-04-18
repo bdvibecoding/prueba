@@ -28,7 +28,7 @@ function roleBadgeHtml(role) {
 
 export async function render(container) {
   container.innerHTML = `
-    <div class="page active" id="admin-page" style="display:flex;flex-direction:column;height:100%;overflow:hidden;padding:0;background:var(--color-bg)">
+    <div class="page active" id="admin-page" style="display:flex;flex-direction:column;height:calc(100% + env(safe-area-inset-bottom,0px));overflow:hidden;padding:0;background:var(--color-bg)">
 
       <!-- ── Main tab bar ── -->
       <div style="
@@ -116,7 +116,7 @@ export async function render(container) {
         </div><!-- /sticky header -->
 
         <!-- Scrollable body — only this part scrolls -->
-        <div style="flex:1;overflow-y:auto;padding:0 var(--page-pad);padding-bottom:var(--nav-clearance,152px)">
+        <div style="flex:1;overflow-y:auto;padding:0 var(--page-pad);padding-bottom:calc(var(--nav-clearance,96px) + env(safe-area-inset-bottom,0px))">
 
         <!-- Pending activation section -->
         <div id="pending-access-section" style="margin-top:var(--space-sm);
@@ -190,7 +190,7 @@ export async function render(container) {
       <div id="admin-tab-hub" style="flex:1;display:none;overflow:hidden;min-height:0">
 
       <!-- ── Rutinas panel ── -->
-      </div><div id="admin-tab-routines" style="flex:1;display:none;overflow-y:auto;padding:var(--page-pad);padding-bottom:var(--nav-clearance, 152px);flex-direction:column">
+      </div><div id="admin-tab-routines" style="flex:1;display:none;overflow-y:auto;padding:var(--page-pad);padding-bottom:calc(var(--nav-clearance,96px) + env(safe-area-inset-bottom,0px));flex-direction:column">
         <div class="page-header" style="margin-bottom:var(--space-lg)">
           <div>
             <h2 class="page-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px;margin-right:6px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg>Mis Rutinas</h2>
@@ -203,7 +203,7 @@ export async function render(container) {
       </div>
 
       <!-- ── Dietas panel ── -->
-      <div id="admin-tab-diets" style="flex:1;display:none;overflow-y:auto;padding:var(--page-pad);padding-bottom:var(--nav-clearance, 152px);flex-direction:column">
+      <div id="admin-tab-diets" style="flex:1;display:none;overflow-y:auto;padding:var(--page-pad);padding-bottom:calc(var(--nav-clearance,96px) + env(safe-area-inset-bottom,0px));flex-direction:column">
         <div class="page-header" style="margin-bottom:var(--space-lg)">
           <div>
             <h2 class="page-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px;margin-right:6px"><path d="M12 2a5 5 0 00-5 5c0 2 1 4 3 5H7a1 1 0 00-1 1v2a1 1 0 001 1h10a1 1 0 001-1v-2a1 1 0 00-1-1h-3c2-1 3-3 3-5a5 5 0 00-5-5z"/><path d="M7 21h10"/></svg>Mis Dietas</h2>
