@@ -33,10 +33,10 @@ export async function render(container) {
         </div>
 
         <!-- Tabs -->
-        <div class="tabs">
-          <button class="tab-btn active" data-tab="photos">${t('prog_tab_photos')}</button>
-          <button class="tab-btn" data-tab="comparison">${t('prog_tab_compare')}</button>
-          <button class="tab-btn" data-tab="charts">${t('prog_tab_charts')}</button>
+        <div class="tab-bar-underline" id="prog-tab-bar">
+          <button class="tab-btn-underline active" data-tab="photos">${t('prog_tab_photos')}</button>
+          <button class="tab-btn-underline" data-tab="comparison">${t('prog_tab_compare')}</button>
+          <button class="tab-btn-underline" data-tab="charts">${t('prog_tab_charts')}</button>
         </div>
 
         <!-- Tab: Photos -->
@@ -143,11 +143,22 @@ export async function init(container) {
     });
   });
 
-  // Main tabs
-  container.querySelectorAll('.tab-btn').forEach(btn => {
+  // Main tabs — underline indicator
+  function updateTabIndicator(activeBtn) {
+    const bar = document.getElementById('prog-tab-bar');
+    if (!bar || !activeBtn) return;
+    requestAnimationFrame(() => {
+      const btnRect = activeBtn.getBoundingClientRect();
+      const barRect = bar.getBoundingClientRect();
+      bar.style.setProperty('--indicator-width', btnRect.width + 'px');
+      bar.style.setProperty('--indicator-offset', (btnRect.left - barRect.left) + 'px');
+    });
+  }
+  container.querySelectorAll('.tab-btn-underline').forEach(btn => {
     btn.addEventListener('click', () => {
-      container.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      container.querySelectorAll('.tab-btn-underline').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      updateTabIndicator(btn);
       container.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
       container.querySelector(`#tab-${btn.dataset.tab}`)?.classList.remove('hidden');
       if (btn.dataset.tab === 'comparison') {
@@ -159,6 +170,8 @@ export async function init(container) {
       }
     });
   });
+  const activeProgTab = container.querySelector('.tab-btn-underline.active');
+  if (activeProgTab) setTimeout(() => updateTabIndicator(activeProgTab), 50);
 
   // Chart range
   container.querySelector('#btn-apply-chart-range')?.addEventListener('click', () => {

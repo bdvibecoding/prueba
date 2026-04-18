@@ -33,10 +33,10 @@ export async function render(container) {
         </div>
 
         <!-- Tabs -->
-        <div class="tabs">
-          <button class="tab-btn active" data-tab="bioimpedancia">${t('bio_tab_bio')}</button>
-          <button class="tab-btn" data-tab="pliegues">${t('bio_tab_skinfolds')}</button>
-          <button class="tab-btn" data-tab="perimetros">${t('bio_tab_perimetrals')}</button>
+        <div class="tab-bar-underline" id="bio-tab-bar">
+          <button class="tab-btn-underline active" data-tab="bioimpedancia">${t('bio_tab_bio')}</button>
+          <button class="tab-btn-underline" data-tab="pliegues">${t('bio_tab_skinfolds')}</button>
+          <button class="tab-btn-underline" data-tab="perimetros">${t('bio_tab_perimetrals')}</button>
         </div>
 
         <!-- Date Range -->
@@ -234,10 +234,10 @@ function openAddBioSheet(profile, container) {
   const today = todayString();
   const html = `
     <h4 style="margin-bottom:var(--space-md)">${t('bio_add_measurements')}</h4>
-    <div class="tabs" style="margin-bottom:var(--space-md)">
-      <button class="tab-btn active" data-subtab="bio">${t('bio_tab_bio')}</button>
-      <button class="tab-btn" data-subtab="skin">${t('bio_tab_skinfolds')}</button>
-      <button class="tab-btn" data-subtab="peri">${t('bio_tab_perimetrals')}</button>
+    <div class="tab-bar-underline tab-bar-underline--sm" id="bio-sheet-tab-bar" style="margin-bottom:var(--space-md)">
+      <button class="tab-btn-underline active" data-subtab="bio">${t('bio_tab_bio')}</button>
+      <button class="tab-btn-underline" data-subtab="skin">${t('bio_tab_skinfolds')}</button>
+      <button class="tab-btn-underline" data-subtab="peri">${t('bio_tab_perimetrals')}</button>
     </div>
 
     <input type="date" id="bio-entry-date" class="input-solo" value="${today}" style="margin-bottom:var(--space-md)">
@@ -284,17 +284,30 @@ function openAddBioSheet(profile, container) {
 
   const sc = document.getElementById('sheet-content');
 
-  // Sub-tabs
-  sc.querySelectorAll('.tab-btn[data-subtab]').forEach(btn => {
+  // Sub-tabs (underline style)
+  function updateSheetTabIndicator(activeBtn) {
+    const bar = document.getElementById('bio-sheet-tab-bar');
+    if (!bar || !activeBtn) return;
+    requestAnimationFrame(() => {
+      const btnRect = activeBtn.getBoundingClientRect();
+      const barRect = bar.getBoundingClientRect();
+      bar.style.setProperty('--indicator-width', btnRect.width + 'px');
+      bar.style.setProperty('--indicator-offset', (btnRect.left - barRect.left) + 'px');
+    });
+  }
+  sc.querySelectorAll('.tab-btn-underline[data-subtab]').forEach(btn => {
     btn.addEventListener('click', () => {
-      sc.querySelectorAll('.tab-btn[data-subtab]').forEach(b => b.classList.remove('active'));
+      sc.querySelectorAll('.tab-btn-underline[data-subtab]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      ['bio','skin','peri'].forEach(t => {
-        const el = sc.querySelector(`#subtab-${t}`);
-        if (el) el.style.display = t === btn.dataset.subtab ? '' : 'none';
+      updateSheetTabIndicator(btn);
+      ['bio','skin','peri'].forEach(k => {
+        const el = sc.querySelector(`#subtab-${k}`);
+        if (el) el.style.display = k === btn.dataset.subtab ? '' : 'none';
       });
     });
   });
+  const activeSheetTab = sc.querySelector('.tab-btn-underline[data-subtab].active');
+  if (activeSheetTab) setTimeout(() => updateSheetTabIndicator(activeSheetTab), 50);
 
   sc.querySelector('#btn-save-bio').addEventListener('click', async () => {
     const date = sc.querySelector('#bio-entry-date').value || today;

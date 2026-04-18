@@ -35,10 +35,10 @@ export async function render(container) {
           <button class="btn-primary" id="btn-add-health" style="padding:10px 16px;font-size:13px">+ ${t('add')}</button>
         </div>
 
-        <div class="tabs">
-          <button class="tab-btn active" data-tab="general">${t('salud_tab_general')}</button>
-          <button class="tab-btn" data-tab="sensible">${t('salud_tab_sensitive')}</button>
-          <button class="tab-btn" data-tab="checkins">${t('salud_tab_checkins')}</button>
+        <div class="tab-bar-underline" id="salud-tab-bar">
+          <button class="tab-btn-underline active" data-tab="general">${t('salud_tab_general')}</button>
+          <button class="tab-btn-underline" data-tab="sensible">${t('salud_tab_sensitive')}</button>
+          <button class="tab-btn-underline" data-tab="checkins">${t('salud_tab_checkins')}</button>
         </div>
 
         <div id="tab-general" class="tab-content">
@@ -62,16 +62,29 @@ export async function render(container) {
 export async function init(container) {
   const profile = getUserProfile();
 
-  container.querySelectorAll('.tab-btn').forEach(btn => {
+  function updateTabIndicator(activeBtn) {
+    const bar = document.getElementById('salud-tab-bar');
+    if (!bar || !activeBtn) return;
+    requestAnimationFrame(() => {
+      const btnRect = activeBtn.getBoundingClientRect();
+      const barRect = bar.getBoundingClientRect();
+      bar.style.setProperty('--indicator-width', btnRect.width + 'px');
+      bar.style.setProperty('--indicator-offset', (btnRect.left - barRect.left) + 'px');
+    });
+  }
+  container.querySelectorAll('.tab-btn-underline').forEach(btn => {
     btn.addEventListener('click', () => {
-      container.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      container.querySelectorAll('.tab-btn-underline').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      updateTabIndicator(btn);
       container.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
       container.querySelector(`#tab-${btn.dataset.tab}`)?.classList.remove('hidden');
       if (btn.dataset.tab === 'sensible') loadSensitiveSection(container, profile);
       if (btn.dataset.tab === 'checkins') loadCheckinsTab(container, profile);
     });
   });
+  const activeSaludTab = container.querySelector('.tab-btn-underline.active');
+  if (activeSaludTab) setTimeout(() => updateTabIndicator(activeSaludTab), 50);
 
   container.querySelector('#btn-add-health')?.addEventListener('click', () => openAddHealthModal(profile, container));
   loadHealthRecords(container, profile);

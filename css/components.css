@@ -1179,3 +1179,10 @@ body.light-mode .tab-btn-underline.active,
 
 body.light-mode .tab-bar-underline::after,
 [data-theme="light"] .tab-bar-underline::after { background: #111111; }
+
+/* ── Underline tab bar — small variant (sheets / sub-sections) ── */
+.tab-bar-underline--sm .tab-btn-underline {
+  font-size: 16px;
+  font-weight: 500;
+  padding-bottom: 10px;
+}
