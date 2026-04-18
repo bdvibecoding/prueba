@@ -683,6 +683,7 @@ body.light-mode .app-section {
   overscroll-behavior-y: contain;
   padding-top: calc(var(--safe-top) + 16px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--color-bg);
 }
 
 

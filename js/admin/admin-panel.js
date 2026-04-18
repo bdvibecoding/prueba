@@ -28,7 +28,7 @@ function roleBadgeHtml(role) {
 
 export async function render(container) {
   container.innerHTML = `
-    <div class="page active" id="admin-page" style="display:flex;flex-direction:column;height:100%;overflow:hidden;padding:0;padding-bottom:env(safe-area-inset-bottom,0px);background:var(--color-bg)">
+    <div class="page active" id="admin-page" style="display:flex;flex-direction:column;height:100%;overflow:hidden;padding:0;background:var(--color-bg)">
 
       <!-- ── Main tab bar ── -->
       <div style="
