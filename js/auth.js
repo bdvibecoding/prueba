@@ -154,8 +154,34 @@ function showAuth() {
 export function initAuthListener() {
   auth.onAuthStateChanged(async (firebaseUser) => {
     if (firebaseUser) {
-      let profile = await loadUserProfile(firebaseUser.uid);
-      if (!profile) profile = await createUserProfile(firebaseUser);
+      let profile = null;
+      try {
+        profile = await loadUserProfile(firebaseUser.uid);
+        // Only create a new doc if Firestore confirmed none exists (snap.exists=false)
+        // Don't attempt creation if loadUserProfile threw a network/permission error
+        if (profile === null) {
+          try {
+            profile = await createUserProfile(firebaseUser);
+          } catch (createErr) {
+            console.warn('[Auth] Could not create profile (rules or network):', createErr.message);
+            // Retry loading once — the document may have just been created by another process
+            profile = await loadUserProfile(firebaseUser.uid);
+          }
+        }
+      } catch (loadErr) {
+        console.error('[Auth] Failed to load profile:', loadErr.message);
+        // Fallback: show auth screen so user can retry
+        showAuth();
+        return;
+      }
+
+      if (!profile) {
+        // Still no profile after all attempts — show auth so user can retry
+        console.error('[Auth] Profile unavailable after all attempts');
+        showAuth();
+        return;
+      }
+
       setUser(firebaseUser, profile);
 
       // Apply theme preference

@@ -66,9 +66,12 @@ export function showUpgradeModal(feature = '') {
 const history = [];
 
 // ── Client Access Gate ────────────────────────
+const STAFF_BYPASS_ROLES = ['admin','coach','medico','fisio','psicologo','nutricionista'];
 function checkClientAccess(profile) {
   if (!profile) return false;
-  // Only applies to cliente/atleta roles
+  // Staff and admins always have access
+  if (STAFF_BYPASS_ROLES.includes(profile.role)) return true;
+  // Only gate applies to cliente/atleta roles
   if (!['cliente', 'atleta'].includes(profile.role)) return true;
   // Active subscription
   if (profile.subscriptionStatus && profile.subscriptionStatus !== 'free') return true;
