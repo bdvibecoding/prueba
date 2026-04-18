@@ -673,7 +673,7 @@ body.light-mode .muscle-group {
   justify-content: center;
   font-size: 18px;
   pointer-events: none;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  box-shadow: var(--shadow-sm);
 }
 .ba-labels {
   position: absolute;
