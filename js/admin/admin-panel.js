@@ -28,7 +28,7 @@ function roleBadgeHtml(role) {
 
 export async function render(container) {
   container.innerHTML = `
-    <div class="page active" id="admin-page" style="display:flex;flex-direction:column;height:100%;overflow:hidden;padding:0">
+    <div class="page active" id="admin-page" style="display:flex;flex-direction:column;height:100%;overflow:hidden;padding:0;padding-bottom:env(safe-area-inset-bottom,0px);background:var(--color-bg)">
 
       <!-- ── Main tab bar ── -->
       <div style="
@@ -58,10 +58,10 @@ export async function render(container) {
       </div>
 
       <!-- ── Users panel ── -->
-      <div id="admin-tab-users" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+      <div id="admin-tab-users" style="flex:1;display:flex;flex-direction:column;min-height:0">
 
-        <!-- Sticky non-scrolling header (search + chips must not be inside overflow-y:auto) -->
-        <div style="flex-shrink:0;padding:var(--page-pad);padding-bottom:0">
+        <!-- Sticky non-scrolling header (chips must not be inside overflow-y:auto) -->
+        <div style="flex-shrink:0;padding:var(--page-pad);padding-bottom:0;background:var(--color-bg)">
 
           <div class="page-header">
             <div>
@@ -84,8 +84,8 @@ export async function render(container) {
             <input type="search" id="user-search" placeholder="${t('search_users')}" autocomplete="off">
           </div>
 
-          <!-- Role Filter chips — OUTSIDE the overflow-y:auto container so they never clip -->
-          <div class="h-scroll" style="margin:0 calc(-1*var(--page-pad));padding:var(--space-sm) var(--page-pad) var(--space-md)">
+          <!-- Role Filter chips — in sticky header, NOT inside overflow-y:auto -->
+          <div class="h-scroll" style="padding-top:var(--space-sm);padding-bottom:var(--space-md)">
             <button class="chip active" data-filter="all">${t('all')}</button>
             <button class="chip" data-filter="admin">${translateRole('admin')}</button>
             <button class="chip" data-filter="coach">${translateRole('coach')}</button>
