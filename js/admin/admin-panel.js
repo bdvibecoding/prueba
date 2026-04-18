@@ -58,44 +58,51 @@ export async function render(container) {
       </div>
 
       <!-- ── Users panel ── -->
-      <div id="admin-tab-users" style="flex:1;overflow-y:auto;padding:var(--page-pad);padding-bottom:var(--nav-clearance, 152px);display:flex;flex-direction:column">
+      <div id="admin-tab-users" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
 
-        <div class="page-header">
-          <div>
-            <h2 class="page-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px;margin-right:6px"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6M15.5 7.5L19 4M18 5l2 2"/></svg>${t('admin_title')}</h2>
-            <p class="page-subtitle">${t('admin_subtitle')}</p>
+        <!-- Sticky non-scrolling header (search + chips must not be inside overflow-y:auto) -->
+        <div style="flex-shrink:0;padding:var(--page-pad);padding-bottom:0">
+
+          <div class="page-header">
+            <div>
+              <h2 class="page-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px;margin-right:6px"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6M15.5 7.5L19 4M18 5l2 2"/></svg>${t('admin_title')}</h2>
+              <p class="page-subtitle">${t('admin_subtitle')}</p>
+            </div>
+            <button class="btn-primary" id="btn-invite-user" style="padding:10px 16px;font-size:13px">${t('invite')}</button>
           </div>
-          <button class="btn-primary" id="btn-invite-user" style="padding:10px 16px;font-size:13px">${t('invite')}</button>
-        </div>
 
-        <!-- Stats -->
-        <div class="quick-stats" id="admin-stats">
-          <div class="glass-card stat-card"><div class="stat-value" id="stat-total">—</div><div class="stat-label">${t('admin_stats_users')}</div></div>
-          <div class="glass-card stat-card"><div class="stat-value" id="stat-staff">—</div><div class="stat-label">${t('admin_stats_staff')}</div></div>
-          <div class="glass-card stat-card"><div class="stat-value" id="stat-clients">—</div><div class="stat-label">${t('admin_stats_clients')}</div></div>
-        </div>
+          <!-- Stats -->
+          <div class="quick-stats" id="admin-stats">
+            <div class="glass-card stat-card"><div class="stat-value" id="stat-total">—</div><div class="stat-label">${t('admin_stats_users')}</div></div>
+            <div class="glass-card stat-card"><div class="stat-value" id="stat-staff">—</div><div class="stat-label">${t('admin_stats_staff')}</div></div>
+            <div class="glass-card stat-card"><div class="stat-value" id="stat-clients">—</div><div class="stat-label">${t('admin_stats_clients')}</div></div>
+          </div>
 
-        <!-- Search -->
-        <div class="input-group" style="margin-bottom:var(--space-md)">
-          <span class="input-icon"></span>
-          <input type="search" id="user-search" placeholder="${t('search_users')}" autocomplete="off">
-        </div>
+          <!-- Search -->
+          <div class="input-group" style="margin-bottom:var(--space-sm)">
+            <span class="input-icon"></span>
+            <input type="search" id="user-search" placeholder="${t('search_users')}" autocomplete="off">
+          </div>
 
-        <!-- Role Filter -->
-        <div class="h-scroll" style="margin-bottom:var(--space-md)">
-          <button class="chip active" data-filter="all">${t('all')}</button>
-          <button class="chip" data-filter="admin">${translateRole('admin')}</button>
-          <button class="chip" data-filter="coach">${translateRole('coach')}</button>
-          <button class="chip" data-filter="medico">${translateRole('medico')}</button>
-          <button class="chip" data-filter="fisio">${translateRole('fisio')}</button>
-          <button class="chip" data-filter="psicologo">${translateRole('psicologo')}</button>
-          <button class="chip" data-filter="nutricionista">${translateRole('nutricionista')}</button>
-          <button class="chip" data-filter="atleta">${translateRole('atleta')}</button>
-          <button class="chip" data-filter="cliente">${translateRole('cliente')}</button>
-        </div>
+          <!-- Role Filter chips — OUTSIDE the overflow-y:auto container so they never clip -->
+          <div class="h-scroll" style="margin:0 calc(-1*var(--page-pad));padding:var(--space-sm) var(--page-pad) var(--space-md)">
+            <button class="chip active" data-filter="all">${t('all')}</button>
+            <button class="chip" data-filter="admin">${translateRole('admin')}</button>
+            <button class="chip" data-filter="coach">${translateRole('coach')}</button>
+            <button class="chip" data-filter="medico">${translateRole('medico')}</button>
+            <button class="chip" data-filter="fisio">${translateRole('fisio')}</button>
+            <button class="chip" data-filter="psicologo">${translateRole('psicologo')}</button>
+            <button class="chip" data-filter="nutricionista">${translateRole('nutricionista')}</button>
+            <button class="chip" data-filter="atleta">${translateRole('atleta')}</button>
+            <button class="chip" data-filter="cliente">${translateRole('cliente')}</button>
+          </div>
+        </div><!-- /sticky header -->
+
+        <!-- Scrollable body — only this part scrolls -->
+        <div style="flex:1;overflow-y:auto;padding:0 var(--page-pad);padding-bottom:var(--nav-clearance,152px)">
 
         <!-- Pending activation section -->
-        <div id="pending-access-section" style="
+        <div id="pending-access-section" style="margin-top:var(--space-sm);
           margin-bottom:var(--space-md);
           border:1px solid rgba(234,179,8,0.3);
           border-radius:var(--r-md);
@@ -157,7 +164,8 @@ export async function render(container) {
 
         <!-- Spacer: rellena altura restante cuando el contenido es corto -->
         <div style="flex:1 1 auto;min-height:0" aria-hidden="true"></div>
-      </div>
+        </div><!-- /scrollable body -->
+      </div><!-- /admin-tab-users -->
 
       <!-- ── Hub Clientes panel (lazy-loaded) ── -->
       <div id="admin-tab-hub" style="flex:1;display:none;overflow:hidden;min-height:0">
@@ -210,8 +218,8 @@ export async function init(container) {
         t.style.borderBottomColor = 'transparent';
       });
       tab.classList.add('active');
-      tab.style.color = 'var(--cyan)';
-      tab.style.borderBottomColor = 'var(--cyan)';
+      tab.style.color = 'var(--red, #C10801)';
+      tab.style.borderBottomColor = 'var(--red, #C10801)';
 
       const which = tab.dataset.mainTab;
       // Los tabs scrollables usan flex-column para el spacer que rellena altura.
