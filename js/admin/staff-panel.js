@@ -24,38 +24,38 @@ async function getSupplementCreator() {
 function getRoleConfig() {
   return {
     coach: {
-      icon:     '🏋️',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg>',
       title:    t('staff_coach_title'),
       subtitle: t('staff_coach_subtitle'),
-      field:    'assignedCoach',
+      field: 'assignedCoach',
       action:   { label: t('staff_coach_action'), key: 'routines' },
     },
     medico: {
-      icon:     '🩺',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M3 9a9 9 0 009 9 9 9 0 009-9V5H3z"/><path d="M12 18v3M9 21h6"/></svg>',
       title:    t('staff_medico_title'),
       subtitle: t('staff_medico_subtitle'),
-      field:    'assignedMedico',
+      field: 'assignedMedico',
       action:   { label: t('staff_medico_action'), key: 'health' },
     },
     fisio: {
-      icon:     '🦴',
+      icon: '',
       title:    t('staff_fisio_title'),
       subtitle: t('staff_fisio_subtitle'),
-      field:    'assignedFisio',
+      field: 'assignedFisio',
       action:   { label: t('staff_fisio_action'), key: 'health' },
     },
     psicologo: {
-      icon:     '🧠',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M12 5a3 3 0 00-3 3c0 1.4.8 2.6 2 3.2V19a1 1 0 002 0v-7.8c1.2-.6 2-1.8 2-3.2a3 3 0 00-3-3z"/><path d="M6.2 8.5C5.5 9 5 9.7 5 10.5a3 3 0 003 3M17.8 8.5c.7.5 1.2 1.2 1.2 2a3 3 0 01-3 3"/></svg>',
       title:    t('staff_psicologo_title'),
       subtitle: t('staff_psicologo_subtitle'),
-      field:    'assignedPsicologo',
+      field: 'assignedPsicologo',
       action:   { label: t('staff_psicologo_action'), key: 'notes' },
     },
     nutricionista: {
-      icon:     '🥗',
+      icon: '',
       title:    t('staff_nutricionista_title'),
       subtitle: t('staff_nutricionista_subtitle'),
-      field:    'assignedNutricionista',
+      field: 'assignedNutricionista',
       action:   { label: t('staff_nutricionista_action'), key: 'diet' },
     },
   };
@@ -90,7 +90,7 @@ export async function render(container) {
               white-space:nowrap;
               flex-shrink:0;
               margin-top:2px;
-            "
+ "
           >
             ${t('staff_client_view')}
           </button>
@@ -113,7 +113,7 @@ export async function render(container) {
         <div class="section-title">${t('staff_routines_mgmt')}</div>
         <div class="settings-group" style="margin-bottom:var(--space-md)">
           <div class="settings-item" id="btn-create-routine" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(148,10,10,0.2)">📋</div>
+            <div class="settings-item-icon" style="background:rgba(148,10,10,0.2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('staff_create_routine')}</div>
               <div class="settings-item-desc">${t('staff_create_routine_desc')}</div>
@@ -121,7 +121,7 @@ export async function render(container) {
             <div class="settings-item-right">›</div>
           </div>
           <div class="settings-item" id="btn-my-routines" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(25,249,249,0.1)">📚</div>
+            <div class="settings-item-icon" style="background:rgba(25,249,249,0.1)"></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('staff_my_routines')}</div>
               <div class="settings-item-desc">${t('staff_my_routines_desc')}</div>
@@ -129,14 +129,14 @@ export async function render(container) {
             <div class="settings-item-right">›</div>
           </div>
         </div>
-        ` : ''}
+ ` : ''}
 
         <!-- Nutrition management (nutricionista only) -->
         ${role === 'nutricionista' ? `
         <div class="section-title">${t('staff_nutrition_mgmt')}</div>
         <div class="settings-group" style="margin-bottom:var(--space-md)">
           <div class="settings-item" id="btn-create-menu" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(34,197,94,0.15)">🥗</div>
+            <div class="settings-item-icon" style="background:rgba(34,197,94,0.15)"></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('staff_create_menu')}</div>
               <div class="settings-item-desc">${t('staff_create_menu_desc')}</div>
@@ -144,7 +144,7 @@ export async function render(container) {
             <div class="settings-item-right">›</div>
           </div>
           <div class="settings-item" id="btn-my-menus" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(34,197,94,0.1)">📋</div>
+            <div class="settings-item-icon" style="background:rgba(34,197,94,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('staff_my_menus')}</div>
               <div class="settings-item-desc">${t('staff_my_menus_desc')}</div>
@@ -152,7 +152,7 @@ export async function render(container) {
             <div class="settings-item-right">›</div>
           </div>
           <div class="settings-item" id="btn-create-suppl-nutri" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(168,85,247,0.15)">💊</div>
+            <div class="settings-item-icon" style="background:rgba(168,85,247,0.15)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M10.5 20.5L3.5 13.5a5 5 0 017-7l7 7a5 5 0 01-7 7z"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/></svg></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('staff_create_suppl')}</div>
               <div class="settings-item-desc">${t('staff_create_suppl_desc')}</div>
@@ -160,7 +160,7 @@ export async function render(container) {
             <div class="settings-item-right">›</div>
           </div>
           <div class="settings-item" id="btn-my-suppls-nutri" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(168,85,247,0.1)">📚</div>
+            <div class="settings-item-icon" style="background:rgba(168,85,247,0.1)"></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('staff_my_suppls')}</div>
               <div class="settings-item-desc">${t('staff_my_suppls_desc')}</div>
@@ -168,14 +168,14 @@ export async function render(container) {
             <div class="settings-item-right">›</div>
           </div>
         </div>
-        ` : ''}
+ ` : ''}
 
         <!-- Supplement management (coach only) -->
         ${role === 'coach' ? `
         <div class="section-title">${t('staff_suppl_mgmt')}</div>
         <div class="settings-group" style="margin-bottom:var(--space-md)">
           <div class="settings-item" id="btn-create-suppl-coach" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(168,85,247,0.15)">💊</div>
+            <div class="settings-item-icon" style="background:rgba(168,85,247,0.15)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M10.5 20.5L3.5 13.5a5 5 0 017-7l7 7a5 5 0 01-7 7z"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/></svg></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('staff_create_suppl')}</div>
               <div class="settings-item-desc">${t('staff_create_suppl_desc')}</div>
@@ -183,7 +183,7 @@ export async function render(container) {
             <div class="settings-item-right">›</div>
           </div>
           <div class="settings-item" id="btn-my-suppls-coach" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(168,85,247,0.1)">📚</div>
+            <div class="settings-item-icon" style="background:rgba(168,85,247,0.1)"></div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('staff_my_suppls')}</div>
               <div class="settings-item-desc">${t('staff_my_suppls_desc')}</div>
@@ -191,7 +191,7 @@ export async function render(container) {
             <div class="settings-item-right">›</div>
           </div>
         </div>
-        ` : ''}
+ ` : ''}
 
         <!-- Clients section -->
         <div class="section-title">${t('staff_my_clients')}</div>
@@ -207,7 +207,7 @@ export async function render(container) {
 
       </div>
     </div>
-  `;
+ `;
 }
 
 // ── init ───────────────────────────────────────
@@ -310,7 +310,7 @@ async function loadMyClients(container, profile) {
     if (snap.empty) {
       el.innerHTML = `
         <div class="empty-state">
-          <div class="empty-icon">👥</div>
+          <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><circle cx="9" cy="7" r="4"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3c1.66 0 3 1.34 3 3s-1.34 3-3 3M21 20c0-3-2-5.3-4.5-5.9"/></svg></div>
           <div class="empty-title">${t('staff_no_clients')}</div>
           <div class="empty-subtitle">${t('staff_no_clients_sub')}</div>
         </div>`;
@@ -400,7 +400,7 @@ function buildClientCard(client, cfg) {
         display:flex;
         align-items:center;
         gap:var(--space-md);
-      "
+ "
     >
       <!-- Avatar -->
       <div
@@ -413,7 +413,7 @@ function buildClientCard(client, cfg) {
           display:flex;align-items:center;justify-content:center;
           font-weight:700;font-size:15px;color:var(--white);
           flex-shrink:0;
-        "
+ "
       >${initials}</div>
 
       <!-- Info -->
@@ -459,7 +459,7 @@ function buildClientCard(client, cfg) {
           : ''}
       </div>
     </div>
-  `;
+ `;
 }
 
 // ── Handle role-specific actions ───────────────
@@ -492,7 +492,7 @@ async function openRoutinesSheet(client, profile) {
     <button class="btn-accent btn-full" id="btn-assign-routine" style="margin-top:var(--space-md)">
       ${t('staff_assign_new_routine')}
     </button>
-  `;
+ `;
   openSheet(html);
   const sc = document.getElementById('sheet-content');
   await loadSheetRoutines(sc, uid);
@@ -515,8 +515,8 @@ async function loadSheetRoutines(sc, uid) {
           display:flex;align-items:center;gap:10px;
           padding:10px 0;
           border-bottom:1px solid rgba(255,255,255,0.06)
-        ">
-          <span style="font-size:18px">💪</span>
+ ">
+          <span style="font-size:18px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg></span>
           <div style="flex:1">
             <div style="font-size:14px;font-weight:600">${d.name || d.routineId || t('admin_routine_label')}</div>
             <div class="text-muted" style="font-size:11px">
@@ -524,7 +524,7 @@ async function loadSheetRoutines(sc, uid) {
             </div>
           </div>
         </div>
-      `;
+ `;
     }).join('');
   } catch (e) {
     el.innerHTML = `<p class="text-muted">Error: ${e.message}</p>`;
@@ -554,19 +554,19 @@ async function openAssignRoutineSheet(clientUid) {
               padding:var(--space-sm) var(--space-md);
               margin-bottom:var(--space-sm);
               cursor:pointer;
-            "
+ "
           >
-            <span style="font-size:20px">💪</span>
+            <span style="font-size:20px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg></span>
             <div style="flex:1">
               <div style="font-weight:700">${r.name || t('admin_routine_label')}</div>
               <div class="text-muted" style="font-size:12px">${r.exercises?.length || 0} ${t('admin_exercises')}</div>
             </div>
             <span class="badge badge-cyan">${t('assign')}</span>
           </div>
-        `).join('')
+ `).join('')
       : `<p class="text-muted">${t('staff_no_routines_yet')}</p>`
     }
-  `;
+ `;
 
   openSheet(html);
   document.getElementById('sheet-content')?.querySelectorAll('[data-rid]').forEach(card => {
@@ -598,13 +598,13 @@ function openHealthSheet(client) {
       class="glass-card glass-card-accent"
       style="padding:var(--space-md);text-align:center;margin-top:var(--space-lg)"
     >
-      <div style="font-size:32px;margin-bottom:8px">🩺</div>
+      <div style="font-size:32px;margin-bottom:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M3 9a9 9 0 009 9 9 9 0 009-9V5H3z"/><path d="M12 18v3M9 21h6"/></svg></div>
       <div style="font-weight:700;margin-bottom:4px">${t('staff_health_desc')}</div>
       <div class="text-muted" style="font-size:13px;margin-bottom:var(--space-md)">
         ${t('staff_health_full')}
       </div>
     </div>
-  `;
+ `;
   openSheet(html);
 }
 
@@ -615,7 +615,7 @@ async function openPsicologoNotesSheet(client) {
     <h4 style="margin-bottom:4px">${client.name}</h4>
     <p class="text-muted" style="margin-bottom:var(--space-md);font-size:13px">${t('staff_psi_notes_title')}</p>
     <div id="psi-notes-list"><div class="spinner-sm"></div></div>
-  `;
+ `;
   openSheet(html);
   const sc = document.getElementById('sheet-content');
   try {
@@ -639,7 +639,7 @@ async function openPsicologoNotesSheet(client) {
           </div>
           <div style="font-size:14px;line-height:1.5">${d.text || ''}</div>
         </div>
-      `;
+ `;
     }).join('');
   } catch (e) {
     const el = sc.querySelector('#psi-notes-list');
@@ -656,13 +656,13 @@ function openDietSheet(client) {
       class="glass-card glass-card-accent"
       style="padding:var(--space-md);text-align:center;margin-top:var(--space-lg)"
     >
-      <div style="font-size:32px;margin-bottom:8px">🥗</div>
+      <div style="font-size:32px;margin-bottom:8px"></div>
       <div style="font-weight:700;margin-bottom:4px">${t('staff_diet_desc')}</div>
       <div class="text-muted" style="font-size:13px;margin-bottom:var(--space-md)">
         ${t('staff_diet_full')}
       </div>
     </div>
-  `;
+ `;
   openSheet(html);
 }
 
@@ -693,10 +693,10 @@ function openNoteSheet(client, profile) {
         font-size:14px;
         line-height:1.6;
         font-family:var(--font-sans);
-      "
+ "
     ></textarea>
     <button class="btn-primary btn-full" id="btn-save-note">${t('staff_save_note')}</button>
-  `;
+ `;
 
   openSheet(html);
   const sc = document.getElementById('sheet-content');

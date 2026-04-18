@@ -61,10 +61,7 @@ function _buildAndShow(uid, todayStr, lsKey) {
     backdrop-filter: blur(24px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: var(--r-xl);
-    box-shadow:
-      0 24px 64px rgba(0, 0, 0, 0.7),
-      0 2px 8px rgba(0, 0, 0, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.13);
     padding: 28px 24px 24px;
     transform: translateY(30px);
     animation: checkinSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -77,7 +74,9 @@ function _buildAndShow(uid, todayStr, lsKey) {
   card.innerHTML = `
     <!-- Header -->
     <div style="text-align:center;margin-bottom:24px">
-      <div style="font-size:36px;margin-bottom:8px">🌅</div>
+      <div style="display:flex;justify-content:center;margin-bottom:8px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;color:#F0F0F0"><path d="M12 2v2M12 18v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M18 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/><circle cx="12" cy="12" r="5"/></svg>
+      </div>
       <h2 style="
         margin:0 0 4px;
         font-size:20px;
@@ -102,11 +101,11 @@ function _buildAndShow(uid, todayStr, lsKey) {
       ">${t('checkin_mood')}</div>
       <div id="q-mood" style="display:flex;justify-content:space-between;gap:4px">
         ${_emojiRow([
-          { v: 1, e: '😞', label: t('checkin_mood_bad') },
-          { v: 2, e: '😕', label: t('checkin_mood_poor') },
-          { v: 3, e: '😐', label: t('checkin_mood_ok') },
-          { v: 4, e: '😊', label: t('checkin_mood_good') },
-          { v: 5, e: '😄', label: t('checkin_mood_great') },
+          { v: 1, label: t('checkin_mood_bad') },
+          { v: 2, label: t('checkin_mood_poor') },
+          { v: 3, label: t('checkin_mood_ok') },
+          { v: 4, label: t('checkin_mood_good') },
+          { v: 5, label: t('checkin_mood_great') },
         ], 'mood')}
       </div>
     </div>
@@ -121,11 +120,11 @@ function _buildAndShow(uid, todayStr, lsKey) {
       ">${t('checkin_sleep')}</div>
       <div id="q-sleep-quality" style="display:flex;justify-content:space-between;gap:4px">
         ${_emojiRow([
-          { v: 1, e: '😴', label: t('checkin_sleep_terrible') },
-          { v: 2, e: '💤', label: t('checkin_sleep_bad') },
-          { v: 3, e: '🌙', label: t('checkin_sleep_ok') },
-          { v: 4, e: '⭐', label: t('checkin_sleep_good') },
-          { v: 5, e: '✨', label: t('checkin_sleep_great') },
+          { v: 1, label: t('checkin_sleep_terrible') },
+          { v: 2, label: t('checkin_sleep_bad') },
+          { v: 3, label: t('checkin_sleep_ok') },
+          { v: 4, label: t('checkin_sleep_good') },
+          { v: 5, label: t('checkin_sleep_great') },
         ], 'sleep')}
       </div>
     </div>
@@ -387,7 +386,7 @@ function _buildAndShow(uid, todayStr, lsKey) {
 
 // ── Helpers ────────────────────────────────────
 function _emojiRow(items, group) {
-  return items.map(({ v, e, label }) => `
+  return items.map(({ v, label }) => `
     <button
       data-emoji-group="${group}"
       data-val="${v}"
@@ -407,8 +406,8 @@ function _emojiRow(items, group) {
       "
       title="${label}"
     >
-      <span style="font-size:22px;line-height:1">${e}</span>
-      <span style="font-size:10px;color:var(--color-text-muted,#a7a7a7)">${label}</span>
+      <span style="font-size:18px;font-weight:700;line-height:1;color:#F0F0F0">${v}</span>
+      <span style="font-size:10px;color:var(--color-text-muted,#8A8A8A)">${label}</span>
     </button>
   `).join('');
 }
@@ -416,10 +415,10 @@ function _emojiRow(items, group) {
 function _selectEmoji(card, group, activeBtn) {
   card.querySelectorAll(`[data-emoji-group="${group}"]`).forEach(btn => {
     const selected = btn === activeBtn;
-    btn.style.background     = selected ? 'rgba(25,249,249,0.15)'  : 'rgba(255,255,255,0.06)';
-    btn.style.borderColor    = selected ? 'rgba(25,249,249,0.55)'  : 'rgba(255,255,255,0.1)';
-    btn.style.transform      = selected ? 'scale(1.08)' : 'scale(1)';
-    btn.style.boxShadow      = selected ? '0 0 12px rgba(25,249,249,0.2)' : 'none';
+    btn.style.background  = selected ? 'rgba(193,8,1,0.15)'  : 'rgba(255,255,255,0.06)';
+    btn.style.borderColor = selected ? 'rgba(193,8,1,0.55)'  : 'rgba(255,255,255,0.1)';
+    btn.style.transform   = selected ? 'scale(1.08)' : 'scale(1)';
+    btn.style.boxShadow   = 'none';
   });
 }
 

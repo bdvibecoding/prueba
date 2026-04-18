@@ -31,7 +31,7 @@ async function processInvitation(token, uid, email) {
     if (!['pending', 'approved'].includes(inv.status)) return {};
     // Mark invitation as accepted
     await invDoc.ref.update({
-      status:     'accepted',
+      status: 'accepted',
       acceptedBy: uid,
       acceptedAt: timestamp(),
     });
@@ -72,12 +72,12 @@ async function createUserProfile(user, extra = {}) {
     email:         user.email,
     name:          extra.name || user.displayName || '',
     role:          extra.role || 'cliente',
-    gender:        '',
-    birthDate:     '',
-    height:        '',
-    weight:        '',
-    goals:         '',
-    experience:    'principiante',
+    gender: '',
+    birthDate: '',
+    height: '',
+    weight: '',
+    goals: '',
+    experience: 'principiante',
     createdAt:     timestamp(),
     updatedAt:     timestamp(),
     assignedCoach: null,
@@ -134,7 +134,7 @@ function showApp(profile) {
       homeBtn.className = 'nav-item';
       homeBtn.dataset.route = 'home';
       homeBtn.dataset.clientNav = '1';
-      homeBtn.innerHTML = `<span class="nav-icon">🏠</span><span class="nav-label">Inicio</span>`;
+      homeBtn.innerHTML = `<span class="nav-icon"></span><span class="nav-label">Inicio</span>`;
       homeBtn.addEventListener('click', () => {
         import('./router.js').then(({ navigate }) => navigate('home'));
       });
@@ -359,7 +359,7 @@ export function initAuthForms() {
 
   const btnGoogleLogin    = document.getElementById('btn-google-login');
   const btnGoogleRegister = document.getElementById('btn-google-register');
-  btnGoogleLogin?.addEventListener('click',    () => handleGoogleAuth(btnGoogleLogin,    'auth-error'));
+  btnGoogleLogin?.addEventListener('click',    () => handleGoogleAuth(btnGoogleLogin, 'auth-error'));
   btnGoogleRegister?.addEventListener('click', () => handleGoogleAuth(btnGoogleRegister, 'register-error'));
 
   // ── Password visibility toggles
@@ -369,7 +369,7 @@ export function initAuthForms() {
       if (!input) return;
       const isText = input.type === 'text';
       input.type = isText ? 'password' : 'text';
-      btn.textContent = isText ? '👁' : '🙈';
+      btn.textContent = isText ? '' : '';
     });
   });
 }
@@ -377,14 +377,14 @@ export function initAuthForms() {
 // ── Firebase Error Translation ────────────────
 function translateFirebaseError(code) {
   const map = {
-    'auth/user-not-found':       'No existe ninguna cuenta con ese correo.',
-    'auth/wrong-password':       'Contraseña incorrecta.',
-    'auth/email-already-in-use': 'Este correo ya está registrado.',
-    'auth/weak-password':        'La contraseña es demasiado débil.',
-    'auth/invalid-email':        'Formato de correo no válido.',
-    'auth/too-many-requests':    'Demasiados intentos. Espera un momento.',
-    'auth/network-request-failed': 'Error de red. Revisa tu conexión.',
-    'auth/invalid-credential':   'Credenciales no válidas. Verifica tu correo y contraseña.',
+ 'auth/user-not-found': 'No existe ninguna cuenta con ese correo.',
+ 'auth/wrong-password': 'Contraseña incorrecta.',
+ 'auth/email-already-in-use': 'Este correo ya está registrado.',
+ 'auth/weak-password': 'La contraseña es demasiado débil.',
+ 'auth/invalid-email': 'Formato de correo no válido.',
+ 'auth/too-many-requests': 'Demasiados intentos. Espera un momento.',
+ 'auth/network-request-failed': 'Error de red. Revisa tu conexión.',
+ 'auth/invalid-credential': 'Credenciales no válidas. Verifica tu correo y contraseña.',
   };
   return map[code] || null;
 }

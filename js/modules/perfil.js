@@ -78,9 +78,9 @@ export async function render(container) {
         <!-- Profile Form -->
         <form id="profile-form" class="profile-form">
           <div class="settings-group">
-            ${profileField('text',   'profile-name-input',  t('perfil_full_name'),    profile?.name || '',     '', false)}
-            ${profileField('email',  'profile-email',       t('perfil_email'),        profile?.email || '',    '', true)}
-            ${profileField('date',   'profile-birth',       t('perfil_birth_date'),   profile?.birthDate || '','', false)}
+            ${profileField('text', 'profile-name-input',  t('perfil_full_name'),    profile?.name || '', '', false)}
+            ${profileField('email', 'profile-email',       t('perfil_email'),        profile?.email || '', '', true)}
+            ${profileField('date', 'profile-birth',       t('perfil_birth_date'),   profile?.birthDate || '','', false)}
             ${profileSelectField('profile-gender', t('perfil_gender'), profile?.gender || '', [
               { value: '', label: t('perfil_select') },
               { value: 'masculino', label: t('perfil_male') },
@@ -163,7 +163,7 @@ export async function render(container) {
         </div>
       </div>
     </div>
-  `;
+ `;
 }
 
 export async function init(container) {
@@ -311,7 +311,7 @@ function profileField(type, id, label, value, icon, readonly = false) {
           style="width:auto;max-width:180px;text-align:right">
       </div>
     </div>
-  `;
+ `;
 }
 
 function profileSelectField(id, label, value, options) {
@@ -327,7 +327,7 @@ function profileSelectField(id, label, value, options) {
         </select>
       </div>
     </div>
-  `;
+ `;
 }
 
 function getRoleBadgeClass(role) {

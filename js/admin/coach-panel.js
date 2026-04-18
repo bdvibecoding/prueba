@@ -58,7 +58,7 @@ export async function render(container) {
         </div>` : ''}
       </div>
     </div>
-  `;
+ `;
 }
 
 export async function init(container) {
@@ -93,7 +93,7 @@ async function loadMyClients(container, profile) {
       .get();
 
     if (snap.empty) {
-      el.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">Sin clientes asignados</div><div class="empty-subtitle">El administrador te asignará clientes.</div></div>`;
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><circle cx="9" cy="7" r="4"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3c1.66 0 3 1.34 3 3s-1.34 3-3 3M21 20c0-3-2-5.3-4.5-5.9"/></svg></div><div class="empty-title">Sin clientes asignados</div><div class="empty-subtitle">El administrador te asignará clientes.</div></div>`;
       return;
     }
 
@@ -111,7 +111,7 @@ async function loadMyClients(container, profile) {
         </div>
         <span style="color:var(--cyan);font-size:13px">Ver →</span>
       </div>
-    `).join('');
+ `).join('');
 
     el.querySelectorAll('.admin-user-card').forEach(card => {
       card.addEventListener('click', () => {
@@ -149,7 +149,7 @@ async function openClientSheet(client, profile) {
     <div id="ctab-routines" style="display:none">
       <div id="client-routines"><div class="spinner-sm"></div></div>
       <button class="btn-accent btn-full" id="btn-add-routine-client" style="margin-top:var(--space-md)">
-        📋 Asignar nueva rutina
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg> Asignar nueva rutina
       </button>
     </div>
 
@@ -159,7 +159,7 @@ async function openClientSheet(client, profile) {
         style="padding:var(--space-md);width:100%;margin-bottom:var(--space-sm)">${client.coachNotes || ''}</textarea>
       <button class="btn-primary btn-full" id="btn-save-coach-notes">Guardar notas</button>
     </div>
-  `;
+ `;
 
   openSheet(html);
   const sc = document.getElementById('sheet-content');
@@ -187,7 +187,7 @@ async function openClientSheet(client, profile) {
   sc.querySelector('#btn-save-coach-notes')?.addEventListener('click', async () => {
     const notes = sc.querySelector('#coach-notes-input').value.trim();
     await db.collection('users').doc(uid).update({ coachNotes: notes, updatedAt: timestamp() });
-    toast('Notas guardadas ✅', 'success');
+    toast('Notas guardadas ', 'success');
   });
 }
 
@@ -204,7 +204,7 @@ async function loadClientOverview(sc, uid) {
     sc.querySelector('#cs-rpe').textContent = avgRpe ? avgRpe.toFixed(1) : '—';
     if (last && sc.querySelector('#cs-last-workout')) {
       sc.querySelector('#cs-last-workout').textContent =
-        `Último entreno: ${formatDate(last.startTime?.toDate?.() || new Date(last.startTime))} — ${last.routineName || ''}`;
+ `Último entreno: ${formatDate(last.startTime?.toDate?.() || new Date(last.startTime))} — ${last.routineName || ''}`;
     }
   } catch { /* ignore */ }
 }
@@ -219,11 +219,11 @@ async function loadClientRoutines(sc, uid) {
       const d = doc.data();
       return `
         <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
-          <span>💪</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg></span>
           <div style="flex:1;font-size:13px">${d.name || d.routineId}</div>
           <span class="text-muted" style="font-size:11px">${formatDate(d.assignedAt?.toDate?.() || d.assignedAt)}</span>
         </div>
-      `;
+ `;
     }).join('');
   } catch (e) { el.innerHTML = `<p class="text-muted">Error: ${e.message}</p>`; }
 }
@@ -234,20 +234,20 @@ async function openAssignRoutineFromCoach(clientUid) {
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">📋 Asignar rutina</h3>
+      <h3 class="modal-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg> Asignar rutina</h3>
       <button class="modal-close">✕</button>
     </div>
     ${routines.map(r => `
       <div class="admin-user-card" data-rid="${r.id}" data-rname="${r.name}" style="cursor:pointer">
-        <span style="font-size:20px">💪</span>
+        <span style="font-size:20px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg></span>
         <div style="flex:1">
           <div style="font-weight:700">${r.name}</div>
           <div class="text-muted">${r.exercises?.length || 0} ejercicios</div>
         </div>
         <span class="badge badge-cyan">Asignar</span>
       </div>
-    `).join('')}
-  `;
+ `).join('')}
+ `;
 
   openModal(html);
   document.getElementById('modal-content').querySelectorAll('[data-rid]').forEach(card => {
@@ -256,7 +256,7 @@ async function openAssignRoutineFromCoach(clientUid) {
         routineId: card.dataset.rid, name: card.dataset.rname,
         assignedBy: getUserProfile()?.uid, assignedAt: timestamp(), createdAt: timestamp(),
       });
-      toast('Rutina asignada ✅', 'success');
+      toast('Rutina asignada ', 'success');
       closeModal();
     });
   });
@@ -272,7 +272,7 @@ async function loadMyRoutines(container, profile) {
       + Nueva rutina
     </button>
     <div id="routines-cards"><div class="overlay-spinner"><div class="spinner-sm"></div></div></div>
-  `;
+ `;
 
   el.querySelector('#btn-create-routine-tab')?.addEventListener('click', () => openNewRoutineModal(profile, container));
   await renderRoutineCards(el.querySelector('#routines-cards'), profile, container);
@@ -283,7 +283,7 @@ async function renderRoutineCards(el, profile, container) {
   try {
     const snap = await db.collection('routines').where('createdBy', '==', profile.uid).limit(30).get();
     if (snap.empty) {
-      el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Sin rutinas creadas</div><div class="empty-subtitle">Crea tu primera rutina arriba.</div></div>`;
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></div><div class="empty-title">Sin rutinas creadas</div><div class="empty-subtitle">Crea tu primera rutina arriba.</div></div>`;
       return;
     }
     el.innerHTML = snap.docs.map(doc => {
@@ -293,7 +293,7 @@ async function renderRoutineCards(el, profile, container) {
       return `
         <div class="glass-card" style="margin-bottom:var(--space-sm);padding:var(--space-md)">
           <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px">
-            <div style="font-size:26px;line-height:1">💪</div>
+            <div style="font-size:26px;line-height:1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg></div>
             <div style="flex:1;min-width:0">
               <div style="font-weight:700;font-size:15px">${r.name}</div>
               <div class="text-muted" style="font-size:12px;margin-top:2px">
@@ -303,11 +303,11 @@ async function renderRoutineCards(el, profile, container) {
             </div>
           </div>
           <div style="display:flex;gap:8px">
-            <button class="btn-secondary" style="flex:1;font-size:12px;padding:8px" data-edit-rid="${doc.id}">✏️ Editar</button>
-            <button class="btn-accent" style="flex:1;font-size:12px;padding:8px" data-assign-rid="${doc.id}" data-assign-rname="${r.name}">📋 Asignar</button>
+            <button class="btn-secondary" style="flex:1;font-size:12px;padding:8px" data-edit-rid="${doc.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar</button>
+            <button class="btn-accent" style="flex:1;font-size:12px;padding:8px" data-assign-rid="${doc.id}" data-assign-rname="${r.name}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg> Asignar</button>
           </div>
         </div>
-      `;
+ `;
     }).join('');
 
     el.querySelectorAll('[data-edit-rid]').forEach(btn => {
@@ -335,11 +335,11 @@ async function openAssignClientForRoutine(routineId, routineName, profile) {
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">📋 Asignar rutina</h3>
+      <h3 class="modal-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg> Asignar rutina</h3>
       <button class="modal-close">✕</button>
     </div>
     <p class="text-muted" style="margin-bottom:var(--space-md);font-size:13px">
-      "<strong>${routineName}</strong>" → selecciona el cliente:
+ "<strong>${routineName}</strong>" → selecciona el cliente:
     </p>
     ${clients.map(c => `
       <div class="admin-user-card" data-cuid="${c.uid || c.id}" data-cname="${c.name || 'Cliente'}" style="cursor:pointer;margin-bottom:6px">
@@ -350,8 +350,8 @@ async function openAssignClientForRoutine(routineId, routineName, profile) {
         </div>
         <span class="badge badge-cyan">Asignar</span>
       </div>
-    `).join('')}
-  `;
+ `).join('')}
+ `;
 
   openModal(html);
   document.getElementById('modal-content').querySelectorAll('[data-cuid]').forEach(card => {
@@ -361,7 +361,7 @@ async function openAssignClientForRoutine(routineId, routineName, profile) {
         assignedBy: profile.uid,
         assignedAt: timestamp(), createdAt: timestamp(),
       });
-      toast(`Rutina asignada a ${card.dataset.cname} ✅`, 'success');
+      toast(`Rutina asignada a ${card.dataset.cname} `, 'success');
       closeModal();
     });
   });
@@ -398,14 +398,14 @@ async function openEditRoutineModal(routineId, profile, container) {
       ${routine.exercises?.map((ex, i) => buildRoutineExRow(ex, i)).join('') || '<p class="text-muted">Añade ejercicios</p>'}
     </div>
     <div style="position:relative;margin:8px 0 4px">
-      <input type="text" id="cp-ex-search" class="input-solo" placeholder="🔍 Buscar ejercicio o músculo..." style="font-size:12px;width:100%" autocomplete="off">
+      <input type="text" id="cp-ex-search" class="input-solo" placeholder=" Buscar ejercicio o músculo..." style="font-size:12px;width:100%" autocomplete="off">
       <div id="cp-ex-results" style="display:none;position:absolute;top:100%;left:0;right:0;max-height:200px;overflow-y:auto;background:#1a1a2e;border:1px solid var(--glass-border);border-radius:var(--radius-sm);z-index:200;margin-top:2px"></div>
     </div>
     <button class="btn-accent btn-full" id="btn-add-ex-to-routine" style="margin-bottom:12px">+ Añadir ejercicio seleccionado</button>
     <button class="btn-primary btn-full" id="btn-save-routine" style="margin-top:var(--space-md)">
-      💾 Guardar rutina
+       Guardar rutina
     </button>
-  `;
+ `;
 
   openModal(html);
   const modal = document.getElementById('modal-content');
@@ -474,11 +474,11 @@ async function openEditRoutineModal(routineId, profile, container) {
     try {
       if (routineId) {
         await db.collection('routines').doc(routineId).update(data);
-        toast('Rutina actualizada ✅', 'success');
+        toast('Rutina actualizada ', 'success');
       } else {
         data.createdAt = timestamp();
         await db.collection('routines').add(data);
-        toast('Rutina creada ✅', 'success');
+        toast('Rutina creada ', 'success');
       }
       closeModal();
       if (container) {
@@ -502,7 +502,7 @@ function buildRoutineExRow(ex, index) {
             <input type="number" class="ex-warmup-input" data-index="${index}"
                    value="${ex.warmupSets||0}" min="0" max="10"
                    style="width:40px;background:rgba(251,146,60,.15);border:1px solid rgba(251,146,60,.4);border-radius:var(--r-xs);color:var(--color-text);font-size:11px;text-align:center;padding:2px">
-            <span style="font-size:10px;color:rgba(251,146,60,.8)">🔥</span>
+            <span style="font-size:10px;color:rgba(251,146,60,.8)"></span>
           </div>
           <span style="font-size:11px;color:var(--color-text-muted)">×</span>
           <input type="text" value="${ex.reps || '10'}" placeholder="ej: 12 o 20-16-16" style="width:72px;background:transparent;border:1px solid var(--glass-border);border-radius:var(--r-xs);color:var(--white);font-size:11px;text-align:center;padding:2px" data-reps="${index}">
@@ -512,7 +512,7 @@ function buildRoutineExRow(ex, index) {
       </div>
       <button style="background:none;border:none;color:var(--color-danger);cursor:pointer;font-size:16px" data-remove-ex="${index}">✕</button>
     </div>
-  `;
+ `;
 }
 
 // ── My Diets (Nutricionista) ──────────────────
@@ -524,7 +524,7 @@ async function loadMyDiets(container, profile) {
       + Asignar menú a cliente
     </button>
     <p class="text-muted" style="font-size:13px">Selecciona un cliente y asigna uno de los menús disponibles.</p>
-  `;
+ `;
   el.querySelector('#btn-assign-diet')?.addEventListener('click', () => openAssignDietModal(profile));
 }
 
@@ -534,7 +534,7 @@ async function openAssignDietModal(profile) {
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">🥗 Asignar menú</h3>
+      <h3 class="modal-title"> Asignar menú</h3>
       <button class="modal-close">✕</button>
     </div>
     <div class="form-row">
@@ -556,7 +556,7 @@ async function openAssignDietModal(profile) {
       <input type="text" id="diet-name" class="input-solo" placeholder="Ej: Menú semana 1">
     </div>
     <button class="btn-primary btn-full" id="btn-confirm-diet" style="margin-top:var(--space-md)">Asignar</button>
-  `;
+ `;
 
   openModal(html);
   const modal = document.getElementById('modal-content');
@@ -571,7 +571,7 @@ async function openAssignDietModal(profile) {
       assignedAt: timestamp(),
       createdAt:  timestamp(),
     });
-    toast(`Menú "${name}" asignado ✅`, 'success');
+    toast(`Menú "${name}" asignado `, 'success');
     closeModal();
   });
 }

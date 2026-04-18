@@ -11,9 +11,9 @@ import { t } from '../i18n.js';
 
 // ── Common supplement suggestions (names stay as-is) ─
 const SUPPLEMENT_SUGGESTIONS = [
-  'Creatina', 'Proteína Whey', 'BCAA', 'Vitamina D3',
-  'Omega-3', 'Magnesio', 'ZMA', 'Beta-Alanina',
-  'Cafeína', 'Glutamina', 'Colágeno',
+ 'Creatina', 'Proteína Whey', 'BCAA', 'Vitamina D3',
+ 'Omega-3', 'Magnesio', 'ZMA', 'Beta-Alanina',
+ 'Cafeína', 'Glutamina', 'Colágeno',
 ];
 
 // ── Timing options (i18n-aware, built at call time) ─
@@ -61,12 +61,12 @@ function buildSupplItemRow(item) {
           </div>
           <div style="font-size:12px;color:var(--color-text-muted)">${dose ? dose + ' · ' : ''}${timing}</div>
           ${instructions ? `<div style="font-size:11px;color:var(--color-text-muted);margin-top:2px">${instructions}</div>` : ''}
-          ${duration ? `<div style="font-size:11px;color:var(--color-accent);margin-top:2px">⏱ ${duration}</div>` : ''}
+          ${duration ? `<div style="font-size:11px;color:var(--color-accent);margin-top:2px"> ${duration}</div>` : ''}
         </div>
         <button class="btn-icon" data-remove-suppl style="color:var(--color-danger);flex-shrink:0;margin-left:8px">✕</button>
       </div>
     </div>
-  `;
+ `;
 }
 
 // ── Collect items from the DOM ─────────────────
@@ -97,7 +97,7 @@ export async function openSupplementCreator(clientUid = null) {
 
   const timingOpts = getTimingOptions().map(o => `<option value="${o.value}">${o.label}</option>`).join('');
   const suggChips  = SUPPLEMENT_SUGGESTIONS.map(s =>
-    `<button class="chip suppl-suggest" data-name="${s}" style="cursor:pointer">${s}</button>`
+ `<button class="chip suppl-suggest" data-name="${s}" style="cursor:pointer">${s}</button>`
   ).join('');
 
   const html = `
@@ -164,7 +164,7 @@ export async function openSupplementCreator(clientUid = null) {
 
       <button class="btn-primary btn-full" id="btn-save-suppl">${t('sc_save')}</button>
     </div>
-  `;
+ `;
 
   openSheet(html);
   const sc = document.getElementById('sheet-content');
@@ -294,7 +294,7 @@ export async function openSupplementsList(container) {
     if (snap.empty) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-icon">💊</div>
+          <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M10.5 20.5L3.5 13.5a5 5 0 017-7l7 7a5 5 0 01-7 7z"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/></svg></div>
           <div class="empty-title">${t('sc_no_protocols')}</div>
           <div class="empty-subtitle">${t('sc_no_protocols_sub')}</div>
         </div>`;
@@ -352,13 +352,13 @@ function buildProtocolCard(protocol) {
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
         <div style="flex:1;min-width:0">
           <div style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-            💊 ${protocol.name}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M10.5 20.5L3.5 13.5a5 5 0 017-7l7 7a5 5 0 01-7 7z"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/></svg> ${protocol.name}
           </div>
           ${protocol.description
             ? `<div class="text-muted" style="font-size:12px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${protocol.description}</div>`
             : ''}
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;align-items:center">
-            <span style="font-size:12px;color:var(--color-text-muted)">💊 ${itemCount} ${supplLabel}</span>
+            <span style="font-size:12px;color:var(--color-text-muted)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M10.5 20.5L3.5 13.5a5 5 0 017-7l7 7a5 5 0 01-7 7z"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/></svg> ${itemCount} ${supplLabel}</span>
             ${assigned}
           </div>
           <div style="font-size:11px;color:var(--color-text-muted);margin-top:4px">${created}</div>
@@ -373,11 +373,11 @@ function buildProtocolCard(protocol) {
             class="btn-icon"
             data-delete-suppl="${protocol.id}"
             style="color:var(--color-danger);font-size:12px"
-          >🗑</button>
+          ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>
         </div>
       </div>
     </div>
-  `;
+ `;
 }
 
 // ── Sheet: assign protocol to a client ────────
@@ -395,7 +395,7 @@ async function openAssignSupplSheet(protocol, profile) {
       <option value="">${t('sc_select_client_opt')}</option>
     </select>
     <button class="btn-primary btn-full" id="btn-do-assign-suppl">${t('sc_do_assign')}</button>
-  `;
+ `;
 
   openSheet(html);
   const sc = document.getElementById('sheet-content');

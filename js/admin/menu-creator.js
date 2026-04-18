@@ -69,7 +69,7 @@ function buildMealSlotHTML(index = 0) {
         style="margin-top:var(--space-xs);font-size:12px;width:100%;resize:vertical"
       ></textarea>
     </div>
-  `;
+ `;
 }
 
 // ── Build a food-item row HTML ─────────────────
@@ -79,7 +79,7 @@ function buildFoodItemRow(name, quantity) {
       <span style="font-size:13px">${name} — ${quantity}</span>
       <button class="btn-icon" style="color:var(--color-danger);font-size:11px" data-remove-item>✕</button>
     </div>
-  `;
+ `;
 }
 
 // ── Wire events inside a single slot card ─────
@@ -188,7 +188,7 @@ export async function openMenuCreator(clientUid = null) {
 
       <button class="btn-primary btn-full" id="btn-save-menu">${t('mc_save')}</button>
     </div>
-  `;
+ `;
 
   openSheet(html);
   const sc = document.getElementById('sheet-content');
@@ -297,7 +297,7 @@ export async function openMenusList(container) {
     if (snap.empty) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-icon">🥗</div>
+          <div class="empty-icon"></div>
           <div class="empty-title">${t('mc_no_plans')}</div>
           <div class="empty-subtitle">${t('mc_no_plans_sub')}</div>
         </div>`;
@@ -356,14 +356,14 @@ function buildMenuCard(menu) {
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
         <div style="flex:1;min-width:0">
           <div style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-            🥗 ${menu.name}
+             ${menu.name}
           </div>
           ${menu.description
             ? `<div class="text-muted" style="font-size:12px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${menu.description}</div>`
             : ''}
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;align-items:center">
-            <span style="font-size:12px;color:var(--color-text-muted)">🔥 ${kcal}</span>
-            <span style="font-size:12px;color:var(--color-text-muted)">🍽 ${mealCount} ${mealLabel}</span>
+            <span style="font-size:12px;color:var(--color-text-muted)"> ${kcal}</span>
+            <span style="font-size:12px;color:var(--color-text-muted)"> ${mealCount} ${mealLabel}</span>
             ${assigned}
           </div>
           <div style="font-size:11px;color:var(--color-text-muted);margin-top:4px">${created}</div>
@@ -378,11 +378,11 @@ function buildMenuCard(menu) {
             class="btn-icon"
             data-delete-menu="${menu.id}"
             style="color:var(--color-danger);font-size:12px"
-          >🗑</button>
+          ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>
         </div>
       </div>
     </div>
-  `;
+ `;
 }
 
 // ── Sheet: assign a menu to a client ──────────
@@ -400,7 +400,7 @@ async function openAssignMenuSheet(menu, profile) {
       <option value="">${t('mc_select_client_opt')}</option>
     </select>
     <button class="btn-primary btn-full" id="btn-do-assign">${t('mc_do_assign')}</button>
-  `;
+ `;
 
   openSheet(html);
   const sc = document.getElementById('sheet-content');

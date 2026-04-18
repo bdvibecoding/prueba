@@ -22,10 +22,10 @@ export function openDirectChat({ myUid, myName, otherUid, otherName, otherRole =
   const overlay = document.createElement('div');
   overlay.id    = 'direct-chat-overlay';
   overlay.style.cssText = [
-    'position:fixed', 'inset:0', 'z-index:800',
-    'display:flex', 'flex-direction:column',
-    'background:var(--color-bg)',
-    'animation:pageIn 0.25s ease',
+ 'position:fixed', 'inset:0', 'z-index:800',
+ 'display:flex', 'flex-direction:column',
+ 'background:var(--color-bg)',
+ 'animation:pageIn 0.25s ease',
   ].join(';');
 
   overlay.innerHTML = `
@@ -38,20 +38,20 @@ export function openDirectChat({ myUid, myName, otherUid, otherName, otherRole =
       border-bottom:1px solid var(--glass-border);
       background:var(--color-bg);
       flex-shrink:0;
-    ">
+ ">
       <button id="dc-close" style="
         background:none; border:none; cursor:pointer;
         color:var(--cyan); font-size:14px; font-weight:600;
         display:flex; align-items:center; gap:4px; padding:8px 0;
         white-space:nowrap;
-      ">${t('dc_back')}</button>
+ ">${t('dc_back')}</button>
 
       <div style="
         width:36px; height:36px; border-radius:50%; flex-shrink:0;
         background:linear-gradient(135deg,var(--red),var(--cyan));
         display:flex; align-items:center; justify-content:center;
         font-weight:800; font-size:13px; color:#fff;
-      ">${initials}</div>
+ ">${initials}</div>
 
       <div style="flex:1; min-width:0">
         <div style="font-weight:700; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">
@@ -66,7 +66,7 @@ export function openDirectChat({ myUid, myName, otherUid, otherName, otherRole =
       flex:1; overflow-y:auto; padding:16px;
       display:flex; flex-direction:column; gap:8px;
       -webkit-overflow-scrolling:touch;
-    ">
+ ">
       <div style="text-align:center; padding:32px 0">
         <div style="width:28px;height:28px;border:2px solid rgba(255,255,255,0.1);border-top-color:var(--cyan);border-radius:50%;animation:spin 0.6s linear infinite;margin:0 auto"></div>
       </div>
@@ -80,7 +80,7 @@ export function openDirectChat({ myUid, myName, otherUid, otherName, otherRole =
       display:flex; gap:8px; align-items:center;
       background:var(--color-bg);
       flex-shrink:0;
-    ">
+ ">
       <input
         id="dc-input"
         type="text"
@@ -95,7 +95,7 @@ export function openDirectChat({ myUid, myName, otherUid, otherName, otherRole =
           font-size:14px;
           font-family:inherit;
           outline:none;
-        "
+ "
         autocomplete="off"
       >
       <button id="dc-send" style="
@@ -105,14 +105,14 @@ export function openDirectChat({ myUid, myName, otherUid, otherName, otherRole =
         display:flex; align-items:center; justify-content:center;
         box-shadow:0 2px 12px rgba(148,10,10,0.4);
         transition:transform 0.15s ease, opacity 0.15s;
-      ">
+ ">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <path d="M22 2L11 13" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
           <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
         </svg>
       </button>
     </div>
-  `;
+ `;
 
   document.body.appendChild(overlay);
   _overlay = overlay;
@@ -160,12 +160,12 @@ function renderMessages(snapshot, myUid, otherName, overlay) {
   if (snapshot.empty) {
     el.innerHTML = `
       <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 24px; gap:12px; opacity:0.5">
-        <div style="font-size:40px">💬</div>
+        <div style="font-size:40px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
         <div style="font-size:14px; color:var(--color-text-muted); text-align:center">
           ${t('dc_start_convo')}${otherName || ''}
         </div>
       </div>
-    `;
+ `;
     return;
   }
 
@@ -186,12 +186,12 @@ function renderMessages(snapshot, myUid, otherName, overlay) {
             border-radius:var(--r-lg) var(--r-lg) var(--r-xs) var(--r-lg);
             font-size:14px; color:#fff; line-height:1.45;
             word-break:break-word;
-          ">
+ ">
             ${_escapeHtml(m.text || '')}
             <div style="font-size:10px; opacity:0.65; margin-top:4px; text-align:right">${time}</div>
           </div>
         </div>
-      `;
+ `;
     } else {
       return `
         <div style="display:flex; gap:8px; align-items:flex-end">
@@ -200,7 +200,7 @@ function renderMessages(snapshot, myUid, otherName, overlay) {
             background:linear-gradient(135deg,var(--red),var(--cyan));
             display:flex; align-items:center; justify-content:center;
             font-size:10px; font-weight:800; color:#fff;
-          ">${initials}</div>
+ ">${initials}</div>
           <div style="
             max-width:75%; padding:10px 14px;
             background:var(--glass-bg-strong);
@@ -208,12 +208,12 @@ function renderMessages(snapshot, myUid, otherName, overlay) {
             border-radius:var(--r-lg) var(--r-lg) var(--r-lg) var(--r-xs);
             font-size:14px; color:var(--color-text); line-height:1.45;
             word-break:break-word;
-          ">
+ ">
             ${_escapeHtml(m.text || '')}
             <div style="font-size:10px; color:var(--color-text-muted); margin-top:4px">${time}</div>
           </div>
         </div>
-      `;
+ `;
     }
   }).join('');
 

@@ -12,8 +12,8 @@ import { t } from '../i18n.js';
 function getPlans() {
   return [
     {
-      id:          'essential',
-      name:        'Essential',
+      id: 'essential',
+      name: 'Essential',
       price:       400,
       badge:       null,
       description: t('sub_essential_desc'),
@@ -32,12 +32,12 @@ function getPlans() {
         { label: t('sub_f_247'),               included: false },
       ],
       gradientBorder: 'linear-gradient(135deg, rgba(107,114,128,0.7), rgba(75,85,99,0.4))',
-      glowColor:      'rgba(107,114,128,0.15)',
-      accentColor:    '#9CA3AF',
+      glowColor: 'rgba(107,114,128,0.15)',
+      accentColor: '#9CA3AF',
     },
     {
-      id:          'pro',
-      name:        'Pro',
+      id: 'pro',
+      name: 'Pro',
       price:       600,
       badge:       t('sub_most_popular'),
       description: t('sub_pro_desc'),
@@ -56,12 +56,12 @@ function getPlans() {
         { label: t('sub_f_unlimited'),         included: false },
       ],
       gradientBorder: 'linear-gradient(135deg, rgba(148,10,10,0.9), rgba(220,38,38,0.5))',
-      glowColor:      'rgba(148,10,10,0.2)',
-      accentColor:    '#EF4444',
+      glowColor: 'rgba(148,10,10,0.2)',
+      accentColor: '#EF4444',
     },
     {
-      id:          'elite',
-      name:        'Elite',
+      id: 'elite',
+      name: 'Elite',
       price:       800,
       badge:       null,
       description: t('sub_elite_desc'),
@@ -82,8 +82,8 @@ function getPlans() {
         { label: t('sub_f_life_plan'),         included: true },
       ],
       gradientBorder: 'linear-gradient(135deg, rgba(25,249,249,0.7), rgba(6,182,212,0.4))',
-      glowColor:      'rgba(25,249,249,0.1)',
-      accentColor:    '#22D3EE',
+      glowColor: 'rgba(25,249,249,0.1)',
+      accentColor: '#22D3EE',
     },
   ];
 }
@@ -119,7 +119,7 @@ export async function render(container) {
               <div class="text-muted">${t('sub_active_desc')}</div>
             </div>
           </div>
-        ` : `
+ ` : `
           <div class="glass-card"
                style="padding:var(--space-md);margin-bottom:var(--space-lg);
                       text-align:center;border:1px solid rgba(255,255,255,0.07)">
@@ -128,7 +128,7 @@ export async function render(container) {
               <strong style="color:var(--white)">${t('sub_free_cta')}</strong>
             </p>
           </div>
-        `}
+ `}
 
         <!-- Plans grid -->
         <div style="display:flex;flex-direction:column;gap:var(--space-lg)" id="plans-grid">
@@ -141,7 +141,7 @@ export async function render(container) {
         <!-- Stripe badge -->
         <div style="text-align:center;margin-top:var(--space-xl)">
           <div class="stripe-secure">
-            🔒 <span>${t('sub_stripe_secure')}</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> <span>${t('sub_stripe_secure')}</span>
             <strong style="color:#635BFF">Stripe</strong>
           </div>
           <p class="text-muted" style="margin-top:var(--space-sm);font-size:11px">
@@ -159,7 +159,7 @@ export async function render(container) {
 
       </div>
     </div>
-  `;
+ `;
 }
 
 export async function init(container) {
@@ -195,12 +195,12 @@ function buildPlanCard(plan, current) {
   const isPro    = plan.id === 'pro';
 
   const cardStyle = [
-    `background:${plan.glowColor}`,
-    `border:1px solid transparent`,
-    `border-radius:var(--r-lg)`,
-    `padding:var(--space-lg)`,
-    `position:relative`,
-    `overflow:hidden`,
+ `background:${plan.glowColor}`,
+ `border:1px solid transparent`,
+ `border-radius:var(--r-lg)`,
+ `padding:var(--space-lg)`,
+ `position:relative`,
+ `overflow:hidden`,
     isPro ? `box-shadow:0 0 40px ${plan.glowColor},0 8px 32px rgba(0,0,0,0.4)` : `box-shadow:0 4px 24px rgba(0,0,0,0.3)`,
   ].join(';');
 
@@ -218,7 +218,7 @@ function buildPlanCard(plan, current) {
                       padding:5px 14px;border-radius:0 14px 0 10px;text-transform:uppercase">
             ${plan.badge}
           </div>
-        ` : ''}
+ ` : ''}
 
         <!-- Plan name & description -->
         <div style="margin-bottom:var(--space-md)">
@@ -249,7 +249,7 @@ function buildPlanCard(plan, current) {
                 ${f.label}
               </span>
             </div>
-          `).join('')}
+ `).join('')}
         </div>
 
         <!-- CTA button -->
@@ -261,7 +261,7 @@ function buildPlanCard(plan, current) {
 
       </div>
     </div>
-  `;
+ `;
 }
 
 // ── Single Session Card ─────────────────────────
@@ -285,7 +285,7 @@ function buildSingleSessionCard() {
             <!-- Left: info -->
             <div style="flex:1;min-width:200px">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-                <span style="font-size:22px">🎯</span>
+                <span style="font-size:22px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
                 <h3 style="font-size:20px;font-weight:900;color:#FACC15;letter-spacing:-0.3px">
                   ${t('sub_session_title')}
                 </h3>
@@ -327,7 +327,7 @@ function buildSingleSessionCard() {
         </div>
       </div>
     </div>
-  `;
+ `;
 }
 
 // ── Inquiry Modal (plan) ───────────────────────
@@ -387,7 +387,7 @@ function openInquiryModal(planId) {
     <p class="text-muted" style="text-align:center;font-size:11px;margin-top:var(--space-sm)">
       ${t('sub_no_commitment')}
     </p>
-  `;
+ `;
 
   openModal(html);
   const modal = document.getElementById('modal-content');
@@ -401,7 +401,7 @@ function openSessionModal() {
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">🎯 ${t('sub_book')}</h3>
+      <h3 class="modal-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> ${t('sub_book')}</h3>
       <button class="modal-close">✕</button>
     </div>
 
@@ -453,7 +453,7 @@ function openSessionModal() {
     <p class="text-muted" style="text-align:center;font-size:11px;margin-top:var(--space-sm)">
       ${t('sub_book_no_commitment')}
     </p>
-  `;
+ `;
 
   openModal(html);
   const modal = document.getElementById('modal-content');
@@ -487,15 +487,15 @@ async function sendInquiry(plan, profile) {
       email,
       message:   modal.querySelector('#inquiry-message')?.value?.trim() || '',
       timestamp: timestamp(),
-      status:    'pending',
-      type:      'subscription',
+      status: 'pending',
+      type: 'subscription',
     });
 
     closeModal();
     await alert(
       t('sub_sent_title'),
       t('sub_sent_desc').replace('{name}', plan.name),
-      'success'
+ 'success'
     );
   } catch (e) {
     toast(t('sub_send_error'), 'error');
@@ -525,20 +525,20 @@ async function saveSessionIntent(profile) {
   try {
     await db.collection('inquiries').add({
       uid:       profile?.uid  || null,
-      planId:    'single-session',
-      planName:  'Sesión Individual',
+      planId: 'single-session',
+      planName: 'Sesión Individual',
       email,
       notes:     modal.querySelector('#session-notes')?.value?.trim() || '',
       timestamp: timestamp(),
-      status:    'pending',
-      type:      'session',
+      status: 'pending',
+      type: 'session',
     });
 
     closeModal();
     await alert(
       t('sub_booked_title'),
       t('sub_booked_desc'),
-      'success'
+ 'success'
     );
   } catch (e) {
     toast(t('sub_book_error'), 'error');
@@ -568,7 +568,7 @@ function buildFAQ() {
         <p class="text-muted" style="font-size:14px;line-height:1.6">${f.a}</p>
       </div>
     </div>
-  `).join('');
+ `).join('');
 }
 
 function capitalizeFirst(str) {

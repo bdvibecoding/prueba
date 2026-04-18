@@ -51,7 +51,7 @@ export async function render(container) {
           <div class="h-scroll" id="angle-tabs" style="margin-bottom:var(--space-md)">
             ${getAngles().map((a, i) => `
               <button class="chip ${i === 0 ? 'active' : ''}" data-angle="${a.id}">${a.icon} ${a.label}</button>
-            `).join('')}
+ `).join('')}
           </div>
 
           <!-- Photo display -->
@@ -78,7 +78,7 @@ export async function render(container) {
           <div class="h-scroll" style="margin-bottom:var(--space-md)">
             ${getAngles().map((a, i) => `
               <button class="chip ${i === 0 ? 'active' : ''}" data-compare-angle="${a.id}">${a.label}</button>
-            `).join('')}
+ `).join('')}
           </div>
           <div id="comparison-slider-wrap">
             ${buildSliderHTML(null, null, t('prog_before'), t('prog_after'))}
@@ -102,7 +102,7 @@ export async function render(container) {
         </div>
       </div>
     </div>
-  `;
+ `;
 }
 
 export async function init(container) {
@@ -193,13 +193,13 @@ async function loadPhotosForWeek(container, profile, date, angle) {
         <div class="photo-slot-overlay">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;cursor:pointer" id="btn-expand-photo"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </div>
-      `;
+ `;
       slot.querySelector('#btn-expand-photo')?.addEventListener('click', () => openPhotoModal(photoURL, formatDate(date)));
     } else {
       slot.innerHTML = `
         <div class="photo-slot-icon"></div>
         <div class="photo-slot-label">${t('prog_no_photo')} · ${angle}</div>
-      `;
+ `;
     }
   } catch (e) {
     slot.innerHTML = `<div class="photo-slot-label">Error</div>`;
@@ -223,7 +223,7 @@ async function loadComparison(container, profile, angle) {
     const sliderWrap = container.querySelector('#comparison-slider-wrap');
     if (sliderWrap) {
       sliderWrap.innerHTML = buildSliderHTML(beforeURL, afterURL,
-        `${t('prog_before')} · ${from}`, `${t('prog_after')} · ${to}`);
+ `${t('prog_before')} · ${from}`, `${t('prog_after')} · ${to}`);
       initBeforeAfterSlider(sliderWrap);
     }
   } catch (e) { toast(t('prog_comparison_error'), 'error'); }
@@ -272,12 +272,12 @@ function openUploadModal(profile, container) {
           <div class="photo-slot-label">${a.label}</div>
           <input type="file" accept="image/*" capture="environment" style="display:none" class="photo-file-input" data-angle="${a.id}">
         </div>
-      `).join('')}
+ `).join('')}
     </div>
     <button class="btn-primary btn-full" id="btn-upload-save" style="margin-top:var(--space-md)" disabled>
       ${t('prog_save_photos')}
     </button>
-  `;
+ `;
 
   openModal(html);
   const modal = document.getElementById('modal-content');
@@ -303,7 +303,7 @@ function openUploadModal(profile, container) {
             <span style="color:white;font-size:13px">${t('change')}</span>
           </div>
           <input type="file" accept="image/*" capture="environment" style="display:none" class="photo-file-input" data-angle="${angle}">
-        `;
+ `;
         slot.querySelector('.photo-file-input').addEventListener('change', (e2) => {
           const f2 = e2.target.files[0];
           if (f2) { files[angle] = f2; }
@@ -338,7 +338,7 @@ function openUploadModal(profile, container) {
       loadPhotosForWeek(container, profile, date, 'front');
     } catch (e) {
       toast(t('prog_upload_error') + ': ' + e.message, 'error');
-      btn.textContent = `💾 ${t('prog_save_photos')}`;
+      btn.textContent = ` ${t('prog_save_photos')}`;
       btn.disabled = false;
     }
   });
@@ -348,11 +348,11 @@ function openUploadModal(profile, container) {
 function openPhotoModal(url, date) {
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">📸 ${date}</h3>
+      <h3 class="modal-title"> ${date}</h3>
       <button class="modal-close">✕</button>
     </div>
     <img src="${url}" alt="Progreso" style="width:100%;border-radius:var(--radius-md);max-height:70vh;object-fit:contain">
-  `;
+ `;
   openModal(html);
 }
 

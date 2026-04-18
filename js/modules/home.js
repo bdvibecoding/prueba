@@ -76,7 +76,7 @@ export async function render(container) {
       </div>
 
     </div>
-  `;
+ `;
 }
 
 export async function init(container) {
@@ -123,9 +123,9 @@ const SVG_ICONS = {
   suscripcion: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
   configuracion: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="1.8"/></svg>`,
   admin: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.8"/><rect x="3" y="13" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="13" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.8"/></svg>`,
-  fisio:         `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3a9 9 0 1 0 0 18A9 9 0 0 0 12 3z" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v1M12 15v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
-  psicologo:     `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
-  medico:        `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2a5 5 0 0 1 5 5v2a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z" stroke="currentColor" stroke-width="1.8"/><path d="M3 21v-1a7 7 0 0 1 7-7h4a7 7 0 0 1 7 7v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="13" x2="12" y2="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="10" y1="15" x2="14" y2="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+  fisio: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3a9 9 0 1 0 0 18A9 9 0 0 0 12 3z" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v1M12 15v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+  psicologo: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+  medico: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2a5 5 0 0 1 5 5v2a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z" stroke="currentColor" stroke-width="1.8"/><path d="M3 21v-1a7 7 0 0 1 7-7h4a7 7 0 0 1 7 7v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="13" x2="12" y2="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="10" y1="15" x2="14" y2="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
   nutricionista: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 3C9.5 3 6 5 6 9C6 12.5 8 14.5 8 16V20C8 20.55 8.45 21 9 21H15C15.55 21 16 20.55 16 20V16C16 14.5 18 12.5 18 9C18 5 14.5 3 12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><line x1="9" y1="17" x2="15" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`,
 };
 
@@ -167,7 +167,7 @@ function buildIconGrid(profile) {
       </div>
       <span class="app-icon-label">${item.label}</span>
     </div>
-  `).join('');
+ `).join('');
 }
 
 // ── Load workout stats ─────────────────────────
@@ -250,7 +250,7 @@ async function loadRecentActivity(container) {
           </div>
           ${s.rpe ? `<span class="badge badge-red">RPE ${s.rpe}</span>` : ''}
         </div>
-      `;
+ `;
     }).join('');
   } catch (e) {
     el.innerHTML = renderEmptyActivity();
@@ -264,7 +264,7 @@ function renderEmptyActivity() {
       <div class="empty-title">${t('no_workouts')}</div>
       <div class="empty-subtitle">${t('start_first')}</div>
     </div>
-  `;
+ `;
 }
 
 function getPrevDay(dateStr) {
@@ -310,7 +310,7 @@ async function loadSpecialists(container) {
       </div>
       <span style="font-size:12px;color:var(--red);font-weight:600">${t('message')}</span>
     </div>
-  `).join('');
+ `).join('');
 
   el.querySelectorAll('[data-sp-uid]').forEach(card => {
     card.addEventListener('click', () => {

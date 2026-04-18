@@ -89,26 +89,26 @@ function showUpdateBanner() {
     color: white;
     min-width: 280px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-  `;
+ `;
   banner.innerHTML = `
-    <span>🔄 Nueva versión disponible</span>
+    <span> Nueva versión disponible</span>
     <button onclick="window.location.reload()" style="
       background: linear-gradient(135deg, #c01010, #940a0a);
       border: none; color: white; padding: 6px 14px;
       border-radius: var(--r-sm); cursor: pointer; font-size: 12px; font-weight: 700;
-    ">Actualizar</button>
+ ">Actualizar</button>
     <button onclick="this.parentElement.remove()" style="
       background: none; border: none; color: rgba(255,255,255,0.5);
       cursor: pointer; font-size: 16px; padding: 0;
-    ">✕</button>
-  `;
+ ">✕</button>
+ `;
   document.body.appendChild(banner);
   setTimeout(() => banner.remove(), 30000);
 }
 
 // ── Handle offline/online ─────────────────────
 window.addEventListener('online', () => {
-  import('./utils.js').then(({ toast }) => toast('Conexión restaurada 🌐', 'success'));
+  import('./utils.js').then(({ toast }) => toast('Conexión restaurada ', 'success'));
 });
 window.addEventListener('offline', () => {
   import('./utils.js').then(({ toast }) => toast('Sin conexión — modo offline', 'warning', 5000));
@@ -136,7 +136,7 @@ bootstrap().catch(err => {
   if (loadingScreen) {
     loadingScreen.innerHTML = `
       <div style="text-align:center;padding:40px;color:white">
-        <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+        <div style="font-size:48px;margin-bottom:16px"></div>
         <h2>Error al iniciar</h2>
         <p style="color:#a7a7a7;margin:12px 0">${err.message}</p>
         <button onclick="window.location.reload()"
@@ -144,6 +144,6 @@ bootstrap().catch(err => {
           Reintentar
         </button>
       </div>
-    `;
+ `;
   }
 });

@@ -117,7 +117,7 @@ export function buildRestTimerHTML(seconds = 60) {
     <div class="rest-timer" id="rest-timer-widget">
       <div class="timer-ring">
         <svg viewBox="0 0 120 120">
-          <circle class="timer-ring-bg"   cx="60" cy="60" r="54"/>
+          <circle class="timer-ring-bg" cx="60" cy="60" r="54"/>
           <circle class="timer-ring-fill" cx="60" cy="60" r="54"
             stroke-dasharray="${circumference}"
             stroke-dashoffset="0"/>
@@ -132,7 +132,7 @@ export function buildRestTimerHTML(seconds = 60) {
         <button class="btn-secondary" id="rest-skip">Saltar</button>
       </div>
     </div>
-  `;
+ `;
 }
 
 export function initRestTimerWidget(container, onSkip) {
@@ -156,12 +156,12 @@ export function buildWorkoutTimerBar(routineName = 'Entreno') {
         <div class="workout-timer-display" id="workout-timer">00:00</div>
       </div>
       <div style="display:flex;gap:6px;">
-        <button class="btn-icon" id="wt-pause" title="Pausar">⏸</button>
-        <button class="btn-icon" id="wt-finish" title="Finalizar" style="color:var(--cyan)">✅</button>
+        <button class="btn-icon" id="wt-pause" title="Pausar"></button>
+        <button class="btn-icon" id="wt-finish" title="Finalizar" style="color:var(--cyan)"></button>
         <button class="btn-icon" id="wt-cancel" title="Cancelar" style="color:var(--color-danger)">✕</button>
       </div>
     </div>
-  `;
+ `;
 }
 
 export function initWorkoutTimerBar(container, { onPause, onResume, onFinish, onCancel } = {}) {
@@ -174,12 +174,12 @@ export function initWorkoutTimerBar(container, { onPause, onResume, onFinish, on
       const session = getActiveSession();
       if (session.isPaused) {
         resumeSession();
-        pauseBtn.textContent = '⏸';
+        pauseBtn.textContent = '';
         pauseBtn.title = 'Pausar';
         if (onResume) onResume();
       } else {
         pauseSession();
-        pauseBtn.textContent = '▶️';
+        pauseBtn.textContent = '';
         pauseBtn.title = 'Continuar';
         if (onPause) onPause();
       }

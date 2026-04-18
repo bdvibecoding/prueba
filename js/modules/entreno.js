@@ -44,7 +44,7 @@ export async function render(container) {
         </div>
       </div>
     </div>
-  `;
+ `;
 }
 
 export async function init(container) {
@@ -108,7 +108,7 @@ async function loadRoutinesList(container) {
             <div class="empty-title">${t('entreno_no_routines')}</div>
             <div class="empty-subtitle">${t('entreno_no_routines_sub')}</div>
           </div>
-        `;
+ `;
       }
       return;
     }
@@ -163,7 +163,7 @@ async function loadRoutinesList(container) {
             <span class="chip">${a.assignedAt ? formatDate(a.assignedAt.toDate?.() || a.assignedAt) : t('today')}</span>
           </div>
         </div>
-      `;
+ `;
     }).join('');
 
     container.querySelectorAll('.routine-card').forEach(card => {
@@ -226,7 +226,7 @@ async function renderRoutineDetail(container, routine) {
         <button class="btn-primary btn-full" id="btn-start-routine" style="margin-bottom:var(--space-md)">
           ${t('entreno_start_btn')}
         </button>
-      ` : ''}
+ ` : ''}
 
       <!-- Exercise List -->
       <div class="exercise-list" id="exercise-list">
@@ -239,16 +239,16 @@ async function renderRoutineDetail(container, routine) {
           <div class="empty-title">${t('entreno_no_exercises')}</div>
           <div class="empty-subtitle">${t('entreno_no_exercises_sub')}</div>
         </div>
-      ` : ''}
+ ` : ''}
 
       ${isActive ? `
       <div style="display:flex;gap:12px;padding:var(--space-lg) 0;margin-top:var(--space-md)">
         <button id="btn-finish-bottom" class="btn-primary btn-full" style="flex:1">Finalizar entreno</button>
         <button id="btn-cancel-bottom" class="btn-secondary" style="min-width:80px">Cancelar</button>
       </div>
-      ` : ''}
+ ` : ''}
     </div>
-  `;
+ `;
 
   // Back button
   container.querySelector('#btn-back-routines')?.addEventListener('click', () => {
@@ -307,9 +307,9 @@ function buildMuscleBars(ex) {
           </div>
           <div style="font-size:11px;color:var(--color-text-muted);width:28px;text-align:right">${b.pct}%</div>
         </div>
-      `).join('')}
+ `).join('')}
     </div>
-  `;
+ `;
 }
 
 // ── Exercise Card Builder ──────────────────────
@@ -362,7 +362,7 @@ function buildExerciseCard(ex, index, sessionActive, session, exDataCache) {
         ${buildSetsTable(ex, index, session)}
       </div>
     </div>
-  `;
+ `;
 }
 
 // ── Sets Table ────────────────────────────────
@@ -401,7 +401,7 @@ function buildSetsTable(ex, exIndex, session) {
           </div>
         </td>
       </tr>
-    `;
+ `;
   }).join('');
 
   const rows = Array.from({ length: numSets }, (_, i) => {
@@ -438,7 +438,7 @@ function buildSetsTable(ex, exIndex, session) {
                   title="${t('entreno_remove_drop')}">✕</button>
         </td>
       </tr>
-    `).join('');
+ `).join('');
 
     return `
       <tr class="set-row ${done ? 'completed locked' : ''}" data-exid="${ex.id}" data-setidx="${i}">
@@ -464,7 +464,7 @@ function buildSetsTable(ex, exIndex, session) {
         </td>
       </tr>
       ${dropRows}
-    `;
+ `;
   }).join('');
 
   return `
@@ -480,7 +480,7 @@ function buildSetsTable(ex, exIndex, session) {
       </thead>
       <tbody id="sets-body-${ex.id}">${warmupRows}${rows}</tbody>
     </table>
-  `;
+ `;
 }
 
 // ── Init Exercise List Events ─────────────────
@@ -728,7 +728,7 @@ function _addDropRow(container, exId, setIdx, exercises) {
       <button class="btn-remove-drop" data-exid="${exId}" data-setidx="${setIdx}" data-dropidx="${dropIdx}"
               title="${t('entreno_remove_drop')}">✕</button>
     </td>
-  `;
+ `;
 
   // Insert after the last drop row (or after the set row itself)
   const lastDrop = tbody.querySelector(`.dropset-row[data-setidx="${setIdx}"]:last-of-type`);
@@ -951,9 +951,9 @@ async function openExerciseInfoModal(exName) {
           ${i===0?'Inicio':'Final'}
         </button>`).join('')}
       </div>
-      ` : ''}
+ ` : ''}
     </div>
-    ` : ''}
+ ` : ''}
 
     ${vid ? `
     <div style="margin-bottom:12px">
@@ -962,7 +962,7 @@ async function openExerciseInfoModal(exName) {
         <source src="${encodeURI(vid)}" type="video/mp4">
       </video>
     </div>
-    ` : ''}
+ ` : ''}
 
     ${steps.length ? `
     <button id="ex-info-steps-btn" style="width:100%;padding:10px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:var(--radius-sm);color:#ef4444;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">
@@ -975,8 +975,8 @@ async function openExerciseInfoModal(exName) {
           <div style="font-size:13px;color:var(--color-text);line-height:1.5">${s}</div>
         </div>`).join('')}
     </div>
-    ` : ''}
-  `;
+ ` : ''}
+ `;
 
   openModal(html);
   const m = document.getElementById('modal-content');
@@ -1029,7 +1029,7 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
     <button class="btn-primary btn-full" style="margin-top:var(--space-md)" id="btn-confirm-swap" disabled>
       ${t('entreno_confirm_swap')}
     </button>
-  `;
+ `;
 
   openModal(html);
   const modalEl = document.getElementById('modal-content');
@@ -1115,7 +1115,7 @@ async function openExerciseHistory(exercise) {
       <button class="modal-close">✕</button>
     </div>
     <div id="history-content">${historyHTML}</div>
-  `;
+ `;
   openModal(html);
 
   if (!profile?.uid) return;
@@ -1144,12 +1144,12 @@ async function openExerciseHistory(exercise) {
         <div style="margin-bottom:var(--space-sm)">
           <div style="font-weight:700;margin-bottom:4px">${date}</div>
           ${exData.sets.map((set, i) =>
-            `<span style="font-size:12px;color:var(--color-text-muted);margin-right:12px">
+ `<span style="font-size:12px;color:var(--color-text-muted);margin-right:12px">
               Set ${i+1}: ${set.reps || '?'} reps × ${set.weight || '?'}kg
             </span>`
           ).join('')}
         </div>
-      `;
+ `;
     });
 
     if (notesSnap.docs.length) {
@@ -1194,7 +1194,7 @@ async function loadHistorialTab(container) {
           <div class="empty-title">${t('entreno_no_sessions')}</div>
           <div class="empty-subtitle">${t('entreno_no_sessions_sub')}</div>
         </div>
-      `;
+ `;
       return;
     }
 
@@ -1224,7 +1224,7 @@ async function loadHistorialTab(container) {
           </div>
           ${session.note ? `<p style="font-size:12px;color:var(--color-text-muted);margin-top:var(--space-xs);font-style:italic">"${session.note}"</p>` : ''}
         </div>
-      `;
+ `;
     }).join('');
 
     // Attach click handlers — store session data on element for sheet
@@ -1258,7 +1258,7 @@ async function openSessionDetail(sessionId, session) {
         <span class="toggle-slider"></span>
       </label>
     </div>
-  ` : '';
+ ` : '';
 
   const html = `
     <div class="modal-header">
@@ -1292,7 +1292,7 @@ async function openSessionDetail(sessionId, session) {
 
     <div class="section-title" style="margin-top:var(--space-md)" id="muscle-map-title">${t('entreno_muscles_worked')}</div>
     <div id="session-muscle-map"></div>
-  `;
+ `;
 
   openSheet(html);
 
@@ -1331,7 +1331,7 @@ async function openSessionDetail(sessionId, session) {
             <td>${set.reps || '—'}</td>
             <td>${set.weight || '—'}</td>
           </tr>
-        `).join('');
+ `).join('');
 
         return `
           <div class="glass-card" style="margin-bottom:var(--space-sm)">
@@ -1343,7 +1343,7 @@ async function openSessionDetail(sessionId, session) {
               <tbody>${rows}</tbody>
             </table>
           </div>
-        `;
+ `;
       }).join('');
     }
   }
@@ -1470,7 +1470,7 @@ function showWorkoutSummary(container, durationMs, session, rpe, note) {
     ${note ? `<p class="text-muted" style="margin-bottom:var(--space-md);font-style:italic">"${note}"</p>` : ''}
     <div id="finish-muscle-map"></div>
     <button class="btn-primary btn-full" id="btn-close-summary" style="margin-top:var(--space-md)">${t('close')}</button>
-  `;
+ `;
 
   openModal(html, { noClickClose: true });
   const settings = appState.get('settings');
@@ -1539,7 +1539,7 @@ function renderBasicOnboarding(container, listEl, profile) {
 
         <button class="btn-primary btn-full" id="btn-apply-basic-plan">Obtener mi plan</button>
       </div>
-    `;
+ `;
 
     listEl.querySelectorAll('.basic-gender-btn').forEach(btn => {
       btn.addEventListener('click', () => { selectedGender = btn.dataset.gender; render(); });

@@ -72,7 +72,7 @@ export async function render(container) {
         </div>
       </div>
     </div>
-  `;
+ `;
 }
 
 export async function init(container) {
@@ -174,9 +174,9 @@ function renderBioTable(container, data) {
           <span class="bio-value" style="color:#ef4444">${d.fatPercent ? d.fatPercent + '% G' : '—'}</span>
           <span class="bio-value" style="color:#22c55e">${d.musclePercent ? d.musclePercent + '% M' : '—'}</span>
         </div>
-      `).join('')}
+ `).join('')}
     </div>
-  `;
+ `;
 }
 
 function renderSkinfoldTable(container, data) {
@@ -198,10 +198,10 @@ function renderSkinfoldTable(container, data) {
             ${keys.map(k => `<td style="text-align:center;padding:6px 4px">${d.skinfolds[k] || '—'}</td>`).join('')}
             <td style="text-align:center;padding:6px 4px;color:#ef4444">${d.fatPercentSkinfolds || '—'}%</td>
           </tr>
-        `).join('')}
+ `).join('')}
       </table>
     </div>
-  `;
+ `;
 }
 
 function renderPerimetralTable(container, data) {
@@ -220,10 +220,10 @@ function renderPerimetralTable(container, data) {
             ${p.hip ? `<span class="bio-value">${p.hip} cm <span class="text-muted" style="font-size:10px">${t('bio_hip_abbr')}</span></span>` : ''}
             ${p.chest ? `<span class="bio-value">${p.chest} cm <span class="text-muted" style="font-size:10px">${t('bio_chest_abbr')}</span></span>` : ''}
           </div>
-        `;
+ `;
       }).join('')}
     </div>
-  `;
+ `;
 }
 
 // ── Add Biometrics Sheet ──────────────────────
@@ -276,7 +276,7 @@ function openAddBioSheet(profile, container) {
     </div>
 
     <button class="btn-primary btn-full" id="btn-save-bio" style="margin-top:var(--space-md)">${t('save')}</button>
-  `;
+ `;
   openSheet(html);
 
   const sc = document.getElementById('sheet-content');
@@ -342,7 +342,7 @@ function buildMeasurementInput(id, label, unit) {
       <input type="number" id="${id}" class="measurement-input" placeholder="0" step="0.1" min="0">
       <span class="measurement-unit">${unit}</span>
     </div>
-  `;
+ `;
 }
 
 function getDateMinus(days) {

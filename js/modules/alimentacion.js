@@ -111,7 +111,7 @@ export async function render(container) {
         <div style="height: 24px"></div>
       </div>
     </div>
-  `;
+ `;
 }
 
 // Timer global para reset a medianoche (se reprograma al recargar)
@@ -155,7 +155,7 @@ export async function init(container) {
     });
   }
 
-  bindAccordion('btn-workout',  'acc-workout',  'arrow-workout');
+  bindAccordion('btn-workout', 'acc-workout', 'arrow-workout');
   bindAccordion('btn-presleep', 'acc-presleep', 'arrow-presleep');
 
   try {
@@ -196,7 +196,7 @@ export async function init(container) {
 
   } catch (e) {
     container.querySelector('#nutrition-meals-list').innerHTML =
-      `<p class="text-muted" style="padding:16px">Error cargando datos: ${e.message}</p>`;
+ `<p class="text-muted" style="padding:16px">Error cargando datos: ${e.message}</p>`;
   }
 }
 
@@ -250,7 +250,7 @@ function _renderWakeup(container, diet, morningSups) {
 
   if (allSupps.length) {
     html += `<div class="nsf-supps">${allSupps.map(s =>
-      `<span class="nsf-supp-pill">${ICON.pill}<span>${_esc(s.name)}${s.dose ? ` ${s.dose}${s.unit || ''}` : ''}</span></span>`
+ `<span class="nsf-supp-pill">${ICON.pill}<span>${_esc(s.name)}${s.dose ? ` ${s.dose}${s.unit || ''}` : ''}</span></span>`
     ).join('')}</div>`;
   }
 
@@ -365,7 +365,7 @@ function _buildMealBtn(meal, i, todayData) {
           <div class="nma-supps-section">
             <div class="nma-supps-title">${ICON.pill}<span>Suplementos</span></div>
             ${supps.map(s =>
-              `<div class="nma-supp-row">
+ `<div class="nma-supp-row">
                 <span>${ICON.pill}</span>
                 <span>${_esc(s.name)}</span>
                 ${s.dose ? `<span class="nma-supp-dose">${_esc(s.dose)}${_esc(s.unit||'')}</span>` : ''}
@@ -374,7 +374,7 @@ function _buildMealBtn(meal, i, todayData) {
           </div>` : ''}
       </div>
     </div>
-  `;
+ `;
 }
 
 function _defaultMeals(count) {
@@ -417,7 +417,7 @@ function _openMealSuppsModal(mealLabel, supps) {
           </div>
         </div>`).join('')}
     </div>
-  `;
+ `;
   openModal(html);
 }
 
@@ -444,7 +444,7 @@ function _renderWorkout(container, diet, suppsByTiming) {
   if (preSupps.length) {
     html += `<div class="nma-supps-title">${ICON.bolt}<span>Pre-entreno</span></div>`;
     html += preSupps.map(s =>
-      `<div class="nma-supp-row">
+ `<div class="nma-supp-row">
         <span>${ICON.pill}</span>
         <span>${_esc(s.name)}</span>
         ${s.dose ? `<span class="nma-supp-dose">${_esc(s.dose)}${_esc(s.unit||'')}</span>` : ''}
@@ -454,7 +454,7 @@ function _renderWorkout(container, diet, suppsByTiming) {
   if (postSupps.length) {
     html += `<div class="nma-supps-title" style="margin-top:12px">${ICON.refresh}<span>Post-entreno</span></div>`;
     html += postSupps.map(s =>
-      `<div class="nma-supp-row">
+ `<div class="nma-supp-row">
         <span>${ICON.pill}</span>
         <span>${_esc(s.name)}</span>
         ${s.dose ? `<span class="nma-supp-dose">${_esc(s.dose)}${_esc(s.unit||'')}</span>` : ''}
@@ -504,7 +504,7 @@ function _renderPreSleep(container, diet, nightSupps) {
   if (allNightSupps.length) {
     html += `<div class="nma-supps-title">${ICON.moon}<span>Suplementos</span></div>`;
     html += allNightSupps.map(s =>
-      `<div class="nma-supp-row">
+ `<div class="nma-supp-row">
         <span>${ICON.pill}</span>
         <span>${_esc(s.name)}</span>
         ${s.dose ? `<span class="nma-supp-dose">${_esc(s.dose)}${_esc(s.unit||'')}</span>` : ''}

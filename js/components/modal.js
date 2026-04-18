@@ -105,11 +105,16 @@ export function confirm(title, message, opts = {}) {
 
 // ── Alert ─────────────────────────────────────
 export function alert(title, message, type = 'info') {
-  const icons = { info: 'ℹ️', success: '✅', error: '❌', warning: '⚠️' };
+  const _icons = {
+    info:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;vertical-align:-3px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>`,
+    success: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;vertical-align:-3px"><path d="M20 6L9 17l-5-5"/></svg>`,
+    error:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;vertical-align:-3px"><path d="M18 6L6 18M6 6l12 12"/></svg>`,
+    warning: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;vertical-align:-3px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>`,
+  };
   return new Promise((resolve) => {
     const html = `
       <div class="modal-header">
-        <h3 class="modal-title">${icons[type]} ${title}</h3>
+        <h3 class="modal-title">${_icons[type] || ''} ${title}</h3>
         <button class="modal-close">✕</button>
       </div>
       <p style="color:var(--color-text-muted);margin-bottom:var(--space-lg);line-height:1.6">${message}</p>
@@ -171,7 +176,7 @@ export function openRPESheet(currentRPE = null) {
     `;
     openSheet(html, { noClickClose: false });
     const sheetContent = document.getElementById('sheet-content');
-    const rpeLabels = ['','Muy fácil 😴','Fácil 🟢','Ligero 💪','Moderado 🔵','Algo duro 🟡','Duro 🟠','Muy duro 🔴','Extremo 🔥','Casi máximo 💀','Máximo ☠️'];
+    const rpeLabels = ['','Muy fácil','Fácil','Ligero','Moderado','Algo duro','Duro','Muy duro','Extremo','Casi máximo','Máximo'];
 
     sheetContent.querySelectorAll('.rpe-btn').forEach(btn => {
       btn.addEventListener('click', () => {

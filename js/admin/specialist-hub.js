@@ -21,12 +21,12 @@ let _embedded    = false;  // true when loaded inside admin panel
 
 // ── Role config ────────────────────────────────
 const ROLE_CFG = {
-  coach:         { label: 'Coach',          icon: '🏋️', field: 'assignedCoach',         color: '#ef4444', tools: ['stats','routines','notes'] },
-  medico:        { label: 'Médico',         icon: '🩺', field: 'assignedMedico',        color: '#06b6d4', tools: ['stats','health','notes'] },
-  nutricionista: { label: 'Nutricionista',  icon: '🥗', field: 'assignedNutricionista', color: '#22c55e', tools: ['stats','diet','notes'] },
-  fisio:         { label: 'Fisioterapeuta', icon: '🦴', field: 'assignedFisio',         color: '#3b82f6', tools: ['stats','health','fisio_notes','notes'] },
-  psicologo:     { label: 'Psicólogo',      icon: '🧠', field: 'assignedPsicologo',     color: '#a855f7', tools: ['stats','psych_notes','notes'] },
-  admin:         { label: 'Admin',          icon: '🔑', field: null,                    color: '#f97316',
+  coach:         { label: 'Coach',          icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg>', field: 'assignedCoach',         color: '#ef4444', tools: ['stats','routines','notes'] },
+  medico:        { label: 'Médico',         icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M3 9a9 9 0 009 9 9 9 0 009-9V5H3z"/><path d="M12 18v3M9 21h6"/></svg>', field: 'assignedMedico',        color: '#06b6d4', tools: ['stats','health','notes'] },
+  nutricionista: { label: 'Nutricionista',  icon: '', field: 'assignedNutricionista', color: '#22c55e', tools: ['stats','diet','notes'] },
+  fisio:         { label: 'Fisioterapeuta', icon: '', field: 'assignedFisio',         color: '#3b82f6', tools: ['stats','health','fisio_notes','notes'] },
+  psicologo:     { label: 'Psicólogo',      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M12 5a3 3 0 00-3 3c0 1.4.8 2.6 2 3.2V19a1 1 0 002 0v-7.8c1.2-.6 2-1.8 2-3.2a3 3 0 00-3-3z"/><path d="M6.2 8.5C5.5 9 5 9.7 5 10.5a3 3 0 003 3M17.8 8.5c.7.5 1.2 1.2 1.2 2a3 3 0 01-3 3"/></svg>', field: 'assignedPsicologo',     color: '#a855f7', tools: ['stats','psych_notes','notes'] },
+  admin:         { label: 'Admin',          icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6M15.5 7.5L19 4M18 5l2 2"/></svg>', field: null,                    color: '#f97316',
                    tools: ['stats','routines','diet','health','fisio_notes','psych_notes','notes','assignments'] },
 };
 
@@ -221,7 +221,7 @@ function injectStyles() {
       .sh-left, .sh-mid, .sh-right { display: none; width: 100%; min-width: 0; border: none; }
       .sh-left.sh-visible, .sh-mid.sh-visible, .sh-right.sh-visible { display: flex; }
     }
-  `;
+ `;
   document.head.appendChild(s);
 }
 
@@ -239,9 +239,9 @@ export async function render(container, params = {}) {
 
       <!-- Mobile tab bar -->
       <div class="sh-tabs" id="sh-tabs">
-        <button class="sh-tab active" data-panel="left">👥 Clientes</button>
-        <button class="sh-tab"        data-panel="mid" >💬 Chat</button>
-        <button class="sh-tab"        data-panel="right">📋 Info</button>
+        <button class="sh-tab active" data-panel="left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><circle cx="9" cy="7" r="4"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3c1.66 0 3 1.34 3 3s-1.34 3-3 3M21 20c0-3-2-5.3-4.5-5.9"/></svg> Clientes</button>
+        <button class="sh-tab" data-panel="mid" ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Chat</button>
+        <button class="sh-tab" data-panel="right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg> Info</button>
       </div>
 
       <div class="sh-layout">
@@ -250,7 +250,7 @@ export async function render(container, params = {}) {
         <div class="sh-left sh-visible" id="sh-left">
           <div class="sh-left-head">
             <div class="sh-left-label">${cfg.icon} Mis clientes</div>
-            ${(role === 'coach' || role === 'admin') ? `<button id="btn-my-routines" title="Mis rutinas" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:#ef4444;border-radius:var(--radius-sm);padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">💪 Rutinas</button>` : ''}
+            ${(role === 'coach' || role === 'admin') ? `<button id="btn-my-routines" title="Mis rutinas" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:#ef4444;border-radius:var(--radius-sm);padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg> Rutinas</button>` : ''}
             <input class="sh-search" id="sh-search" type="search" placeholder="Buscar cliente...">
           </div>
           <div class="sh-clients-scroll" id="sh-clients-scroll">
@@ -262,13 +262,13 @@ export async function render(container, params = {}) {
         <div class="sh-mid" id="sh-mid">
           <div class="sh-chat-head" id="sh-chat-head">
             <div id="sh-chat-head-inner" style="display:flex;align-items:center;gap:10px;flex:1;opacity:.3">
-              <div style="font-size:28px">💬</div>
+              <div style="font-size:28px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
               <div style="font-size:13px;color:var(--color-text-muted)">Selecciona un cliente para chatear</div>
             </div>
           </div>
           <div class="sh-messages" id="sh-messages">
             <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:.25;gap:10px;padding:32px">
-              <div style="font-size:48px">💬</div>
+              <div style="font-size:48px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
               <div style="font-size:14px">Selecciona un cliente para comenzar</div>
             </div>
           </div>
@@ -285,10 +285,10 @@ export async function render(container, params = {}) {
 
         <!-- RIGHT: info -->
         <div class="sh-right" id="sh-right">
-          <div class="sh-right-head">📋 Info del cliente</div>
+          <div class="sh-right-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg> Info del cliente</div>
           <div class="sh-info-scroll" id="sh-info-scroll">
             <div style="padding:40px 16px;text-align:center;opacity:.28">
-              <div style="font-size:36px;margin-bottom:8px">👤</div>
+              <div style="font-size:36px;margin-bottom:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
               <div style="font-size:13px">Selecciona un cliente</div>
             </div>
           </div>
@@ -296,7 +296,7 @@ export async function render(container, params = {}) {
 
       </div>
     </div>
-  `;
+ `;
 }
 
 // ── init ───────────────────────────────────────
@@ -368,7 +368,7 @@ async function loadClients(container, role, cfg) {
   if (!snap || snap.empty) {
     el.innerHTML = `
       <div style="padding:40px 16px;text-align:center;opacity:.5">
-        <div style="font-size:36px;margin-bottom:8px">👥</div>
+        <div style="font-size:36px;margin-bottom:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><circle cx="9" cy="7" r="4"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3c1.66 0 3 1.34 3 3s-1.34 3-3 3M21 20c0-3-2-5.3-4.5-5.9"/></svg></div>
         <div style="font-size:13px;color:var(--color-text-muted)">Sin clientes asignados</div>
         <div style="font-size:11px;color:var(--color-text-muted);margin-top:4px">El administrador te asignará clientes</div>
       </div>`;
@@ -452,7 +452,7 @@ function renderMessages(el, snapshot) {
   if (snapshot.empty) {
     el.innerHTML = `
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:.3;gap:10px;padding:32px">
-        <div style="font-size:40px">💬</div>
+        <div style="font-size:40px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
         <div style="font-size:13px">Inicia la conversación</div>
       </div>`;
     return;
@@ -510,7 +510,7 @@ async function loadClientInfo(container, client) {
   // Stats block
   const statsHtml = `
     <div class="sh-info-block">
-      <div class="sh-info-title">📊 Estadísticas</div>
+      <div class="sh-info-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Estadísticas</div>
       <div class="sh-stat-row"><span>Entrenos</span><span class="sh-stat-val">${totalSessions}</span></div>
       <div class="sh-stat-row"><span>RPE medio</span><span class="sh-stat-val">${avgRpe ? avgRpe.toFixed(1) : '—'}</span></div>
       ${lastDate ? `<div style="font-size:11px;color:var(--color-text-muted);margin-top:6px">Último: ${lastDate}</div>` : ''}
@@ -521,20 +521,20 @@ async function loadClientInfo(container, client) {
     infoEl.innerHTML = `
       ${headerHtml}
       <div class="sh-info-tabs" id="sh-info-tabs">
-        <button class="sh-info-tab active" data-itab="stats">📊 Stats</button>
-        <button class="sh-info-tab" data-itab="routines">💪 Rutinas</button>
-        <button class="sh-info-tab" data-itab="diet">🥗 Dieta</button>
-        <button class="sh-info-tab" data-itab="health">🩺 Salud</button>
-        <button class="sh-info-tab" data-itab="notes">📝 Notas</button>
-        <button class="sh-info-tab" data-itab="team">👥 Equipo</button>
+        <button class="sh-info-tab active" data-itab="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Stats</button>
+        <button class="sh-info-tab" data-itab="routines"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg> Rutinas</button>
+        <button class="sh-info-tab" data-itab="diet"> Dieta</button>
+        <button class="sh-info-tab" data-itab="health"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M3 9a9 9 0 009 9 9 9 0 009-9V5H3z"/><path d="M12 18v3M9 21h6"/></svg> Salud</button>
+        <button class="sh-info-tab" data-itab="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Notas</button>
+        <button class="sh-info-tab" data-itab="team"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><circle cx="9" cy="7" r="4"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3c1.66 0 3 1.34 3 3s-1.34 3-3 3M21 20c0-3-2-5.3-4.5-5.9"/></svg> Equipo</button>
       </div>
-      <div id="sh-itab-stats"    class="sh-itab-panel">${_statsContent(totalSessions, avgRpe, lastDate)}</div>
+      <div id="sh-itab-stats" class="sh-itab-panel">${_statsContent(totalSessions, avgRpe, lastDate)}</div>
       <div id="sh-itab-routines" class="sh-itab-panel" style="display:none">${_routinesContent(uid)}</div>
-      <div id="sh-itab-diet"     class="sh-itab-panel" style="display:none">${_dietContent(uid)}</div>
-      <div id="sh-itab-health"   class="sh-itab-panel" style="display:none">${_healthContent(uid)}</div>
-      <div id="sh-itab-notes"    class="sh-itab-panel" style="display:none">${_notesContent(uid)}</div>
-      <div id="sh-itab-team"     class="sh-itab-panel" style="display:none">${_teamContent(client)}</div>
-    `;
+      <div id="sh-itab-diet" class="sh-itab-panel" style="display:none">${_dietContent(uid)}</div>
+      <div id="sh-itab-health" class="sh-itab-panel" style="display:none">${_healthContent(uid)}</div>
+      <div id="sh-itab-notes" class="sh-itab-panel" style="display:none">${_notesContent(uid)}</div>
+      <div id="sh-itab-team" class="sh-itab-panel" style="display:none">${_teamContent(client)}</div>
+ `;
 
     // Wire tab switching
     infoEl.querySelectorAll('.sh-info-tab').forEach(tab => {
@@ -590,41 +590,41 @@ function _teamContent(client)   { return `<div class="sh-info-block" id="blk-tea
 // ── Specialist blocks (static HTML + lazy load) ─
 function _routinesBlock(uid) {
   return `<div class="sh-info-block" id="blk-routines-${uid}">
-    <div class="sh-info-title">💪 Rutinas asignadas</div>
+    <div class="sh-info-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg> Rutinas asignadas</div>
     ${_spinnerHtml()}
   </div>`;
 }
 function _dietBlock(uid) {
   return `<div class="sh-info-block" id="blk-diet-${uid}">
-    <div class="sh-info-title">🥗 Plan nutricional</div>
+    <div class="sh-info-title"> Plan nutricional</div>
     ${_spinnerHtml()}
   </div>`;
 }
 function _healthBlock(uid) {
   return `<div class="sh-info-block" id="blk-health-${uid}">
-    <div class="sh-info-title">🩺 Historial médico</div>
+    <div class="sh-info-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M3 9a9 9 0 009 9 9 9 0 009-9V5H3z"/><path d="M12 18v3M9 21h6"/></svg> Historial médico</div>
     ${_spinnerHtml()}
   </div>`;
 }
 function _fisioNotesBlock(uid) {
   return `<div class="sh-info-block" id="blk-fisio-${uid}">
-    <div class="sh-info-title">🦴 Notas fisioterapia</div>
+    <div class="sh-info-title"> Notas fisioterapia</div>
     <textarea class="sh-textarea" id="sh-fisio-notes-${uid}" rows="3" placeholder="Notas de fisioterapia..."></textarea>
-    <button class="btn-accent btn-full" data-save-fisio="${uid}" style="font-size:12px;padding:7px">💾 Guardar</button>
+    <button class="btn-accent btn-full" data-save-fisio="${uid}" style="font-size:12px;padding:7px"> Guardar</button>
   </div>`;
 }
 function _psychNotesBlock(uid) {
   return `<div class="sh-info-block" id="blk-psych-${uid}">
-    <div class="sh-info-title">🧠 Notas psicológicas</div>
+    <div class="sh-info-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M12 5a3 3 0 00-3 3c0 1.4.8 2.6 2 3.2V19a1 1 0 002 0v-7.8c1.2-.6 2-1.8 2-3.2a3 3 0 00-3-3z"/><path d="M6.2 8.5C5.5 9 5 9.7 5 10.5a3 3 0 003 3M17.8 8.5c.7.5 1.2 1.2 1.2 2a3 3 0 01-3 3"/></svg> Notas psicológicas</div>
     <textarea class="sh-textarea" id="sh-psych-notes-${uid}" rows="3" placeholder="Notas sesión psicológica..."></textarea>
-    <button class="btn-accent btn-full" data-save-psych="${uid}" style="font-size:12px;padding:7px">💾 Guardar</button>
+    <button class="btn-accent btn-full" data-save-psych="${uid}" style="font-size:12px;padding:7px"> Guardar</button>
   </div>`;
 }
 function _notesBlock(uid, name) {
   return `<div class="sh-info-block">
-    <div class="sh-info-title">📝 Notas del equipo</div>
+    <div class="sh-info-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Notas del equipo</div>
     <textarea class="sh-textarea" id="sh-team-notes-${uid}" rows="3" placeholder="Notas sobre ${name || 'el cliente'}..."></textarea>
-    <button class="btn-accent btn-full" data-save-notes="${uid}" style="font-size:12px;padding:7px">💾 Guardar</button>
+    <button class="btn-accent btn-full" data-save-notes="${uid}" style="font-size:12px;padding:7px"> Guardar</button>
   </div>`;
 }
 
@@ -637,16 +637,16 @@ async function loadRoutinesTab(infoEl, uid) {
     const snap = await collections.assignments(uid).orderBy('assignedAt','desc').limit(10).get();
     const existing = snap.docs.map(d => d.data());
     el.innerHTML = `
-      <div class="sh-info-title">💪 Rutinas asignadas</div>
+      <div class="sh-info-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg> Rutinas asignadas</div>
       ${existing.length ? existing.map(r => `
         <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">
-          <span>📋</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></span>
           <div style="flex:1;font-size:12px">${_esc(r.name || r.routineId)}</div>
           <span style="font-size:10px;color:var(--color-text-muted)">${formatDate(r.assignedAt?.toDate?.() || r.assignedAt)}</span>
         </div>`).join('')
       : `<p style="font-size:12px;color:var(--color-text-muted)">Sin rutinas asignadas</p>`}
       <button class="btn-primary btn-full" id="btn-assign-routine-${uid}" style="margin-top:10px;font-size:12px;padding:8px">
-        📋 Asignar rutina
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg> Asignar rutina
       </button>`;
     el.querySelector(`#btn-assign-routine-${uid}`)?.addEventListener('click', () => openAssignRoutineModal(uid));
   } catch (e) { el.innerHTML = `<p class="text-muted">Error: ${e.message}</p>`; }
@@ -660,16 +660,16 @@ async function loadDietTab(infoEl, uid) {
     const snap = await collections.dietas(uid).orderBy('assignedAt','desc').limit(5).get();
     const diets = snap.docs.map(d => d.data());
     el.innerHTML = `
-      <div class="sh-info-title">🥗 Planes nutricionales</div>
+      <div class="sh-info-title"> Planes nutricionales</div>
       ${diets.length ? diets.map(d => `
         <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">
-          <span>🥗</span>
+          <span></span>
           <div style="flex:1;font-size:12px">${_esc(d.name || d.type)}</div>
           <span class="badge badge-gray" style="font-size:10px">${d.type || ''}</span>
         </div>`).join('')
       : `<p style="font-size:12px;color:var(--color-text-muted)">Sin planes asignados</p>`}
       <button class="btn-primary btn-full" id="btn-assign-diet-${uid}" style="margin-top:10px;font-size:12px;padding:8px">
-        🥗 Asignar menú
+         Asignar menú
       </button>`;
     el.querySelector(`#btn-assign-diet-${uid}`)?.addEventListener('click', () => openAssignDietModal(uid, ''));
   } catch (e) { el.innerHTML = `<p class="text-muted">Error: ${e.message}</p>`; }
@@ -685,7 +685,7 @@ async function loadHealthTab(infoEl, uid) {
       collections.biomedidas(uid).orderBy('date','desc').limit(3).get(),
     ]);
     el.innerHTML = `
-      <div class="sh-info-title">🩺 Historial de salud</div>
+      <div class="sh-info-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M3 9a9 9 0 009 9 9 9 0 009-9V5H3z"/><path d="M12 18v3M9 21h6"/></svg> Historial de salud</div>
       ${healthSnap.docs.length ? healthSnap.docs.map(doc => {
         const d = doc.data();
         return `<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px">
@@ -694,7 +694,7 @@ async function loadHealthTab(infoEl, uid) {
         </div>`}).join('')
       : `<p style="font-size:12px;color:var(--color-text-muted)">Sin registros de salud</p>`}
       ${bioSnap.docs.length ? `
-        <div class="sh-info-title" style="margin-top:12px">📏 Biomedidas recientes</div>
+        <div class="sh-info-title" style="margin-top:12px"> Biomedidas recientes</div>
         ${bioSnap.docs.map(doc => {
           const d = doc.data();
           return `<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0">
@@ -704,13 +704,13 @@ async function loadHealthTab(infoEl, uid) {
         }).join('')}` : ''}
       <textarea class="sh-textarea" id="sh-health-note-${uid}" rows="2" placeholder="Añadir nota médica..." style="margin-top:10px"></textarea>
       <button class="btn-primary btn-full" id="btn-add-health-note-${uid}" style="font-size:12px;padding:8px">
-        🩺 Guardar nota médica
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M3 9a9 9 0 009 9 9 9 0 009-9V5H3z"/><path d="M12 18v3M9 21h6"/></svg> Guardar nota médica
       </button>`;
     el.querySelector(`#btn-add-health-note-${uid}`)?.addEventListener('click', async () => {
       const notes = el.querySelector(`#sh-health-note-${uid}`)?.value.trim();
       if (!notes) return;
       await collections.health(uid).add({ notes, date: timestamp(), addedBy: _profile.uid, createdAt: timestamp() });
-      toast('Nota guardada ✅', 'success');
+      toast('Nota guardada ', 'success');
       el.querySelector(`#sh-health-note-${uid}`).value = '';
       el.dataset.loaded = '';
       loadHealthTab(infoEl, uid);
@@ -731,34 +731,34 @@ async function loadNotesTab(infoEl, uid, clientName) {
   } catch {}
 
   el.innerHTML = `
-    <div class="sh-info-title">📝 Notas del equipo</div>
+    <div class="sh-info-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Notas del equipo</div>
     <textarea class="sh-textarea" id="sh-notes-ta-${uid}" rows="5"
       placeholder="Notas sobre ${_esc(clientName || 'el cliente')}...">${_esc(savedNotes)}</textarea>
     <button class="btn-accent btn-full" id="btn-save-notes-${uid}" style="font-size:12px;padding:8px">
-      💾 Guardar notas
+       Guardar notas
     </button>
-    <div class="sh-info-title" style="margin-top:14px">🩺 Nota médica rápida</div>
+    <div class="sh-info-title" style="margin-top:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M3 9a9 9 0 009 9 9 9 0 009-9V5H3z"/><path d="M12 18v3M9 21h6"/></svg> Nota médica rápida</div>
     <textarea class="sh-textarea" id="sh-med-note-${uid}" rows="2" placeholder="Nota médica de sesión..."></textarea>
     <button class="btn-primary btn-full" id="btn-save-med-note-${uid}" style="font-size:12px;padding:8px">
-      🩺 Añadir nota médica
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M3 9a9 9 0 009 9 9 9 0 009-9V5H3z"/><path d="M12 18v3M9 21h6"/></svg> Añadir nota médica
     </button>
-    <div class="sh-info-title" style="margin-top:14px">🧠 Nota psicológica rápida</div>
+    <div class="sh-info-title" style="margin-top:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M12 5a3 3 0 00-3 3c0 1.4.8 2.6 2 3.2V19a1 1 0 002 0v-7.8c1.2-.6 2-1.8 2-3.2a3 3 0 00-3-3z"/><path d="M6.2 8.5C5.5 9 5 9.7 5 10.5a3 3 0 003 3M17.8 8.5c.7.5 1.2 1.2 1.2 2a3 3 0 01-3 3"/></svg> Nota psicológica rápida</div>
     <textarea class="sh-textarea" id="sh-psy-note-${uid}" rows="2" placeholder="Nota de sesión psicológica..."></textarea>
     <button class="btn-primary btn-full" id="btn-save-psy-note-${uid}" style="font-size:12px;padding:8px">
-      🧠 Añadir nota psicológica
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M12 5a3 3 0 00-3 3c0 1.4.8 2.6 2 3.2V19a1 1 0 002 0v-7.8c1.2-.6 2-1.8 2-3.2a3 3 0 00-3-3z"/><path d="M6.2 8.5C5.5 9 5 9.7 5 10.5a3 3 0 003 3M17.8 8.5c.7.5 1.2 1.2 1.2 2a3 3 0 01-3 3"/></svg> Añadir nota psicológica
     </button>`;
 
   el.querySelector(`#btn-save-notes-${uid}`)?.addEventListener('click', async () => {
     const notes = el.querySelector(`#sh-notes-ta-${uid}`)?.value.trim() || '';
     await db.collection('users').doc(uid).update({ coachNotes: notes, updatedAt: timestamp() });
-    toast('Notas guardadas ✅', 'success');
+    toast('Notas guardadas ', 'success');
   });
 
   el.querySelector(`#btn-save-med-note-${uid}`)?.addEventListener('click', async () => {
     const note = el.querySelector(`#sh-med-note-${uid}`)?.value.trim();
     if (!note) return;
     await collections.health(uid).add({ notes: note, type: 'medico', date: timestamp(), addedBy: _profile.uid, createdAt: timestamp() });
-    toast('Nota médica guardada ✅', 'success');
+    toast('Nota médica guardada ', 'success');
     el.querySelector(`#sh-med-note-${uid}`).value = '';
   });
 
@@ -766,7 +766,7 @@ async function loadNotesTab(infoEl, uid, clientName) {
     const note = el.querySelector(`#sh-psy-note-${uid}`)?.value.trim();
     if (!note) return;
     await collections.notes(uid).add({ text: note, type: 'psicologo', authorUid: _profile.uid, createdAt: timestamp() });
-    toast('Nota psicológica guardada ✅', 'success');
+    toast('Nota psicológica guardada ', 'success');
     el.querySelector(`#sh-psy-note-${uid}`).value = '';
   });
 }
@@ -779,7 +779,7 @@ async function loadTeamTab(infoEl, client) {
 
   // Load current specialist assignments
   const fields = { Coach: 'assignedCoach', Médico: 'assignedMedico', Fisio: 'assignedFisio', Psicólogo: 'assignedPsicologo', Nutricionista: 'assignedNutricionista' };
-  const icons  = { Coach: '🏋️', Médico: '🩺', Fisio: '🦴', Psicólogo: '🧠', Nutricionista: '🥗' };
+  const icons  = { Coach: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg>', Médico: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M3 9a9 9 0 009 9 9 9 0 009-9V5H3z"/><path d="M12 18v3M9 21h6"/></svg>', Fisio: '', Psicólogo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M12 5a3 3 0 00-3 3c0 1.4.8 2.6 2 3.2V19a1 1 0 002 0v-7.8c1.2-.6 2-1.8 2-3.2a3 3 0 00-3-3z"/><path d="M6.2 8.5C5.5 9 5 9.7 5 10.5a3 3 0 003 3M17.8 8.5c.7.5 1.2 1.2 1.2 2a3 3 0 01-3 3"/></svg>', Nutricionista: '' };
 
   let rows = '';
   for (const [label, field] of Object.entries(fields)) {
@@ -804,7 +804,7 @@ async function loadTeamTab(infoEl, client) {
     const staffList = staffSnap.docs.map(d => ({ uid: d.id, ...d.data() }));
     const byRole    = staffList.reduce((acc, s) => { (acc[s.role] = acc[s.role] || []).push(s); return acc; }, {});
 
-    staffOpts = Object.entries({ coach: '🏋️ Coach', medico: '🩺 Médico', fisio: '🦴 Fisio', psicologo: '🧠 Psicólogo', nutricionista: '🥗 Nutricionista' })
+    staffOpts = Object.entries({ coach: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg> Coach', medico: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M3 9a9 9 0 009 9 9 9 0 009-9V5H3z"/><path d="M12 18v3M9 21h6"/></svg> Médico', fisio: ' Fisio', psicologo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M12 5a3 3 0 00-3 3c0 1.4.8 2.6 2 3.2V19a1 1 0 002 0v-7.8c1.2-.6 2-1.8 2-3.2a3 3 0 00-3-3z"/><path d="M6.2 8.5C5.5 9 5 9.7 5 10.5a3 3 0 003 3M17.8 8.5c.7.5 1.2 1.2 1.2 2a3 3 0 01-3 3"/></svg> Psicólogo', nutricionista: ' Nutricionista' })
       .map(([role, label]) => {
         const members = byRole[role] || [];
         const roleField = `assigned${role.charAt(0).toUpperCase() + role.slice(1)}`;
@@ -824,9 +824,9 @@ async function loadTeamTab(infoEl, client) {
   } catch {}
 
   el.innerHTML = `
-    <div class="sh-info-title">👥 Equipo asignado</div>
+    <div class="sh-info-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><circle cx="9" cy="7" r="4"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3c1.66 0 3 1.34 3 3s-1.34 3-3 3M21 20c0-3-2-5.3-4.5-5.9"/></svg> Equipo asignado</div>
     ${rows}
-    <div class="sh-info-title" style="margin-top:14px">➕ Reasignar especialistas</div>
+    <div class="sh-info-title" style="margin-top:14px"> Reasignar especialistas</div>
     ${staffOpts}`;
 
   el.querySelectorAll('[data-assign-uid]').forEach(btn => {
@@ -837,7 +837,7 @@ async function loadTeamTab(infoEl, client) {
       // Update local client reference
       const idx = _clients.findIndex(c => c.uid === uid);
       if (idx >= 0) _clients[idx][field] = sUid;
-      toast('Especialista asignado ✅', 'success');
+      toast('Especialista asignado ', 'success');
       el.dataset.loaded = '';
       loadTeamTab(infoEl, _clients[idx] || client);
     });
@@ -869,20 +869,20 @@ function wireAllBlocks(infoEl, uid, clientName) {
     const notes = infoEl.querySelector(`#sh-fisio-notes-${uid}`)?.value.trim();
     if (!notes) return;
     await collections.health(uid).add({ notes, type: 'fisio', date: timestamp(), addedBy: _profile.uid, createdAt: timestamp() });
-    toast('Nota fisio guardada ✅', 'success');
+    toast('Nota fisio guardada ', 'success');
   });
   // Psych notes
   infoEl.querySelector(`[data-save-psych="${uid}"]`)?.addEventListener('click', async () => {
     const notes = infoEl.querySelector(`#sh-psych-notes-${uid}`)?.value.trim();
     if (!notes) return;
     await collections.notes(uid).add({ text: notes, type: 'psicologo', authorUid: _profile.uid, createdAt: timestamp() });
-    toast('Nota psicológica guardada ✅', 'success');
+    toast('Nota psicológica guardada ', 'success');
   });
   // Team notes
   infoEl.querySelector(`[data-save-notes="${uid}"]`)?.addEventListener('click', async () => {
     const notes = infoEl.querySelector(`#sh-team-notes-${uid}`)?.value.trim() || '';
     await db.collection('users').doc(uid).update({ coachNotes: notes, updatedAt: timestamp() });
-    toast('Notas guardadas ✅', 'success');
+    toast('Notas guardadas ', 'success');
   });
 }
 
@@ -896,15 +896,15 @@ async function _loadBlockInto(el, uid, clientName, type) {
       const snap = await collections.assignments(uid).orderBy('assignedAt','desc').limit(10).get();
       const list  = snap.docs.map(d => d.data());
       el.innerHTML = `
-        <div class="sh-info-title">💪 Rutinas asignadas</div>
+        <div class="sh-info-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg> Rutinas asignadas</div>
         ${list.length ? list.map(r => `
           <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">
-            <span>📋</span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></span>
             <div style="flex:1;font-size:12px">${_esc(r.name || r.routineId)}</div>
           </div>`).join('')
         : `<p style="font-size:12px;color:var(--color-text-muted)">Sin rutinas asignadas</p>`}
         <button class="btn-primary btn-full" id="btn-asign-r-${uid}" style="margin-top:8px;font-size:12px;padding:8px">
-          📋 Asignar rutina
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg> Asignar rutina
         </button>`;
       el.querySelector(`#btn-asign-r-${uid}`)?.addEventListener('click', () => openAssignRoutineModal(uid));
     } catch {}
@@ -915,16 +915,16 @@ async function _loadBlockInto(el, uid, clientName, type) {
       const snap = await collections.dietas(uid).orderBy('assignedAt','desc').limit(5).get();
       const list  = snap.docs.map(d => d.data());
       el.innerHTML = `
-        <div class="sh-info-title">🥗 Plan nutricional</div>
+        <div class="sh-info-title"> Plan nutricional</div>
         ${list.length ? list.map(d => `
           <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">
-            <span>🥗</span>
+            <span></span>
             <div style="flex:1;font-size:12px">${_esc(d.name||d.type)}</div>
             <span class="badge badge-gray" style="font-size:10px">${d.type||''}</span>
           </div>`).join('')
         : `<p style="font-size:12px;color:var(--color-text-muted)">Sin planes asignados</p>`}
         <button class="btn-primary btn-full" id="btn-asign-d-${uid}" style="margin-top:8px;font-size:12px;padding:8px">
-          🥗 Asignar menú
+           Asignar menú
         </button>`;
       el.querySelector(`#btn-asign-d-${uid}`)?.addEventListener('click', () => openAssignDietModal(uid, clientName));
     } catch {}
@@ -934,7 +934,7 @@ async function _loadBlockInto(el, uid, clientName, type) {
     try {
       const snap = await collections.health(uid).orderBy('date','desc').limit(5).get();
       el.innerHTML = `
-        <div class="sh-info-title">🩺 Historial médico</div>
+        <div class="sh-info-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M3 9a9 9 0 009 9 9 9 0 009-9V5H3z"/><path d="M12 18v3M9 21h6"/></svg> Historial médico</div>
         ${snap.docs.length ? snap.docs.map(doc => {
           const d = doc.data();
           return `<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px">
@@ -944,11 +944,11 @@ async function _loadBlockInto(el, uid, clientName, type) {
         }).join('')
         : `<p style="font-size:12px;color:var(--color-text-muted)">Sin registros</p>`}
         <textarea class="sh-textarea" id="sh-hlt-${uid}" rows="2" placeholder="Añadir nota médica..." style="margin-top:8px"></textarea>
-        <button class="btn-primary btn-full" id="btn-add-h-${uid}" style="font-size:12px;padding:8px">🩺 Guardar nota</button>`;
+        <button class="btn-primary btn-full" id="btn-add-h-${uid}" style="font-size:12px;padding:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M3 9a9 9 0 009 9 9 9 0 009-9V5H3z"/><path d="M12 18v3M9 21h6"/></svg> Guardar nota</button>`;
       el.querySelector(`#btn-add-h-${uid}`)?.addEventListener('click', async () => {
         const n = el.querySelector(`#sh-hlt-${uid}`)?.value.trim(); if (!n) return;
         await collections.health(uid).add({ notes: n, type: 'medico', date: timestamp(), addedBy: _profile.uid, createdAt: timestamp() });
-        toast('Nota guardada ✅', 'success');
+        toast('Nota guardada ', 'success');
         el.querySelector(`#sh-hlt-${uid}`).value = '';
         el.dataset.loaded = ''; _loadBlockInto(el, uid, clientName, 'health');
       });
@@ -963,13 +963,13 @@ async function openAssignRoutineModal(clientUid) {
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">📋 Asignar rutina</h3>
+      <h3 class="modal-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg> Asignar rutina</h3>
       <button class="modal-close">✕</button>
     </div>
     ${routines.length
       ? routines.map(r => `
           <div class="admin-user-card" data-rid="${r.id}" data-rname="${_escAttr(r.name)}" style="cursor:pointer">
-            <span style="font-size:20px">💪</span>
+            <span style="font-size:20px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg></span>
             <div style="flex:1">
               <div style="font-weight:700">${_esc(r.name)}</div>
               <div class="text-muted">${r.exercises?.length || 0} ejercicios · ${_esc(r.createdByName || '')}</div>
@@ -977,7 +977,7 @@ async function openAssignRoutineModal(clientUid) {
             <span class="badge badge-cyan">Asignar</span>
           </div>`).join('')
       : `<p class="text-muted" style="padding:16px">No hay rutinas creadas.</p>`}
-  `;
+ `;
   openModal(html);
   document.getElementById('modal-content')?.querySelectorAll('[data-rid]').forEach(card => {
     card.addEventListener('click', async () => {
@@ -985,7 +985,7 @@ async function openAssignRoutineModal(clientUid) {
         routineId: card.dataset.rid, name: card.dataset.rname,
         assignedBy: _profile.uid, assignedAt: timestamp(), createdAt: timestamp(),
       });
-      toast('Rutina asignada ✅', 'success');
+      toast('Rutina asignada ', 'success');
       closeModal();
     });
   });
@@ -994,7 +994,7 @@ async function openAssignRoutineModal(clientUid) {
 async function openAssignDietModal(clientUid, clientName) {
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">🥗 Plan nutricional — ${_esc(clientName || 'Cliente')}</h3>
+      <h3 class="modal-title"> Plan nutricional — ${_esc(clientName || 'Cliente')}</h3>
       <button class="modal-close">✕</button>
     </div>
 
@@ -1002,10 +1002,10 @@ async function openAssignDietModal(clientUid, clientName) {
     <div class="form-row">
       <label class="field-label">Tipo de dieta</label>
       <select id="diet-type" class="input-solo" style="margin-top:4px">
-        <option value="volumen">🏋️ Volumen</option>
-        <option value="definicion">🔥 Definición</option>
-        <option value="mantenimiento">⚖️ Mantenimiento</option>
-        <option value="terapeutica">💊 Terapéutica</option>
+        <option value="volumen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg> Volumen</option>
+        <option value="definicion"> Definición</option>
+        <option value="mantenimiento"> Mantenimiento</option>
+        <option value="terapeutica"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M10.5 20.5L3.5 13.5a5 5 0 017-7l7 7a5 5 0 01-7 7z"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/></svg> Terapéutica</option>
       </select>
     </div>
     <div class="form-row">
@@ -1016,19 +1016,19 @@ async function openAssignDietModal(clientUid, clientName) {
     <!-- Macros -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0">
       <div>
-        <label class="field-label" style="font-size:11px">🔥 Calorías</label>
+        <label class="field-label" style="font-size:11px"> Calorías</label>
         <input type="number" id="diet-calories" class="input-solo" placeholder="2200" style="margin-top:2px">
       </div>
       <div>
-        <label class="field-label" style="font-size:11px">🥩 Proteínas (g)</label>
+        <label class="field-label" style="font-size:11px"> Proteínas (g)</label>
         <input type="number" id="diet-protein" class="input-solo" placeholder="180" style="margin-top:2px">
       </div>
       <div>
-        <label class="field-label" style="font-size:11px">🍞 Carbos (g)</label>
+        <label class="field-label" style="font-size:11px"> Carbos (g)</label>
         <input type="number" id="diet-carbs" class="input-solo" placeholder="220" style="margin-top:2px">
       </div>
       <div>
-        <label class="field-label" style="font-size:11px">🫒 Grasas (g)</label>
+        <label class="field-label" style="font-size:11px"> Grasas (g)</label>
         <input type="number" id="diet-fat" class="input-solo" placeholder="70" style="margin-top:2px">
       </div>
     </div>
@@ -1046,30 +1046,30 @@ async function openAssignDietModal(clientUid, clientName) {
 
     <!-- Nada más despertar -->
     <div class="form-row" style="margin-bottom:8px">
-      <label class="field-label">🌅 Nada más despertar (suplementos/notas)</label>
+      <label class="field-label"> Nada más despertar (suplementos/notas)</label>
       <textarea id="diet-wakeup" class="input-solo" rows="2" placeholder="Ej: 1 vaso agua + creatina 5g" style="margin-top:4px;padding:8px;width:100%"></textarea>
     </div>
 
     <!-- Antes de acostarse -->
     <div class="form-row" style="margin-bottom:8px">
-      <label class="field-label">🌙 Antes de acostarse</label>
+      <label class="field-label"> Antes de acostarse</label>
       <textarea id="diet-presleep" class="input-solo" rows="2" placeholder="Ej: Caseína 30g + magnesio" style="margin-top:4px;padding:8px;width:100%"></textarea>
     </div>
 
     <!-- Suplementación de entreno -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
       <div>
-        <label class="field-label" style="font-size:11px">🏋️ Pre-entreno</label>
+        <label class="field-label" style="font-size:11px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg> Pre-entreno</label>
         <textarea id="diet-pre" class="input-solo" rows="2" placeholder="Cafeína 200mg, beta-alanina..." style="margin-top:2px;padding:8px;width:100%"></textarea>
       </div>
       <div>
-        <label class="field-label" style="font-size:11px">🔄 Post-entreno</label>
+        <label class="field-label" style="font-size:11px"> Post-entreno</label>
         <textarea id="diet-post" class="input-solo" rows="2" placeholder="Whey 40g, plátano..." style="margin-top:2px;padding:8px;width:100%"></textarea>
       </div>
     </div>
 
-    <button class="btn-primary btn-full" id="btn-confirm-diet" style="margin-top:8px">💾 Asignar plan</button>
-  `;
+    <button class="btn-primary btn-full" id="btn-confirm-diet" style="margin-top:8px"> Asignar plan</button>
+ `;
 
   openModal(html);
   const mc = document.getElementById('modal-content');
@@ -1080,12 +1080,12 @@ async function openAssignDietModal(clientUid, clientName) {
     if (!el) return;
     el.innerHTML = Array.from({ length: mealCount }, (_, i) => `
       <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--r-md);padding:12px;margin-bottom:8px">
-        <div style="font-weight:700;font-size:13px;margin-bottom:6px">🍽️ Comida ${i + 1}</div>
+        <div style="font-weight:700;font-size:13px;margin-bottom:6px"> Comida ${i + 1}</div>
         <input type="text" id="meal-${i}-label" class="input-solo" placeholder="Ej: Desayuno, Media mañana..." style="margin-bottom:6px">
         <textarea id="meal-${i}-desc" class="input-solo" rows="2" placeholder="Contenido de la comida..." style="padding:8px;width:100%;margin-bottom:4px"></textarea>
-        <input type="text" id="meal-${i}-supps" class="input-solo" placeholder="💊 Suplementos (opcional)" style="font-size:12px">
+        <input type="text" id="meal-${i}-supps" class="input-solo" placeholder="<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M10.5 20.5L3.5 13.5a5 5 0 017-7l7 7a5 5 0 01-7 7z"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/></svg> Suplementos (opcional)" style="font-size:12px">
       </div>
-    `).join('');
+ `).join('');
   }
 
   // Meal count selector
@@ -1140,7 +1140,7 @@ async function openAssignDietModal(clientUid, clientName) {
 
     try {
       await collections.dietas(clientUid).add(dietDoc);
-      toast(`Plan "${name}" asignado ✅`, 'success');
+      toast(`Plan "${name}" asignado `, 'success');
       closeModal();
     } catch (e) {
       toast('Error: ' + e.message, 'error');
@@ -1152,12 +1152,12 @@ async function openAssignDietModal(clientUid, clientName) {
 async function openMyRoutinesPanel() {
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">💪 Mis Rutinas</h3>
+      <h3 class="modal-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg> Mis Rutinas</h3>
       <button class="modal-close">✕</button>
     </div>
     <button class="btn-primary btn-full" id="btn-create-new-routine" style="margin-bottom:var(--space-md)">+ Nueva rutina</button>
     <div id="my-routines-list">${_spinnerHtml()}</div>
-  `;
+ `;
   openModal(html, { noClickClose: false });
   const mc = document.getElementById('modal-content');
   mc.querySelector('#btn-create-new-routine')?.addEventListener('click', () => openRoutineEditor(null, mc));
@@ -1179,15 +1179,15 @@ async function _renderMyRoutines(mc) {
       return `
         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-md);padding:12px;margin-bottom:8px">
           <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">
-            <span style="font-size:22px">💪</span>
+            <span style="font-size:22px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg></span>
             <div style="flex:1;min-width:0">
               <div style="font-weight:700;font-size:14px">${_esc(r.name)}</div>
               <div style="font-size:11px;color:var(--color-text-muted);margin-top:2px">${r.exercises?.length||0} ejercicios${muscles?' · '+muscles:''}</div>
             </div>
           </div>
           <div style="display:flex;gap:6px">
-            <button style="flex:1;padding:7px;font-size:12px;background:rgba(255,255,255,.07);border:1px solid var(--glass-border);border-radius:var(--radius-sm);color:var(--color-text);cursor:pointer" data-edit="${doc.id}">✏️ Editar</button>
-            <button style="flex:1;padding:7px;font-size:12px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);border-radius:var(--radius-sm);color:#ef4444;cursor:pointer" data-assign="${doc.id}" data-rname="${_escAttr(r.name)}">📋 Asignar</button>
+            <button style="flex:1;padding:7px;font-size:12px;background:rgba(255,255,255,.07);border:1px solid var(--glass-border);border-radius:var(--radius-sm);color:var(--color-text);cursor:pointer" data-edit="${doc.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar</button>
+            <button style="flex:1;padding:7px;font-size:12px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);border-radius:var(--radius-sm);color:#ef4444;cursor:pointer" data-assign="${doc.id}" data-rname="${_escAttr(r.name)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg> Asignar</button>
           </div>
         </div>`;
     }).join('');
@@ -1221,12 +1221,12 @@ async function openRoutineEditor(routineId, mc) {
     <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:6px">Ejercicios</div>
     <div id="re-ex-list"></div>
     <div style="position:relative;margin:8px 0 4px">
-      <input type="text" id="re-ex-search" class="input-solo" placeholder="🔍 Buscar ejercicio o músculo..." style="font-size:12px" autocomplete="off">
+      <input type="text" id="re-ex-search" class="input-solo" placeholder=" Buscar ejercicio o músculo..." style="font-size:12px" autocomplete="off">
       <div id="re-ex-results" style="display:none;position:absolute;top:100%;left:0;right:0;max-height:200px;overflow-y:auto;background:#1a1a2e;border:1px solid var(--glass-border);border-radius:var(--radius-sm);z-index:200;margin-top:2px"></div>
     </div>
     <button class="btn-accent btn-full" id="re-add-ex" style="margin-bottom:12px">+ Añadir ejercicio seleccionado</button>
-    <button class="btn-primary btn-full" id="re-save">💾 Guardar rutina</button>
-  `;
+    <button class="btn-primary btn-full" id="re-save"> Guardar rutina</button>
+ `;
 
   openModal(html, { noClickClose: true });
   const m = document.getElementById('modal-content');
@@ -1248,7 +1248,7 @@ async function openRoutineEditor(routineId, mc) {
           <input type="number" class="ex-warmup-input" data-index="${i}"
                  value="${ex.warmupSets||0}" min="0" max="10"
                  style="width:40px;background:rgba(251,146,60,.15);border:1px solid rgba(251,146,60,.4);border-radius:var(--r-xs);color:var(--color-text);font-size:11px;text-align:center;padding:2px">
-          <span style="font-size:10px;color:rgba(251,146,60,.8)">🔥</span>
+          <span style="font-size:10px;color:rgba(251,146,60,.8)"></span>
         </div>
         <span style="font-size:10px;color:var(--color-text-muted)">×</span>
         <input type="text" value="${ex.reps||'10'}" placeholder="ej: 12 o 20-16-16" style="width:72px;background:transparent;border:1px solid var(--glass-border);border-radius:var(--r-xs);color:var(--white);font-size:11px;text-align:center;padding:2px" data-reps="${i}">
@@ -1295,8 +1295,8 @@ async function openRoutineEditor(routineId, mc) {
     if (!name) { toast('Introduce un nombre','warning'); return; }
     const data = { name, description: m.querySelector('#re-desc').value.trim(), exercises, createdBy: _profile.uid, updatedAt: timestamp() };
     try {
-      if (routineId) { await db.collection('routines').doc(routineId).update(data); toast('Rutina actualizada ✅','success'); }
-      else { data.createdAt = timestamp(); await db.collection('routines').add(data); toast('Rutina creada ✅','success'); }
+      if (routineId) { await db.collection('routines').doc(routineId).update(data); toast('Rutina actualizada ','success'); }
+      else { data.createdAt = timestamp(); await db.collection('routines').add(data); toast('Rutina creada ','success'); }
       openMyRoutinesPanel();
     } catch(e) { toast('Error: '+e.message,'error'); }
   });
@@ -1334,13 +1334,13 @@ async function openAssignClientPickerModal(routineId, routineName) {
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">📋 Asignar rutina</h3>
+      <h3 class="modal-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg> Asignar rutina</h3>
       <button class="modal-close">✕</button>
     </div>
     <p style="color:var(--color-text-muted);font-size:13px;margin-bottom:12px">"<strong>${_esc(routineName)}</strong>" → selecciona destinatario:</p>
     ${selfCard}
     ${clients.length ? `<div style="border-top:1px solid var(--glass-border);margin:8px 0 10px"></div>${clientCards}` : ''}
-  `;
+ `;
   openModal(html);
   document.getElementById('modal-content')?.querySelectorAll('[data-cuid]').forEach(card=>{
     card.addEventListener('click', async ()=>{
@@ -1348,7 +1348,7 @@ async function openAssignClientPickerModal(routineId, routineName) {
         routineId, name: routineName,
         assignedBy: _profile.uid, assignedAt: timestamp(), createdAt: timestamp(),
       });
-      toast(`Rutina asignada a ${card.dataset.cname} ✅`,'success');
+      toast(`Rutina asignada a ${card.dataset.cname} `,'success');
       closeModal();
     });
   });

@@ -26,12 +26,12 @@ export async function openRoutineCreator(clientUid = null) {
       const profile = getUserProfile();
       const role    = profile?.role || 'coach';
       const fieldMap = {
-        coach:          'assignedCoach',
-        medico:         'assignedMedico',
-        fisio:          'assignedFisio',
-        psicologo:      'assignedPsicologo',
-        nutricionista:  'assignedNutricionista',
-        admin:          'assignedCoach',
+        coach: 'assignedCoach',
+        medico: 'assignedMedico',
+        fisio: 'assignedFisio',
+        psicologo: 'assignedPsicologo',
+        nutricionista: 'assignedNutricionista',
+        admin: 'assignedCoach',
       };
       const field = fieldMap[role] || 'assignedCoach';
       const snap  = await db.collection('users')
@@ -76,7 +76,7 @@ export async function openRoutineCreator(clientUid = null) {
       <label class="field-label">${t('rc_tags_label')}</label>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--space-md)" id="tag-chips">
         ${TAGS.map(tag =>
-          `<button class="chip tag-chip" data-tag="${tag}" type="button">${tag}</button>`
+ `<button class="chip tag-chip" data-tag="${tag}" type="button">${tag}</button>`
         ).join('')}
       </div>
 
@@ -117,7 +117,7 @@ export async function openRoutineCreator(clientUid = null) {
       >${t('rc_save')}</button>
 
     </div>
-  `;
+ `;
 
   openSheet(html, { noClickClose: false });
 
@@ -166,7 +166,7 @@ function openExercisePicker(creatorSc) {
       <div class="h-scroll" id="muscle-filter" style="margin-bottom:var(--space-md);padding-bottom:4px">
         <button class="chip active" data-muscle="all" type="button">${t('rc_all_muscles')}</button>
         ${MUSCLE_GROUPS.map(g =>
-          `<button class="chip" data-muscle="${g}" type="button">${g}</button>`
+ `<button class="chip" data-muscle="${g}" type="button">${g}</button>`
         ).join('')}
       </div>
       <!-- Exercise list -->
@@ -174,7 +174,7 @@ function openExercisePicker(creatorSc) {
         ${renderPickerItems(EXERCISES, addedIds)}
       </div>
     </div>
-  `;
+ `;
 
   openModal(html, { noClickClose: false });
 
@@ -250,7 +250,7 @@ function renderPickerItems(exercises, addedIds) {
           align-items:center;
           border-bottom:1px solid rgba(255,255,255,0.05);
           opacity:${isAdded ? '0.45' : '1'};
-        "
+ "
       >
         <div>
           <div style="font-weight:500;font-size:14px">${ex.name}</div>
@@ -261,7 +261,7 @@ function renderPickerItems(exercises, addedIds) {
           : `<span class="badge badge-cyan" style="font-size:10px">${ex.difficulty || ''}</span>`
         }
       </div>
-    `;
+ `;
   }).join('');
 }
 
@@ -331,7 +331,7 @@ function addExerciseToBuilder(sc, ex) {
       placeholder="${t('rc_notes_placeholder')}"
       value="${ex.setupNotes || ''}"
     >
-  `;
+ `;
 
   // Wire remove button
   item.querySelector('[data-remove]')?.addEventListener('click', () => item.remove());
@@ -412,7 +412,7 @@ async function saveRoutine(sc, clientUid) {
         routineName: routine.name,
         assignedAt:  timestamp(),
         assignedBy:  profile.uid,
-        status:      'active',
+        status: 'active',
         createdAt:   timestamp(),
       });
     }
@@ -450,7 +450,7 @@ export async function openRoutinesList(container) {
         <div class="overlay-spinner"><div class="spinner-sm"></div></div>
       </div>
     </div>
-  `;
+ `;
 
   openSheet(html, { noClickClose: false });
 
@@ -481,11 +481,11 @@ async function loadRoutinesList(sc, profile) {
     if (snap.empty) {
       inner.innerHTML = `
         <div class="empty-state" style="padding:var(--space-lg) 0">
-          <div class="empty-icon">📋</div>
+          <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></div>
           <div class="empty-title">${t('rc_no_routines')}</div>
           <div class="empty-subtitle">${t('rc_no_routines_sub')}</div>
         </div>
-      `;
+ `;
       return;
     }
 
@@ -521,7 +521,7 @@ async function loadRoutinesList(sc, profile) {
                 title="${t('rc_assign_btn')}"
                 type="button"
                 style="font-size:18px"
-              >📤</button>
+              ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
               <button
                 class="btn-icon btn-delete-routine"
                 data-id="${doc.id}"
@@ -529,11 +529,11 @@ async function loadRoutinesList(sc, profile) {
                 title="${t('rc_delete_btn')}"
                 type="button"
                 style="font-size:18px;color:var(--color-danger)"
-              >🗑️</button>
+              ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>
             </div>
           </div>
         </div>
-      `;
+ `;
     }).join('');
 
     // Wire assign buttons
@@ -562,11 +562,11 @@ async function loadRoutinesList(sc, profile) {
           if (!inner.querySelector('.routine-item')) {
             inner.innerHTML = `
               <div class="empty-state" style="padding:var(--space-lg) 0">
-                <div class="empty-icon">📋</div>
+                <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></div>
                 <div class="empty-title">${t('rc_no_routines')}</div>
                 <div class="empty-subtitle">${t('rc_no_routines_sub')}</div>
               </div>
-            `;
+ `;
           }
         } catch (err) {
           toast(t('rc_delete_error') + ': ' + err.message, 'error');
@@ -588,12 +588,12 @@ async function openAssignClientModal(routineId, routineName, profile) {
   try {
     const role = profile?.role || 'coach';
     const fieldMap = {
-      coach:          'assignedCoach',
-      medico:         'assignedMedico',
-      fisio:          'assignedFisio',
-      psicologo:      'assignedPsicologo',
-      nutricionista:  'assignedNutricionista',
-      admin:          'assignedCoach',
+      coach: 'assignedCoach',
+      medico: 'assignedMedico',
+      fisio: 'assignedFisio',
+      psicologo: 'assignedPsicologo',
+      nutricionista: 'assignedNutricionista',
+      admin: 'assignedCoach',
     };
     const field = fieldMap[role] || 'assignedCoach';
     const snap  = await db.collection('users')
@@ -623,28 +623,28 @@ async function openAssignClientModal(routineId, routineName, profile) {
                   padding:var(--space-sm) var(--space-md);
                   margin-bottom:var(--space-sm);
                   cursor:pointer;
-                "
+ "
               >
                 <div style="
                   width:36px;height:36px;border-radius:50%;flex-shrink:0;
                   background:linear-gradient(135deg,var(--color-primary),var(--cyan-dim));
                   display:flex;align-items:center;justify-content:center;
                   font-weight:700;font-size:13px;color:var(--white)
-                ">${(c.name || '?').slice(0, 2).toUpperCase()}</div>
+ ">${(c.name || '?').slice(0, 2).toUpperCase()}</div>
                 <div style="flex:1;min-width:0">
                   <div style="font-weight:600;font-size:14px">${c.name || t('staff_client_label')}</div>
                   <div style="font-size:11px;color:var(--color-text-muted)">${c.email || ''}</div>
                 </div>
                 <span class="badge badge-cyan" style="font-size:10px">${t('assign')}</span>
               </div>
-            `).join('')}
+ `).join('')}
            </div>`
         : `<p class="text-muted" style="padding:var(--space-md);text-align:center">
              ${t('rc_no_clients')}
            </p>`
       }
     </div>
-  `;
+ `;
 
   openModal(html, { noClickClose: false });
 
@@ -661,7 +661,7 @@ async function openAssignClientModal(routineId, routineName, profile) {
           routineName,
           assignedAt: timestamp(),
           assignedBy: profile.uid,
-          status:     'active',
+          status: 'active',
           createdAt:  timestamp(),
         });
         toast(t('rc_assign_ok').replace('{name}', clientName), 'success');

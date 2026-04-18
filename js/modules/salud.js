@@ -15,12 +15,12 @@ const MOOD_COLORS  = ['', '#8A8A8A', '#C10801', '#F16001', '#D9C3AB', '#22c55e']
 
 const STAFF_ROLES = ['coach', 'medico', 'fisio', 'psicologo', 'nutricionista', 'admin'];
 const ROLE_FIELD  = {
-  coach:         'assignedCoach',
-  medico:        'assignedMedico',
-  fisio:         'assignedFisio',
-  psicologo:     'assignedPsicologo',
+  coach: 'assignedCoach',
+  medico: 'assignedMedico',
+  fisio: 'assignedFisio',
+  psicologo: 'assignedPsicologo',
   nutricionista: 'assignedNutricionista',
-  admin:         'assignedCoach',
+  admin: 'assignedCoach',
 };
 
 export async function render(container) {
@@ -29,7 +29,7 @@ export async function render(container) {
       <div style="padding:var(--page-pad)">
         <div class="page-header">
           <div>
-            <h2 class="page-title">❤️ ${t('salud_title')}</h2>
+            <h2 class="page-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg> ${t('salud_title')}</h2>
             <p class="page-subtitle">${t('salud_subtitle')}</p>
           </div>
           <button class="btn-primary" id="btn-add-health" style="padding:10px 16px;font-size:13px">+ ${t('add')}</button>
@@ -56,7 +56,7 @@ export async function render(container) {
         </div>
       </div>
     </div>
-  `;
+ `;
 }
 
 export async function init(container) {
@@ -92,7 +92,7 @@ async function loadHealthRecords(container, profile) {
     if (snap.empty) {
       el.innerHTML = `
         <div class="empty-state">
-          <div class="empty-icon">🏥</div>
+          <div class="empty-icon"></div>
           <div class="empty-title">${t('salud_no_records')}</div>
           <div class="empty-subtitle">${t('salud_no_records_sub')}</div>
         </div>`;
@@ -146,7 +146,7 @@ function loadSensitiveSection(container, profile) {
   if (!hasAccess) {
     el.innerHTML = `
       <div class="sensitive-lock">
-        <div class="lock-icon">🔐</div>
+        <div class="lock-icon"></div>
         <div class="lock-title">${t('salud_sensitive_title')}</div>
         <div class="lock-desc">${t('salud_sensitive_desc')}</div>
         <button class="btn-secondary" id="btn-request-access" style="margin-top:var(--space-md)">${t('salud_request_access')}</button>
@@ -156,7 +156,7 @@ function loadSensitiveSection(container, profile) {
   }
   el.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-md)">
-      <span class="badge badge-red">🔑 ${t('salud_access_granted')}</span>
+      <span class="badge badge-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6M15.5 7.5L19 4M18 5l2 2"/></svg> ${t('salud_access_granted')}</span>
       <button class="btn-primary" id="btn-add-sensitive" style="padding:8px 14px;font-size:12px">+ ${t('add')}</button>
     </div>
     <div id="sensitive-records"><div class="overlay-spinner"><div class="spinner-sm"></div></div></div>`;
@@ -195,7 +195,7 @@ async function loadCheckinsTab(container, profile) {
     <div style="margin-bottom:var(--space-md)">
       <label class="field-label">${t('salud_view_data_of')}</label>
       <div class="input-group" style="margin-top:4px">
-        <span class="input-icon">👤</span>
+        <span class="input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
         <select id="checkin-client-select">
           <option value="${profile.uid}">— ${t('salud_my_checkins')} —</option>
           ${clients.map(c=>`<option value="${c.uid}">${c.name}</option>`).join('')}
@@ -247,9 +247,9 @@ async function renderCheckinData(el, uid, userName, isStaff) {
 
     const moodN  = parseFloat(avgMood)||0;
     const sleepN = parseFloat(avgSleep)||0;
-    const state  = (moodN>=3.5&&sleepN>=3.5&&painDays<=1) ? {label:t('salud_state_good'),color:'#22c55e',icon:'🟢'}
-                 : (moodN>=2.5&&sleepN>=2.5&&painDays<=3) ? {label:t('salud_state_warning'),color:'#f59e0b',icon:'🟡'}
-                 : {label:t('salud_state_alert'),color:'#ef4444',icon:'🔴'};
+    const state  = (moodN>=3.5&&sleepN>=3.5&&painDays<=1) ? {label:t('salud_state_good'),color:'#22c55e',icon:''}
+                 : (moodN>=2.5&&sleepN>=2.5&&painDays<=3) ? {label:t('salud_state_warning'),color:'#f59e0b',icon:''}
+                 : {label:t('salud_state_alert'),color:'#ef4444',icon:''};
 
     el.innerHTML = `
       ${isStaff ? `
@@ -341,7 +341,7 @@ async function renderCheckinData(el, uid, userName, isStaff) {
             </div>
           </div>`).join('')}
       </div>`:''}
-    `;
+ `;
   } catch (e) {
     el.innerHTML = `<p class="text-muted" style="padding:var(--space-md)">${t('error')}: ${e.message}</p>`;
   }
@@ -407,7 +407,7 @@ function openAddHealthModal(profile, container, sensitive = false) {
       <input type="text" id="health-training-notes" class="input-solo"
         placeholder="${t('salud_training_notes_placeholder')}">
     </div>
-    <button class="btn-primary btn-full" id="btn-save-health" style="margin-top:var(--space-md)">💾 ${t('save')}</button>`;
+    <button class="btn-primary btn-full" id="btn-save-health" style="margin-top:var(--space-md)"> ${t('save')}</button>`;
 
   openModal(html);
   const modal = document.getElementById('modal-content');

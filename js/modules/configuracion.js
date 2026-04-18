@@ -157,7 +157,7 @@ export async function render(container) {
         </p>
       </div>
     </div>
-  `;
+ `;
 }
 
 export async function init(container) {

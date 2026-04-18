@@ -11,14 +11,14 @@ import { t } from '../i18n.js';
 
 // Role badge colors
 const ROLE_BADGE_COLORS = {
-  admin:         'background:#C10801;color:#fff',
-  coach:         'background:#C10801;color:#fff',
-  medico:        'background:#22c55e;color:#fff',
-  fisio:         'background:#8A8A8A;color:#fff',
-  psicologo:     'background:#8A8A8A;color:#fff',
+  admin: 'background:#C10801;color:#fff',
+  coach: 'background:#C10801;color:#fff',
+  medico: 'background:#22c55e;color:#fff',
+  fisio: 'background:#8A8A8A;color:#fff',
+  psicologo: 'background:#8A8A8A;color:#fff',
   nutricionista: 'background:#F16001;color:#fff',
-  atleta:        'background:#3A3A3A;color:#F0F0F0',
-  cliente:       'background:#252525;color:#F0F0F0',
+  atleta: 'background:#3A3A3A;color:#F0F0F0',
+  cliente: 'background:#252525;color:#F0F0F0',
 };
 
 function roleBadgeHtml(role) {
@@ -34,7 +34,7 @@ export async function render(container) {
       <div style="
         display:flex; border-bottom:1px solid var(--glass-border);
         flex-shrink:0; background:var(--color-bg); padding:0 var(--page-pad);
-      ">
+ ">
         <button class="admin-main-tab active" data-main-tab="users"
           style="flex:1;padding:12px 6px;background:none;border:none;border-bottom:2.5px solid var(--red);
                  font-size:13px;font-weight:700;color:var(--red);cursor:pointer;font-family:inherit">
@@ -62,7 +62,7 @@ export async function render(container) {
 
         <div class="page-header">
           <div>
-            <h2 class="page-title">🔑 ${t('admin_title')}</h2>
+            <h2 class="page-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px;margin-right:6px"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6M15.5 7.5L19 4M18 5l2 2"/></svg>${t('admin_title')}</h2>
             <p class="page-subtitle">${t('admin_subtitle')}</p>
           </div>
           <button class="btn-primary" id="btn-invite-user" style="padding:10px 16px;font-size:13px">${t('invite')}</button>
@@ -77,7 +77,7 @@ export async function render(container) {
 
         <!-- Search -->
         <div class="input-group" style="margin-bottom:var(--space-md)">
-          <span class="input-icon">🔍</span>
+          <span class="input-icon"></span>
           <input type="search" id="user-search" placeholder="${t('search_users')}" autocomplete="off">
         </div>
 
@@ -101,20 +101,20 @@ export async function render(container) {
           border-radius:var(--r-md);
           padding:var(--space-md);
           background:rgba(234,179,8,0.05)
-        ">
+ ">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
             <div style="font-size:13px;font-weight:700;color:#eab308">
-              ⏳ ${t('admin_pending_title')}
+               ${t('admin_pending_title')}
             </div>
             <div style="display:flex;align-items:center;gap:6px">
               <button id="btn-refresh-pending" title="Actualizar" style="
                 background:none;border:none;cursor:pointer;color:var(--color-text-muted);
                 font-size:14px;padding:2px 4px;line-height:1
-              ">↺</button>
+ ">↺</button>
               <span id="pending-count-badge" style="
                 font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--r-full);
                 background:rgba(234,179,8,0.2);color:#eab308;border:1px solid rgba(234,179,8,0.3)
-              ">0</span>
+ ">0</span>
             </div>
           </div>
           <p style="font-size:11px;color:var(--color-text-muted);margin:0 0 var(--space-sm)">
@@ -132,15 +132,15 @@ export async function render(container) {
           border-radius:var(--r-md);
           padding:var(--space-md);
           background:rgba(148,10,10,0.08)
-        ">
+ ">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
             <div style="font-size:13px;font-weight:700;color:#ef4444">
-              🔑 ${t('admin_current_admins')}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px;margin-right:4px"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6M15.5 7.5L19 4M18 5l2 2"/></svg>${t('admin_current_admins')}
             </div>
             <span id="admin-slot-badge" style="
               font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--r-full);
               background:rgba(148,10,10,0.3);color:#ef4444;border:1px solid rgba(148,10,10,0.4)
-            ">— / 3</span>
+ ">— / 3</span>
           </div>
           <p style="font-size:11px;color:var(--color-text-muted);margin:0 0 var(--space-sm)">
             ${t('admin_current_admins_desc')}
@@ -166,7 +166,7 @@ export async function render(container) {
       </div><div id="admin-tab-routines" style="flex:1;display:none;overflow-y:auto;padding:var(--page-pad);padding-bottom:var(--nav-clearance, 152px);flex-direction:column">
         <div class="page-header" style="margin-bottom:var(--space-lg)">
           <div>
-            <h2 class="page-title">💪 Mis Rutinas</h2>
+            <h2 class="page-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px;margin-right:6px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg>Mis Rutinas</h2>
             <p class="page-subtitle">Crea, edita y asigna rutinas a tus clientes</p>
           </div>
           <button class="btn-primary" id="btn-new-routine-admin" style="padding:10px 16px;font-size:13px">+ Nueva rutina</button>
@@ -179,7 +179,7 @@ export async function render(container) {
       <div id="admin-tab-diets" style="flex:1;display:none;overflow-y:auto;padding:var(--page-pad);padding-bottom:var(--nav-clearance, 152px);flex-direction:column">
         <div class="page-header" style="margin-bottom:var(--space-lg)">
           <div>
-            <h2 class="page-title">🥗 Mis Dietas</h2>
+            <h2 class="page-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px;margin-right:6px"><path d="M12 2a5 5 0 00-5 5c0 2 1 4 3 5H7a1 1 0 00-1 1v2a1 1 0 001 1h10a1 1 0 001-1v-2a1 1 0 00-1-1h-3c2-1 3-3 3-5a5 5 0 00-5-5z"/><path d="M7 21h10"/></svg>Mis Dietas</h2>
             <p class="page-subtitle">Crea, edita y asigna dietas a tus clientes</p>
           </div>
           <button class="btn-primary" id="btn-new-diet-admin" style="padding:10px 16px;font-size:13px">+ Nueva dieta</button>
@@ -189,7 +189,7 @@ export async function render(container) {
       </div>
 
     </div>
-  `;
+ `;
 }
 
 export async function init(container) {
@@ -216,10 +216,10 @@ export async function init(container) {
       const which = tab.dataset.mainTab;
       // Los tabs scrollables usan flex-column para el spacer que rellena altura.
       // Hub usa flex row para su layout interno.
-      container.querySelector('#admin-tab-users'   ).style.display = which === 'users'    ? 'flex' : 'none';
-      container.querySelector('#admin-tab-hub'     ).style.display = which === 'hub'      ? 'flex' : 'none';
+      container.querySelector('#admin-tab-users' ).style.display = which === 'users' ? 'flex' : 'none';
+      container.querySelector('#admin-tab-hub' ).style.display = which === 'hub' ? 'flex' : 'none';
       container.querySelector('#admin-tab-routines').style.display = which === 'routines' ? 'flex' : 'none';
-      container.querySelector('#admin-tab-diets'   ).style.display = which === 'diets'    ? 'flex' : 'none';
+      container.querySelector('#admin-tab-diets' ).style.display = which === 'diets' ? 'flex' : 'none';
 
       if (which === 'routines') loadAdminRoutines(container);
       if (which === 'diets') loadAdminDiets(container);
@@ -233,7 +233,7 @@ export async function init(container) {
           await _hubModule.render(hubContainer, { embedded: true });
           await _hubModule.init(hubContainer, { embedded: true });
         } catch (e) {
-          hubContainer.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Error al cargar hub</div><div class="empty-subtitle">${e.message}</div></div>`;
+          hubContainer.innerHTML = `<div class="empty-state"><div class="empty-icon"></div><div class="empty-title">Error al cargar hub</div><div class="empty-subtitle">${e.message}</div></div>`;
         }
       }
     });
@@ -359,13 +359,13 @@ export async function init(container) {
         padding:8px 10px;border-radius:var(--r-sm);
         background:rgba(255,255,255,0.04);
         margin-bottom:6px
-      ">
+ ">
         <div style="
           width:30px;height:30px;border-radius:50%;flex-shrink:0;overflow:hidden;
           ${u.photoURL ? '' : 'background:#940a0a;color:#fff;'}
           display:flex;align-items:center;justify-content:center;
           font-size:12px;font-weight:700
-        ">${u.photoURL ? `<img src="${u.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover">` : (getInitials(u.name) || '?')}</div>
+ ">${u.photoURL ? `<img src="${u.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover">` : (getInitials(u.name) || '?')}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
             ${u.name || t('admin_no_name')}
@@ -377,9 +377,9 @@ export async function init(container) {
         <span style="
           font-size:10px;font-weight:700;padding:2px 6px;border-radius:var(--r-full);
           background:#ef4444;color:#fff;flex-shrink:0
-        ">Admin</span>
+ ">Admin</span>
       </div>
-    `).join('');
+ `).join('');
   }
 
   function renderPendingSection(users, invitations = []) {
@@ -420,13 +420,13 @@ export async function init(container) {
         background:rgba(255,255,255,0.03);
         border:1px solid rgba(234,179,8,0.15);
         margin-bottom:6px
-      ">
+ ">
         <div style="
           width:32px;height:32px;border-radius:50%;flex-shrink:0;
           background:rgba(234,179,8,0.15);color:#eab308;
           display:flex;align-items:center;justify-content:center;
           font-size:14px;border:1px solid rgba(234,179,8,0.3)
-        ">✉️</div>
+ "></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
             ${inv.email || '—'}
@@ -440,15 +440,15 @@ export async function init(container) {
             font-size:11px;font-weight:700;padding:4px 10px;border-radius:var(--r-sm);
             background:rgba(25,249,249,0.1);color:var(--cyan);
             border:1px solid rgba(25,249,249,0.3);cursor:pointer;white-space:nowrap
-          ">${t('admin_invite_approve') || '✓ Aprobar'}</button>
+ ">${t('admin_invite_approve') || '✓ Aprobar'}</button>
           <button class="btn-reject-invite" data-invid="${inv.id}" style="
             font-size:11px;font-weight:700;padding:4px 10px;border-radius:var(--r-sm);
             background:rgba(148,10,10,0.15);color:#ef4444;
             border:1px solid rgba(148,10,10,0.3);cursor:pointer;white-space:nowrap
-          ">${t('admin_invite_reject') || '✗ Rechazar'}</button>
+ ">${t('admin_invite_reject') || '✗ Rechazar'}</button>
         </div>
       </div>
-    `).join('');
+ `).join('');
 
     // Render registered users without access
     const usersHtml = pendingUsers.map(u => `
@@ -458,13 +458,13 @@ export async function init(container) {
         background:rgba(255,255,255,0.04);
         border:1px solid rgba(25,249,249,0.1);
         margin-bottom:6px
-      ">
+ ">
         <div style="
           width:32px;height:32px;border-radius:50%;flex-shrink:0;overflow:hidden;
           ${u.photoURL ? '' : 'background:rgba(25,249,249,0.1);color:var(--cyan);'}
           display:flex;align-items:center;justify-content:center;
           font-size:12px;font-weight:700;border:1px solid rgba(25,249,249,0.2)
-        ">${u.photoURL ? `<img src="${u.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover">` : (getInitials(u.name) || '?')}</div>
+ ">${u.photoURL ? `<img src="${u.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover">` : (getInitials(u.name) || '?')}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
             ${u.name || u.email || '—'}
@@ -478,9 +478,9 @@ export async function init(container) {
           background:rgba(25,249,249,0.1);color:var(--cyan);
           border:1px solid rgba(25,249,249,0.3);cursor:pointer;
           white-space:nowrap;flex-shrink:0
-        ">${t('admin_grant_access') || 'Activar'}</button>
+ ">${t('admin_grant_access') || 'Activar'}</button>
       </div>
-    `).join('');
+ `).join('');
 
     el.innerHTML = invitesHtml + usersHtml;
 
@@ -494,7 +494,7 @@ export async function init(container) {
           // Remove from local list so it disappears immediately
           allInvitations = allInvitations.filter(i => i.id !== invId);
           renderPendingSection(allUsers, allInvitations);
-          toast(t('admin_invite_approved') || '✅ Aprobado — cuando se registre con su link tendrá acceso automáticamente', 'success');
+          toast(t('admin_invite_approved') || ' Aprobado — cuando se registre con su link tendrá acceso automáticamente', 'success');
         } catch(e) {
           console.error(e);
           toast('Error al aprobar', 'error');
@@ -553,7 +553,7 @@ export async function init(container) {
   function renderUsersList(users) {
     const el = container.querySelector('#users-list');
     if (!users.length) {
-      el.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">${t('admin_no_users')}</div></div>`;
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><circle cx="9" cy="7" r="4"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3c1.66 0 3 1.34 3 3s-1.34 3-3 3M21 20c0-3-2-5.3-4.5-5.9"/></svg></div><div class="empty-title">${t('admin_no_users')}</div></div>`;
       return;
     }
 
@@ -570,20 +570,20 @@ export async function init(container) {
         </div>
         <div class="admin-user-role">
           <select class="role-select" data-uid="${user.uid || user.id}" data-current-role="${user.role}">
-            <option value="basico"         ${user.role === 'basico'         ? 'selected' : ''}>Básico</option>
-            <option value="cliente"        ${user.role === 'cliente'        ? 'selected' : ''}>${translateRole('cliente')}</option>
-            <option value="atleta"         ${user.role === 'atleta'         ? 'selected' : ''}>${translateRole('atleta')}</option>
-            <option value="coach"          ${user.role === 'coach'          ? 'selected' : ''}>${translateRole('coach')}</option>
-            <option value="medico"         ${user.role === 'medico'         ? 'selected' : ''}>${translateRole('medico')}</option>
-            <option value="fisio"          ${user.role === 'fisio'          ? 'selected' : ''}>${translateRole('fisio')}</option>
-            <option value="psicologo"      ${user.role === 'psicologo'      ? 'selected' : ''}>${translateRole('psicologo')}</option>
-            <option value="nutricionista"  ${user.role === 'nutricionista'  ? 'selected' : ''}>${translateRole('nutricionista')}</option>
-            <option value="admin"          ${user.role === 'admin'          ? 'selected' : ''}>${translateRole('admin')}</option>
+            <option value="basico" ${user.role === 'basico' ? 'selected' : ''}>Básico</option>
+            <option value="cliente" ${user.role === 'cliente' ? 'selected' : ''}>${translateRole('cliente')}</option>
+            <option value="atleta" ${user.role === 'atleta' ? 'selected' : ''}>${translateRole('atleta')}</option>
+            <option value="coach" ${user.role === 'coach' ? 'selected' : ''}>${translateRole('coach')}</option>
+            <option value="medico" ${user.role === 'medico' ? 'selected' : ''}>${translateRole('medico')}</option>
+            <option value="fisio" ${user.role === 'fisio' ? 'selected' : ''}>${translateRole('fisio')}</option>
+            <option value="psicologo" ${user.role === 'psicologo' ? 'selected' : ''}>${translateRole('psicologo')}</option>
+            <option value="nutricionista" ${user.role === 'nutricionista' ? 'selected' : ''}>${translateRole('nutricionista')}</option>
+            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>${translateRole('admin')}</option>
           </select>
         </div>
-        <button class="btn-icon" data-uid="${user.uid || user.id}" style="width:32px;height:32px;font-size:16px" data-action="detail">👁</button>
+        <button class="btn-icon" data-uid="${user.uid || user.id}" style="width:32px;height:32px;font-size:16px" data-action="detail"></button>
       </div>
-    `).join('');
+ `).join('');
 
     // Role change
     el.querySelectorAll('.role-select').forEach(sel => {
@@ -673,7 +673,7 @@ async function openUserDetailSheet(user, allUsers) {
 
   const buildOptions = (list, assignedId) =>
     list.map(u =>
-      `<option value="${u.uid || u.id}" ${assignedId === (u.uid || u.id) ? 'selected' : ''}>${u.name}</option>`
+ `<option value="${u.uid || u.id}" ${assignedId === (u.uid || u.id) ? 'selected' : ''}>${u.name}</option>`
     ).join('');
 
   const coaches       = byRole('coach');
@@ -689,7 +689,7 @@ async function openUserDetailSheet(user, allUsers) {
 
     ${!['cliente','atleta'].includes(user.role) ? `
     <div class="glass-card" style="padding:var(--space-md);margin-bottom:var(--space-md)">
-      <div class="section-title" style="margin-bottom:8px">👤 Perfil de cliente</div>
+      <div class="section-title" style="margin-bottom:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px;margin-right:4px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> Perfil de cliente</div>
       <label style="display:flex;align-items:center;gap:var(--space-sm);cursor:pointer">
         <div class="toggle-switch" style="flex-shrink:0">
           <input type="checkbox" id="isClientToggle" ${user.isClient ? 'checked' : ''}>
@@ -698,12 +698,12 @@ async function openUserDetailSheet(user, allUsers) {
         <span style="font-size:var(--fs-sm)">También es cliente — puede recibir rutinas y asignaciones</span>
       </label>
     </div>
-    ` : ''}
+ ` : ''}
 
     <!-- Coach -->
     <div class="section-title">${t('admin_assign_coach')}</div>
     <div class="input-group" style="margin-bottom:var(--space-sm)">
-      <span class="input-icon">🏋️</span>
+      <span class="input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg></span>
       <select id="sheet-coach-select">
         <option value="">${t('admin_no_coach')}</option>
         ${buildOptions(coaches, user.assignedCoach)}
@@ -714,7 +714,7 @@ async function openUserDetailSheet(user, allUsers) {
     <!-- Médico -->
     <div class="section-title">${t('admin_assign_medico')}</div>
     <div class="input-group" style="margin-bottom:var(--space-sm)">
-      <span class="input-icon">🩺</span>
+      <span class="input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M4.8 2.3A.3.3 0 105 2H4a2 2 0 00-2 2v5a6 6 0 006 6 6 6 0 006-6V4a2 2 0 00-2-2h-1a.2.2 0 10.3.3"/><path d="M8 15v1a6 6 0 006 6v0a6 6 0 006-6v-4"/><circle cx="20" cy="10" r="2"/></svg></span>
       <select id="sheet-medico-select">
         <option value="">${t('admin_no_medico')}</option>
         ${buildOptions(medicos, user.assignedMedico)}
@@ -725,7 +725,7 @@ async function openUserDetailSheet(user, allUsers) {
     <!-- Fisio -->
     <div class="section-title">${t('admin_assign_fisio')}</div>
     <div class="input-group" style="margin-bottom:var(--space-sm)">
-      <span class="input-icon">💆</span>
+      <span class="input-icon"></span>
       <select id="sheet-fisio-select">
         <option value="">${t('admin_no_fisio')}</option>
         ${buildOptions(fisios, user.assignedFisio)}
@@ -736,7 +736,7 @@ async function openUserDetailSheet(user, allUsers) {
     <!-- Psicólogo -->
     <div class="section-title">${t('admin_assign_psicologo')}</div>
     <div class="input-group" style="margin-bottom:var(--space-sm)">
-      <span class="input-icon">🧠</span>
+      <span class="input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M9.5 2a2.5 2.5 0 000 5h5a2.5 2.5 0 000-5h-5z"/><path d="M12 7v10M8 12H4a2 2 0 000 4h1a3 3 0 003 3M16 12h4a2 2 0 010 4h-1a3 3 0 01-3 3"/></svg></span>
       <select id="sheet-psicologo-select">
         <option value="">${t('admin_no_psicologo')}</option>
         ${buildOptions(psicologos, user.assignedPsicologo)}
@@ -747,7 +747,7 @@ async function openUserDetailSheet(user, allUsers) {
     <!-- Nutricionista -->
     <div class="section-title">${t('admin_assign_nutricionista')}</div>
     <div class="input-group" style="margin-bottom:var(--space-sm)">
-      <span class="input-icon">🥗</span>
+      <span class="input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M12 2a5 5 0 00-5 5c0 2 1 4 3 5H7a1 1 0 00-1 1v2a1 1 0 001 1h10a1 1 0 001-1v-2a1 1 0 00-1-1h-3c2-1 3-3 3-5a5 5 0 00-5-5z"/><path d="M7 21h10"/></svg></span>
       <select id="sheet-nutricionista-select">
         <option value="">${t('admin_no_nutricionista')}</option>
         ${buildOptions(nutricionistas, user.assignedNutricionista)}
@@ -789,9 +789,9 @@ async function openUserDetailSheet(user, allUsers) {
         <p style="font-size:var(--fs-xs);color:var(--color-text-muted);margin-top:var(--space-sm);margin-bottom:0">
           ${t('admin_access_granted_by')}: ${user.accessGrantedBy}
         </p>
-      ` : ''}
+ ` : ''}
     </div>
-    ` : ''}
+ ` : ''}
 
     <div class="section-title">${t('admin_routines_title')}</div>
     <div id="sheet-routines"><div class="spinner-sm"></div></div>
@@ -810,8 +810,8 @@ async function openUserDetailSheet(user, allUsers) {
         ${t('admin_revoke_access')}
       </button>
     </div>
-    ` : ''}
-  `;
+ ` : ''}
+ `;
 
   openSheet(html);
   const sc = document.getElementById('sheet-content');
@@ -862,7 +862,7 @@ async function openUserDetailSheet(user, allUsers) {
   sc.querySelector('#isClientToggle')?.addEventListener('change', async (e) => {
     try {
       await db.collection('users').doc(uid).update({ isClient: e.target.checked, updatedAt: timestamp() });
-      toast(e.target.checked ? 'Marcado como cliente ✅' : 'Perfil de cliente desactivado', 'info');
+      toast(e.target.checked ? 'Marcado como cliente' : 'Perfil de cliente desactivado', 'info');
     } catch(err) { toast('Error: ' + err.message, 'error'); }
   });
 
@@ -952,11 +952,11 @@ async function loadSheetRoutines(sc, user) {
       const d = doc.data();
       return `
         <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
-          <span style="font-size:16px">💪</span>
+          <span style="display:flex;align-items:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg></span>
           <div style="flex:1;font-size:13px;font-weight:600">${d.name || d.routineId || t('admin_routine_label')}</div>
           <button class="badge badge-red" style="cursor:pointer;border:none" data-assign-id="${doc.id}" data-uid="${uid}">${t('admin_delete_assign')}</button>
         </div>
-      `;
+ `;
     }).join('');
 
     el.querySelectorAll('[data-assign-id]').forEach(btn => {
@@ -989,7 +989,7 @@ async function openAssignRoutineModal(user) {
         ${t('admin_create_assign')}
       </button>
     </div>
-  `;
+ `;
 
   openModal(html);
   const modal = document.getElementById('modal-content');
@@ -1005,14 +1005,14 @@ async function openAssignRoutineModal(user) {
         const r = doc.data();
         return `
           <div class="admin-user-card" style="cursor:pointer" data-routine-id="${doc.id}" data-routine-name="${r.name}">
-            <span style="font-size:20px">💪</span>
+            <span style="display:flex;align-items:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg></span>
             <div style="flex:1">
               <div style="font-weight:700;font-size:14px">${r.name}</div>
               <div class="text-muted">${r.exercises?.length || 0} ${t('admin_exercises')}</div>
             </div>
             <span class="badge badge-cyan">${t('assign')}</span>
           </div>
-        `;
+ `;
       }).join('');
 
       el.querySelectorAll('[data-routine-id]').forEach(card => {
@@ -1034,7 +1034,7 @@ async function openAssignRoutineModal(user) {
     try {
       const newRoutine = await db.collection('routines').add({
         name,
-        description:  '',
+        description: '',
         exercises:    [],
         tags:         [],
         createdBy:    getUserProfile()?.uid,
@@ -1098,11 +1098,11 @@ function openInviteUserModal() {
       ${t('admin_invite_desc')}
     </p>
     <div class="input-group" style="margin-bottom:var(--space-md)">
-      <span class="input-icon">✉️</span>
+      <span class="input-icon"></span>
       <input type="email" id="invite-email" placeholder="${t('admin_invite_email')}">
     </div>
     <div class="input-group" style="margin-bottom:var(--space-sm)">
-      <span class="input-icon">👤</span>
+      <span class="input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
       ${roleSelectHtml}
     </div>
     ${staffWarningHtml}
@@ -1116,13 +1116,13 @@ function openInviteUserModal() {
       </div>
       <div style="display:flex;gap:var(--space-sm)">
         <button class="btn-secondary" id="btn-copy-invite" style="flex:1;font-size:13px">${t('admin_copy_link')}</button>
-        <button class="btn-primary"   id="btn-send-invite" style="flex:1;font-size:13px">Enviar automático</button>
+        <button class="btn-primary" id="btn-send-invite" style="flex:1;font-size:13px">Enviar automático</button>
       </div>
       <p class="text-muted" style="font-size:11px;margin-top:6px;text-align:center">
         De: ${TGWL_FROM_EMAIL}
       </p>
     </div>
-  `;
+ `;
 
   openModal(html);
   const modal = document.getElementById('modal-content');
@@ -1206,7 +1206,7 @@ function openInviteUserModal() {
                     </p>
                   </div>
                 </div>
-              `,
+ `,
             },
           });
           await db.collection('invitations').doc(inviteRef.id).update({ emailSent: true, emailSentAt: timestamp() });
@@ -1244,7 +1244,7 @@ async function renderAdminRoutineCards(container, profile) {
   try {
     const snap = await db.collection('routines').where('createdBy','==',profile.uid).limit(50).get();
     if (snap.empty) {
-      el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Sin rutinas creadas</div><div class="empty-subtitle">Pulsa "+ Nueva rutina" para crear la primera.</div></div>`;
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></div><div class="empty-title">Sin rutinas creadas</div><div class="empty-subtitle">Pulsa "+ Nueva rutina" para crear la primera.</div></div>`;
       return;
     }
     el.innerHTML = snap.docs.map(doc => {
@@ -1254,7 +1254,7 @@ async function renderAdminRoutineCards(container, profile) {
       return `
         <div class="glass-card" style="padding:var(--space-md);margin-bottom:var(--space-sm)">
           <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:10px">
-            <span style="font-size:26px">💪</span>
+            <span style="display:flex;align-items:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg></span>
             <div style="flex:1;min-width:0">
               <div style="font-weight:700;font-size:15px">${r.name}</div>
               <div class="text-muted" style="font-size:12px;margin-top:2px">${r.exercises?.length||0} ejercicios${muscles?' · '+muscles:''}</div>
@@ -1262,8 +1262,8 @@ async function renderAdminRoutineCards(container, profile) {
             </div>
           </div>
           <div style="display:flex;gap:8px">
-            <button class="btn-secondary" style="flex:1;font-size:12px;padding:8px" data-edit="${doc.id}">✏️ Editar</button>
-            <button class="btn-accent"    style="flex:1;font-size:12px;padding:8px" data-assign="${doc.id}" data-rname="${(r.name||'').replace(/"/g,'&quot;')}">📋 Asignar a cliente</button>
+            <button class="btn-secondary" style="flex:1;font-size:12px;padding:8px" data-edit="${doc.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px;margin-right:4px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar</button>
+            <button class="btn-accent" style="flex:1;font-size:12px;padding:8px" data-assign="${doc.id}" data-rname="${(r.name||'').replace(/"/g,'&quot;')}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px;margin-right:4px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg> Asignar a cliente</button>
           </div>
         </div>`;
     }).join('');
@@ -1297,12 +1297,12 @@ async function openAdminRoutineEditor(routineId, container) {
     <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:6px">Ejercicios</div>
     <div id="rar-ex-list"></div>
     <div style="position:relative;margin:8px 0 4px">
-      <input type="text" id="rar-ex-search" class="input-solo" placeholder="🔍 Buscar ejercicio o músculo..." style="font-size:12px" autocomplete="off">
+      <input type="text" id="rar-ex-search" class="input-solo" placeholder=" Buscar ejercicio o músculo..." style="font-size:12px" autocomplete="off">
       <div id="rar-ex-results" style="display:none;position:absolute;top:100%;left:0;right:0;max-height:200px;overflow-y:auto;background:#1a1a2e;border:1px solid var(--glass-border);border-radius:var(--radius-sm);z-index:200;margin-top:2px"></div>
     </div>
     <button class="btn-accent btn-full" id="rar-add-ex" style="margin-bottom:12px">+ Añadir ejercicio seleccionado</button>
-    <button class="btn-primary btn-full" id="rar-save">💾 Guardar rutina</button>
-  `;
+    <button class="btn-primary btn-full" id="rar-save"> Guardar rutina</button>
+ `;
   openModal(html, { noClickClose: false });
   const m = document.getElementById('modal-content');
   let exercises = [...(routine.exercises||[])];
@@ -1323,7 +1323,7 @@ async function openAdminRoutineEditor(routineId, container) {
           <input type="number" class="ex-warmup-input" data-index="${i}"
                  value="${ex.warmupSets||0}" min="0" max="10"
                  style="width:40px;background:rgba(251,146,60,.15);border:1px solid rgba(251,146,60,.4);border-radius:var(--r-xs);color:var(--color-text);font-size:11px;text-align:center;padding:2px">
-          <span style="font-size:10px;color:rgba(251,146,60,.8)">🔥</span>
+          <span style="font-size:10px;color:rgba(251,146,60,.8)"></span>
         </div>
         <span style="font-size:10px;color:var(--color-text-muted)">×</span>
         <input type="text" value="${ex.reps||'10'}" placeholder="ej: 12 o 20-16-16" style="width:72px;background:transparent;border:1px solid var(--glass-border);border-radius:var(--r-xs);color:#fff;font-size:11px;text-align:center;padding:2px" data-reps="${i}">
@@ -1369,8 +1369,8 @@ async function openAdminRoutineEditor(routineId, container) {
     if(!name){ toast('Introduce un nombre','warning'); return; }
     const data={ name, description:m.querySelector('#rar-desc').value.trim(), exercises, createdBy:profile.uid, updatedAt:timestamp() };
     try {
-      if(routineId){ await db.collection('routines').doc(routineId).update(data); toast('Rutina actualizada ✅','success'); }
-      else { data.createdAt=timestamp(); await db.collection('routines').add(data); toast('Rutina creada ✅','success'); }
+      if(routineId){ await db.collection('routines').doc(routineId).update(data); toast('Rutina actualizada ','success'); }
+      else { data.createdAt=timestamp(); await db.collection('routines').add(data); toast('Rutina creada ','success'); }
       closeModal();
       _routinesLoaded = false;
       renderAdminRoutineCards(container, profile);
@@ -1409,20 +1409,20 @@ async function openAdminAssignRoutine(routineId, routineName, profile, type = 'r
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">📋 Asignar rutina</h3>
+      <h3 class="modal-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg> Asignar rutina</h3>
       <button class="modal-close">✕</button>
     </div>
     <p class="text-muted" style="margin-bottom:12px;font-size:13px">"<strong>${_esc(routineName)}</strong>" → selecciona destinatario:</p>
     ${selfCard}
     ${clientCards ? `<div style="border-top:1px solid var(--glass-border);margin:8px 0 10px"></div>${clientCards}` : ''}
-  `;
+ `;
   openModal(html);
   document.getElementById('modal-content')?.querySelectorAll('[data-cuid]').forEach(card => {
     card.addEventListener('click', async () => {
       await collections.assignments(card.dataset.cuid).add({
         routineId, name: routineName, assignedBy: profile.uid, assignedAt: timestamp(), createdAt: timestamp(),
       });
-      toast(`Rutina asignada a ${card.dataset.cname} ✅`, 'success');
+      toast(`Rutina asignada a ${card.dataset.cname} `, 'success');
       closeModal();
     });
   });
@@ -1457,7 +1457,7 @@ async function renderAdminDietCards(container, profile) {
   try {
     const snap = await db.collection('dietTemplates').where('createdBy','==',profile.uid).limit(50).get();
     if (snap.empty) {
-      el.innerHTML = `<div class="empty-state"><div class="empty-icon">🥗</div><div class="empty-title">Sin dietas creadas</div><div class="empty-subtitle">Pulsa "+ Nueva dieta" para crear la primera.</div></div>`;
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon"></div><div class="empty-title">Sin dietas creadas</div><div class="empty-subtitle">Pulsa "+ Nueva dieta" para crear la primera.</div></div>`;
       return;
     }
     el.innerHTML = snap.docs.map(doc => {
@@ -1472,7 +1472,7 @@ async function renderAdminDietCards(container, profile) {
       return `
         <div class="glass-card" style="padding:var(--space-md);margin-bottom:var(--space-sm)">
           <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:10px">
-            <span style="font-size:26px">🥗</span>
+            <span style="font-size:26px"></span>
             <div style="flex:1;min-width:0">
               <div style="font-weight:700;font-size:15px">${d.name || 'Sin nombre'}</div>
               <div style="display:flex;gap:6px;align-items:center;margin-top:4px;flex-wrap:wrap">
@@ -1483,9 +1483,9 @@ async function renderAdminDietCards(container, profile) {
             </div>
           </div>
           <div style="display:flex;gap:8px">
-            <button class="btn-secondary" style="flex:1;font-size:12px;padding:8px" data-diet-edit="${doc.id}">✏️ Editar</button>
-            <button class="btn-accent"    style="flex:1;font-size:12px;padding:8px" data-diet-assign="${doc.id}" data-dname="${(d.name||'').replace(/"/g,'&quot;')}">📋 Asignar a cliente</button>
-            <button style="font-size:12px;padding:8px;background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3);border-radius:var(--r-sm);cursor:pointer" data-diet-del="${doc.id}" data-delname="${(d.name||'').replace(/"/g,'&quot;')}">🗑️</button>
+            <button class="btn-secondary" style="flex:1;font-size:12px;padding:8px" data-diet-edit="${doc.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar</button>
+            <button class="btn-accent" style="flex:1;font-size:12px;padding:8px" data-diet-assign="${doc.id}" data-dname="${(d.name||'').replace(/"/g,'&quot;')}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg> Asignar a cliente</button>
+            <button style="font-size:12px;padding:8px;background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3);border-radius:var(--r-sm);cursor:pointer" data-diet-del="${doc.id}" data-delname="${(d.name||'').replace(/"/g,'&quot;')}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>
           </div>
         </div>`;
     }).join('');
@@ -1523,7 +1523,7 @@ async function openAdminDietEditor(dietId, container) {
   let meals = diet.meals?.length ? [...diet.meals] : [{ label:'Desayuno', description:'' }];
 
   const typeOptions = DIET_TYPES.map(t =>
-    `<option value="${t.value}" ${diet.type===t.value?'selected':''}>${t.label}</option>`
+ `<option value="${t.value}" ${diet.type===t.value?'selected':''}>${t.label}</option>`
   ).join('');
 
   const html = `
@@ -1567,9 +1567,9 @@ async function openAdminDietEditor(dietId, container) {
       <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:6px">Notas adicionales</div>
       <textarea id="diet-notes" class="input-solo" rows="3" placeholder="Observaciones, suplementos, restricciones..." style="padding:10px;width:100%;box-sizing:border-box;margin-bottom:12px">${_esc(diet.notes||'')}</textarea>
 
-      <button class="btn-primary btn-full" id="diet-save">💾 Guardar dieta</button>
+      <button class="btn-primary btn-full" id="diet-save"> Guardar dieta</button>
     </div>
-  `;
+ `;
   openModal(html, { noClickClose: false });
   const m = document.getElementById('modal-content');
 
@@ -1582,7 +1582,7 @@ async function openAdminDietEditor(dietId, container) {
         <input type="text" class="input-solo" placeholder="Nombre (ej: Desayuno, Snack AM...)" value="${_esc(meal.label)}" data-meal-label="${i}" style="font-size:12px;font-weight:600;margin-bottom:6px;width:calc(100% - 24px)">
         <textarea class="input-solo" placeholder="Descripción de la comida, alimentos, cantidades..." data-meal-desc="${i}" rows="3" style="font-size:12px;padding:8px;width:100%;box-sizing:border-box">${_esc(meal.description||'')}</textarea>
       </div>
-    `).join('');
+ `).join('');
     listEl.querySelectorAll('[data-meal-rm]').forEach(b => b.addEventListener('click', () => { meals.splice(+b.dataset.mealRm, 1); renderMeals(); }));
     listEl.querySelectorAll('[data-meal-label]').forEach(b => b.addEventListener('input', () => { meals[+b.dataset.mealLabel].label = b.value; }));
     listEl.querySelectorAll('[data-meal-desc]').forEach(b => b.addEventListener('input', () => { meals[+b.dataset.mealDesc].description = b.value; }));
@@ -1616,11 +1616,11 @@ async function openAdminDietEditor(dietId, container) {
     try {
       if (dietId) {
         await db.collection('dietTemplates').doc(dietId).update(data);
-        toast('Dieta actualizada ✅', 'success');
+        toast('Dieta actualizada ', 'success');
       } else {
         data.createdAt = timestamp();
         await db.collection('dietTemplates').add(data);
-        toast('Dieta creada ✅', 'success');
+        toast('Dieta creada ', 'success');
       }
       closeModal();
       _dietsLoaded = false;
@@ -1669,13 +1669,13 @@ async function openAdminAssignDiet(dietId, dietName) {
 
   const html = `
     <div class="modal-header">
-      <h3 class="modal-title">🥗 Asignar dieta</h3>
+      <h3 class="modal-title"> Asignar dieta</h3>
       <button class="modal-close">✕</button>
     </div>
     <p class="text-muted" style="margin-bottom:12px;font-size:13px">"<strong>${_esc(dietName)}</strong>" → selecciona destinatario:</p>
     ${selfCard}
     ${clientCards ? `<div style="border-top:1px solid var(--glass-border);margin:8px 0 10px"></div>${clientCards}` : ''}
-  `;
+ `;
   openModal(html);
   document.getElementById('modal-content')?.querySelectorAll('[data-cuid]').forEach(card => {
     card.addEventListener('click', async () => {
@@ -1688,7 +1688,7 @@ async function openAdminAssignDiet(dietId, dietName) {
           assignedAt: timestamp(),
           createdAt: timestamp(),
         });
-        toast(`Dieta asignada a ${card.dataset.cname} ✅`, 'success');
+        toast(`Dieta asignada a ${card.dataset.cname} `, 'success');
         closeModal();
       } catch (e) { toast('Error: ' + e.message, 'error'); }
     });
