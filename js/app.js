@@ -45,13 +45,21 @@ function applySettings() {
 }
 
 // ── Service Worker Registration ───────────────
+let _swReg = null; // module-level reference for banner dismiss
+
 async function registerSW() {
   if (!('serviceWorker' in navigator)) return;
   try {
     const reg = await navigator.serviceWorker.register('./sw.js', { scope: './' });
+    _swReg = reg;
     console.log('[App] SW registered:', reg.scope);
 
-    // Check for updates
+    // If there is already a waiting worker on load, show banner immediately
+    if (reg.waiting && navigator.serviceWorker.controller) {
+      showUpdateBanner();
+    }
+
+    // Listen for future updates
     reg.addEventListener('updatefound', () => {
       const newWorker = reg.installing;
       newWorker?.addEventListener('statechange', () => {
@@ -60,9 +68,20 @@ async function registerSW() {
         }
       });
     });
+
+    // When the new SW takes control, reload once — silently
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      window.location.reload();
+    });
+
   } catch (err) {
     console.warn('[App] SW registration failed:', err);
   }
+}
+
+// ── Activate waiting SW ───────────────────────
+function activateWaitingSW() {
+  _swReg?.waiting?.postMessage({ type: 'SKIP_WAITING' });
 }
 
 // ── Update Banner ─────────────────────────────
@@ -73,11 +92,10 @@ function showUpdateBanner() {
   const banner = document.createElement('div');
   banner.id = 'update-banner';
   banner.style.cssText = `
-    position: fixed; bottom: calc(80px + env(safe-area-inset-bottom));
+    position: fixed; bottom: calc(96px + env(safe-area-inset-bottom));
     left: 50%; transform: translateX(-50%);
-    background: rgba(25,249,249,0.15);
-    border: 1px solid rgba(25,249,249,0.3);
-    backdrop-filter: blur(20px);
+    background: #1A1A1A;
+    border: 0.5px solid #252525;
     padding: 12px 20px;
     border-radius: var(--r-md);
     z-index: 9000;
@@ -86,23 +104,39 @@ function showUpdateBanner() {
     gap: 12px;
     font-size: 13px;
     font-weight: 600;
-    color: white;
+    color: #F0F0F0;
     min-width: 280px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
- `;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.13);
+  `;
+
+  const onUpdate = () => {
+    activateWaitingSW();      // triggers controllerchange → auto reload
+    banner.remove();
+  };
+  const onDismiss = () => {
+    activateWaitingSW();      // activate silently so banner never reappears
+    banner.remove();
+  };
+
   banner.innerHTML = `
-    <span> Nueva versión disponible</span>
-    <button onclick="window.location.reload()" style="
-      background: linear-gradient(135deg, #c01010, #940a0a);
+    <span>Nueva versión disponible</span>
+    <button id="sw-update-btn" style="
+      background: #C10801;
       border: none; color: white; padding: 6px 14px;
       border-radius: var(--r-sm); cursor: pointer; font-size: 12px; font-weight: 700;
- ">Actualizar</button>
-    <button onclick="this.parentElement.remove()" style="
-      background: none; border: none; color: rgba(255,255,255,0.5);
-      cursor: pointer; font-size: 16px; padding: 0;
- ">✕</button>
- `;
+    ">Actualizar</button>
+    <button id="sw-dismiss-btn" style="
+      background: none; border: none; color: #8A8A8A;
+      cursor: pointer; font-size: 16px; padding: 0; line-height: 1;
+    ">✕</button>
+  `;
+
   document.body.appendChild(banner);
+
+  banner.querySelector('#sw-update-btn').addEventListener('click', onUpdate);
+  banner.querySelector('#sw-dismiss-btn').addEventListener('click', onDismiss);
+
+  // Auto-dismiss after 30 s without activating (just hides UI, SW stays waiting)
   setTimeout(() => banner.remove(), 30000);
 }
 
@@ -140,7 +174,7 @@ bootstrap().catch(err => {
         <h2>Error al iniciar</h2>
         <p style="color:#a7a7a7;margin:12px 0">${err.message}</p>
         <button onclick="window.location.reload()"
-          style="background:linear-gradient(135deg,#c01010,#940a0a);color:white;border:none;padding:12px 24px;border-radius:var(--r-md);font-size:15px;cursor:pointer;margin-top:12px">
+          style="background:#C10801;color:white;border:none;padding:12px 24px;border-radius:var(--r-md);font-size:15px;cursor:pointer;margin-top:12px">
           Reintentar
         </button>
       </div>

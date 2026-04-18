@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════
    TGWL Service Worker — PWA offline support
 ═══════════════════════════════════════════════ */
-const CACHE_NAME = 'tgwl-v1.40';
-const STATIC_CACHE = 'tgwl-static-v11.0';
-const DYNAMIC_CACHE = 'tgwl-dynamic-v11.0';
+const CACHE_NAME = 'tgwl-v1.41';
+const STATIC_CACHE = 'tgwl-static-v12.0';
+const DYNAMIC_CACHE = 'tgwl-dynamic-v12.0';
 
 const STATIC_ASSETS = [
   '/',
@@ -127,6 +127,13 @@ async function networkFirst(request) {
     });
   }
 }
+
+// ── Message: skip waiting ─────────────────────
+self.addEventListener('message', event => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
 
 // ── Push Notifications ────────────────────────
 self.addEventListener('push', event => {
