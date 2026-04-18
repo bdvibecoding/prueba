@@ -45,7 +45,8 @@ function applySettings() {
 }
 
 // ── Service Worker Registration ───────────────
-let _swReg = null; // module-level reference for banner dismiss
+let _swReg = null;          // module-level reference for banner dismiss
+let _reloadOnController = false; // only reload when WE triggered skipWaiting
 
 async function registerSW() {
   if (!('serviceWorker' in navigator)) return;
@@ -69,9 +70,9 @@ async function registerSW() {
       });
     });
 
-    // When the new SW takes control, reload once — silently
+    // Reload ONLY when we explicitly triggered skipWaiting (not on normal SW activation)
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      window.location.reload();
+      if (_reloadOnController) window.location.reload();
     });
 
   } catch (err) {
@@ -81,7 +82,10 @@ async function registerSW() {
 
 // ── Activate waiting SW ───────────────────────
 function activateWaitingSW() {
-  _swReg?.waiting?.postMessage({ type: 'SKIP_WAITING' });
+  if (_swReg?.waiting) {
+    _reloadOnController = true;
+    _swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+  }
 }
 
 // ── Update Banner ─────────────────────────────
