@@ -78,15 +78,18 @@ export async function render(container) {
         <!-- Profile Form -->
         <form id="profile-form" class="profile-form">
           <div class="settings-group">
-            ${profileField('text', 'profile-name-input',  t('perfil_full_name'),    profile?.name || '', '', false)}
-            ${profileField('email', 'profile-email',       t('perfil_email'),        profile?.email || '', '', true)}
-            ${profileField('date', 'profile-birth',       t('perfil_birth_date'),   profile?.birthDate || '','', false)}
+            ${profileField('text', 'profile-name-input',  t('perfil_full_name'),    profile?.name || '',
+              `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`, false)}
+            ${profileField('email', 'profile-email',       t('perfil_email'),        profile?.email || '',
+              `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>`, true)}
+            ${profileField('date', 'profile-birth',       t('perfil_birth_date'),   profile?.birthDate || '',
+              `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>`, false)}
             ${profileSelectField('profile-gender', t('perfil_gender'), profile?.gender || '', [
               { value: '', label: t('perfil_select') },
               { value: 'masculino', label: t('perfil_male') },
               { value: 'femenino', label: t('perfil_female') },
               { value: 'otro', label: t('perfil_other_gender') },
-            ])}
+            ], `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><circle cx="12" cy="9" r="4"/><path d="M3 20c0-3.87 4.03-7 9-7s9 3.13 9 7"/></svg>`)}
           </div>
 
           <!-- Physical Data -->
@@ -301,7 +304,7 @@ export async function init(container) {
 function profileField(type, id, label, value, icon, readonly = false) {
   return `
     <div class="settings-item">
-      <div class="settings-item-icon" style="background:rgba(255,255,255,0.06)">${icon}</div>
+      ${icon ? `<div class="settings-item-icon" style="background:rgba(193,8,1,0.08)">${icon}</div>` : ''}
       <div class="settings-item-info">
         <div class="settings-item-label">${label}</div>
       </div>
@@ -314,10 +317,11 @@ function profileField(type, id, label, value, icon, readonly = false) {
  `;
 }
 
-function profileSelectField(id, label, value, options) {
+function profileSelectField(id, label, value, options, icon = '') {
   const opts = options.map(o => `<option value="${o.value}" ${o.value === value ? 'selected' : ''}>${o.label}</option>`).join('');
   return `
     <div class="settings-item">
+      ${icon ? `<div class="settings-item-icon" style="background:rgba(193,8,1,0.08)">${icon}</div>` : ''}
       <div class="settings-item-info">
         <div class="settings-item-label">${label}</div>
       </div>

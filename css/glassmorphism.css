@@ -110,7 +110,7 @@ body.light-mode .glass-nav {
   transition: all var(--transition-base);
 }
 /* SVG icon color inside icon cells */
-.app-icon-inner svg { color: var(--icon-accent, rgba(255,255,255,0.9)); filter: drop-shadow(0 1px 4px rgba(0,0,0,0.5)); }
+.app-icon-inner svg { color: var(--icon-accent, rgba(255,255,255,0.9)); }
 
 /* Individual icon colors */
 .icon-entreno    { background: linear-gradient(145deg, rgba(193,8,1,0.15), rgba(193,8,1,0.08)); border-color: rgba(193,8,1,0.5); }
@@ -497,7 +497,6 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   stroke-dasharray: 339.3;
   stroke-dashoffset: 0;
   transition: stroke-dashoffset 1s linear, stroke var(--transition-base);
-  filter: drop-shadow(0 0 6px rgba(193,8,1,0.6));
 }
 .timer-ring-fill.warning { stroke: var(--color-warning); }
 .timer-ring-fill.danger  { stroke: var(--color-danger); }

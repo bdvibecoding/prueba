@@ -106,6 +106,14 @@ service cloud.firestore {
       allow delete: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
     }
 
+    // ── users/{uid}/biomedidas ───────────────────────────────────────────────
+    match /users/{userId}/biomedidas/{bioId} {
+      allow read:   if isAuthenticated() && (request.auth.uid == userId || isAdmin() || isStaff());
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && (request.auth.uid == userId || isAdmin() || isStaff());
+      allow delete: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+    }
+
     // ── routines ─────────────────────────────────────────────────────────────
     match /routines/{routineId} {
       // Staff (admin, coach) can read all routines; clients read their assigned ones via assignments

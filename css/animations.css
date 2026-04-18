@@ -210,12 +210,8 @@
   to   { left: 125%; }
 }
 
-/* ── Icon Glow ──────────────────────────────── */
-@keyframes iconGlow {
-  0%, 100% { filter: drop-shadow(0 0 4px rgba(193,8,1,0.3)); }
-  50%       { filter: drop-shadow(0 0 10px rgba(193,8,1,0.7)); }
-}
-.icon-glow { animation: iconGlow 3s ease infinite; }
+/* ── Icon Glow — removed per §08 (decorative drop-shadow not permitted) ── */
+.icon-glow { /* no-op: removed glow to comply with shadow system */ }
 
 /* ── Heartbeat (for health module) ─────────── */
 @keyframes heartbeat {

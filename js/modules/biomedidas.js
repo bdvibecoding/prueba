@@ -19,7 +19,10 @@ export async function render(container) {
             <h2 class="page-title">${t('bio_title')}</h2>
             <p class="page-subtitle">${t('bio_subtitle')}</p>
           </div>
-          <button class="btn-primary" id="btn-add-bio" style="padding:10px 16px;font-size:13px">+ ${t('bio_add')}</button>
+          <button class="btn-primary" id="btn-add-bio" style="padding:10px 16px;font-size:13px;display:flex;align-items:center;gap:6px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="width:14px;height:14px;flex-shrink:0"><path d="M12 5v14M5 12h14"/></svg>
+            Añadir
+          </button>
         </div>
 
         <!-- Fixed Data Row -->
