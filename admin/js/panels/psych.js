@@ -92,8 +92,8 @@ function renderBuilder(container) {
   el.innerHTML = `
     <div class="dash-builder-head">
       <div>
-        <div style="font-size:13px;color:var(--cyan);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">NOTAS DE PSICOLOGÍA DE</div>
-        <div style="font-size:28px;font-weight:800;color:var(--white)">${_selectedClient.name}</div>
+        <div style="font-size:13px;color:var(--red,#C10801);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">NOTAS DE PSICOLOGÍA DE</div>
+        <div style="font-size:28px;font-weight:800;color:var(--color-text)">${_selectedClient.name}</div>
       </div>
     </div>
     
@@ -142,7 +142,7 @@ async function loadHistory(container) {
       return `
         <div style="background:rgba(255,255,255,0.02);border:1px solid var(--glass-border);border-radius:12px;padding:20px;margin-bottom:16px;">
           <div style="font-size:12px;color:var(--color-text-muted);margin-bottom:8px;">${dateStr}</div>
-          <div style="font-size:14px;color:var(--white);white-space:pre-wrap;line-height:1.6;">${String(d.text).replace(/</g, '&lt;')}</div>
+          <div style="font-size:14px;color:var(--color-text);white-space:pre-wrap;line-height:1.6;">${String(d.text).replace(/</g, '&lt;')}</div>
         </div>
       `;
     }).join('');

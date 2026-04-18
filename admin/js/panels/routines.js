@@ -17,14 +17,14 @@ export async function render(container, profile) {
     const style = document.createElement('style');
     style.id = 'dash-panel-css';
     style.textContent = `
-      .dash-panel-layout { display: flex; height: 100%; width: 100%; overflow: hidden; }
+      .dash-panel-layout { display: flex; height: 100%; width: 100%; min-width: 0; }
       .dash-panel-list-col { width: 320px; border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; background: var(--color-bg); flex-shrink: 0; }
       .dash-panel-head { padding: 24px; border-bottom: 1px solid var(--glass-border); }
       .dash-panel-list { flex: 1; overflow-y: auto; padding: 12px; }
       .dash-client-card { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; margin-bottom: 8px; }
       .dash-client-card:hover { background: var(--glass-bg); }
-      .dash-client-card.active { background: var(--glass-bg-strong); border-color: var(--cyan); box-shadow: inset 4px 0 0 var(--cyan); }
-      .dash-avatar { width: 44px; height: 44px; border-radius: 50%; background: rgba(0, 200, 255, 0.15); color: var(--cyan); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; overflow: hidden; }
+      .dash-client-card.active { background: var(--glass-bg-strong); border-color: #C10801; box-shadow: inset 3px 0 0 var(--red,#C10801); }
+      .dash-avatar { width: 44px; height: 44px; border-radius: 50%; background: rgba(193,8,1,0.08); color: var(--red,#C10801); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; overflow: hidden; }
 
       .dash-builder-col { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--color-bg); position: relative; }
       .dash-builder-head { padding: 32px 40px; border-bottom: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: var(--glass-bg); }
@@ -32,29 +32,29 @@ export async function render(container, profile) {
 
       .dash-empty-state { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.5; }
 
-      .dash-section-title { font-size: 18px; font-weight: 700; margin-bottom: 24px; color: var(--white); display: flex; align-items: center; gap: 8px; }
+      .dash-section-title { font-size: 18px; font-weight: 700; margin-bottom: 24px; color: var(--color-text); display: flex; align-items: center; gap: 8px; }
       .dash-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 32px; }
 
       .dash-input-group { display: flex; flex-direction: column; gap: 10px; }
       .dash-label { font-size: 13px; font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-      .dash-input { background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px 16px; font-size: 15px; color: var(--white); font-family: inherit; transition: border-color 0.2s; width: 100%; box-sizing: border-box; }
-      .dash-input:focus { outline: none; border-color: var(--cyan); }
-      .dash-textarea { background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; font-size: 15px; color: var(--white); font-family: inherit; resize: vertical; min-height: 100px; transition: border-color 0.2s; width: 100%; box-sizing: border-box; }
-      .dash-textarea:focus { outline: none; border-color: var(--cyan); }
+      .dash-input { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px 16px; font-size: 15px; color: var(--color-text); font-family: inherit; transition: border-color 0.2s; width: 100%; box-sizing: border-box; }
+      .dash-input:focus { outline: none; border-color: #C10801; }
+      .dash-textarea { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; font-size: 15px; color: var(--color-text); font-family: inherit; resize: vertical; min-height: 100px; transition: border-color 0.2s; width: 100%; box-sizing: border-box; }
+      .dash-textarea:focus { outline: none; border-color: #C10801; }
 
       .dash-bottom-action { position: sticky; bottom: 0; background: var(--color-bg); padding: 24px 40px; border-top: 1px solid var(--glass-border); display: flex; justify-content: flex-end; gap: 12px; }
-      .btn-save-dash { background: var(--cyan); color: #000; font-weight: 700; font-size: 16px; padding: 16px 32px; border-radius: 12px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: opacity 0.2s; }
+      .btn-save-dash {background: var(--red,#C10801)color: #fff; font-weight: 700; font-size: 16px; padding: 16px 32px; border-radius: 12px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: opacity 0.2s; }
       .btn-save-dash:hover { opacity: 0.9; }
 
       .ex-card { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
-      .search-results { position: absolute; z-index: 100; background: var(--glass-bg-strong); border: 1px solid var(--glass-border); border-radius: 12px; width: 100%; max-height: 300px; overflow-y: auto; top: 100%; margin-top: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; }
+      .search-results { position: absolute; z-index: 100; background: var(--glass-bg-strong); border: 1px solid var(--glass-border); border-radius: 12px; width: 100%; max-height: 300px; overflow-y: auto; top: 100%; margin-top: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.13); display: none; }
       .search-item { padding: 12px 16px; display: flex; justify-content: space-between; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
       .search-item:hover { background: rgba(255,255,255,0.05); }
 
       /* View toggle */
       .rt-view-toggle { display: flex; border-radius: 8px; overflow: hidden; border: 1px solid var(--glass-border); margin-bottom: 16px; }
       .rt-view-toggle-btn { flex: 1; padding: 10px; text-align: center; font-size: 12px; font-weight: 700; cursor: pointer; border: none; background: transparent; color: var(--color-text-muted); transition: 0.2s; font-family: inherit; }
-      .rt-view-toggle-btn.active { background: var(--cyan); color: #000; }
+      .rt-view-toggle-btn.active { background: var(--red,#C10801); color: #fff; }
 
       /* Routine library card */
       .rt-lib-card { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
@@ -67,11 +67,11 @@ export async function render(container, profile) {
       .dh-panel.active { transform: translateX(0); }
       .dh-head { padding: 24px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
       .dh-body { flex: 1; overflow-y: auto; padding: 24px; }
-      .dh-card { background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-      .dh-card-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: var(--white); }
+      .dh-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+      .dh-card-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: var(--color-text); }
       .dh-card-date { font-size: 12px; color: var(--color-text-muted); margin-bottom: 16px; }
       .dh-actions { display: flex; gap: 8px; }
-      .btn-dh-edit { background: var(--cyan); color: #000; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; }
+      .btn-dh-edit { background: var(--red,#C10801); color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; }
       .btn-dh-del { background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.2s; }
       .btn-dh-del:hover { background: rgba(239,68,68,0.2); }
 
@@ -229,7 +229,7 @@ async function renderRoutinesLibrary(container) {
           ${r.description ? `<div style="font-size:12px;color:var(--color-text-muted);margin-bottom:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.description}</div>` : '<div style="margin-bottom:10px"></div>'}
           <div style="display:flex;gap:6px">
             <button class="btn-dh-edit" data-rt-load="${doc.id}" style="flex:1;text-align:center">📝 Cargar</button>
-            <button class="btn-dh-edit" data-rt-assign="${doc.id}" data-rt-name="${(r.name||'').replace(/"/g,'&quot;')}" style="flex:1;text-align:center;background:rgba(25,249,249,0.15);color:var(--cyan)">📋 Asignar</button>
+            <button class="btn-dh-edit" data-rt-assign="${doc.id}" data-rt-name="${(r.name||'').replace(/"/g,'&quot;')}" style="flex:1;text-align:center;background:rgba(193,8,1,0.08);color:var(--red,#C10801)">📋 Asignar</button>
             <button class="btn-dh-edit" data-rt-edit="${doc.id}" style="padding:6px 10px;background:rgba(255,255,255,0.08);color:var(--color-text-muted)">✏️</button>
             <button class="btn-dh-del" data-rt-del="${doc.id}" data-rt-delname="${(r.name||'').replace(/"/g,'&quot;')}" style="padding:6px 10px">🗑️</button>
           </div>
@@ -313,7 +313,7 @@ async function openAssignOverlay(routineId, routineName) {
               <div style="font-weight:600;font-size:14px">${c.name || 'Sin nombre'}</div>
               <div style="font-size:11px;color:var(--color-text-muted)">${c.email || ''}</div>
             </div>
-            <span style="font-size:12px;color:var(--cyan);font-weight:600">Asignar</span>
+            <span style="font-size:12px;color:var(--red,#C10801);font-weight:600">Asignar</span>
           </div>`).join('')}
       </div>
     </div>
@@ -353,8 +353,8 @@ function renderRoutineEditor(container, routineId, data) {
   el.innerHTML = `
     <div class="dash-builder-head">
       <div>
-        <div style="font-size:13px;color:var(--cyan);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">EDITANDO RUTINA</div>
-        <div style="font-size:28px;font-weight:800;color:var(--white)">${data.name || 'Sin nombre'}</div>
+        <div style="font-size:13px;color:var(--red,#C10801);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">EDITANDO RUTINA</div>
+        <div style="font-size:28px;font-weight:800;color:var(--color-text)">${data.name || 'Sin nombre'}</div>
       </div>
     </div>
     <div class="dash-builder-body" id="rt-form-body">
@@ -430,8 +430,8 @@ function renderBuilder(container) {
   el.innerHTML = `
     <div class="dash-builder-head">
       <div>
-        <div style="font-size:13px;color:var(--cyan);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">ASIGNANDO RUTINA A</div>
-        <div style="font-size:28px;font-weight:800;color:var(--white)">${_selectedClient.name}</div>
+        <div style="font-size:13px;color:var(--red,#C10801);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">ASIGNANDO RUTINA A</div>
+        <div style="font-size:28px;font-weight:800;color:var(--color-text)">${_selectedClient.name}</div>
       </div>
       <button class="btn-secondary" id="btn-hist-rutinas" style="padding:12px 24px;">Historial de Entrenos</button>
     </div>
@@ -470,7 +470,7 @@ function renderBuilder(container) {
     <div class="dh-panel" id="dh-panel">
       <div class="dh-head">
         <h3 style="margin:0;font-size:18px;font-weight:700">Historial de Rutinas</h3>
-        <button id="btn-dh-close" style="background:none;border:none;color:var(--white);font-size:24px;cursor:pointer">✕</button>
+        <button id="btn-dh-close" style="background:none;border:none;color:var(--color-text);font-size:24px;cursor:pointer">✕</button>
       </div>
       <div class="dh-body" id="dh-body">
         <div style="text-align:center;padding:40px;opacity:0.5"><div class="spinner-sm"></div></div>
@@ -517,7 +517,7 @@ function setupSearch(el) {
     resultsEl.innerHTML = hits.map(e => `
       <div class="search-item" data-name="${String(e.n).replace(/"/g, '&quot;')}" data-muscle="${e.m}">
         <span style="font-weight:600">${e.n}</span>
-        <span style="color:var(--cyan);font-size:12px;">${e.m}</span>
+        <span style="color:var(--red,#C10801);font-size:12px;">${e.m}</span>
       </div>
     `).join('');
     resultsEl.style.display = 'block';
@@ -669,7 +669,7 @@ function renderExercises() {
   container.innerHTML = _selectedExercises.map((ex, i) => `
     <div class="ex-card" data-id="${ex.id}">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <div style="font-size:18px;font-weight:700;">${i+1}. ${ex.name} <span style="font-size:12px;color:var(--cyan);font-weight:400;margin-left:8px;">${ex.muscleGroup}</span></div>
+        <div style="font-size:18px;font-weight:700;">${i+1}. ${ex.name} <span style="font-size:12px;color:var(--red,#C10801);font-weight:400;margin-left:8px;">${ex.muscleGroup}</span></div>
         <button class="btn-rm-ex" data-id="${ex.id}" style="background:none;border:none;color:#ef4444;font-size:20px;cursor:pointer;">✕</button>
       </div>
       <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;margin-bottom:16px;">

@@ -60,9 +60,9 @@ export function msUntilLocalMidnight() {
 
 export function getGreeting() {
   const h = new Date().getHours();
-  if (h < 13) return `¡${t('greeting_morning')}`;
-  if (h < 20) return `¡${t('greeting_afternoon')}`;
-  return `¡${t('greeting_evening')}`;
+  if (h < 13) return t('greeting_morning');
+  if (h < 20) return t('greeting_afternoon');
+  return t('greeting_evening');
 }
 
 export function getTimeLabel() {

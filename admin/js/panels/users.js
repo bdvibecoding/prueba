@@ -11,22 +11,23 @@ export async function render(container, profile) {
     const style = document.createElement('style');
     style.id = 'dash-users-css';
     style.textContent = `
-      .us-layout { padding: 40px; height: 100%; overflow-y: auto; background: var(--color-bg); }
-      .us-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-      .us-title { font-size: 28px; font-weight: 800; color: var(--white); }
-      
-      .us-table-container { background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 16px; overflow: hidden; }
-      .us-table { width: 100%; border-collapse: collapse; text-align: left; }
-      .us-table th { padding: 16px 24px; color: var(--color-text-muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); }
-      .us-table td { padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; }
+      .us-layout { padding: 32px 40px; overflow-y: auto; background: var(--color-bg); }
+      .us-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; gap: 16px; flex-wrap: wrap; }
+      .us-title { font-size: 22px; font-weight: 700; color: var(--color-text); display: flex; align-items: center; gap: 10px; }
+
+      .us-table-container { background: rgba(255,255,255,0.02); border: 0.5px solid var(--glass-border); border-radius: var(--r-lg,14px); overflow-x: auto; }
+      .us-table { width: 100%; border-collapse: collapse; text-align: left; min-width: 560px; }
+      .us-table th { padding: 12px 20px; color: var(--color-text-muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 0.5px solid var(--glass-border); background: rgba(0,0,0,0.1); white-space: nowrap; }
+      .us-table td { padding: 14px 20px; border-bottom: 0.5px solid rgba(255,255,255,0.04); vertical-align: middle; }
       .us-table tr:last-child td { border-bottom: none; }
-      .us-table tr:hover { background: rgba(255,255,255,0.03); }
-      
-      .us-user-cell { display: flex; align-items: center; gap: 16px; }
-      .us-avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(25, 249, 249, 0.15); color: var(--cyan); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
-      
-      .us-badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.1); color: var(--white); }
-      .us-badge-role { background: rgba(251, 146, 60, 0.15); color: rgb(251, 146, 60); }
+      .us-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+      .us-user-cell { display: flex; align-items: center; gap: 12px; }
+      .us-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(193,8,1,0.08); color: var(--red,#C10801); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+
+      .us-badge { display: inline-block; padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.07); color: var(--color-text-muted); }
+      .us-badge-role { background: rgba(193,8,1,0.08); color: var(--red,#C10801); }
+      .us-search { padding: 10px 14px; border-radius: var(--r-md,10px); border: 0.5px solid var(--glass-border); background: var(--glass-bg); color: var(--color-text); font-family: inherit; font-size: 13px; min-width: 200px; max-width: 280px; }
     `;
     document.head.appendChild(style);
   }
@@ -34,8 +35,11 @@ export async function render(container, profile) {
   container.innerHTML = `
     <div class="us-layout">
       <div class="us-header">
-        <h2 class="us-title">👥 Gestión de Usuarios</h2>
-        <input type="text" id="us-search" placeholder="🔍 Buscar nombre o email..." style="padding:12px 16px; border-radius:12px; border:1px solid var(--glass-border); background:rgba(0,0,0,0.2); color:white; width:300px;">
+        <h2 class="us-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;color:var(--red,#C10801)"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/></svg>
+          Gestión de Usuarios
+        </h2>
+        <input type="text" id="us-search" class="us-search" placeholder="Buscar nombre o email...">
       </div>
       
       <div class="us-table-container">
@@ -102,7 +106,7 @@ async function loadData(container) {
             <div class="us-user-cell">
               <div class="us-avatar">${getInitials(c.name || '?')}</div>
               <div>
-                <div style="font-weight:600;font-size:14px;color:var(--white)">${c.name || 'Sin nombre'}</div>
+                <div style="font-weight:600;font-size:14px;color:var(--color-text)">${c.name || 'Sin nombre'}</div>
                 <div style="font-size:12px;color:var(--color-text-muted);margin-top:4px">${c.email || ''}</div>
               </div>
             </div>
