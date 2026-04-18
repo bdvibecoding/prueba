@@ -83,14 +83,29 @@ export async function init(container) {
   loadFixedStats(container, profile);
   loadBioData(container, profile, getDateMinus(90), todayString());
 
-  container.querySelectorAll('.tab-btn').forEach(btn => {
+  function updateTabIndicator(activeBtn) {
+    const bar = document.getElementById('bio-tab-bar');
+    if (!bar || !activeBtn) return;
+    requestAnimationFrame(() => {
+      const btnRect = activeBtn.getBoundingClientRect();
+      const barRect = bar.getBoundingClientRect();
+      bar.style.setProperty('--indicator-width', btnRect.width + 'px');
+      bar.style.setProperty('--indicator-offset', (btnRect.left - barRect.left) + 'px');
+    });
+  }
+
+  container.querySelectorAll('.tab-btn-underline[data-tab]').forEach(btn => {
     btn.addEventListener('click', () => {
-      container.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      container.querySelectorAll('.tab-btn-underline[data-tab]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      updateTabIndicator(btn);
       container.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
       container.querySelector(`#tab-${btn.dataset.tab}`)?.classList.remove('hidden');
     });
   });
+
+  const activeBioTab = container.querySelector('.tab-btn-underline[data-tab].active');
+  if (activeBioTab) setTimeout(() => updateTabIndicator(activeBioTab), 50);
 
   container.querySelector('#btn-apply-range')?.addEventListener('click', () => {
     const from = container.querySelector('#date-from').value;
