@@ -24,8 +24,15 @@ service cloud.firestore {
     match /users/{userId} {
       // Any authenticated user can read their own document
       allow read: if isAuthenticated() && request.auth.uid == userId;
-      // Admins can read any user document
-      allow read: if isAdmin();
+      // Admins and staff can read any user document
+      allow read: if isAdmin() || isStaff();
+
+      // Users can CREATE their own document on registration — but cannot set role to admin/staff
+      allow create: if isAuthenticated()
+        && request.auth.uid == userId
+        && (!('role' in request.resource.data) || request.resource.data.role in ['cliente', 'atleta']);
+      // Admins can create documents for any user (invite flow, manual creation, any role)
+      allow create: if isAdmin();
 
       // Users can update their own document (profile fields only — not role)
       allow update: if isAuthenticated()
@@ -34,10 +41,6 @@ service cloud.firestore {
 
       // Only admins can update any user document, including the 'role' field
       allow update: if isAdmin();
-
-      // Only admins can create user documents (normal creation happens via Cloud Functions
-      // or the invite flow — adjust if you use client-side registration)
-      allow create: if isAdmin();
 
       // Admins can delete user documents
       allow delete: if isAdmin();
