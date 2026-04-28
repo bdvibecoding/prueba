@@ -151,40 +151,127 @@ body.light-mode .app-icon-label {
 }
 
 /* ── Routine / Content Cards ────────────────── */
+/* ── Routine Card — content-first layout (§11) ── */
 .routine-card {
-  padding: var(--space-md);
-  border-radius: var(--r-md);
-  margin-bottom: var(--space-md);
-  cursor: pointer;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-}
-.routine-card:active { transform: scale(0.99); }
-.routine-card-header {
   display: flex;
   align-items: center;
-  gap: var(--space-md);
-  margin-bottom: var(--space-sm);
-}
-.routine-card-icon {
-  width: 48px; height: 48px;
+  gap: 12px;
+  padding: 14px 16px;
   border-radius: var(--r-md);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  border: 0.5px solid var(--glass-border);
+}
+.routine-card:active { opacity: 0.75; }
+.routine-card-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
   flex-shrink: 0;
-  background: rgba(193,8,1,0.2);
-  border: 1px solid rgba(193,8,1,0.3);
+  background: var(--glass-bg);
+  color: var(--color-text-muted);
+}
+.routine-card-body {
+  flex: 1;
+  min-width: 0;
 }
 .routine-card-title {
-  font-size: var(--fs-md);
-  font-weight: 700;
-  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .routine-card-meta {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* ── Workout Detail Top Bar (§12) ── */
+.workout-topbar {
   display: flex;
-  gap: var(--space-sm);
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 0.5px solid var(--glass-border);
+  background: var(--color-bg);
+  position: sticky;
+  top: calc(-1 * var(--page-pad));
+  z-index: 10;
+  margin: calc(-1 * var(--page-pad)) calc(-1 * var(--page-pad)) 16px;
+}
+.workout-topbar-back {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none; cursor: pointer;
+  color: var(--color-text-muted); flex-shrink: 0;
+  border-radius: 50%; transition: background 0.15s;
+}
+.workout-topbar-back:active { background: var(--glass-bg); }
+.workout-topbar-title {
+  flex: 1;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.workout-topbar-actions {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+.btn-topbar-cancel {
+  background: none; border: none; cursor: pointer;
+  font-size: 13px; font-weight: 500;
+  color: var(--color-text-muted); padding: 6px 10px;
+  border-radius: var(--r-full); font-family: inherit;
+  transition: color 0.15s;
+}
+.btn-topbar-cancel:active { color: var(--color-danger); }
+.btn-topbar-finish {
+  background: #1A1A1A; color: #FFFFFF;
+  border: none; cursor: pointer;
+  font-size: 13px; font-weight: 500;
+  padding: 7px 16px; border-radius: var(--r-full);
+  font-family: inherit; transition: opacity 0.15s;
+  white-space: nowrap;
+}
+body.light-mode .btn-topbar-finish { background: #252525; }
+.btn-topbar-finish:active { opacity: 0.75; }
+/* ── Workout Timestamp Block (replaces timer bar §12.2) ── */
+.workout-timestamp-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  background: var(--glass-bg);
+  border: 0.5px solid var(--glass-border);
+  border-radius: var(--r-md);
+  margin-bottom: 16px;
+}
+.workout-ts-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.workout-ts-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+.workout-ts-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Exercise Accordion ─────────────────────── */

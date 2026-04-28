@@ -7,13 +7,36 @@ import { getUserProfile, getActiveSession, startWorkoutSession, endSession, mark
 import { collections, timestamp, db } from '../firebase-config.js';
 import { toast, formatTime, formatDate, pad, launchConfetti, requestWakeLock, releaseWakeLock } from '../utils.js';
 import { openModal, closeModal, openSheet, closeSheet, confirm, alert, openRPESheet, promptModal } from '../components/modal.js';
-import { buildWorkoutTimerBar, initWorkoutTimerBar, startWorkoutTimer, stopWorkoutTimer, clearRestTimer, getElapsedMs } from '../components/timer.js';
+import { initWorkoutTimerBar, stopWorkoutTimer, clearRestTimer, getElapsedMs } from '../components/timer.js';
 import { renderMuscleMap } from '../components/muscle-map.js';
 import { t } from '../i18n.js';
 
 let activeRoutineId       = null;
 let activeRoutineData     = null;
 let activeAssignmentId    = null;
+let _workoutStartTime     = null; // for timestamp display
+
+// ── Muscle icon helper (§11 content-first card) ─
+function getMuscleIcon(muscle = '') {
+  const m = muscle.toLowerCase();
+  if (m.includes('pecho') || m.includes('chest') || m.includes('pectoral')) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M12 4C9 4 6 6 6 9c0 4 3 6 6 9 3-3 6-5 6-9 0-3-3-5-6-5z"/></svg>`;
+  if (m.includes('espalda') || m.includes('dorsal') || m.includes('back')) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M12 3c0 0-6 4-6 10s6 8 6 8 6-2 6-8-6-10-6-10z"/><line x1="12" y1="3" x2="12" y2="21"/></svg>`;
+  if (m.includes('pierna') || m.includes('cuádric') || m.includes('glút') || m.includes('femoral') || m.includes('leg')) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M10 3h4M10 3c0 4-2 6-2 10l2 8M14 3c0 4 2 6 2 10l-2 8"/></svg>`;
+  if (m.includes('hombro') || m.includes('delt') || m.includes('shoulder')) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M6 8a6 6 0 0 1 12 0"/><path d="M4 12h16M6 8l-2 4M18 8l2 4"/></svg>`;
+  if (m.includes('bícep') || m.includes('trícep') || m.includes('brazo') || m.includes('arm')) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M7 6c0 0 2-2 5-2s5 2 5 2v4c0 3-2 5-5 8-3-3-5-5-5-8V6z"/></svg>`;
+  if (m.includes('abdom') || m.includes('core') || m.includes('lumb')) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><rect x="7" y="4" width="10" height="16" rx="3"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="14" x2="17" y2="14"/></svg>`;
+  // Default: dumbbell
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M6.5 6.5H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h2.5M17.5 6.5H20a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-2.5"/><rect x="6.5" y="4" width="3" height="16" rx="1.5"/><rect x="14.5" y="4" width="3" height="16" rx="1.5"/><line x1="9.5" y1="12" x2="14.5" y2="12"/></svg>`;
+}
+function getPrimaryMuscle(exercises = []) {
+  const freq = {};
+  exercises.forEach(ex => { const m = ex.muscleGroup || ex.m || ''; if (m) freq[m] = (freq[m] || 0) + 1; });
+  return Object.entries(freq).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+}
+function fmtHHMM(ms) {
+  const d = new Date(ms);
+  return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+}
 let historialLoaded   = false;
 let _exDataCache      = null;
 
@@ -148,20 +171,19 @@ async function loadRoutinesList(container) {
 
     listEl.innerHTML = visibleRoutines.map(a => {
       const r = a.routine || {};
+      const exCount = r.exercises?.length || 0;
+      const muscle  = getPrimaryMuscle(r.exercises || []);
+      const icon    = getMuscleIcon(muscle);
+      const dateStr = a.assignedAt ? formatDate(a.assignedAt.toDate?.() || a.assignedAt) : t('today');
       return `
-        <div class="routine-card glass-card glass-shimmer" data-assignment-id="${a.assignmentId}" data-routine-id="${a.routineId || a.id}">
-          <div class="routine-card-header">
-            <div class="routine-card-icon"><img src="logotipo/jus%20W%20Logo/TGWL%20--07.png" alt="W" style="height:36px;width:36px;object-fit:contain"></div>
-            <div>
-              <div class="routine-card-title">${r.name || a.name || 'Rutina'}</div>
-              <div class="text-muted" style="font-size:12px">${r.description || ''}</div>
-            </div>
-            <span class="badge badge-cyan">${r.exercises?.length || 0} ${t('entreno_exercises_count')}</span>
+        <div class="routine-card glass-card" data-assignment-id="${a.assignmentId}" data-routine-id="${a.routineId || a.id}">
+          <div class="routine-card-icon">${icon}</div>
+          <div class="routine-card-body">
+            <div class="routine-card-title">${r.name || a.name || 'Rutina'}</div>
+            <div class="routine-card-meta">${dateStr} · ${exCount} ${t('entreno_exercises_count')}</div>
           </div>
-          <div class="routine-card-meta">
-            ${r.tags?.map(t => `<span class="chip">${t}</span>`).join('') || ''}
-            <span class="chip">${a.assignedAt ? formatDate(a.assignedAt.toDate?.() || a.assignedAt) : t('today')}</span>
-          </div>
+          <span class="badge badge-red" style="flex-shrink:0">${exCount} ej.</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--color-text-muted);flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
         </div>
  `;
     }).join('');
@@ -209,24 +231,49 @@ async function renderRoutineDetail(container, routine) {
   const session   = getActiveSession();
   const isActive  = session?.routineId === routine.id;
 
+  // Format start time for timestamp block
+  const startMs  = session?.startTime || null;
+  const startStr = startMs ? fmtHHMM(startMs) : '--:--';
+
   container.querySelector('#entreno-page').innerHTML = `
     <div style="padding:var(--page-pad)">
-      <div class="page-header">
-        <button class="header-back" id="btn-back-routines">← ${t('entreno_tab_routines')}</button>
-        <h2 class="page-title" style="font-size:20px">${routine.name}</h2>
+
+      <!-- ── Top bar (§12.1) ── -->
+      <div class="workout-topbar">
+        <button class="workout-topbar-back" id="btn-back-routines" title="${t('entreno_tab_routines')}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div class="workout-topbar-title">${routine.name}</div>
+        ${isActive ? `
+        <div class="workout-topbar-actions">
+          <button class="btn-topbar-cancel" id="btn-cancel-top">Cancelar</button>
+          <button class="btn-topbar-finish" id="btn-finish-top">Terminar</button>
+        </div>
+        ` : ''}
       </div>
 
       ${routine.description ? `<p class="text-muted" style="margin-bottom:var(--space-md)">${routine.description}</p>` : ''}
 
-      <!-- Workout Timer Bar -->
-      ${isActive ? buildWorkoutTimerBar(routine.name) : ''}
+      <!-- ── Timestamp block — replaces timer (§12.2) ── -->
+      ${isActive ? `
+      <div class="workout-timestamp-block">
+        <div class="workout-ts-row">
+          <span class="workout-ts-label">Hora inicio</span>
+          <span class="workout-ts-value">${startStr}</span>
+        </div>
+        <div class="workout-ts-row">
+          <span class="workout-ts-label">Hora fin</span>
+          <span class="workout-ts-value" id="workout-end-time">--:--</span>
+        </div>
+      </div>
+      ` : ''}
 
-      <!-- Action buttons -->
+      <!-- Start button (not active) -->
       ${!isActive ? `
         <button class="btn-primary btn-full" id="btn-start-routine" style="margin-bottom:var(--space-md)">
           ${t('entreno_start_btn')}
         </button>
- ` : ''}
+      ` : ''}
 
       <!-- Exercise List -->
       <div class="exercise-list" id="exercise-list">
@@ -239,14 +286,8 @@ async function renderRoutineDetail(container, routine) {
           <div class="empty-title">${t('entreno_no_exercises')}</div>
           <div class="empty-subtitle">${t('entreno_no_exercises_sub')}</div>
         </div>
- ` : ''}
+      ` : ''}
 
-      ${isActive ? `
-      <div style="display:flex;gap:12px;padding:var(--space-lg) 0;margin-top:var(--space-md)">
-        <button id="btn-finish-bottom" class="btn-primary btn-full" style="flex:1">Finalizar entreno</button>
-        <button id="btn-cancel-bottom" class="btn-secondary" style="min-width:80px">Cancelar</button>
-      </div>
- ` : ''}
     </div>
  `;
 
@@ -258,15 +299,10 @@ async function renderRoutineDetail(container, routine) {
   // Start button
   container.querySelector('#btn-start-routine')?.addEventListener('click', () => startRoutine(container, routine));
 
-  // Timer bar controls
+  // Top-bar Terminar / Cancelar
   if (isActive) {
-    initWorkoutTimerBar(container.querySelector('#workout-timer-bar'), {
-      onPause:   () => {},
-      onResume:  () => {},
-      onFinish:  () => finishWorkout(container),
-      onCancel:  () => cancelWorkout(container),
-    });
-    startWorkoutTimer('workout-timer');
+    container.querySelector('#btn-finish-top')?.addEventListener('click', () => finishWorkout(container));
+    container.querySelector('#btn-cancel-top')?.addEventListener('click', () => cancelWorkout(container));
     requestWakeLock();
   }
 
@@ -276,10 +312,6 @@ async function renderRoutineDetail(container, routine) {
   // Auto-open first exercise
   const firstItem = container.querySelector('.exercise-item');
   if (firstItem) firstItem.classList.add('open');
-
-  // Bottom finish/cancel buttons
-  container.querySelector('#btn-finish-bottom')?.addEventListener('click', () => finishWorkout(container));
-  container.querySelector('#btn-cancel-bottom')?.addEventListener('click', () => cancelWorkout(container));
 }
 
 // ── Muscle Group Bars ─────────────────────────
@@ -1409,7 +1441,10 @@ async function startRoutine(container, routine) {
 //  FINISH WORKOUT
 // ══════════════════════════════════════════════
 async function finishWorkout(container) {
-  stopWorkoutTimer();
+  // Show finish time in timestamp block before any modal opens
+  const endDisplay = container.querySelector('#workout-end-time');
+  if (endDisplay) endDisplay.textContent = fmtHHMM(Date.now());
+
   clearRestTimer();
   releaseWakeLock();
 
@@ -1493,7 +1528,6 @@ async function cancelWorkout(container) {
     { okText: t('entreno_cancel_ok'), danger: true }
   );
   if (!ok) return;
-  stopWorkoutTimer();
   clearRestTimer();
   releaseWakeLock();
   endSession();
