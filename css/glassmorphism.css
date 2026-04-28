@@ -1146,7 +1146,7 @@ body.light-mode .toast {
 .modal-close {
   width: 32px; height: 32px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.08);
+  background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   display: flex;
   align-items: center;
@@ -1155,8 +1155,9 @@ body.light-mode .toast {
   cursor: pointer;
   transition: background var(--transition-fast);
   color: var(--color-text);
+  flex-shrink: 0;
 }
-.modal-close:hover { background: rgba(255,255,255,0.15); }
+.modal-close:hover { background: var(--glass-bg-strong); }
 
 /* Sheet (bottom slide) */
 .sheet-overlay {
@@ -1181,7 +1182,7 @@ body.light-mode .toast {
 }
 .sheet-handle {
   width: 40px; height: 4px;
-  background: rgba(255,255,255,0.2);
+  background: var(--glass-bg-strong);
   border-radius: var(--r-full);
   margin: 0 auto var(--space-md);
 }

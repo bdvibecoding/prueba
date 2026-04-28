@@ -984,7 +984,7 @@ function showRestTimer(container, exId, seconds) {
   skipBtn.addEventListener('click', closeRestModal);
 }
 
-// ── Exercise Info Modal ───────────────────────
+// ── Exercise Info — §15 Bottom Sheet with 3 tabs ──
 async function openExerciseInfoModal(exName) {
   const { EXERCISES } = await import('../../data/data.js');
   const exData = EXERCISES.find(e => e.n === exName);
@@ -993,76 +993,124 @@ async function openExerciseInfoModal(exName) {
     return;
   }
 
-  const imgs = exData.localImg || [];
-  const vid  = exData.localVideo;
+  const imgs  = exData.localImg || [];
+  const vid   = exData.localVideo;
   const steps = exData.instructions || [];
+  const title = toSentenceCase(exName);
 
-  const html = `
-    <div class="modal-header">
-      <h3 class="modal-title" style="font-size:14px">${exName}</h3>
-      <button class="modal-close">✕</button>
-    </div>
-
-    ${imgs.length ? `
-    <div style="position:relative;margin-bottom:12px">
-      <div style="overflow:hidden;border-radius:var(--radius-md)">
-        ${imgs.map((src, i) => `<img src="${encodeURI(src)}" alt="Posición ${i+1}" class="ex-info-img" data-imgidx="${i}" style="width:100%;display:${i===0?'block':'none'};max-height:260px;object-fit:cover;border-radius:var(--radius-md)">`).join('')}
+  // ── Tab: Imagen ───────────────────────────────
+  const tabImagen = imgs.length ? `
+    <div>
+      <div style="overflow:hidden;border-radius:var(--r-md)">
+        ${imgs.map((src, i) => `<img
+          src="${encodeURI(src)}"
+          alt="Posición ${i + 1}"
+          class="ex-info-img"
+          data-imgidx="${i}"
+          style="width:100%;display:${i === 0 ? 'block' : 'none'};max-height:300px;object-fit:cover;border-radius:var(--r-md);cursor:${imgs.length > 1 ? 'pointer' : 'default'}">`).join('')}
       </div>
       ${imgs.length > 1 ? `
-      <div style="display:flex;gap:8px;margin-top:10px;justify-content:center">
-        ${imgs.map((_, i) => `<button class="ex-img-nav-btn ${i===0?'active':''}" data-imgidx="${i}" style="padding:6px 18px;border-radius:var(--r-lg);font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--glass-border);background:${i===0?'var(--cyan)':'transparent'};color:${i===0?'#000':'var(--color-text)'}">
-          ${i===0?'Inicio':'Final'}
-        </button>`).join('')}
-      </div>
- ` : ''}
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:14px">
+        ${imgs.map((_, i) => `<span
+          class="ex-img-dot"
+          data-imgidx="${i}"
+          style="width:8px;height:8px;border-radius:50%;cursor:pointer;display:inline-block;
+                 transition:background var(--transition-fast);
+                 background:${i === 0 ? 'var(--color-text)' : 'var(--glass-border)'}">
+        </span>`).join('')}
+      </div>` : ''}
     </div>
- ` : ''}
+  ` : `<div class="empty-state"><div class="empty-title" style="font-size:13px">Sin imágenes disponibles</div></div>`;
 
-    ${vid ? `
-    <div style="margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:6px;letter-spacing:.5px">Vídeo técnica</div>
-      <video controls playsinline style="width:100%;border-radius:var(--radius-md);background:#000;max-height:220px;display:block">
+  // ── Tab: Video ────────────────────────────────
+  const tabVideo = vid ? `
+    <div>
+      <video controls playsinline
+        style="width:100%;border-radius:var(--r-md);background:#000;max-height:260px;display:block">
         <source src="${encodeURI(vid)}" type="video/mp4">
       </video>
     </div>
- ` : ''}
+  ` : `<div class="empty-state"><div class="empty-title" style="font-size:13px">Sin vídeo disponible</div></div>`;
 
-    ${steps.length ? `
-    <button id="ex-info-steps-btn" style="width:100%;padding:10px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:var(--radius-sm);color:#ef4444;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">
-      Ver pasos de ejecución
-    </button>
-    <div id="ex-info-steps" style="display:none;margin-top:8px">
-      ${steps.map((s, i) => `
-        <div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)">
-          <div style="min-width:22px;height:22px;border-radius:50%;background:var(--cyan);color:#000;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">${i+1}</div>
-          <div style="font-size:13px;color:var(--color-text);line-height:1.5">${s}</div>
+  // ── Tab: Pasos ────────────────────────────────
+  const tabPasos = steps.length ? `
+    <div>
+      ${steps.map((step, i) => `
+        <div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--glass-border)">
+          <div style="min-width:24px;height:24px;border-radius:50%;
+                      background:var(--color-primary,#C10801);color:#fff;
+                      font-size:11px;font-weight:700;
+                      display:flex;align-items:center;justify-content:center;
+                      flex-shrink:0;margin-top:1px">${i + 1}</div>
+          <div style="font-size:13px;color:var(--color-text);line-height:1.55">${step}</div>
         </div>`).join('')}
     </div>
- ` : ''}
- `;
+  ` : `<div class="empty-state"><div class="empty-title" style="font-size:13px">Sin instrucciones disponibles</div></div>`;
 
-  openModal(html);
-  const m = document.getElementById('modal-content');
+  // ── Sheet HTML ────────────────────────────────
+  const html = `
+    <div class="modal-header" style="margin-bottom:8px">
+      <h3 style="font-size:18px;font-weight:500;color:var(--color-text);margin:0;flex:1">${title}</h3>
+      <button class="modal-close" id="ex-sheet-close">✕</button>
+    </div>
 
-  // Image nav buttons (Inicio / Final)
-  m.querySelectorAll('.ex-img-nav-btn').forEach(btn => {
+    <!-- §15 underline tab bar — sm variant (16px / 500) -->
+    <div class="tab-bar-underline tab-bar-underline--sm" id="ex-info-tab-bar" style="margin-bottom:16px">
+      <button class="tab-btn-underline active" data-tab="imagen">Imagen</button>
+      <button class="tab-btn-underline" data-tab="video">Video</button>
+      <button class="tab-btn-underline" data-tab="pasos">Pasos</button>
+    </div>
+
+    <div id="ex-info-tab-imagen" class="ex-info-tab-content">${tabImagen}</div>
+    <div id="ex-info-tab-video"  class="ex-info-tab-content" style="display:none">${tabVideo}</div>
+    <div id="ex-info-tab-pasos"  class="ex-info-tab-content" style="display:none">${tabPasos}</div>
+  `;
+
+  openSheet(html);
+  const s = document.getElementById('sheet-content');
+  if (!s) return;
+
+  // Close button
+  s.querySelector('#ex-sheet-close')?.addEventListener('click', () => closeSheet());
+
+  // Tab switching + indicator
+  const tabBtns = s.querySelectorAll('#ex-info-tab-bar .tab-btn-underline');
+  tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      const idx = parseInt(btn.dataset.imgidx);
-      m.querySelectorAll('.ex-info-img').forEach((img, i) => { img.style.display = i === idx ? 'block' : 'none'; });
-      m.querySelectorAll('.ex-img-nav-btn').forEach((b, i) => {
-        b.style.background = i === idx ? 'var(--cyan)' : 'transparent';
-        b.style.color = i === idx ? '#000' : 'var(--color-text)';
-      });
+      tabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      s.querySelectorAll('.ex-info-tab-content').forEach(tc => tc.style.display = 'none');
+      const panel = s.querySelector(`#ex-info-tab-${btn.dataset.tab}`);
+      if (panel) panel.style.display = '';
+      _updateExInfoTabIndicator(s, btn);
     });
   });
+  const firstTab = s.querySelector('.tab-btn-underline.active');
+  if (firstTab) setTimeout(() => _updateExInfoTabIndicator(s, firstTab), 60);
 
-  // Steps toggle
-  m.querySelector('#ex-info-steps-btn')?.addEventListener('click', () => {
-    const el  = m.querySelector('#ex-info-steps');
-    const btn = m.querySelector('#ex-info-steps-btn');
-    const open = el.style.display === 'none';
-    el.style.display = open ? 'block' : 'none';
-    btn.innerHTML = open ? 'Ocultar pasos' : 'Ver pasos de ejecución';
+  // Image dot nav + tap-to-advance
+  const _goDot = (idx) => {
+    s.querySelectorAll('.ex-info-img').forEach((img, i) => { img.style.display = i === idx ? 'block' : 'none'; });
+    s.querySelectorAll('.ex-img-dot').forEach((dot, i) => {
+      dot.style.background = i === idx ? 'var(--color-text)' : 'var(--glass-border)';
+    });
+  };
+  s.querySelectorAll('.ex-img-dot').forEach(dot => {
+    dot.addEventListener('click', () => _goDot(parseInt(dot.dataset.imgidx)));
+  });
+  s.querySelectorAll('.ex-info-img').forEach((img, i) => {
+    img.addEventListener('click', () => { if (imgs.length > 1) _goDot((i + 1) % imgs.length); });
+  });
+}
+
+function _updateExInfoTabIndicator(s, activeBtn) {
+  const bar = s.querySelector('#ex-info-tab-bar');
+  if (!bar || !activeBtn) return;
+  requestAnimationFrame(() => {
+    const btnRect = activeBtn.getBoundingClientRect();
+    const barRect = bar.getBoundingClientRect();
+    bar.style.setProperty('--indicator-width', btnRect.width + 'px');
+    bar.style.setProperty('--indicator-offset', (btnRect.left - barRect.left) + 'px');
   });
 }
 

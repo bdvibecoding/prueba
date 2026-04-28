@@ -170,7 +170,7 @@ export function openRPESheet(currentRPE = null) {
         <h4 style="margin-bottom:4px">¿Cuál fue tu RPE?</h4>
         <p class="text-muted" style="margin-bottom:var(--space-md)">Escala de esfuerzo percibido (1 = muy fácil, 10 = máximo)</p>
         <div class="rpe-scale" style="margin-bottom:var(--space-lg)">${btns}</div>
-        <div id="rpe-label" style="text-align:center;font-size:var(--fs-sm);color:var(--cyan);min-height:20px;margin-bottom:var(--space-md)"></div>
+        <div id="rpe-label" style="text-align:center;font-size:var(--fs-sm);color:var(--color-text-muted);min-height:20px;margin-bottom:var(--space-md)"></div>
         <button class="btn-secondary btn-full" id="rpe-skip">Omitir</button>
       </div>
     `;
