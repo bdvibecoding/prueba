@@ -203,61 +203,56 @@ body.light-mode .app-icon-label {
   border-bottom: 0.5px solid var(--glass-border);
   background: var(--color-bg);
   position: sticky;
-  top: calc(-1 * var(--page-pad));
+  top: 0;               /* stick flush at viewport top — no negative offset */
   z-index: 10;
   margin: calc(-1 * var(--page-pad)) calc(-1 * var(--page-pad)) 16px;
-  /* needed for absolute-positioned title */
-  position: relative;
 }
-/* sticky + relative together — sticky wins at layout level */
-.workout-topbar { position: sticky; }
 .workout-topbar-back {
   width: 36px; height: 36px;
   display: flex; align-items: center; justify-content: center;
   background: none; border: none; cursor: pointer;
   color: var(--color-text-muted); flex-shrink: 0;
   border-radius: 50%; transition: background 0.15s;
-  position: relative; z-index: 1;
 }
 .workout-topbar-back:active { background: var(--glass-bg); }
-/* Title absolutely centered so it's always on the horizontal midpoint
-   regardless of back-button / action-buttons asymmetry */
+/* Title: flex:1 + text-align:center — standard iOS/native pattern */
 .workout-topbar-title {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  flex: 1;
+  text-align: center;
   font-size: 17px;
   font-weight: 500;
   color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 55%;   /* avoids overlapping side buttons on narrow screens */
-  pointer-events: none;
+  min-width: 0;
 }
-.workout-topbar-actions {
-  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
-  margin-left: auto;  /* push to right side */
-  position: relative; z-index: 1;
-}
-.btn-topbar-cancel {
-  background: none; border: none; cursor: pointer;
-  font-size: 13px; font-weight: 500;
-  color: var(--color-text-muted); padding: 6px 10px;
-  border-radius: var(--r-full); font-family: inherit;
-  transition: color 0.15s;
-}
-.btn-topbar-cancel:active { color: var(--color-danger); }
+/* Only Terminar stays in topbar — Cancelar moves to bottom of content */
 .btn-topbar-finish {
   background: #1A1A1A; color: #FFFFFF;
   border: none; cursor: pointer;
   font-size: 13px; font-weight: 500;
   padding: 7px 16px; border-radius: var(--r-full);
   font-family: inherit; transition: opacity 0.15s;
-  white-space: nowrap;
+  white-space: nowrap; flex-shrink: 0;
 }
 body.light-mode .btn-topbar-finish { background: #252525; }
 .btn-topbar-finish:active { opacity: 0.75; }
+/* ── Cancel Workout — bottom of scroll, requires intentional scroll to reach ── */
+.workout-cancel-zone {
+  margin-top: var(--space-xl);
+  padding: var(--space-lg) 0 var(--space-lg);
+  text-align: center;
+  border-top: 0.5px solid var(--glass-border);
+}
+.btn-cancel-workout {
+  background: none; border: none; cursor: pointer;
+  font-size: 14px; font-weight: 400;
+  color: var(--color-text-muted); font-family: inherit;
+  padding: 10px 28px; border-radius: var(--r-md);
+  transition: color 0.15s;
+}
+.btn-cancel-workout:active { color: var(--color-danger); }
 /* ── Start Workout Button (§12.3 ghost, elevation) ── */
 .btn-start-workout {
   width: 100%;

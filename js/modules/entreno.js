@@ -250,12 +250,7 @@ async function renderRoutineDetail(container, routine) {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
         <div class="workout-topbar-title">${routine.name}</div>
-        ${isActive ? `
-        <div class="workout-topbar-actions">
-          <button class="btn-topbar-cancel" id="btn-cancel-top">Cancelar</button>
-          <button class="btn-topbar-finish" id="btn-finish-top">Terminar</button>
-        </div>
-        ` : ''}
+        ${isActive ? `<button class="btn-topbar-finish" id="btn-finish-top">Terminar</button>` : ''}
       </div>
 
       ${routine.description ? `
@@ -298,6 +293,12 @@ async function renderRoutineDetail(container, routine) {
         </div>
       ` : ''}
 
+      ${isActive ? `
+      <div class="workout-cancel-zone">
+        <button class="btn-cancel-workout" id="btn-cancel-bottom">Cancelar entrenamiento</button>
+      </div>
+      ` : ''}
+
     </div>
  `;
 
@@ -312,7 +313,7 @@ async function renderRoutineDetail(container, routine) {
   // Top-bar Terminar / Cancelar
   if (isActive) {
     container.querySelector('#btn-finish-top')?.addEventListener('click', () => finishWorkout(container));
-    container.querySelector('#btn-cancel-top')?.addEventListener('click', () => cancelWorkout(container));
+    container.querySelector('#btn-cancel-bottom')?.addEventListener('click', () => cancelWorkout(container));
     requestWakeLock();
   }
 
