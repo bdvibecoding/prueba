@@ -420,7 +420,7 @@ function buildSetsTable(ex, exIndex, session) {
   // dropsets stored as { [setIdx]: [{reps,weight},...] }
   const dropData      = session?.setData?.[ex.id]?.drops || {};
 
-  // Warm-up rows
+  // §14.1 — Warm-up rows (keep, adjust to new 5-col layout)
   const warmupCount = ex.warmupSets || 0;
   const _repArr     = ex.reps ? String(ex.reps).split('-').map(r => r.trim()).filter(Boolean) : [];
   const _defaultRep = _repArr[0] ?? '';
@@ -429,19 +429,17 @@ function buildSetsTable(ex, exIndex, session) {
     return `
       <tr class="set-row warmup-row" data-exid="${ex.id}" data-warmup="${wi}">
         <td class="set-num" style="color:rgba(251,146,60,.8)">W${wi + 1}</td>
-        <td class="set-prev" style="font-size:10px;color:rgba(251,146,60,.6)">Calentamiento</td>
+        <td>
+          <input type="text" inputmode="decimal" class="set-input warmup-input"
+                 data-exid="${ex.id}" data-warmup="${wi}" data-field="weight"
+                 placeholder="${warmupWeight || '0'}" style="opacity:0.7">
+        </td>
         <td>
           <input type="text" inputmode="numeric" class="set-input warmup-input"
                  data-exid="${ex.id}" data-warmup="${wi}" data-field="reps"
-                 placeholder="${_defaultRep || '—'}"
-                 style="opacity:0.7">
+                 placeholder="${_defaultRep || '—'}" style="opacity:0.7">
         </td>
-        <td>
-          <input type="number" class="set-input warmup-input"
-                 data-exid="${ex.id}" data-warmup="${wi}" data-field="weight"
-                 placeholder="${warmupWeight || '0'}" min="0" max="999" step="0.5"
-                 style="opacity:0.7">
-        </td>
+        <td></td>
         <td>
           <div class="set-actions-cell">
             <button class="set-done-btn warmup-done-btn" data-exid="${ex.id}" data-warmup="${wi}" data-done="false">○</button>
@@ -463,23 +461,22 @@ function buildSetsTable(ex, exIndex, session) {
       ? `${prevSet.reps}r × ${prevSet.weight}kg`
       : '—';
 
-    // Build any existing dropset rows for this set
+    // §14.1 — Dropset rows (keep, new 5-col layout: Set|Kg|Rep|Notas|Check)
     const drops = Array.isArray(dropData[i]) ? dropData[i] : [];
     const dropRows = drops.map((drop, di) => `
       <tr class="dropset-row" data-exid="${ex.id}" data-setidx="${i}" data-dropidx="${di}">
-        <td colspan="2">
-          <span class="dropset-label">${t('entreno_dropset_label')}</span>
+        <td><span class="dropset-label">${t('entreno_dropset_label')}</span></td>
+        <td>
+          <input type="text" inputmode="decimal" class="set-input drop-input"
+                 data-exid="${ex.id}" data-setidx="${i}" data-dropidx="${di}" data-field="weight"
+                 value="${drop.weight ?? ''}" placeholder="0">
         </td>
         <td>
           <input type="text" inputmode="numeric" class="set-input drop-input"
                  data-exid="${ex.id}" data-setidx="${i}" data-dropidx="${di}" data-field="reps"
                  value="${drop.reps ?? ''}" placeholder="—">
         </td>
-        <td>
-          <input type="text" inputmode="decimal" class="set-input drop-input"
-                 data-exid="${ex.id}" data-setidx="${i}" data-dropidx="${di}" data-field="weight"
-                 value="${drop.weight ?? ''}" placeholder="0">
-        </td>
+        <td></td>
         <td>
           <button class="btn-remove-drop" data-exid="${ex.id}" data-setidx="${i}" data-dropidx="${di}"
                   title="${t('entreno_remove_drop')}">✕</button>
@@ -487,17 +484,27 @@ function buildSetsTable(ex, exIndex, session) {
       </tr>
  `).join('');
 
+    // §14.1 — Ghost text: prev session value as placeholder (user never needs to delete)
+    const prevWeight  = prevSet.weight  ? String(prevSet.weight)  : '';
+    const prevReps    = prevSet.reps    ? String(prevSet.reps)    : '';
+    const prevNote    = prevSet.notes   ? String(prevSet.notes)   : '';
+    const kgPlaceholder   = prevWeight  || (ex.weight  ? String(ex.weight)  : '');
+    const repsPlaceholder = prevReps    || defaultRep  || '—';
+
     return `
       <tr class="set-row ${done ? 'completed locked' : ''}" data-exid="${ex.id}" data-setidx="${i}">
         <td class="set-num">${i + 1}</td>
-        <td class="set-prev">${prevLabel}</td>
-        <td>
-          <input type="text" inputmode="numeric" class="set-input" data-exid="${ex.id}" data-setidx="${i}" data-field="reps"
-                 value="${currentReps}" placeholder="${defaultRep || '—'}" ${done ? 'disabled tabindex="-1"' : ''}>
-        </td>
         <td>
           <input type="text" inputmode="decimal" class="set-input" data-exid="${ex.id}" data-setidx="${i}" data-field="weight"
-                 value="${savedWeight}" placeholder="${weightPlaceholder || '0'}" ${done ? 'disabled' : ''}>
+                 value="${savedWeight}" placeholder="${kgPlaceholder || '0'}" ${done ? 'disabled' : ''}>
+        </td>
+        <td>
+          <input type="text" inputmode="numeric" class="set-input" data-exid="${ex.id}" data-setidx="${i}" data-field="reps"
+                 value="${currentReps}" placeholder="${repsPlaceholder}" ${done ? 'disabled tabindex="-1"' : ''}>
+        </td>
+        <td class="td-notes">
+          <input type="text" class="set-input set-notes-input" data-exid="${ex.id}" data-setidx="${i}" data-field="notes"
+                 value="${setDataStore[i]?.notes || ''}" placeholder="${prevNote}" ${done ? 'disabled' : ''}>
         </td>
         <td>
           <div class="set-actions-cell">
@@ -516,13 +523,20 @@ function buildSetsTable(ex, exIndex, session) {
 
   return `
     <table class="sets-table">
+      <colgroup>
+        <col class="col-set">
+        <col class="col-num">
+        <col class="col-num">
+        <col class="col-note">
+        <col class="col-check">
+      </colgroup>
       <thead>
         <tr>
           <th>${t('entreno_set')}</th>
-          <th>${t('entreno_prev')}</th>
-          <th>${t('entreno_reps')}</th>
           <th>Kg</th>
-          <th></th>
+          <th>Rep.</th>
+          <th class="th-notes">Notas</th>
+          <th>✓</th>
         </tr>
       </thead>
       <tbody id="sets-body-${ex.id}">${warmupRows}${rows}</tbody>
@@ -580,14 +594,16 @@ function initExerciseList(container, exercises, sessionActive) {
           actCell.appendChild(dropBtn);
         }
       } else {
-        // Read actual reps/weight from inputs (only non-drop inputs on this row)
+        // Read actual reps/weight/notes from inputs (only non-drop inputs on this row)
         const row         = btn.closest('.set-row');
         const repsInput   = row?.querySelector(`.set-input[data-field="reps"]:not(.drop-input)`);
         const weightInput = row?.querySelector(`.set-input[data-field="weight"]:not(.drop-input)`);
+        const notesInput  = row?.querySelector(`.set-input[data-field="notes"]:not(.drop-input)`);
         if (repsInput?.value)   updateSetData(exId, setIdx, 'reps', repsInput.value);
         // Use typed value OR fall back to placeholder (last known weight)
         const weightVal = weightInput?.value || weightInput?.placeholder || '';
         if (weightVal) updateSetData(exId, setIdx, 'weight', weightVal);
+        if (notesInput?.value)  updateSetData(exId, setIdx, 'notes', notesInput.value);
 
         markSetDone(exId, setIdx);
         btn.classList.add('done');
@@ -640,7 +656,7 @@ function initExerciseList(container, exercises, sessionActive) {
     });
   });
 
-  // Set input changes (normal sets)
+  // Set input changes (kg, reps, notes — all non-drop)
   container.querySelectorAll('.set-input:not(.drop-input)').forEach(input => {
     input.addEventListener('change', () => {
       if (!sessionActive) return;
@@ -752,25 +768,25 @@ function _addDropRow(container, exId, setIdx, exercises) {
   const remaining = Math.max(0, plannedReps - enteredReps);
   const dropReps  = remaining + 4;
 
+  // §14.1 — 5-col layout: Set | Kg | Rep | Notas | Check
   const tr = document.createElement('tr');
   tr.className = 'dropset-row';
   tr.dataset.exid    = exId;
   tr.dataset.setidx  = String(setIdx);
   tr.dataset.dropidx = String(dropIdx);
   tr.innerHTML = `
-    <td colspan="2">
-      <span class="dropset-label">Drop</span>
+    <td><span class="dropset-label">Drop</span></td>
+    <td>
+      <input type="text" inputmode="decimal" class="set-input drop-input"
+             data-exid="${exId}" data-setidx="${setIdx}" data-dropidx="${dropIdx}" data-field="weight"
+             value="${dropWeight || ''}" placeholder="${dropWeight || '0'}">
     </td>
     <td>
       <input type="text" inputmode="numeric" class="set-input drop-input"
              data-exid="${exId}" data-setidx="${setIdx}" data-dropidx="${dropIdx}" data-field="reps"
              value="${dropReps}">
     </td>
-    <td>
-      <input type="text" inputmode="decimal" class="set-input drop-input"
-             data-exid="${exId}" data-setidx="${setIdx}" data-dropidx="${dropIdx}" data-field="weight"
-             value="${dropWeight || ''}" placeholder="${dropWeight || '0'}">
-    </td>
+    <td></td>
     <td>
       <button class="btn-remove-drop" data-exid="${exId}" data-setidx="${setIdx}" data-dropidx="${dropIdx}"
               title="${t('entreno_remove_drop')}">✕</button>

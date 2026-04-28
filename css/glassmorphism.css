@@ -397,27 +397,35 @@ body.light-mode .btn-topbar-finish { background: #252525; }
 }
 .setup-note textarea::placeholder { color: rgba(193,8,1,0.4); }
 
-/* ── Sets Table ──────────────────────────────── */
+/* ── Sets Table — §14.1 new 5-col layout ─────── */
+/* Cols: Set(28) | Kg(52) | Rep.(52) | Notas(auto) | Check(44) */
 .sets-table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: var(--space-sm);
+  table-layout: fixed;
 }
+.sets-table col.col-set   { width: 28px; }
+.sets-table col.col-num   { width: 52px; }
+.sets-table col.col-note  { } /* auto */
+.sets-table col.col-check { width: 44px; }
 .sets-table th {
-  font-size: var(--fs-xs);
-  font-weight: 700;
+  font-size: 10px;
+  font-weight: 600;
   color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 6px 4px;
+  letter-spacing: 0.05em;
+  padding: 4px 4px 8px;
   text-align: center;
 }
+.sets-table th.th-notes { text-align: left; padding-left: 6px; }
 .sets-table td {
-  padding: 6px 4px;
+  padding: 5px 4px;
   text-align: center;
   border-top: 1px solid rgba(255,255,255,0.04);
   vertical-align: middle;
 }
+.sets-table td.td-notes { text-align: left; }
 
 /* ── Set Row ─────────────────────────────────── */
 .set-row { transition: background var(--transition-base), opacity var(--transition-base); }
@@ -529,35 +537,48 @@ body.light-mode .btn-topbar-finish { background: #252525; }
 }
 .btn-remove-drop:hover { background: rgba(239,68,68,0.25); }
 
-/* ── Set Input ───────────────────────────────── */
+/* ── Set Input — §14.1 borderless / underline ── */
 /* Hide number spinners everywhere in the app */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 
 .set-input {
-  width: 52px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--r-sm);
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 0.5px solid var(--color-border, #252525);
+  border-radius: 0;
   color: var(--color-text);
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: 500;
   text-align: center;
-  padding: 6px 4px;
+  padding: 5px 2px;
+  font-family: inherit;
 }
 .set-input:focus {
-  border-color: var(--cyan-dim);
+  border-bottom-color: var(--color-primary, #C10801);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(193,8,1,0.12);
+  box-shadow: none;
 }
+/* Ghost text — previous session value */
+.set-input::placeholder {
+  color: var(--color-text-muted);
+  font-style: normal;
+  font-weight: 400;
+  opacity: 0.6;
+}
+/* Notes cell — left-aligned, wider */
+.set-notes-input {
+  text-align: left;
+  padding-left: 6px;
+}
+/* Drop rows — amber underline */
 .drop-input {
-  background: rgba(245,158,11,0.06);
-  border-color: rgba(245,158,11,0.25);
+  border-bottom-color: rgba(245,158,11,0.4);
 }
 .drop-input:focus {
-  border-color: rgba(245,158,11,0.6);
-  box-shadow: 0 0 0 2px rgba(245,158,11,0.1);
+  border-bottom-color: rgba(245,158,11,0.8);
 }
 
 /* ── Rest Timer Ring ────────────────────────── */
