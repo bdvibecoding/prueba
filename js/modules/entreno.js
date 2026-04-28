@@ -241,17 +241,22 @@ async function renderRoutineDetail(container, routine) {
   const startMs  = session?.startTime || null;
   const startStr = startMs ? fmtHHMM(startMs) : '--:--';
 
-  container.querySelector('#entreno-page').innerHTML = `
-    <div style="padding:var(--page-pad)">
+  // Flex-column layout: topbar fixed at top, only scroll area scrolls
+  const page = container.querySelector('#entreno-page');
+  page.classList.add('workout-detail-layout');
+  page.innerHTML = `
 
-      <!-- ── Top bar (§12.1) ── -->
-      <div class="workout-topbar">
-        <button class="workout-topbar-back" id="btn-back-routines" title="${t('entreno_tab_routines')}">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <div class="workout-topbar-title">${routine.name}</div>
-        ${isActive ? `<button class="btn-topbar-finish" id="btn-finish-top">Terminar</button>` : ''}
-      </div>
+    <!-- ── Top bar (§12.1) — always visible, never scrolls ── -->
+    <div class="workout-topbar">
+      <button class="workout-topbar-back" id="btn-back-routines" title="${t('entreno_tab_routines')}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="workout-topbar-title">${routine.name}</div>
+      ${isActive ? `<button class="btn-topbar-finish" id="btn-finish-top">Terminar</button>` : ''}
+    </div>
+
+    <!-- ── Scrollable content area ── -->
+    <div class="workout-scroll-area">
 
       ${routine.description ? `
         <p class="text-muted"
