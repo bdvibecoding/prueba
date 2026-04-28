@@ -206,28 +206,39 @@ body.light-mode .app-icon-label {
   top: calc(-1 * var(--page-pad));
   z-index: 10;
   margin: calc(-1 * var(--page-pad)) calc(-1 * var(--page-pad)) 16px;
+  /* needed for absolute-positioned title */
+  position: relative;
 }
+/* sticky + relative together — sticky wins at layout level */
+.workout-topbar { position: sticky; }
 .workout-topbar-back {
   width: 36px; height: 36px;
   display: flex; align-items: center; justify-content: center;
   background: none; border: none; cursor: pointer;
   color: var(--color-text-muted); flex-shrink: 0;
   border-radius: 50%; transition: background 0.15s;
+  position: relative; z-index: 1;
 }
 .workout-topbar-back:active { background: var(--glass-bg); }
+/* Title absolutely centered so it's always on the horizontal midpoint
+   regardless of back-button / action-buttons asymmetry */
 .workout-topbar-title {
-  flex: 1;
-  text-align: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 17px;
   font-weight: 500;
   color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: 0;
+  max-width: 55%;   /* avoids overlapping side buttons on narrow screens */
+  pointer-events: none;
 }
 .workout-topbar-actions {
   display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+  margin-left: auto;  /* push to right side */
+  position: relative; z-index: 1;
 }
 .btn-topbar-cancel {
   background: none; border: none; cursor: pointer;
@@ -247,6 +258,29 @@ body.light-mode .app-icon-label {
 }
 body.light-mode .btn-topbar-finish { background: #252525; }
 .btn-topbar-finish:active { opacity: 0.75; }
+/* ── Start Workout Button (§12.3 ghost, elevation) ── */
+.btn-start-workout {
+  width: 100%;
+  padding: 15px 20px;
+  background: #1A1A1A;          /* Dark gray 1 — one step above #111111 bg */
+  border: 0.5px solid #252525;  /* Dark gray 2 — standard dark border token */
+  color: #C10801;
+  font-size: 15px;
+  font-weight: 400;
+  font-family: inherit;
+  text-align: left;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  margin-bottom: var(--space-md);
+  display: block;
+}
+body.light-mode .btn-start-workout,
+[data-theme="light"] .btn-start-workout {
+  background: #FFFFFF;
+  border-color: #E0E0E0;
+}
+.btn-start-workout:active { opacity: 0.75; }
+
 /* ── Workout Timestamp Block (replaces timer bar §12.2) ── */
 .workout-timestamp-block {
   display: flex;

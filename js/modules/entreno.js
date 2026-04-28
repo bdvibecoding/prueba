@@ -258,7 +258,11 @@ async function renderRoutineDetail(container, routine) {
         ` : ''}
       </div>
 
-      ${routine.description ? `<p class="text-muted" style="margin-bottom:var(--space-md)">${routine.description}</p>` : ''}
+      ${routine.description ? `
+        <p class="text-muted"
+           style="text-align:center;margin-bottom:var(--space-md);line-height:1.5;padding:0 var(--space-md)">
+          ${routine.description}
+        </p>` : ''}
 
       <!-- ── Timestamp block — replaces timer (§12.2) ── -->
       ${isActive ? `
@@ -274,9 +278,9 @@ async function renderRoutineDetail(container, routine) {
       </div>
       ` : ''}
 
-      <!-- §12.3 Start button — ghost style, text right-aligned, no solid fill -->
+      <!-- §12.3 Start button — elevated card dark/light aware, left-aligned red text -->
       ${!isActive ? `
-        <button id="btn-start-routine" style="width:100%;padding:14px 20px 14px 16px;background:#FFFFFF;border:0.5px solid #E0E0E0;color:#C10801;font-size:15px;font-weight:400;font-family:inherit;text-align:right;border-radius:var(--r-md);cursor:pointer;margin-bottom:var(--space-md)">
+        <button id="btn-start-routine" class="btn-start-workout">
           ${t('entreno_start_btn')}
         </button>
       ` : ''}
