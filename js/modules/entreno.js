@@ -37,6 +37,12 @@ function fmtHHMM(ms) {
   const d = new Date(ms);
   return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 }
+// §13: sentence case (only first letter capitalised)
+function toSentenceCase(str = '') {
+  if (!str) return str;
+  const s = str.toLowerCase();
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
 let historialLoaded   = false;
 let _exDataCache      = null;
 
@@ -268,9 +274,9 @@ async function renderRoutineDetail(container, routine) {
       </div>
       ` : ''}
 
-      <!-- Start button (not active) -->
+      <!-- §12.3 Start button — ghost style, text right-aligned, no solid fill -->
       ${!isActive ? `
-        <button class="btn-primary btn-full" id="btn-start-routine" style="margin-bottom:var(--space-md)">
+        <button id="btn-start-routine" style="width:100%;padding:14px 20px 14px 16px;background:#FFFFFF;border:0.5px solid #E0E0E0;color:#C10801;font-size:15px;font-weight:400;font-family:inherit;text-align:right;border-radius:var(--r-md);cursor:pointer;margin-bottom:var(--space-md)">
           ${t('entreno_start_btn')}
         </button>
       ` : ''}
@@ -349,40 +355,37 @@ function buildExerciseCard(ex, index, sessionActive, session, exDataCache) {
   const completedSets = session?.completedSets?.[ex.id] || [];
   const allDone = completedSets.length >= (ex.sets || 3);
 
+  // §13 image: rectangular rounded (40×40, r-md) — no circular
   const exPhoto = exDataCache?.[ex.name]?.localImg?.[0];
   const numOrPhoto = exPhoto
-    ? `<div class="exercise-num-img"><img src="${encodeURI(exPhoto)}" alt="${ex.name}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid var(--glass-border)"></div>`
+    ? `<div class="exercise-num-img"><img src="${encodeURI(exPhoto)}" alt="${ex.name}" style="width:40px;height:40px;border-radius:var(--r-md);object-fit:cover;flex-shrink:0"></div>`
     : `<div class="exercise-num">${index + 1}</div>`;
+
+  // §13 series format: "3 Series · 10 Repeticiones"
+  const setsStr  = ex.sets || 3;
+  const repsStr  = ex.reps ? ` · ${ex.reps} Repeticiones` : '';
+
+  // §13 three-dot overflow indicator
+  const dotsSVG = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>`;
 
   return `
     <div class="exercise-item ${allDone ? 'ex-all-done' : ''}" data-ex-id="${ex.id}" data-ex-index="${index}">
       <div class="exercise-header">
         ${numOrPhoto}
         <div style="flex:1;min-width:0">
-          <div class="exercise-name">${ex.name}</div>
-          <div class="exercise-sets">${ex.sets || 3} × ${ex.reps || '—'}${ex.weight ? ' · ' + ex.weight + 'kg' : ''}</div>
+          <div class="exercise-name">${toSentenceCase(ex.name)}</div>
+          <div class="exercise-sets">${setsStr} Series${repsStr}</div>
         </div>
         ${allDone ? '<span class="ex-done-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="20 6 9 17 4 12"/></svg></span>' : ''}
-        <span class="exercise-chevron">▼</span>
+        <span class="exercise-chevron">${dotsSVG}</span>
       </div>
 
       <div class="exercise-body">
 
-        <!-- Muscle activation bars -->
-        ${buildMuscleBars(ex)}
-
-        <!-- Action row -->
-        <div class="ex-action-row">
-          <button class="video-btn" data-action="info" data-exid="${ex.id}" data-exname="${(ex.name||ex.id).replace(/"/g,'&quot;')}" data-exindex="${index}" title="Ver técnica">
-            ${t('entreno_watch_exercise')}
-          </button>
-          <button class="ex-icon-btn" data-action="swap" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_swap_exercise')}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10"/><path d="M3.51 15a9 9 0 0 0 14.85 3.36L23 14"/></svg></button>
-          <button class="ex-icon-btn" data-action="notes" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_notes')}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-          <button class="ex-icon-btn" data-action="history" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_history')}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>
-        </div>
+        <!-- §14: muscle bars REMOVED — redundant with card icon -->
 
         <!-- Rest config -->
-        <div style="display:flex;align-items:center;gap:8px;margin:6px 0 4px;opacity:.7">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:var(--space-sm);opacity:.7">
           <span style="font-size:11px;color:var(--color-text-muted)">Descanso:</span>
           <input type="number" class="rest-secs-input" data-exid="${ex.id}"
                  value="${ex.restSeconds || 60}" min="10" max="600" step="5"
@@ -392,6 +395,18 @@ function buildExerciseCard(ex, index, sessionActive, session, exDataCache) {
 
         <!-- Sets Table -->
         ${buildSetsTable(ex, index, session)}
+
+        <!-- §14 split action bar — bottom of expandable -->
+        <div class="ex-action-row">
+          <button class="video-btn" data-action="info" data-exid="${ex.id}" data-exname="${(ex.name||ex.id).replace(/"/g,'&quot;')}" data-exindex="${index}" title="Ver técnica">
+            ${t('entreno_watch_exercise')}
+          </button>
+          <div style="flex:1;min-width:0"></div>
+          <button class="ex-icon-btn" data-action="swap" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_swap_exercise')}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10"/><path d="M3.51 15a9 9 0 0 0 14.85 3.36L23 14"/></svg></button>
+          <button class="ex-icon-btn" data-action="notes" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_notes')}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="ex-icon-btn" data-action="history" data-exid="${ex.id}" data-exindex="${index}" title="${t('entreno_history')}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>
+        </div>
+
       </div>
     </div>
  `;
@@ -1424,14 +1439,9 @@ async function openSessionDetail(sessionId, session) {
 // ══════════════════════════════════════════════
 //  START WORKOUT
 // ══════════════════════════════════════════════
+// §12.3: no confirmation dialog — workout starts directly on tap.
+// Accidental-tap protection lives on "Terminar" (destructive action), not on "Iniciar".
 async function startRoutine(container, routine) {
-  const ok = await confirm(
-    t('entreno_start_btn'),
-    t('entreno_start_confirm').replace('{name}', routine.name),
-    { okText: t('entreno_start_ok'), cancelText: t('cancel') }
-  );
-  if (!ok) return;
-
   startWorkoutSession(routine.id, routine.name, routine.exercises || []);
   toast(t('entreno_started').replace('{name}', routine.name), 'success');
   renderRoutineDetail(container, routine);
