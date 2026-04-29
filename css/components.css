@@ -178,7 +178,7 @@ body.light-mode .chip:hover {
 .settings-group {
   border-radius: var(--r-lg);
   overflow: hidden;
-  background: var(--glass-bg);
+  background: var(--color-bg-card);
   border: 1px solid var(--glass-border);
   margin-bottom: var(--space-md);
 }
@@ -187,12 +187,12 @@ body.light-mode .chip:hover {
   align-items: center;
   padding: var(--space-md);
   gap: var(--space-md);
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  border-bottom: 1px solid var(--glass-border);
   transition: background var(--transition-fast);
   cursor: pointer;
 }
 .settings-item:last-child { border-bottom: none; }
-.settings-item:hover { background: var(--glass-bg-strong); }
+.settings-item:hover { background: var(--glass-bg); }
 .settings-item-icon {
   width: 36px; height: 36px;
   border-radius: var(--r-sm);
@@ -201,6 +201,7 @@ body.light-mode .chip:hover {
   justify-content: center;
   font-size: 18px;
   flex-shrink: 0;
+  color: var(--color-text);
 }
 .settings-item-info { flex: 1; }
 .settings-item-label { font-size: var(--fs-base); font-weight: 600; }

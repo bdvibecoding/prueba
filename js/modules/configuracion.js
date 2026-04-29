@@ -24,7 +24,9 @@ export async function render(container) {
         <div class="section-title">${t('appearance')}</div>
         <div class="settings-group">
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(107,114,128,0.2)"></div>
+            <div class="settings-item-icon" style="background:rgba(107,114,128,0.18)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('dark_mode')}</div>
               <div class="settings-item-desc">${t('dark_mode_desc')}</div>
@@ -35,7 +37,9 @@ export async function render(container) {
             </label>
           </div>
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(25,249,249,0.15)"></div>
+            <div class="settings-item-icon" style="background:rgba(25,199,199,0.15)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('muscle_map')}</div>
               <div class="settings-item-desc">${t('muscle_map_desc')}</div>
@@ -51,7 +55,9 @@ export async function render(container) {
         <div class="section-title">${t('language')}</div>
         <div class="settings-group">
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(59,130,246,0.2)"></div>
+            <div class="settings-item-icon" style="background:rgba(59,130,246,0.18)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('language_app')}</div>
             </div>
@@ -68,7 +74,9 @@ export async function render(container) {
         <div class="section-title">${t('notifications')}</div>
         <div class="settings-group">
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(245,158,11,0.2)"></div>
+            <div class="settings-item-icon" style="background:rgba(245,158,11,0.18)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            </div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('push_notif')}</div>
               <div class="settings-item-desc">${t('push_notif_desc')}</div>
@@ -79,7 +87,9 @@ export async function render(container) {
             </label>
           </div>
           <div class="settings-item" id="notification-status-row" ${settings.notifications !== false ? '' : 'style="opacity:0.5"'}>
-            <div class="settings-item-icon" style="background:rgba(34,197,94,0.15)"></div>
+            <div class="settings-item-icon" style="background:rgba(34,197,94,0.15)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('notif_status')}</div>
               <div class="settings-item-desc" id="notif-permission-desc">${t('notif_checking')}</div>
@@ -92,7 +102,9 @@ export async function render(container) {
         <div class="section-title">${t('screen')}</div>
         <div class="settings-group">
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(168,85,247,0.2)"></div>
+            <div class="settings-item-icon" style="background:rgba(168,85,247,0.18)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('keep_awake')}</div>
               <div class="settings-item-desc">${t('keep_awake_desc')}</div>
@@ -108,7 +120,9 @@ export async function render(container) {
         <div class="section-title">${t('app')}</div>
         <div class="settings-group">
           <div class="settings-item" id="btn-install-pwa" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(148,10,10,0.2)"></div>
+            <div class="settings-item-icon" style="background:rgba(193,8,1,0.15)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('install')}</div>
               <div class="settings-item-desc">${t('install_desc')}</div>
@@ -116,7 +130,9 @@ export async function render(container) {
             <div class="settings-item-right">›</div>
           </div>
           <div class="settings-item" id="btn-clear-cache" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(107,114,128,0.15)"></div>
+            <div class="settings-item-icon" style="background:rgba(107,114,128,0.18)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+            </div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('clear_cache')}</div>
               <div class="settings-item-desc">${t('clear_cache_desc')}</div>
@@ -129,21 +145,27 @@ export async function render(container) {
         <div class="section-title">${t('about')}</div>
         <div class="settings-group">
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(148,10,10,0.2)"></div>
+            <div class="settings-item-icon" style="background:rgba(107,114,128,0.18)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('version')}</div>
             </div>
             <div class="settings-item-right" style="font-size:13px;color:var(--color-text-muted)">1.0.0</div>
           </div>
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(193,8,1,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <div class="settings-item-icon" style="background:rgba(193,8,1,0.12)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('privacy')}</div>
             </div>
             <div class="settings-item-right">›</div>
           </div>
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(107,114,128,0.15)"></div>
+            <div class="settings-item-icon" style="background:rgba(107,114,128,0.18)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            </div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('terms')}</div>
             </div>
