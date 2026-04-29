@@ -406,7 +406,7 @@ ul, ol { list-style: none; }
   border: 1px solid var(--glass-border);
   border-radius: var(--r-sm);
   color: var(--color-text);
-  font-size: var(--fs-base);
+  font-size: 16px; /* 16px = iOS minimum to prevent auto-zoom on focus */
   transition: border-color var(--transition-fast), background var(--transition-fast);
   -webkit-backdrop-filter: blur(var(--glass-blur-sm));
   backdrop-filter: blur(var(--glass-blur-sm));
@@ -426,7 +426,7 @@ ul, ol { list-style: none; }
   border: 1px solid var(--glass-border);
   border-radius: var(--r-sm);
   color: var(--color-text);
-  font-size: var(--fs-base);
+  font-size: 16px; /* 16px = iOS minimum to prevent auto-zoom on focus */
   transition: border-color var(--transition-fast);
   -webkit-backdrop-filter: blur(var(--glass-blur-sm));
   backdrop-filter: blur(var(--glass-blur-sm));
