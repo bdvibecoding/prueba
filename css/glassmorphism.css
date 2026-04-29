@@ -478,7 +478,7 @@ body.light-mode .btn-start-workout,
 .sets-table td {
   padding: 5px 4px;
   text-align: center;
-  border-top: 1px solid rgba(255,255,255,0.04);
+  border-top: 1px solid var(--glass-border);
   vertical-align: middle;
 }
 .sets-table td.td-notes { text-align: left; }
@@ -655,7 +655,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 }
 .timer-ring-bg {
   fill: none;
-  stroke: rgba(255,255,255,0.08);
+  stroke: var(--glass-border);
   stroke-width: 6;
 }
 .timer-ring-fill {
@@ -714,6 +714,8 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   pointer-events: auto;
   position: relative;
   z-index: 100000;
+  background: var(--color-bg-card);
+  border: 1px solid var(--glass-border);
 }
 .rest-timer-modal-title {
   font-size: var(--fs-sm);
@@ -962,7 +964,7 @@ body.light-mode .muscle-group {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-md);
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  border-bottom: 1px solid var(--glass-border);
 }
 .bio-row:last-child { border-bottom: none; }
 .bio-label { font-size: var(--fs-sm); color: var(--color-text-muted); }
@@ -1190,6 +1192,7 @@ body.light-mode .toast {
   max-height: 85dvh;
   overflow-y: auto;
   padding: var(--space-lg);
+  background: var(--color-bg-card);   /* solid surface — overrides glass-card transparency */
   animation: slideUp 0.3s var(--transition-spring);
 }
 .modal-header {
@@ -1234,6 +1237,7 @@ body.light-mode .toast {
   padding: var(--space-md) var(--space-md) calc(var(--space-md) + var(--safe-bottom));
   max-height: 92dvh;
   overflow-y: auto;
+  background: var(--color-bg-card);   /* solid surface — overrides glass-card transparency */
   animation: slideUp 0.35s var(--transition-spring);
 }
 .sheet-handle {

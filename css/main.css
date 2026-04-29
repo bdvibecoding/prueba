@@ -435,7 +435,8 @@ ul, ol { list-style: none; }
   border-color: rgba(193,8,1,0.4);
   box-shadow: 0 0 0 3px rgba(193,8,1,0.1);
 }
-select.input-solo { color-scheme: dark; }
+select.input-solo { color-scheme: light dark; }
+body.light-mode select.input-solo { color-scheme: light; }
 select option, select optgroup {
   background: #1A1A1A;
   color: #F0F0F0;
