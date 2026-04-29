@@ -773,36 +773,99 @@ body.light-mode .workout-timer-display {
   color: var(--color-text-muted);
 }
 
-/* ── Muscle Map Container ───────────────────── */
-.muscle-map-wrap {
+/* ── Muscle Heatmap — PNG-based layer system ─── */
+.muscle-heatmap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0 var(--space-md);
+}
+/* Canvas: base body + mask layers stacked */
+.muscle-heatmap-canvas {
+  position: relative;
+  width: 160px;
+  flex-shrink: 0;
+}
+.muscle-heatmap-base {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+/* Each activated muscle is an absolutely-positioned div
+   masked by its PNG, filled with a brand-red tint */
+.muscle-heatmap-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  pointer-events: none;
+}
+.muscle-heatmap-layer.intensity-low  { background: rgba(193,8,1,0.40); }
+.muscle-heatmap-layer.intensity-mid  { background: rgba(193,8,1,0.68); }
+.muscle-heatmap-layer.intensity-high {
+  background: rgba(193,8,1,0.92);
+  filter: drop-shadow(0 0 6px rgba(193,8,1,0.55));
+}
+/* Muscle name chips */
+.muscle-heatmap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+  max-width: 300px;
+}
+.muscle-heatmap-chip {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  border: 1px solid;
+  font-family: inherit;
+}
+.muscle-heatmap-chip.intensity-low {
+  color: rgba(193,8,1,0.65);
+  border-color: rgba(193,8,1,0.25);
+  background: rgba(193,8,1,0.06);
+}
+.muscle-heatmap-chip.intensity-mid {
+  color: rgba(193,8,1,0.85);
+  border-color: rgba(193,8,1,0.40);
+  background: rgba(193,8,1,0.09);
+}
+.muscle-heatmap-chip.intensity-high {
+  color: var(--color-primary);
+  border-color: rgba(193,8,1,0.60);
+  background: rgba(193,8,1,0.13);
+  font-weight: 700;
+}
+/* Intensity scale legend */
+.muscle-heatmap-scale {
   display: flex;
   gap: var(--space-md);
-  justify-content: center;
-  padding: var(--space-md);
+  align-items: center;
 }
-.muscle-map-side { flex: 1; text-align: center; max-width: 160px; }
-.muscle-map-side h5 {
-  font-size: var(--fs-xs);
+.muscle-heatmap-scale-item {
+  font-size: 10px;
   color: var(--color-text-muted);
-  margin-bottom: var(--space-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: inherit;
 }
-.muscle-map-svg { width: 100%; }
-.muscle-group {
-  fill: rgba(255,255,255,0.06);
-  stroke: rgba(255,255,255,0.15);
-  stroke-width: 0.5;
-  transition: fill 0.4s ease;
-  cursor: pointer;
+.muscle-heatmap-scale-item::before {
+  content: '';
+  width: 10px; height: 10px;
+  border-radius: 3px;
+  display: inline-block;
 }
-body.light-mode .muscle-group {
-  fill: rgba(0,0,0,0.06);
-  stroke: rgba(0,0,0,0.18);
-}
-.muscle-group.active-low  { fill: rgba(245,158,11,0.45); stroke: rgba(245,158,11,0.6); }
-.muscle-group.active-mid  { fill: rgba(239,68,68,0.5);   stroke: rgba(239,68,68,0.7); }
-.muscle-group.active-high { fill: rgba(193,8,1,0.7);   stroke: rgba(200,20,20,0.9); filter: drop-shadow(0 0 4px rgba(193,8,1,0.5)); }
+.muscle-heatmap-scale-item.intensity-low::before  { background: rgba(193,8,1,0.40); }
+.muscle-heatmap-scale-item.intensity-mid::before  { background: rgba(193,8,1,0.68); }
+.muscle-heatmap-scale-item.intensity-high::before { background: rgba(193,8,1,0.92); }
 
 /* ── Before/After Slider ────────────────────── */
 .ba-slider-wrap {

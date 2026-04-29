@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════
    TGWL Service Worker — PWA offline support
 ═══════════════════════════════════════════════ */
-const CACHE_NAME = 'tgwl-v1.63';
-const STATIC_CACHE = 'tgwl-static-v34.0';
-const DYNAMIC_CACHE = 'tgwl-dynamic-v34.0';
+const CACHE_NAME = 'tgwl-v1.64';
+const STATIC_CACHE = 'tgwl-static-v35.0';
+const DYNAMIC_CACHE = 'tgwl-dynamic-v35.0';
 
 const STATIC_ASSETS = [
   '/',
@@ -46,6 +46,7 @@ const STATIC_ASSETS = [
   '/admin/js/panels/fisio.js',
   '/admin/js/panels/psych.js',
   '/data/data.js',
+  '/mapa%20muscular/baseImage_transparent.png',
   '/assets/fonts/SF-Pro-Display/SFPRODISPLAYREGULAR.OTF',
   '/assets/fonts/SF-Pro-Display/SFPRODISPLAYMEDIUM.OTF',
   '/assets/fonts/SF-Pro-Display/SFPRODISPLAYBOLD.OTF',
