@@ -118,6 +118,50 @@ export function persistSettings() {
 // Auto-persist when settings change
 appState.on('settings', () => persistSettings());
 
+// ── Persist active workout session to localStorage ─────────
+const SESSION_KEY = 'tgwl_active_session';
+
+export function loadPersistedSession() {
+  try {
+    const saved = localStorage.getItem(SESSION_KEY);
+    if (!saved) return;
+    const parsed = JSON.parse(saved);
+    if (!parsed?.routineId) return;
+
+    const now = Date.now();
+    let restored = { ...parsed };
+
+    if (parsed.isPaused && parsed.pauseTime) {
+      // Was paused when browser closed — keep paused, pauseTime stays valid
+      // (getElapsedMs will account for it correctly)
+    } else {
+      // Was running when browser closed — add time-away as pause offset so
+      // elapsed workout time stays accurate (doesn't count browser-closed time)
+      const savedAt  = parsed._savedAt || now;
+      const timeAway = Math.max(0, now - savedAt);
+      restored.totalPauseMs = (parsed.totalPauseMs || 0) + timeAway;
+      restored.isPaused  = false;
+      restored.pauseTime = null;
+    }
+    delete restored._savedAt;
+    appState.set('activeSession', restored);
+  } catch (e) { /* ignore */ }
+}
+
+function _persistSession(session) {
+  try {
+    if (session?.routineId) {
+      // Store _savedAt so we can compute time-away on restore
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ ...session, _savedAt: Date.now() }));
+    } else {
+      localStorage.removeItem(SESSION_KEY);
+    }
+  } catch (e) { /* ignore */ }
+}
+
+// Auto-persist whenever activeSession changes
+appState.on('activeSession', session => _persistSession(session));
+
 // ── Helpers ───────────────────────────────────
 export const getUser = () => appState.get('user');
 export const getUserProfile = () => appState.get('userProfile');

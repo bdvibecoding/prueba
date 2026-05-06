@@ -4,7 +4,7 @@
 ═══════════════════════════════════════════════ */
 
 import { initAuthListener, initAuthForms } from './auth.js';
-import { loadPersistedSettings, appState } from './state.js';
+import { loadPersistedSettings, loadPersistedSession, appState } from './state.js';
 import { initI18n, setLang, applyTranslations } from './i18n.js';
 
 // ══════════════════════════════════════════════
@@ -13,6 +13,7 @@ import { initI18n, setLang, applyTranslations } from './i18n.js';
 async function bootstrap() {
   // 1. Load persisted settings (dark mode, language, etc.)
   loadPersistedSettings();
+  loadPersistedSession();   // Restore active workout session if any
   applySettings();
   // Init i18n with saved language
   const savedLang = appState.get('settings')?.language || 'es';
