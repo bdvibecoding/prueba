@@ -82,6 +82,7 @@ exports.seedLuisMosquera = onRequest(
         const doc = {
           ...routine,
           createdBy: 'seed-script',
+          createdAt:  admin.firestore.FieldValue.serverTimestamp(),
           updatedAt:  admin.firestore.FieldValue.serverTimestamp(),
         };
         const ref = await db.collection('routines').add(doc);
