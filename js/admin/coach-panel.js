@@ -414,10 +414,37 @@ async function openEditRoutineModal(routineId, profile, container) {
   let _cpSelEx = null;
   const cpSearch = modal.querySelector('#cp-ex-search');
   const cpResults = modal.querySelector('#cp-ex-results');
+  // Smart search — accent-insensitive + EN→ES
+  const _cpNorm = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const _CP_EN_ES = [
+    ['squat','sentadilla'],['deadlift','peso muerto'],['bench','banca'],
+    ['row','remo'],['pulldown','jalon'],['press','press'],['curl','curl'],
+    ['lunge','zancada'],['plank','plancha'],['pushup','flexion'],['push up','flexion'],
+    ['pullup','dominada'],['pull up','dominada'],['chinup','dominada'],['chin up','dominada'],
+    ['dip','fondos'],['crunch','abdominal'],['situp','abdominal'],['sit up','abdominal'],
+    ['extension','extension'],['fly','aperturas'],['flye','aperturas'],
+    ['lateral','lateral'],['front','frontal'],['rear','posterior'],
+    ['hip thrust','hip thrust'],['glute','gluteo'],['hamstring','isquiotibial'],
+    ['calf','gemelo'],['tricep','triceps'],['bicep','biceps'],['shoulder','hombro'],
+    ['chest','pecho'],['back','espalda'],['leg','pierna'],['arm','brazo'],
+    ['cable','polea'],['machine','maquina'],['barbell','barra'],['dumbbell','mancuerna'],
+    ['kettlebell','pesa rusa'],['band','banda'],['rope','cuerda'],
+    ['incline','inclinado'],['decline','declinado'],['overhead','sobre cabeza'],
+    ['romanian','rumano'],['sumo','sumo'],['hack','hack'],
+  ];
+  const _cpExMatch = (ex, q) => {
+    const en = _cpNorm(ex.n), em = _cpNorm(ex.m);
+    if (en.includes(q) || em.includes(q)) return true;
+    for (const [eng, esp] of _CP_EN_ES) {
+      const espN = _cpNorm(esp);
+      if ((q.includes(eng) || eng.startsWith(q) || eng.includes(q)) && (en.includes(espN) || em.includes(espN))) return true;
+    }
+    return false;
+  };
   cpSearch?.addEventListener('input', () => {
-    const q = cpSearch.value.toLowerCase().trim();
+    const q = _cpNorm(cpSearch.value.trim());
     if (!q) { cpResults.style.display = 'none'; return; }
-    const hits = EXERCISES.filter(e => e.n.toLowerCase().includes(q) || e.m.toLowerCase().includes(q)).slice(0, 20);
+    const hits = EXERCISES.filter(e => _cpExMatch(e, q)).slice(0, 20);
     if (!hits.length) { cpResults.style.display = 'none'; return; }
     cpResults.innerHTML = hits.map(e => `
       <div data-ex="${e.n}" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--glass-border);display:flex;justify-content:space-between;align-items:center" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">

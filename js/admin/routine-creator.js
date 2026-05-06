@@ -185,13 +185,37 @@ function openExercisePicker(creatorSc) {
   let currentMuscle = 'all';
   let currentSearch = '';
 
+  // Smart search — accent-insensitive + EN→ES
+  const _rcNorm = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const _RC_EN_ES = [
+    ['squat','sentadilla'],['deadlift','peso muerto'],['bench','banca'],
+    ['row','remo'],['pulldown','jalon'],['press','press'],['curl','curl'],
+    ['lunge','zancada'],['plank','plancha'],['pushup','flexion'],['push up','flexion'],
+    ['pullup','dominada'],['pull up','dominada'],['dip','fondos'],['crunch','abdominal'],
+    ['extension','extension'],['fly','aperturas'],['flye','aperturas'],
+    ['lateral','lateral'],['front','frontal'],['rear','posterior'],
+    ['hip thrust','hip thrust'],['glute','gluteo'],['hamstring','isquiotibial'],
+    ['calf','gemelo'],['tricep','triceps'],['bicep','biceps'],['shoulder','hombro'],
+    ['chest','pecho'],['back','espalda'],['leg','pierna'],['arm','brazo'],
+    ['cable','polea'],['machine','maquina'],['barbell','barra'],['dumbbell','mancuerna'],
+    ['kettlebell','pesa rusa'],['incline','inclinado'],['decline','declinado'],
+    ['overhead','sobre cabeza'],['romanian','rumano'],['sumo','sumo'],['hack','hack'],
+  ];
+  const _rcExMatch = (ex, q) => {
+    const en = _rcNorm(ex.name || ex.n || ''), em = _rcNorm(ex.muscleGroup || ex.m || '');
+    if (en.includes(q) || em.includes(q)) return true;
+    for (const [eng, esp] of _RC_EN_ES) {
+      const espN = _rcNorm(esp);
+      if ((q.includes(eng) || eng.startsWith(q) || eng.includes(q)) && (en.includes(espN) || em.includes(espN))) return true;
+    }
+    return false;
+  };
+
   function applyFilters() {
     const list    = mc.querySelector('#ex-picker-list');
     if (!list) return;
     const filtered = EXERCISES.filter(ex => {
-      const matchSearch = !currentSearch ||
-        ex.name.toLowerCase().includes(currentSearch) ||
-        ex.muscleGroup.toLowerCase().includes(currentSearch);
+      const matchSearch = !currentSearch || _rcExMatch(ex, currentSearch);
       const matchMuscle = currentMuscle === 'all' || ex.muscleGroup === currentMuscle;
       return matchSearch && matchMuscle;
     });
@@ -200,7 +224,7 @@ function openExercisePicker(creatorSc) {
   }
 
   mc.querySelector('#ex-search')?.addEventListener('input', e => {
-    currentSearch = e.target.value.toLowerCase().trim();
+    currentSearch = _rcNorm(e.target.value.trim());
     applyFilters();
   });
 
