@@ -1363,13 +1363,40 @@ async function openAdminRoutineEditor(routineId, container) {
   };
   renderList();
 
-  // Search logic
+  // Search logic — accent-insensitive + EN→ES smart matching
+  const _rarNorm = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const _RAR_EN_ES = [
+    ['squat','sentadilla'],['deadlift','peso muerto'],['bench','banca'],
+    ['row','remo'],['pulldown','jalon'],['press','press'],['curl','curl'],
+    ['lunge','zancada'],['plank','plancha'],['pushup','flexion'],['push up','flexion'],
+    ['pullup','dominada'],['pull up','dominada'],['chinup','dominada'],['chin up','dominada'],
+    ['dip','fondos'],['crunch','abdominal'],['situp','abdominal'],['sit up','abdominal'],
+    ['extension','extension'],['fly','aperturas'],['flye','aperturas'],
+    ['lateral','lateral'],['front','frontal'],['rear','posterior'],
+    ['hip thrust','hip thrust'],['glute','gluteo'],['hamstring','isquiotibial'],
+    ['calf','gemelo'],['tricep','triceps'],['bicep','biceps'],['shoulder','hombro'],
+    ['chest','pecho'],['back','espalda'],['leg','pierna'],['arm','brazo'],
+    ['cable','polea'],['machine','maquina'],['barbell','barra'],['dumbbell','mancuerna'],
+    ['kettlebell','pesa rusa'],['band','banda'],['rope','cuerda'],
+    ['incline','inclinado'],['decline','declinado'],['close grip','agarre cerrado'],
+    ['wide grip','agarre abierto'],['overhead','sobre cabeza'],['sumo','sumo'],
+    ['romanian','rumano'],['stiff','rigido'],['split','split'],['hack','hack'],
+  ];
+  const _rarExMatch = (ex, q) => {
+    const en = _rarNorm(ex.n), em = _rarNorm(ex.m);
+    if (en.includes(q) || em.includes(q)) return true;
+    for (const [eng, esp] of _RAR_EN_ES) {
+      const espN = _rarNorm(esp);
+      if ((q.includes(eng) || eng.startsWith(q) || eng.includes(q)) && (en.includes(espN) || em.includes(espN))) return true;
+    }
+    return false;
+  };
   const searchEl  = m.querySelector('#rar-ex-search');
   const resultsEl = m.querySelector('#rar-ex-results');
   searchEl.addEventListener('input', () => {
-    const q = searchEl.value.toLowerCase().trim();
+    const q = _rarNorm(searchEl.value.trim());
     if (!q) { resultsEl.style.display='none'; return; }
-    const hits = EXERCISES.filter(e => e.n.toLowerCase().includes(q) || e.m.toLowerCase().includes(q)).slice(0,20);
+    const hits = EXERCISES.filter(e => _rarExMatch(e, q)).slice(0,20);
     if (!hits.length) { resultsEl.innerHTML=`<div style="padding:10px;color:var(--color-text-muted);font-size:12px">Sin resultados</div>`; resultsEl.style.display=''; return; }
     resultsEl.innerHTML = hits.map(e=>`
       <div data-exn="${e.n.replace(/"/g,'&quot;')}" style="display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05)">
