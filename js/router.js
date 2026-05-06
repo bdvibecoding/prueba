@@ -185,9 +185,9 @@ async function renderRoute(route, params) {
       case 'admin': {
         const profile = getUserProfile();
         if (profile?.role === 'admin') {
-          module = await import('./admin/admin-panel.js?v=125');
+          module = await import('./admin/admin-panel.js?v=126');
         } else if (['coach','medico','fisio','psicologo','nutricionista'].includes(profile?.role)) {
-          module = await import('./admin/specialist-hub.js?v=2');
+          module = await import('./admin/specialist-hub.js?v=3');
         }
         break;
       }

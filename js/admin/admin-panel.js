@@ -1269,7 +1269,7 @@ async function renderAdminRoutineCards(container, profile) {
   const el = container.querySelector('#admin-routines-cards');
   if (!el) return;
   try {
-    const snap = await db.collection('routines').where('createdBy','==',profile.uid).limit(50).get();
+    const snap = await db.collection('routines').orderBy('createdAt','desc').limit(50).get();
     if (snap.empty) {
       el.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></div><div class="empty-title">Sin rutinas creadas</div><div class="empty-subtitle">Pulsa "+ Nueva rutina" para crear la primera.</div></div>`;
       return;

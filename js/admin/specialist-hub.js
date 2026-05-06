@@ -1168,7 +1168,7 @@ async function _renderMyRoutines(mc) {
   const el = mc.querySelector('#my-routines-list');
   if (!el) return;
   try {
-    const snap = await db.collection('routines').where('createdBy', '==', _profile.uid).limit(30).get();
+    const snap = await db.collection('routines').orderBy('createdAt','desc').limit(30).get();
     if (snap.empty) {
       el.innerHTML = `<p style="color:var(--color-text-muted);font-size:13px;padding:8px 0">Sin rutinas creadas aún.</p>`;
       return;
