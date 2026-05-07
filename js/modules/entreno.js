@@ -158,6 +158,7 @@ async function loadRoutinesList(container) {
     startOfWeek.setHours(0, 0, 0, 0);
 
     const visibleRoutines = routines.filter(a => {
+      if (a.unassigned === true) return false;
       if (a.completedAt) {
         const cd = a.completedAt?.toDate?.() || new Date(a.completedAt);
         if (cd >= startOfWeek) return false;
@@ -201,6 +202,7 @@ async function loadRoutinesList(container) {
       });
     });
 
+
   } catch (e) {
     listEl.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg style="width:32px;height:32px;opacity:0.4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="empty-title">${t('error_loading')}</div><div class="empty-subtitle">${e.message}</div></div>`;
   }
@@ -213,9 +215,31 @@ async function loadRoutineDetail(container, routineId) {
   listEl.innerHTML = `<div class="overlay-spinner"><div class="spinner-sm"></div></div>`;
 
   try {
-    const snap = await db.collection('routines').doc(routineId).get();
+    const profile = getUserProfile();
+    const [snap, sessSnap] = await Promise.all([
+      db.collection('routines').doc(routineId).get(),
+      collections.workoutSessions(profile.uid)
+        .orderBy('startTime', 'desc')
+        .limit(20)
+        .get()
+    ]);
     if (!snap.exists) throw new Error(t('entreno_routine_not_found'));
     activeRoutineData = { id: snap.id, ...snap.data() };
+
+    // Enrich exercises with previous session data (for PREV column)
+    const prevDoc = sessSnap.docs.find(d => d.data().routineId === routineId);
+    if (prevDoc) {
+      const prevSetData = prevDoc.data().setData || {};
+      activeRoutineData.exercises = (activeRoutineData.exercises || []).map(ex => {
+        const prevEx = prevSetData[ex.id];
+        const prevSets = prevEx?.sets || (Array.isArray(prevEx) ? prevEx : null);
+        if (prevSets && prevSets.length) {
+          return { ...ex, previousSets: prevSets };
+        }
+        return ex;
+      });
+    }
+
     renderRoutineDetail(container, activeRoutineData);
   } catch (e) {
     toast(t('error_loading') + ': ' + e.message, 'error');
@@ -371,9 +395,15 @@ function buildExerciseCard(ex, index, sessionActive, session, exDataCache) {
     ? `<div class="exercise-num-img"><img src="${encodeURI(exPhoto)}" alt="${ex.name}" style="width:40px;height:40px;border-radius:var(--r-md);object-fit:cover;flex-shrink:0"></div>`
     : `<div class="exercise-num">${index + 1}</div>`;
 
-  // §13 series format: "3 Series · 10 Repeticiones"
+  // §13 series format: "3 Series · 10 Repeticiones" / cardio: "1 Series · 25-30 min"
+  const _cardioStr = ((ex.muscleGroup || ex.m || '') + ' ' + (ex.name || ex.n || '')).toLowerCase();
+  const isCardio = /cardio|cardiovascular|caminata|running|correr|bicicleta|elíptica|remo\s*(cardio|máquina)|natación/.test(_cardioStr);
   const setsStr  = ex.sets || 3;
-  const repsStr  = ex.reps ? ` · ${ex.reps} Repeticiones` : '';
+  const repsStr  = ex.reps
+    ? isCardio
+      ? ` · ${ex.reps} min`
+      : ` · ${ex.reps} Repeticiones`
+    : '';
 
   // §13 three-dot overflow indicator
   const dotsSVG = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>`;
@@ -424,32 +454,85 @@ function buildExerciseCard(ex, index, sessionActive, session, exDataCache) {
 
 // ── Sets Table ────────────────────────────────
 function buildSetsTable(ex, exIndex, session) {
+  const _cStr    = ((ex.muscleGroup || ex.m || '') + ' ' + (ex.name || ex.n || '')).toLowerCase();
+  const isCardio = /cardio|cardiovascular|caminata|running|correr|bicicleta|elíptica|natación/.test(_cStr);
   const numSets       = ex.sets || 3;
   const completedSets = session?.completedSets?.[ex.id] || [];
   const setDataStore  = session?.setData?.[ex.id]?.sets || [];
   // dropsets stored as { [setIdx]: [{reps,weight},...] }
   const dropData      = session?.setData?.[ex.id]?.drops || {};
 
+  // ── Cardio: simplified table (SET | PREV | MIN | ✓) ─────────────
+  if (isCardio) {
+    const minutesPlaceholder = ex.reps ? String(ex.reps).replace(/[^0-9\-\/]/g, '') || '—' : '—';
+    const cardioRows = Array.from({ length: numSets }, (_, i) => {
+      const done       = completedSets.includes(i);
+      const prevSet    = ex.previousSets?.[i] || {};
+      const prevLabel  = prevSet.reps ? `${prevSet.reps} min` : '—';
+      const savedMins  = setDataStore[i]?.reps ?? '';
+      return `
+        <tr class="set-row ${done ? 'completed locked' : ''}" data-exid="${ex.id}" data-setidx="${i}">
+          <td class="set-num">${i + 1}</td>
+          <td class="td-prev">${prevLabel}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px">
+              <input type="text" inputmode="numeric" class="set-input" data-exid="${ex.id}" data-setidx="${i}" data-field="reps"
+                     value="${savedMins}" placeholder="${minutesPlaceholder}" ${done ? 'disabled tabindex="-1"' : ''}>
+              <span style="font-size:11px;color:var(--color-text-muted);white-space:nowrap">min</span>
+            </div>
+          </td>
+          <td>
+            <div class="set-actions-cell">
+              <button class="set-done-btn ${done ? 'done' : ''}"
+                      data-exid="${ex.id}" data-setidx="${i}" data-done="${done}">
+                ${done ? '✓' : '○'}
+              </button>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+
+    return `
+      <table class="sets-table">
+        <colgroup>
+          <col class="col-set">
+          <col class="col-prev">
+          <col style="width:auto">
+          <col class="col-check">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>${t('entreno_set')}</th>
+            <th class="th-prev">Prev</th>
+            <th>Min</th>
+            <th>✓</th>
+          </tr>
+        </thead>
+        <tbody id="sets-body-${ex.id}">${cardioRows}</tbody>
+      </table>
+    `;
+  }
+
   // §14.1 — Warm-up rows (keep, adjust to new 5-col layout)
   const warmupCount = ex.warmupSets || 0;
-  const _repArr     = ex.reps ? String(ex.reps).split('-').map(r => r.trim()).filter(Boolean) : [];
+  const _repArr     = ex.reps ? String(ex.reps).split(/[-\/]/).map(r => r.trim()).filter(Boolean) : [];
   const _defaultRep = _repArr[0] ?? '';
   const warmupRows  = Array.from({ length: warmupCount }, (_, wi) => {
     const warmupWeight = ex.weight ? Math.round(ex.weight * 0.4 / 2) * 2 : 0;
     return `
       <tr class="set-row warmup-row" data-exid="${ex.id}" data-warmup="${wi}">
         <td class="set-num" style="color:rgba(251,146,60,.8)">W${wi + 1}</td>
-        <td>
-          <input type="text" inputmode="decimal" class="set-input warmup-input"
-                 data-exid="${ex.id}" data-warmup="${wi}" data-field="weight"
-                 placeholder="${warmupWeight || '0'}" style="opacity:0.7">
-        </td>
+        <td class="td-prev" style="opacity:0.4">—</td>
         <td>
           <input type="text" inputmode="numeric" class="set-input warmup-input"
                  data-exid="${ex.id}" data-warmup="${wi}" data-field="reps"
                  placeholder="${_defaultRep || '—'}" style="opacity:0.7">
         </td>
-        <td></td>
+        <td>
+          <input type="text" inputmode="decimal" class="set-input warmup-input"
+                 data-exid="${ex.id}" data-warmup="${wi}" data-field="weight"
+                 placeholder="${warmupWeight || '0'}" style="opacity:0.7">
+        </td>
         <td>
           <div class="set-actions-cell">
             <button class="set-done-btn warmup-done-btn" data-exid="${ex.id}" data-warmup="${wi}" data-done="false">○</button>
@@ -462,31 +545,27 @@ function buildSetsTable(ex, exIndex, session) {
   const rows = Array.from({ length: numSets }, (_, i) => {
     const done          = completedSets.includes(i);
     const prevSet       = ex.previousSets?.[i] || {};
-    const repArr        = ex.reps ? String(ex.reps).split('-').map(r => r.trim()).filter(Boolean) : [];
+    const repArr        = ex.reps ? String(ex.reps).split(/[-\/]/).map(r => r.trim()).filter(Boolean) : [];
     const defaultRep    = repArr[i] ?? repArr[0] ?? '';
     const currentReps        = setDataStore[i]?.reps   ?? defaultRep;
     const savedWeight        = setDataStore[i]?.weight ?? '';
     const weightPlaceholder  = savedWeight || ex.weight || '';
-    const prevLabel          = (prevSet.reps && prevSet.weight)
-      ? `${prevSet.reps}r × ${prevSet.weight}kg`
-      : '—';
 
-    // §14.1 — Dropset rows (keep, new 5-col layout: Set|Kg|Rep|Notas|Check)
+    // Dropset rows — 4-col layout: Drop | REPS | KG | ✕
     const drops = Array.isArray(dropData[i]) ? dropData[i] : [];
     const dropRows = drops.map((drop, di) => `
       <tr class="dropset-row" data-exid="${ex.id}" data-setidx="${i}" data-dropidx="${di}">
-        <td><span class="dropset-label">${t('entreno_dropset_label')}</span></td>
-        <td>
-          <input type="text" inputmode="decimal" class="set-input drop-input"
-                 data-exid="${ex.id}" data-setidx="${i}" data-dropidx="${di}" data-field="weight"
-                 value="${drop.weight ?? ''}" placeholder="0">
-        </td>
+        <td colspan="2"><span class="dropset-label">${t('entreno_dropset_label')}</span></td>
         <td>
           <input type="text" inputmode="numeric" class="set-input drop-input"
                  data-exid="${ex.id}" data-setidx="${i}" data-dropidx="${di}" data-field="reps"
                  value="${drop.reps ?? ''}" placeholder="—">
         </td>
-        <td></td>
+        <td>
+          <input type="text" inputmode="decimal" class="set-input drop-input"
+                 data-exid="${ex.id}" data-setidx="${i}" data-dropidx="${di}" data-field="weight"
+                 value="${drop.weight ?? ''}" placeholder="0">
+        </td>
         <td>
           <button class="btn-remove-drop" data-exid="${ex.id}" data-setidx="${i}" data-dropidx="${di}"
                   title="${t('entreno_remove_drop')}">✕</button>
@@ -494,27 +573,27 @@ function buildSetsTable(ex, exIndex, session) {
       </tr>
  `).join('');
 
-    // §14.1 — Ghost text: prev session value as placeholder (user never needs to delete)
-    const prevWeight  = prevSet.weight  ? String(prevSet.weight)  : '';
-    const prevReps    = prevSet.reps    ? String(prevSet.reps)    : '';
-    const prevNote    = prevSet.notes   ? String(prevSet.notes)   : '';
-    const kgPlaceholder   = prevWeight  || (ex.weight  ? String(ex.weight)  : '');
-    const repsPlaceholder = prevReps    || defaultRep  || '—';
+    // Ghost placeholders from prev session
+    const prevWeight      = prevSet.weight ? String(prevSet.weight) : '';
+    const prevReps        = prevSet.reps   ? String(prevSet.reps)   : '';
+    const kgPlaceholder   = prevWeight || (ex.weight ? String(ex.weight) : '');
+    const repsPlaceholder = prevReps   || defaultRep || '—';
+    // PREV label — shown in red: "12×60kg" or "—"
+    const prevLabel = (prevSet.reps && prevSet.weight)
+      ? `${prevSet.reps}×${prevSet.weight}kg`
+      : '—';
 
     return `
       <tr class="set-row ${done ? 'completed locked' : ''}" data-exid="${ex.id}" data-setidx="${i}">
         <td class="set-num">${i + 1}</td>
-        <td>
-          <input type="text" inputmode="decimal" class="set-input" data-exid="${ex.id}" data-setidx="${i}" data-field="weight"
-                 value="${savedWeight}" placeholder="${kgPlaceholder || '0'}" ${done ? 'disabled' : ''}>
-        </td>
+        <td class="td-prev">${prevLabel}</td>
         <td>
           <input type="text" inputmode="numeric" class="set-input" data-exid="${ex.id}" data-setidx="${i}" data-field="reps"
                  value="${currentReps}" placeholder="${repsPlaceholder}" ${done ? 'disabled tabindex="-1"' : ''}>
         </td>
-        <td class="td-notes">
-          <input type="text" class="set-input set-notes-input" data-exid="${ex.id}" data-setidx="${i}" data-field="notes"
-                 value="${setDataStore[i]?.notes || ''}" placeholder="${prevNote}" ${done ? 'disabled' : ''}>
+        <td>
+          <input type="text" inputmode="decimal" class="set-input" data-exid="${ex.id}" data-setidx="${i}" data-field="weight"
+                 value="${savedWeight}" placeholder="${kgPlaceholder || '0'}" ${done ? 'disabled' : ''}>
         </td>
         <td>
           <div class="set-actions-cell">
@@ -535,17 +614,17 @@ function buildSetsTable(ex, exIndex, session) {
     <table class="sets-table">
       <colgroup>
         <col class="col-set">
+        <col class="col-prev">
         <col class="col-num">
         <col class="col-num">
-        <col class="col-note">
         <col class="col-check">
       </colgroup>
       <thead>
         <tr>
           <th>${t('entreno_set')}</th>
+          <th class="th-prev">Prev</th>
+          <th>Reps</th>
           <th>Kg</th>
-          <th>Rep.</th>
-          <th class="th-notes">Notas</th>
           <th>✓</th>
         </tr>
       </thead>
@@ -1124,12 +1203,48 @@ function _updateExInfoTabIndicator(s, activeBtn) {
   });
 }
 
+// ── Search helpers (accent-insensitive + EN→ES) ──
+function _norm(s) {
+  return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+const _EN_ES_SWAP = [
+  ['squat','sentadilla'],['deadlift','peso muerto'],['bench','banca'],
+  ['row','remo'],['pulldown','jalon'],['curl','curl'],['press','press'],
+  ['fly','apertura'],['chest','pecho'],['back','espalda'],['shoulder','hombro'],
+  ['glute','gluteo'],['calf','gemelo'],['hamstring','isquio'],['quad','cuadricep'],
+  ['dumbbell','mancuerna'],['barbell','barra'],['cable','polea'],['dip','fondos'],
+  ['lat','dorsal'],['incline','inclinado'],['decline','declinado'],['seated','sentado'],
+  ['standing','de pie'],['overhead','por encima'],['leg','pierna'],['arm','brazo'],
+  ['tricep','triceps'],['bicep','biceps'],['lunge','zancada'],['hip','cadera'],
+  ['pull','jalon'],['push','empuje'],['extension','extension'],['flexion','flexion'],
+  ['raise','elevacion'],['crunch','crunch'],['plank','plancha'],['hip thrust','hip thrust'],
+  ['rdl','peso muerto rumano'],['sumo','sumo'],['conventional','convencional'],
+  ['romanian','rumano'],['bulgarian','bulgara'],['nordic','nordico'],
+  ['machine','maquina'],['smith','multipower'],['hack','hack'],
+  ['chest fly','apertura pecho'],['lat pulldown','jalon dorsal'],
+  ['leg press','prensa'],['leg curl','curl pierna'],['leg extension','extension cuadriceps'],
+  ['face pull','face pull'],['skull crusher','press frances'],['floor press','press suelo'],
+  ['close grip','agarre cerrado'],['wide grip','agarre abierto'],['neutral grip','agarre neutro'],
+];
+function _exMatchesSwap(ex, q) {
+  const en = _norm(ex.n), em = _norm(ex.m);
+  if (en.includes(q) || em.includes(q)) return true;
+  for (const [eng, esp] of _EN_ES_SWAP) {
+    const espNorm = _norm(esp);
+    const engMatch = q.includes(eng) || eng.startsWith(q) || eng.includes(q);
+    if (engMatch && (en.includes(espNorm) || em.includes(espNorm))) return true;
+  }
+  return false;
+}
+
 // ── Exercise Swap ─────────────────────────────
 async function openSwapExercise(currentEx, exIndex, container, allExercises) {
   const { EXERCISES } = await import('../../data/data.js');
-  // Match by muscleGroup (Firestore field) vs ex.m (data.js field)
-  const muscle = currentEx.muscleGroup || currentEx.m || '';
-  const pool = EXERCISES.filter(ex => ex.m === muscle && ex.n !== (currentEx.name || currentEx.id));
+  const selfName = currentEx.name || currentEx.id || '';
+  // Default pool: same muscle group (no query)
+  const muscle    = currentEx.muscleGroup || currentEx.m || '';
+  const sameGroup = EXERCISES.filter(ex => ex.m === muscle && ex.n !== selfName);
+  const allPool   = EXERCISES.filter(ex => ex.n !== selfName);
 
   const html = `
     <div class="modal-header">
@@ -1178,17 +1293,19 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
       opt.addEventListener('click', () => {
         listEl.querySelectorAll('.swap-option').forEach(o => o.style.background='');
         opt.style.background = 'rgba(148,10,10,0.2)';
-        selectedEx = pool.find(e => e.n === opt.dataset.exN);
+        selectedEx = allPool.find(e => e.n === opt.dataset.exN) || sameGroup.find(e => e.n === opt.dataset.exN);
         modalEl.querySelector('#btn-confirm-swap').disabled = !modalEl.querySelector('#swap-reason').value.trim();
       });
     });
   }
 
-  renderSwapList(pool);
+  renderSwapList(sameGroup);
 
   modalEl.querySelector('#swap-search').addEventListener('input', (e) => {
-    const q = e.target.value.toLowerCase().trim();
-    renderSwapList(q ? pool.filter(ex => ex.n.toLowerCase().includes(q)) : pool);
+    const q = _norm(e.target.value.trim());
+    if (!q) { renderSwapList(sameGroup); return; }
+    const hits = allPool.filter(ex => _exMatchesSwap(ex, q));
+    renderSwapList(hits);
   });
 
   modalEl.querySelector('#swap-reason').addEventListener('input', (e) => {
@@ -1329,21 +1446,21 @@ async function loadHistorialTab(container) {
 
       return `
         <div class="session-history-card glass-card" data-session-id="${doc.id}" style="margin-bottom:var(--space-sm);cursor:pointer">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <div style="font-weight:700;font-size:15px">${session.routineName || 'Entreno'}</div>
-              <div style="font-size:12px;color:var(--color-text-muted)">${formatDate(date)}</div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+            <div style="min-width:0;flex:1">
+              <div style="font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${session.routineName || 'Entreno'}</div>
+              <div style="font-size:12px;color:var(--color-text-muted);margin-top:2px">${formatDate(date)}</div>
             </div>
-            <div style="text-align:right">
+            <div style="text-align:right;flex-shrink:0">
               <div style="font-size:13px;font-weight:600">${formatTime(session.durationMs || 0)}</div>
               ${session.rpe ? `<div style="font-size:11px;color:var(--color-text-muted)">RPE ${session.rpe}/10</div>` : ''}
             </div>
           </div>
-          <div style="margin-top:var(--space-xs);display:flex;gap:6px;flex-wrap:wrap">
+          <div style="margin-top:var(--space-sm);display:flex;gap:6px;flex-wrap:wrap">
             <span class="chip">${totalSets} ${t('entreno_sets_count')}</span>
             <span class="chip">${exerciseCount} ${t('entreno_exercises_label')}</span>
           </div>
-          ${session.note ? `<p style="font-size:12px;color:var(--color-text-muted);margin-top:var(--space-xs);font-style:italic">"${session.note}"</p>` : ''}
+          ${session.note ? `<p style="font-size:12px;color:var(--color-text-muted);margin-top:var(--space-xs);font-style:italic;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">"${session.note}"</p>` : ''}
         </div>
  `;
     }).join('');
@@ -1404,7 +1521,7 @@ async function openSessionDetail(sessionId, session) {
       </div>
     </div>
 
-    ${session.note ? `<div class="glass-card" style="margin-bottom:var(--space-md);font-style:italic;font-size:13px">"${session.note}"</div>` : ''}
+    ${session.note ? `<div class="glass-card" style="margin-bottom:var(--space-md);padding:12px 14px;font-style:italic;font-size:13px">"${session.note}"</div>` : ''}
 
     <div class="section-title">${t('entreno_sets_performed')}</div>
     <div id="session-exercises-detail">
@@ -1416,6 +1533,15 @@ async function openSessionDetail(sessionId, session) {
  `;
 
   openSheet(html);
+
+  // Ensure exercise data cache is loaded (needed for enrichExercises → muscle map)
+  if (!_exDataCache) {
+    try {
+      const { EXERCISES } = await import('../../data/data.js');
+      _exDataCache = {};
+      EXERCISES.forEach(e => { _exDataCache[e.n] = e; });
+    } catch (_) {}
+  }
 
   // Fetch routine exercises for names
   let exercises = [];
@@ -1455,8 +1581,8 @@ async function openSessionDetail(sessionId, session) {
  `).join('');
 
         return `
-          <div class="glass-card" style="margin-bottom:var(--space-sm)">
-            <div style="font-weight:600;margin-bottom:var(--space-xs)">${name}</div>
+          <div class="glass-card" style="margin-bottom:var(--space-sm);padding:14px 16px">
+            <div style="font-weight:600;margin-bottom:var(--space-xs);font-size:14px">${name}</div>
             <table class="sets-table" style="width:100%">
               <thead>
                 <tr><th>${t('entreno_set')}</th><th>${t('entreno_reps')}</th><th>Kg</th></tr>
@@ -1484,7 +1610,19 @@ async function openSessionDetail(sessionId, session) {
 
   const renderMap = () => {
     if (mapEl && performedExercises.length > 0) {
-      renderMuscleMap(mapEl, performedExercises);
+      renderMuscleMap(mapEl, enrichExercises(performedExercises));
+    } else if (mapEl && performedExIds.length > 0) {
+      // Fallback: exercises list came back empty or IDs don't match
+      // Build synthetic list from exercise names via _exDataCache
+      const synth = Object.keys(session.setData || {})
+        .filter(id => (session.setData[id]?.sets?.length || 0) > 0)
+        .map(id => {
+          const name = exNameMap[id];
+          const cached = _exDataCache?.[name];
+          return cached ? { id, name: cached.n, muscleGroup: cached.m, target: cached.target, sec: cached.sec } : null;
+        })
+        .filter(Boolean);
+      renderMuscleMap(mapEl, enrichExercises(synth));
     } else if (mapEl) {
       mapEl.innerHTML = `<p style="color:var(--color-text-muted);font-size:13px">${t('entreno_no_muscle_data')}</p>`;
     }
@@ -1567,35 +1705,157 @@ async function finishWorkout(container) {
   }
 
   // 4. Muscle map & celebration
+  // Ensure data cache loaded (needed by enrichExercises inside showWorkoutSummary)
+  if (!_exDataCache) {
+    try {
+      const { EXERCISES } = await import('../../data/data.js');
+      _exDataCache = {};
+      EXERCISES.forEach(e => { _exDataCache[e.n] = e; });
+    } catch (_) {}
+  }
   launchConfetti();
   showWorkoutSummary(container, durationMs, session, rpe, note);
   endSession();
 }
 
+// ── Enrich exercises with target + sec from _exDataCache ──
+// muscle-map.js uses ex.target (the PNG key) and ex.sec.
+// Firestore exercises from the admin only store { name, muscleGroup, sets, ... }
+// — no target/sec. We look up by name in data.js to fill them in.
+function enrichExercises(exercises = []) {
+  return exercises.map(ex => {
+    if (ex.target) return ex;          // already has the key we need
+    const cached = _exDataCache?.[ex.name];
+    if (!cached) return ex;
+    return { ...ex, target: cached.target, sec: cached.sec || [] };
+  });
+}
+
 // ── Workout Summary ───────────────────────────
 function showWorkoutSummary(container, durationMs, session, rpe, note) {
-  const exercises = session.exercises || [];
-  const totalSets = Object.values(session.completedSets || {}).reduce((a, b) => a + b.length, 0);
+  const exercises   = session.exercises || [];
+  const completedSets = session.completedSets || {};
+  const setData       = session.setData || {};
+  const totalSets   = Object.values(completedSets).reduce((a, b) => a + b.length, 0);
+  const totalEx     = exercises.length;
+
+  // ── Volume total (suma peso × reps de todas las series) ──
+  // setData shape: { [exId]: { sets: [{reps, weight}, ...] } }
+  let totalVolume = 0;
+  Object.values(setData).forEach(exData => {
+    const sets = Array.isArray(exData) ? exData : (exData?.sets || []);
+    sets.forEach(s => {
+      const w = parseFloat(s.weight) || 0;
+      const r = parseInt(s.reps)   || 0;
+      totalVolume += w * r;
+    });
+  });
+  const volStr = totalVolume > 0
+    ? (totalVolume >= 1000 ? (totalVolume / 1000).toFixed(1) + ' T' : totalVolume.toFixed(0) + ' kg')
+    : '—';
+
+  // ── Start / end time ──
+  const startMs  = session.startTime || (Date.now() - durationMs);
+  const startStr = fmtHHMM(startMs);
+  const endStr   = fmtHHMM(startMs + durationMs);
+
+  // ── Date display ──
+  const now      = new Date();
+  const dayNames = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const monNames = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const dateStr  = `${dayNames[now.getDay()]} ${now.getDate()} ${monNames[now.getMonth()]} ${now.getFullYear()}`;
+
+  // ── Exercise breakdown ──
+  const exBreakdown = exercises.map(ex => {
+    const exId    = ex.id || ex.name;
+    const sets    = (completedSets[exId] || []).length;
+    const exData  = setData[exId];
+    const rawSets = Array.isArray(exData) ? exData : (exData?.sets || []);
+    // Summary: "3 series · 10 kg" or "3 series · 10 reps"
+    let setsStr = `${sets} ${sets === 1 ? 'serie' : 'series'}`;
+    if (rawSets.length > 0) {
+      const last = rawSets[rawSets.length - 1];
+      if (last.weight && parseFloat(last.weight) > 0) {
+        setsStr += ` · ${last.weight} kg × ${last.reps || '?'}`;
+      } else if (last.reps) {
+        setsStr += ` · ${last.reps} reps`;
+      }
+    }
+    const muscle = ex.muscleGroup || ex.m || '';
+    return `
+      <div class="wsum-ex-row">
+        <div class="wsum-ex-dot"></div>
+        <div class="wsum-ex-info">
+          <span class="wsum-ex-name">${ex.name || 'Ejercicio'}</span>
+          <span class="wsum-ex-meta">${setsStr}${muscle ? ' · ' + muscle : ''}</span>
+        </div>
+      </div>`;
+  }).join('');
 
   const html = `
-    <div class="modal-header">
-      <h3 class="modal-title">${t('entreno_completed')}</h3>
+    <div class="wsum-card">
+      <!-- Header gradient banner -->
+      <div class="wsum-header">
+        <div class="wsum-header-glow"></div>
+        <div class="wsum-trophy">🏆</div>
+        <div class="wsum-title">${t('entreno_completed')}</div>
+        <div class="wsum-routine-name">${session.routineName || ''}</div>
+        <div class="wsum-time-range">${startStr} → ${endStr} · ${dateStr}</div>
+      </div>
+
+      <!-- 4-stat grid -->
+      <div class="wsum-stats">
+        <div class="wsum-stat">
+          <span class="wsum-stat-val">${formatTime(durationMs)}</span>
+          <span class="wsum-stat-key">${t('entreno_duration')}</span>
+        </div>
+        <div class="wsum-stat">
+          <span class="wsum-stat-val">${totalEx}</span>
+          <span class="wsum-stat-key">${t('entreno_exercises_count')}</span>
+        </div>
+        <div class="wsum-stat">
+          <span class="wsum-stat-val">${totalSets}</span>
+          <span class="wsum-stat-key">${t('entreno_sets_count')}</span>
+        </div>
+        <div class="wsum-stat">
+          <span class="wsum-stat-val">${rpe ? rpe + '<small>/10</small>' : '—'}</span>
+          <span class="wsum-stat-key">RPE</span>
+        </div>
+      </div>
+
+      ${totalVolume > 0 ? `
+      <div class="wsum-volume-row">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="width:14px;height:14px;flex-shrink:0">
+          <path d="M6.5 6.5H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h2.5M17.5 6.5H20a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-2.5"/>
+          <rect x="6.5" y="4" width="3" height="16" rx="1.5"/>
+          <rect x="14.5" y="4" width="3" height="16" rx="1.5"/>
+          <line x1="9.5" y1="12" x2="14.5" y2="12"/>
+        </svg>
+        <span>Volumen total: <strong>${volStr}</strong></span>
+      </div>` : ''}
+
+      ${note ? `<div class="wsum-note">"${note}"</div>` : ''}
+
+      <!-- Muscle heatmap -->
+      <div id="finish-muscle-map" class="wsum-muscle-section"></div>
+
+      <!-- Exercise breakdown -->
+      ${exercises.length > 0 ? `
+      <div class="wsum-ex-section">
+        <div class="wsum-section-label">Ejercicios</div>
+        ${exBreakdown}
+      </div>` : ''}
+
+      <button class="btn-primary btn-full wsum-close-btn" id="btn-close-summary">${t('close')}</button>
     </div>
-    <div class="summary-stat-grid">
-      <div class="summary-stat"><span class="summary-stat-val">${formatTime(durationMs)}</span><span class="summary-stat-key">${t('entreno_duration')}</span></div>
-      <div class="summary-stat"><span class="summary-stat-val">${totalSets}</span><span class="summary-stat-key">${t('entreno_sets_count')}</span></div>
-      <div class="summary-stat"><span class="summary-stat-val">${rpe ? rpe + '/10' : '—'}</span><span class="summary-stat-key">RPE</span></div>
-    </div>
-    ${note ? `<p class="text-muted" style="margin-bottom:var(--space-md);font-style:italic">"${note}"</p>` : ''}
-    <div id="finish-muscle-map"></div>
-    <button class="btn-primary btn-full" id="btn-close-summary" style="margin-top:var(--space-md)">${t('close')}</button>
- `;
+  `;
 
   openModal(html, { noClickClose: true });
+
   const settings = appState.get('settings');
-  if (settings.showMuscleMap) {
+  if (settings.showMuscleMap !== false) {
     const mapContainer = document.getElementById('modal-content').querySelector('#finish-muscle-map');
-    if (mapContainer) renderMuscleMap(mapContainer, exercises);
+    if (mapContainer) renderMuscleMap(mapContainer, enrichExercises(exercises));
   }
 
   document.getElementById('btn-close-summary')?.addEventListener('click', () => {
@@ -1712,9 +1972,27 @@ function renderBasicOnboarding(container, listEl, profile) {
 // ── Resume active session ─────────────────────
 async function loadActiveRoutine(container, routineId) {
   try {
-    const snap = await db.collection('routines').doc(routineId).get();
+    const profile = getUserProfile();
+    const [snap, sessSnap] = await Promise.all([
+      db.collection('routines').doc(routineId).get(),
+      collections.workoutSessions(profile.uid)
+        .orderBy('startTime', 'desc')
+        .limit(20)
+        .get()
+    ]);
     if (snap.exists) {
       activeRoutineData = { id: snap.id, ...snap.data() };
+      // Enrich with previous session data
+      const prevDoc = sessSnap.docs.find(d => d.data().routineId === routineId);
+      if (prevDoc) {
+        const prevSetData = prevDoc.data().setData || {};
+        activeRoutineData.exercises = (activeRoutineData.exercises || []).map(ex => {
+          const prevEx = prevSetData[ex.id];
+          const prevSets = prevEx?.sets || (Array.isArray(prevEx) ? prevEx : null);
+          if (prevSets && prevSets.length) return { ...ex, previousSets: prevSets };
+          return ex;
+        });
+      }
       renderRoutineDetail(container, activeRoutineData);
     }
   } catch { loadRoutinesList(container); }
