@@ -228,11 +228,18 @@ async function loadRoutineDetail(container, routineId) {
 
     // Enrich exercises with previous session data (for PREV column)
     const prevDoc = sessSnap.docs.find(d => d.data().routineId === routineId);
+    console.log('[PREV] Sessions fetched:', sessSnap.docs.length);
+    console.log('[PREV] Looking for routineId:', routineId);
+    console.log('[PREV] Session routineIds:', sessSnap.docs.map(d => d.data().routineId));
+    console.log('[PREV] prevDoc found:', !!prevDoc);
     if (prevDoc) {
       const prevSetData = prevDoc.data().setData || {};
+      console.log('[PREV] setData keys:', Object.keys(prevSetData));
+      console.log('[PREV] exercise ids:', (activeRoutineData.exercises || []).map(ex => ex.id));
       activeRoutineData.exercises = (activeRoutineData.exercises || []).map(ex => {
         const prevEx = prevSetData[ex.id];
         const prevSets = prevEx?.sets || (Array.isArray(prevEx) ? prevEx : null);
+        console.log('[PREV] ex.id:', ex.id, '→ prevEx:', prevEx, '→ prevSets:', prevSets);
         if (prevSets && prevSets.length) {
           return { ...ex, previousSets: prevSets };
         }
