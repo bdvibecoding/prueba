@@ -1818,6 +1818,17 @@ async function loadHistorialTab(container) {
   }
 }
 
+// ── Duration formatter: "01h 21min 31sec" ────
+function formatSessionDur(ms) {
+  const s = Math.floor((ms / 1000) % 60);
+  const m = Math.floor((ms / 60000) % 60);
+  const h = Math.floor(ms / 3600000);
+  const p = n => String(n).padStart(2, '0');
+  return h > 0
+    ? `${p(h)}h ${p(m)}min ${p(s)}sec`
+    : `${p(m)}min ${p(s)}sec`;
+}
+
 // ── Open Session Detail Sheet ─────────────────
 async function openSessionDetail(sessionId, session) {
   const setData     = session.setData || {};
@@ -1860,28 +1871,34 @@ async function openSessionDetail(sessionId, session) {
 
     <!-- Panel: Resumen -->
     <div id="session-panel-resumen" class="session-panel">
-      ${session.note ? `<div style="margin-bottom:12px;padding:12px 14px;background:var(--glass-bg);border:0.5px solid var(--color-border-tertiary,var(--glass-border));border-radius:14px;font-style:italic;font-size:13px;color:var(--color-text-muted)">"${session.note}"</div>` : ''}
+      ${session.note ? `<div style="margin-bottom:12px;padding:12px 14px;background:var(--color-background-primary,var(--glass-bg));border:0.5px solid var(--color-border-tertiary,var(--glass-border));border-radius:14px;font-style:italic;font-size:13px;color:var(--color-text-muted)">"${session.note}"</div>` : ''}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <!-- Duration — full width, label top / value bottom -->
-        <div style="grid-column:1/-1;background:var(--glass-bg);
+        <!-- Tarjeta 1 — Duración (fila completa) -->
+        <div style="grid-column:1/-1;background:var(--color-background-primary,var(--glass-bg));
                     border:0.5px solid var(--color-border-tertiary,var(--glass-border));
                     border-radius:14px;padding:14px 16px">
-          <div style="font-size:11px;font-weight:500;color:var(--color-text-muted);text-transform:lowercase;margin-bottom:6px">${t('entreno_duration')}</div>
-          <div style="font-size:26px;font-weight:600;color:var(--color-text);line-height:1.1">${formatTime(session.durationMs || 0)}</div>
+          <div style="font-family:'SF Pro Text',var(--font-sans);font-size:11px;font-weight:500;
+                      color:var(--color-text-tertiary,var(--color-text-muted));margin-bottom:6px">Duración</div>
+          <div style="font-family:'SF Pro Display',var(--font-sans);font-size:26px;font-weight:600;
+                      color:var(--color-text-primary,var(--color-text));line-height:1.1">${formatSessionDur(session.durationMs || 0)}</div>
         </div>
-        <!-- Series — label top / value bottom -->
-        <div style="background:var(--glass-bg);
+        <!-- Tarjeta 2 — Series (fila 2, izq.) -->
+        <div style="background:var(--color-background-primary,var(--glass-bg));
                     border:0.5px solid var(--color-border-tertiary,var(--glass-border));
                     border-radius:14px;padding:14px 16px">
-          <div style="font-size:11px;font-weight:500;color:var(--color-text-muted);text-transform:lowercase;margin-bottom:6px">Series</div>
-          <div style="font-size:20px;font-weight:600;color:var(--color-text);line-height:1.1">${setsSuffix}</div>
+          <div style="font-family:'SF Pro Text',var(--font-sans);font-size:11px;font-weight:500;
+                      color:var(--color-text-tertiary,var(--color-text-muted));margin-bottom:6px">Series</div>
+          <div style="font-family:'SF Pro Display',var(--font-sans);font-size:20px;font-weight:600;
+                      color:var(--color-text-primary,var(--color-text));line-height:1.1">${setsSuffix}</div>
         </div>
-        <!-- Repeticiones — label top / value bottom -->
-        <div style="background:var(--glass-bg);
+        <!-- Tarjeta 3 — Repeticiones (fila 2, der.) -->
+        <div style="background:var(--color-background-primary,var(--glass-bg));
                     border:0.5px solid var(--color-border-tertiary,var(--glass-border));
                     border-radius:14px;padding:14px 16px">
-          <div style="font-size:11px;font-weight:500;color:var(--color-text-muted);text-transform:lowercase;margin-bottom:6px">Repeticiones</div>
-          <div style="font-size:20px;font-weight:600;color:var(--color-text);line-height:1.1">${rpeSuffix}</div>
+          <div style="font-family:'SF Pro Text',var(--font-sans);font-size:11px;font-weight:500;
+                      color:var(--color-text-tertiary,var(--color-text-muted));margin-bottom:6px">Repeticiones</div>
+          <div style="font-family:'SF Pro Display',var(--font-sans);font-size:20px;font-weight:600;
+                      color:var(--color-text-primary,var(--color-text));line-height:1.1">${rpeSuffix}</div>
         </div>
       </div>
     </div>
@@ -1895,7 +1912,7 @@ async function openSessionDetail(sessionId, session) {
 
     <!-- Panel: Músculos -->
     <div id="session-panel-musculos" class="session-panel" style="display:none">
-      <div id="session-muscle-map"></div>
+      <div id="session-muscle-map" style="border-radius:14px;overflow:hidden"></div>
     </div>
   `;
 
@@ -1963,10 +1980,10 @@ async function openSessionDetail(sessionId, session) {
           </tr>`).join('');
 
         return `
-          <div style="margin-bottom:10px;overflow:hidden;background:var(--glass-bg);
+          <div style="margin-bottom:10px;overflow:hidden;background:var(--color-background-primary,var(--glass-bg));
                       border:0.5px solid var(--color-border-tertiary,var(--glass-border));border-radius:14px">
-            <div style="font-size:14px;font-weight:500;color:var(--color-text);
-                        padding:14px 16px 10px">${name}</div>
+            <div style="font-family:'SF Pro Text',var(--font-sans);font-size:14px;font-weight:500;
+                        color:var(--color-text-primary,var(--color-text));padding:14px 16px 10px">${name}</div>
             <div style="height:0.5px;background:var(--color-border-tertiary,var(--glass-border))"></div>
             <table style="width:100%;border-collapse:collapse;padding:0 16px">
               <thead>
