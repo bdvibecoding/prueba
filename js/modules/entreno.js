@@ -33,6 +33,16 @@ function getPrimaryMuscle(exercises = []) {
   exercises.forEach(ex => { const m = ex.muscleGroup || ex.m || ''; if (m) freq[m] = (freq[m] || 0) + 1; });
   return Object.entries(freq).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
 }
+// §19 — top 2–3 distinct muscle groups, sentence case, joined by ·
+function getTopMuscleSubtitle(exercises = [], max = 3) {
+  const freq = {};
+  exercises.forEach(ex => { const m = ex.muscleGroup || ex.m || ''; if (m) freq[m] = (freq[m] || 0) + 1; });
+  return Object.entries(freq)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, max)
+    .map(([m], i) => i === 0 ? m.charAt(0).toUpperCase() + m.slice(1).toLowerCase() : m.toLowerCase())
+    .join(' · ');
+}
 function fmtHHMM(ms) {
   const d = new Date(ms);
   return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
@@ -125,87 +135,247 @@ async function loadRoutinesList(container) {
   const listEl  = container.querySelector('#routines-container');
 
   try {
-    const snap = await collections.assignments(profile.uid).orderBy('createdAt','desc').limit(20).get();
+    // ── Fetch plans and assignments in parallel ──
+    const [plansSnap, assignSnap] = await Promise.all([
+      collections.plans(profile.uid).get(),
+      collections.assignments(profile.uid).orderBy('createdAt', 'desc').limit(20).get()
+    ]);
 
-    if (snap.empty) {
+    const plans = plansSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // ── Build visible individual routines ──
+    let individualRoutines = [];
+    if (!assignSnap.empty) {
+      const routinesData = await Promise.all(
+        assignSnap.docs.map(async d => {
+          const data = d.data();
+          const routineSnap = await db.collection('routines').doc(data.routineId).get();
+          return { id: d.id, assignmentId: d.id, ...data, routine: routineSnap.data() };
+        })
+      );
+      const now = new Date();
+      const daysFromMonday = (now.getDay() === 0 ? 6 : now.getDay() - 1);
+      const startOfWeek = new Date(now);
+      startOfWeek.setDate(now.getDate() - daysFromMonday);
+      startOfWeek.setHours(0, 0, 0, 0);
+      individualRoutines = routinesData.filter(a => {
+        if (a.unassigned === true) return false;
+        if (a.completedAt) {
+          const cd = a.completedAt?.toDate?.() || new Date(a.completedAt);
+          if (cd >= startOfWeek) return false;
+        }
+        return true;
+      });
+    }
+
+    // ── Basico onboarding (no plans, no assignments) ──
+    if (plans.length === 0 && individualRoutines.length === 0) {
       if (profile?.role === 'basico') {
         renderBasicOnboarding(container, listEl, profile);
       } else {
-        listEl.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-icon"><svg style="width:32px;height:32px;opacity:0.4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="3" rx="1"/><path d="M16 3h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="15" y2="14"/></svg></div>
-            <div class="empty-title">${t('entreno_no_routines')}</div>
-            <div class="empty-subtitle">${t('entreno_no_routines_sub')}</div>
-          </div>
- `;
+        // Always show folder view even when empty
+        await renderPlansView(container, [], []);
       }
       return;
     }
 
-    const routines = await Promise.all(
-      snap.docs.map(async d => {
-        const data = d.data();
-        const routineSnap = await db.collection('routines').doc(data.routineId).get();
-        return { id: d.id, assignmentId: d.id, ...data, routine: routineSnap.data() };
-      })
-    );
-
-    // Ocultar rutinas completadas esta semana (se muestran de nuevo el lunes 00:00)
-    const now = new Date();
-    const daysFromMonday = (now.getDay() === 0 ? 6 : now.getDay() - 1);
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - daysFromMonday);
-    startOfWeek.setHours(0, 0, 0, 0);
-
-    const visibleRoutines = routines.filter(a => {
-      if (a.unassigned === true) return false;
-      if (a.completedAt) {
-        const cd = a.completedAt?.toDate?.() || new Date(a.completedAt);
-        if (cd >= startOfWeek) return false;
-      }
-      return true;
-    });
-
-    if (visibleRoutines.length === 0 && routines.length > 0) {
-      listEl.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon"><svg style="width:32px;height:32px;opacity:0.4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-          <div class="empty-title">¡Semana completada!</div>
-          <div class="empty-subtitle">Las rutinas vuelven a estar disponibles el lunes a las 00:00</div>
-        </div>`;
-      return;
-    }
-
-    listEl.innerHTML = visibleRoutines.map(a => {
-      const r = a.routine || {};
-      const exCount = r.exercises?.length || 0;
-      const muscle  = getPrimaryMuscle(r.exercises || []);
-      const icon    = getMuscleIcon(muscle);
-      const dateStr = a.assignedAt ? formatDate(a.assignedAt.toDate?.() || a.assignedAt) : t('today');
-      return `
-        <div class="routine-card glass-card" data-assignment-id="${a.assignmentId}" data-routine-id="${a.routineId || a.id}">
-          <div class="routine-card-icon">${icon}</div>
-          <div class="routine-card-body">
-            <div class="routine-card-title">${r.name || a.name || 'Rutina'}</div>
-            <div class="routine-card-meta">${dateStr} · ${exCount} ${t('entreno_exercises_count')}</div>
-          </div>
-          <span class="badge badge-red" style="flex-shrink:0">${exCount} ej.</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--color-text-muted);flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
- `;
-    }).join('');
-
-    container.querySelectorAll('.routine-card').forEach(card => {
-      card.addEventListener('click', () => {
-        activeAssignmentId = card.dataset.assignmentId || null;
-        loadRoutineDetail(container, card.dataset.routineId);
-      });
-    });
-
+    // ── Always render plans view (passes individual routines too) ──
+    await renderPlansView(container, plans, individualRoutines);
 
   } catch (e) {
     listEl.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg style="width:32px;height:32px;opacity:0.4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="empty-title">${t('error_loading')}</div><div class="empty-subtitle">${e.message}</div></div>`;
   }
+}
+
+// ── Plans View ──────────────────────────────────
+async function renderPlansView(container, plans, individualRoutines = []) {
+  const listEl = container.querySelector('#routines-container');
+  const activePlan = plans.find(p => p.isActive);
+  const sortedPlans = [...plans].sort((a, b) => {
+    if (a.isActive) return -1;
+    if (b.isActive) return 1;
+    const ta = a.createdAt?.toMillis?.() || 0;
+    const tb = b.createdAt?.toMillis?.() || 0;
+    return tb - ta;
+  });
+
+  let html = '';
+
+  // ── Active plan shortcuts ──
+  if (activePlan && activePlan.routines?.length) {
+    html += `
+      <div style="margin-bottom:28px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <div style="width:3px;height:20px;background:var(--red,#C10801);border-radius:2px"></div>
+          <span style="font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--red,#C10801)">Plan Activo</span>
+          <span style="font-size:13px;font-weight:700;color:var(--color-text)">${activePlan.name}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px" id="active-plan-routines">
+    `;
+    for (const r of activePlan.routines) {
+      html += `
+        <div class="routine-card glass-card" data-routine-id="${r.routineId}" style="cursor:pointer">
+          <div class="routine-card-icon">${getMuscleIcon('')}</div>
+          <div class="routine-card-body">
+            <div class="routine-card-title">${r.name}</div>
+            <div class="routine-card-meta" style="color:var(--red,#C10801);font-weight:600;font-size:11px">▶ Disponible</div>
+          </div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--color-text-muted);flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      `;
+    }
+    html += `</div></div>`;
+  }
+
+  // ── Carpeta padre "Planes" (siempre visible) ──
+  const plansInnerHtml = (() => {
+    if (plans.length === 0) {
+      return `
+        <div style="padding:20px 18px;text-align:center;opacity:.45">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="width:28px;height:28px;margin:0 auto 8px;display:block"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          <div style="font-size:12px;font-weight:600;margin-bottom:3px">Sin planes asignados</div>
+          <div style="font-size:11px;color:var(--color-text-muted)">Tu entrenador preparará tu plan aquí</div>
+        </div>`;
+    }
+    return sortedPlans.map(plan => {
+      const isActive = plan.isActive;
+      const routines = plan.routines || [];
+      return `
+        <div class="plan-folder-card" data-plan-id="${plan.id}"
+          style="background:${isActive ? 'rgba(193,8,1,0.06)' : 'rgba(255,255,255,0.02)'};
+                 border:1px solid ${isActive ? 'var(--red,#C10801)' : 'var(--glass-border)'};
+                 border-radius:12px;margin-bottom:8px;overflow:hidden">
+          <div class="plan-folder-header"
+            style="display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round"
+              style="width:17px;height:17px;flex-shrink:0;color:${isActive ? 'var(--red,#C10801)' : 'var(--color-text-muted)'}">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            </svg>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px;font-weight:700;color:${isActive ? 'var(--color-text)' : 'var(--color-text-muted)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${plan.name}</div>
+              <div style="font-size:10px;color:var(--color-text-muted);margin-top:1px">${routines.length} ${routines.length === 1 ? 'rutina' : 'rutinas'}</div>
+            </div>
+            ${isActive
+              ? `<span style="background:var(--red,#C10801);color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;letter-spacing:.05em;text-transform:uppercase;flex-shrink:0">ACTIVO</span>`
+              : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;color:var(--color-text-muted);opacity:.5;flex-shrink:0"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`}
+            <svg class="plan-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+              style="width:14px;height:14px;color:var(--color-text-muted);transition:transform .2s;flex-shrink:0;transform:${isActive ? 'rotate(90deg)' : ''}">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+          <div class="plan-folder-body"
+            style="display:${isActive ? 'block' : 'none'};padding:0 16px 12px;border-top:1px solid ${isActive ? 'rgba(193,8,1,0.15)' : 'var(--glass-border)'}">
+            ${routines.length
+              ? routines.map(r => `
+                <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.05);opacity:${isActive ? '1' : '.5'}">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                    style="width:13px;height:13px;flex-shrink:0;color:${isActive ? 'var(--red,#C10801)' : 'var(--color-text-muted)'}">
+                    <path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/>
+                    <path d="M6.5 8.5h11v7h-11z"/>
+                  </svg>
+                  <span style="flex:1;font-size:13px;font-weight:600;color:var(--color-text)">${r.name}</span>
+                  ${!isActive ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;color:var(--color-text-muted)"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>` : ''}
+                </div>`).join('')
+              : `<div style="padding:10px 0;font-size:11px;color:var(--color-text-muted);opacity:.6">Sin rutinas en este plan</div>`}
+          </div>
+        </div>`;
+    }).join('');
+  })();
+
+  html += `
+    <div style="margin-top:${activePlan ? '28px' : '0'}">
+      <!-- Carpeta padre Planes -->
+      <div id="parent-plans-folder" style="background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:16px;overflow:hidden">
+        <div id="parent-plans-header" style="display:flex;align-items:center;gap:12px;padding:16px 18px;cursor:pointer;user-select:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;flex-shrink:0;color:var(--color-text-muted)">
+            <path d="M3 7a2 2 0 0 1 2-2h3.17a2 2 0 0 1 1.41.59l1.83 1.82A2 2 0 0 0 12.83 8H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          </svg>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:16px;font-weight:800;color:var(--color-text)">Planes</div>
+            <div style="font-size:11px;color:var(--color-text-muted);margin-top:2px">${plans.length} ${plans.length === 1 ? 'plan' : 'planes'}${activePlan ? ` · <span style="color:var(--red,#C10801);font-weight:700">${activePlan.name} activo</span>` : ''}</div>
+          </div>
+          <svg id="parent-plans-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--color-text-muted);transition:transform .25s;transform:rotate(90deg)">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+        </div>
+        <div id="parent-plans-body" style="padding:12px 12px 12px;border-top:1px solid var(--glass-border)">
+          ${plansInnerHtml}
+        </div>
+      </div>
+    </div>
+  `;
+
+  // ── Individual assigned routines (always shown at bottom) ──
+  if (individualRoutines.length > 0) {
+    html += `
+      <div style="margin-top:24px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <div style="width:3px;height:20px;background:var(--glass-border);border-radius:2px"></div>
+          <span style="font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-muted)">Rutinas Individuales</span>
+        </div>
+        <div id="individual-routines-list" style="display:flex;flex-direction:column;gap:10px">
+    `;
+    individualRoutines.forEach(a => {
+      const r = a.routine || {};
+      const exCount = r.exercises?.length || 0;
+      const muscle  = getPrimaryMuscle(r.exercises || []);
+      const icon    = getMuscleIcon(muscle);
+      html += `
+        <div class="routine-card glass-card" data-assignment-id="${a.assignmentId}" data-routine-id="${a.routineId || a.id}" style="cursor:pointer">
+          <div class="routine-card-icon">${icon}</div>
+          <div class="routine-card-body">
+            <div class="routine-card-title">${r.name || a.name || 'Rutina'}</div>
+            <div class="routine-card-meta">${exCount} ${t('entreno_exercises_count')}</div>
+          </div>
+          <span class="badge badge-red" style="flex-shrink:0">${exCount} ej.</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--color-text-muted);flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      `;
+    });
+    html += `</div></div>`;
+  }
+
+  listEl.innerHTML = html;
+
+  // ── Wire active plan routine clicks ──
+  listEl.querySelectorAll('#active-plan-routines .routine-card').forEach(card => {
+    card.addEventListener('click', () => {
+      loadRoutineDetail(container, card.dataset.routineId);
+    });
+  });
+
+  // ── Wire individual routine clicks ──
+  listEl.querySelectorAll('#individual-routines-list .routine-card').forEach(card => {
+    card.addEventListener('click', () => {
+      activeAssignmentId = card.dataset.assignmentId || null;
+      loadRoutineDetail(container, card.dataset.routineId);
+    });
+  });
+
+  // ── Wire parent "Planes" folder toggle ──
+  listEl.querySelector('#parent-plans-header')?.addEventListener('click', () => {
+    const body    = listEl.querySelector('#parent-plans-body');
+    const chevron = listEl.querySelector('#parent-plans-chevron');
+    if (!body) return;
+    const isOpen = body.style.display !== 'none';
+    body.style.display = isOpen ? 'none' : 'block';
+    if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(90deg)';
+  });
+
+  // ── Wire sub-plan folder toggles ──
+  listEl.querySelectorAll('.plan-folder-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const card    = header.closest('.plan-folder-card');
+      const body    = card.querySelector('.plan-folder-body');
+      const chevron = header.querySelector('.plan-chevron');
+      const isOpen  = body.style.display !== 'none';
+      body.style.display = isOpen ? 'none' : 'block';
+      if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(90deg)';
+    });
+  });
+
+  // Folder routine rows are informational only — navigation is via the shortcuts at top
 }
 
 // ── Load Routine Detail ────────────────────────
@@ -277,12 +447,15 @@ async function renderRoutineDetail(container, routine) {
   page.classList.add('workout-detail-layout');
   page.innerHTML = `
 
-    <!-- ── Top bar (§12.1) — always visible, never scrolls ── -->
+    <!-- ── Top bar (§12.1 + §19) — always visible, never scrolls ── -->
     <div class="workout-topbar">
       <button class="workout-topbar-back" id="btn-back-routines" title="${t('entreno_tab_routines')}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M15 18l-6-6 6-6"/></svg>
       </button>
-      <div class="workout-topbar-title">${routine.name}</div>
+      <div class="workout-topbar-center">
+        <div class="workout-topbar-title">${routine.name}</div>
+        ${(() => { const sub = getTopMuscleSubtitle(routine.exercises || []); return sub ? `<div class="workout-topbar-subtitle">${sub}</div>` : ''; })()}
+      </div>
       ${isActive ? `<button class="btn-topbar-finish" id="btn-finish-top">Terminar</button>` : ''}
     </div>
 
@@ -1418,9 +1591,67 @@ async function openExerciseHistory(exercise) {
 // ══════════════════════════════════════════════
 
 // ── Load Historial Tab ────────────────────────
+// ── Historial helpers ──────────────────────────
+const _DIAS_ABBR  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const _MESES_ES   = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const _CAL_HEADS  = ['L','M','X','J','V','S','D'];
+
+function _dateKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function _dayOfWeekMon(d) { return (d.getDay() + 6) % 7; } // Mon=0 … Sun=6
+
+function _buildCalHTML(year, month, trainedDays, selectedDay, isDark = false) {
+  const daysInMonth  = new Date(year, month + 1, 0).getDate();
+  const firstWeekday = _dayOfWeekMon(new Date(year, month, 1));
+
+  // Inverted surface: dark bg in light mode, light bg in dark mode
+  const numClr  = isDark ? 'rgba(0,0,0,0.85)'   : 'rgba(255,255,255,0.85)';
+  const headClr = isDark ? 'rgba(0,0,0,0.5)'    : 'rgba(255,255,255,0.5)';
+  const moClr   = isDark ? '#111111'             : '#FFFFFF';
+  const yrClr   = isDark ? 'rgba(0,0,0,0.35)'   : 'rgba(255,255,255,0.35)';
+  const selBg   = isDark ? '#111111'             : '#FFFFFF';
+  const selClr  = isDark ? '#FFFFFF'             : '#111111';
+  const selBdr  = isDark ? '0.5px solid #F0F0F0' : '0.5px solid #111111';
+  const dotClr  = isDark ? 'rgba(0,0,0,0.4)'    : 'rgba(255,255,255,0.4)';
+  const selDot  = isDark ? '#FFFFFF'             : '#111111';
+
+  const heads = _CAL_HEADS.map(h =>
+    `<div style="text-align:center;font-family:'SF Pro Text',var(--font-sans);font-size:11px;font-weight:500;color:${headClr};padding-bottom:6px">${h}</div>`
+  ).join('');
+
+  let cells = Array(firstWeekday).fill('<div></div>').join('');
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key    = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isSel  = key === selectedDay;
+    const hasDot = trainedDays.has(key);
+    cells += `
+      <div data-date="${key}" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:1px 0">
+        <div style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;
+          background:${isSel ? selBg : 'transparent'};
+          border:${isSel ? selBdr : 'none'};
+          color:${isSel ? selClr : numClr};
+          font-family:'SF Pro Text',var(--font-sans);
+          font-weight:${isSel ? '600' : '400'};font-size:13px;
+          transition:background 150ms ease,color 150ms ease,border 150ms ease">
+          ${d}
+        </div>
+        <div style="width:4px;height:4px;border-radius:50%;background:${hasDot ? (isSel ? selDot : dotClr) : 'transparent'}"></div>
+      </div>`;
+  }
+
+  return `
+    <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:12px">
+      <span style="font-family:'SF Pro Display',var(--font-sans);font-size:20px;font-weight:600;color:${moClr}">${_MESES_ES[month]}</span>
+      <span style="font-family:'SF Pro Text',var(--font-sans);font-size:12px;color:${yrClr}">${year}</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:0;margin-bottom:4px">${heads}</div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:0">${cells}</div>`;
+}
+
 async function loadHistorialTab(container) {
-  const profile  = getUserProfile();
-  const histEl   = container.querySelector('#history-container');
+  const profile = getUserProfile();
+  const histEl  = container.querySelector('#history-container');
 
   if (!profile?.uid) {
     histEl.innerHTML = `<div class="empty-state"><div class="empty-title">${t('not_authenticated')}</div></div>`;
@@ -1429,56 +1660,158 @@ async function loadHistorialTab(container) {
 
   try {
     const snap = await collections.workoutSessions(profile.uid)
-      .orderBy('startTime', 'desc')
-      .limit(30)
-      .get();
+      .orderBy('startTime', 'desc').limit(50).get();
 
     if (snap.empty) {
       histEl.innerHTML = `
         <div class="empty-state">
           <div class="empty-title">${t('entreno_no_sessions')}</div>
           <div class="empty-subtitle">${t('entreno_no_sessions_sub')}</div>
-        </div>
- `;
+        </div>`;
       return;
     }
 
-    histEl.innerHTML = snap.docs.map(doc => {
-      const session   = doc.data();
-      const date      = session.startTime?.toDate?.() || new Date(session.startTime);
-      const totalSets = Object.values(session.completedSets || {})
-        .reduce((acc, arr) => acc + (Array.isArray(arr) ? arr.length : 0), 0);
-      const exerciseCount = Object.keys(session.setData || {})
-        .filter(exId => (session.setData[exId]?.sets?.length || 0) > 0).length;
+    const sessions = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-      return `
-        <div class="session-history-card glass-card" data-session-id="${doc.id}" style="margin-bottom:var(--space-sm);cursor:pointer">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-            <div style="min-width:0;flex:1">
-              <div style="font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${session.routineName || 'Entreno'}</div>
-              <div style="font-size:12px;color:var(--color-text-muted);margin-top:2px">${formatDate(date)}</div>
-            </div>
-            <div style="text-align:right;flex-shrink:0">
-              <div style="font-size:13px;font-weight:600">${formatTime(session.durationMs || 0)}</div>
-              ${session.rpe ? `<div style="font-size:11px;color:var(--color-text-muted)">RPE ${session.rpe}/10</div>` : ''}
-            </div>
-          </div>
-          <div style="margin-top:var(--space-sm);display:flex;gap:6px;flex-wrap:wrap">
-            <span class="chip">${totalSets} ${t('entreno_sets_count')}</span>
-            <span class="chip">${exerciseCount} ${t('entreno_exercises_label')}</span>
-          </div>
-          ${session.note ? `<p style="font-size:12px;color:var(--color-text-muted);margin-top:var(--space-xs);font-style:italic;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">"${session.note}"</p>` : ''}
+    // Build set of trained day keys
+    const trainedDays = new Set(sessions.map(s => {
+      const d = s.startTime?.toDate?.() || new Date(s.startTime);
+      return _dateKey(d);
+    }));
+
+    const today     = new Date();
+    let calYear     = today.getFullYear();
+    let calMonth    = today.getMonth();
+    let selectedDay = null;
+    const isDark    = document.documentElement.classList.contains('dark') ||
+                      window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const calBg     = isDark ? '#F0F0F0' : '#111111';
+
+    histEl.innerHTML = `
+      <div id="cal-wrapper" style="width:60%;margin-bottom:16px">
+        <div id="training-calendar"
+             style="background:${calBg};border-radius:14px;padding:16px;touch-action:none;overflow:hidden">
+          <div id="cal-inner" style="will-change:transform"></div>
         </div>
- `;
-    }).join('');
+      </div>
+      <div id="history-cards"></div>`;
 
-    // Attach click handlers — store session data on element for sheet
-    snap.docs.forEach(doc => {
-      const card = histEl.querySelector(`[data-session-id="${doc.id}"]`);
-      if (card) {
-        card.addEventListener('click', () => openSessionDetail(doc.id, doc.data()));
+    // ── Render helpers ──
+    function renderCalendar(direction = 0) {
+      const el = histEl.querySelector('#cal-inner');
+      if (!el) return;
+      if (direction !== 0) {
+        // Slide-in animation: incoming content arrives from below (up-swipe) or above (down-swipe)
+        const fromY = direction < 0 ? '100%' : '-100%';
+        el.animate([{ transform: `translateY(${fromY})`, opacity: 0 },
+                    { transform: 'translateY(0)',         opacity: 1 }],
+                   { duration: 300, easing: 'ease-in-out', fill: 'both' });
       }
-    });
+      el.innerHTML = _buildCalHTML(calYear, calMonth, trainedDays, selectedDay, isDark);
+      wireCalDays();
+    }
+
+    function wireCalDays() {
+      histEl.querySelectorAll('#cal-inner [data-date]').forEach(cell => {
+        cell.addEventListener('click', () => {
+          selectedDay = selectedDay === cell.dataset.date ? null : cell.dataset.date;
+          renderCalendar();
+          renderCards();
+        });
+      });
+    }
+
+    function renderCards() {
+      const cardsEl = histEl.querySelector('#history-cards');
+      if (!cardsEl) return;
+
+      let filtered;
+      if (!selectedDay) {
+        filtered = sessions.filter(s => {
+          const d = s.startTime?.toDate?.() || new Date(s.startTime);
+          return d.getFullYear() === calYear && d.getMonth() === calMonth;
+        });
+      } else {
+        filtered = sessions.filter(s => {
+          const d = s.startTime?.toDate?.() || new Date(s.startTime);
+          return _dateKey(d) === selectedDay;
+        });
+      }
+
+      if (!filtered.length) {
+        if (selectedDay) {
+          cardsEl.innerHTML = `<div style="text-align:center;padding:32px 16px;font-family:'SF Pro Text',var(--font-sans);font-size:14px;color:var(--color-text-tertiary,var(--color-text-muted))">Sin registro este día</div>`;
+        } else {
+          cardsEl.innerHTML = '';
+        }
+        return;
+      }
+
+      cardsEl.innerHTML = filtered.map(s => {
+        const date      = s.startTime?.toDate?.() || new Date(s.startTime);
+        const dayAbbr   = _DIAS_ABBR[date.getDay()];
+        const dayNum    = date.getDate();
+        const durMin    = s.durationMs ? Math.round(s.durationMs / 60000) : null;
+        const metaParts = [];
+        if (durMin) metaParts.push(`${durMin} min`);
+        if (s.rpe)  metaParts.push(`Rep ${s.rpe}/10`);
+        const meta = metaParts.join(' · ');
+
+        return `
+          <div class="session-history-card" data-session-id="${s.id}"
+            style="display:flex;align-items:center;gap:12px;padding:12px 14px;
+                   background:var(--glass-bg);border:0.5px solid var(--glass-border);
+                   border-radius:14px;margin-bottom:10px;cursor:pointer">
+            <!-- Date block — left anchor -->
+            <div style="min-width:44px;text-align:center;flex-shrink:0">
+              <div style="font-family:'SF Pro Text',var(--font-sans);font-size:11px;font-weight:500;
+                          text-transform:uppercase;letter-spacing:0.04em;color:var(--color-text-muted);
+                          line-height:1.2">${dayAbbr}</div>
+              <div style="font-family:'SF Pro Display',var(--font-sans);font-size:28px;font-weight:600;
+                          color:var(--color-text);line-height:1">${dayNum}</div>
+            </div>
+            <!-- Separator -->
+            <div style="width:0.5px;height:44px;background:var(--glass-border);flex-shrink:0"></div>
+            <!-- Card body -->
+            <div style="flex:1;min-width:0">
+              <div style="font-family:'SF Pro Text',var(--font-sans);font-size:14px;font-weight:500;
+                          color:var(--color-text);overflow:hidden;text-overflow:ellipsis;
+                          white-space:nowrap">${s.routineName || 'Entreno'}</div>
+              ${meta ? `<div style="font-family:'SF Pro Text',var(--font-sans);font-size:12px;
+                              color:var(--color-text-muted);margin-top:2px">${meta}</div>` : ''}
+            </div>
+            <!-- Chevron -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                 stroke-linecap="round" stroke-linejoin="round"
+                 style="width:16px;height:16px;color:var(--color-text-muted);flex-shrink:0">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>`;
+      }).join('');
+
+      filtered.forEach(s => {
+        const card = cardsEl.querySelector(`[data-session-id="${s.id}"]`);
+        if (card) card.addEventListener('click', () => openSessionDetail(s.id, s));
+      });
+    }
+
+    renderCalendar();
+    renderCards();
+
+    // ── Vertical swipe to change month ──
+    let _touchY0 = 0;
+    const calEl = histEl.querySelector('#training-calendar');
+    calEl.addEventListener('touchstart', e => { _touchY0 = e.touches[0].clientY; }, { passive: true });
+    calEl.addEventListener('touchend', e => {
+      const delta = e.changedTouches[0].clientY - _touchY0;
+      if (Math.abs(delta) < 30) return;
+      const dir = delta < 0 ? -1 : 1; // -1 = swipe up (next month), +1 = swipe down (prev month)
+      if (delta < 0) { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } }
+      else           { calMonth--; if (calMonth < 0)  { calMonth = 11; calYear--; } }
+      selectedDay = null;
+      renderCalendar(dir);
+      renderCards();
+    }, { passive: true });
 
   } catch (e) {
     histEl.innerHTML = `<div class="empty-state"><div class="empty-title">${t('error_loading')}</div><div class="empty-subtitle">${e.message}</div></div>`;
@@ -1487,61 +1820,108 @@ async function loadHistorialTab(container) {
 
 // ── Open Session Detail Sheet ─────────────────
 async function openSessionDetail(sessionId, session) {
-  const profile     = getUserProfile();
-  const role        = profile?.role || 'cliente';
-  const isCoach     = role === 'coach' || role === 'admin';
-  const date        = session.startTime?.toDate?.() || new Date(session.startTime);
-  const totalSets   = Object.values(session.completedSets || {})
-    .reduce((acc, arr) => acc + (Array.isArray(arr) ? arr.length : 0), 0);
+  const setData     = session.setData || {};
+  const exIds       = Object.keys(setData).filter(id => setData[id]?.sets?.length > 0);
+  const totalSets   = exIds.reduce((acc, id) => acc + (setData[id]?.sets?.length || 0), 0);
+  const totalEx     = exIds.length;
+  const setsSuffix  = `${String(totalSets).padStart(2,'0')} ser ${String(totalEx).padStart(2,'0')} ej`;
+  const rpeSuffix   = session.rpe ? `${String(session.rpe).padStart(2,'0')}/10 rep` : '—';
 
-  // Build initial sheet with loading state for exercises
-  const toggleHtml = !isCoach ? `
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:var(--space-sm)">
-      <label style="font-size:13px;color:var(--color-text-muted)">${t('entreno_show_muscle_map')}</label>
-      <label class="toggle-switch">
-        <input type="checkbox" id="toggle-session-map" checked>
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
- ` : '';
+  // Sentence case helper
+  const toSentenceCase = str =>
+    str ? str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') : str;
+
+  const routineTitle = toSentenceCase(session.routineName || 'Entreno');
 
   const html = `
-    <div class="modal-header">
-      <h3 class="modal-title">${session.routineName || 'Entreno'}</h3>
+    <div class="modal-header" style="margin-bottom:0">
+      <h3 style="font-family:'SF Pro Display',var(--font-sans);font-size:18px;font-weight:500;
+                 color:var(--color-text);text-align:left;flex:1;margin:0;
+                 overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${routineTitle}</h3>
       <button class="modal-close">✕</button>
     </div>
 
-    ${toggleHtml}
+    <!-- Tab bar -->
+    <div id="session-tab-bar"
+         style="display:flex;border-bottom:1px solid var(--glass-border);margin:12px 0 16px">
+      <button class="session-tab active" data-tab="resumen"
+        style="flex:1;background:none;border:none;border-bottom:2px solid var(--color-text);
+               margin-bottom:-1px;padding:8px 0;font-family:'SF Pro Display',var(--font-sans);
+               font-size:16px;font-weight:500;color:var(--color-text);cursor:pointer">Resumen</button>
+      <button class="session-tab" data-tab="series"
+        style="flex:1;background:none;border:none;border-bottom:2px solid transparent;
+               margin-bottom:-1px;padding:8px 0;font-family:'SF Pro Display',var(--font-sans);
+               font-size:16px;font-weight:500;color:var(--color-text-muted);cursor:pointer">Series</button>
+      <button class="session-tab" data-tab="musculos"
+        style="flex:1;background:none;border:none;border-bottom:2px solid transparent;
+               margin-bottom:-1px;padding:8px 0;font-family:'SF Pro Display',var(--font-sans);
+               font-size:16px;font-weight:500;color:var(--color-text-muted);cursor:pointer">Músculos</button>
+    </div>
 
-    <div class="summary-stat-grid" style="margin-bottom:var(--space-md)">
-      <div class="summary-stat">
-        <span class="summary-stat-val">${formatTime(session.durationMs || 0)}</span>
-        <span class="summary-stat-key">${t('entreno_duration')}</span>
-      </div>
-      <div class="summary-stat">
-        <span class="summary-stat-val">${totalSets}</span>
-        <span class="summary-stat-key">${t('entreno_sets_count')}</span>
-      </div>
-      <div class="summary-stat">
-        <span class="summary-stat-val">${session.rpe ? session.rpe + '/10' : '—'}</span>
-        <span class="summary-stat-key">RPE</span>
+    <!-- Panel: Resumen -->
+    <div id="session-panel-resumen" class="session-panel">
+      ${session.note ? `<div style="margin-bottom:12px;padding:12px 14px;background:var(--glass-bg);border:0.5px solid var(--color-border-tertiary,var(--glass-border));border-radius:14px;font-style:italic;font-size:13px;color:var(--color-text-muted)">"${session.note}"</div>` : ''}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <!-- Duration — full width, label top / value bottom -->
+        <div style="grid-column:1/-1;background:var(--glass-bg);
+                    border:0.5px solid var(--color-border-tertiary,var(--glass-border));
+                    border-radius:14px;padding:14px 16px">
+          <div style="font-size:11px;font-weight:500;color:var(--color-text-muted);text-transform:lowercase;margin-bottom:6px">${t('entreno_duration')}</div>
+          <div style="font-size:26px;font-weight:600;color:var(--color-text);line-height:1.1">${formatTime(session.durationMs || 0)}</div>
+        </div>
+        <!-- Series — label top / value bottom -->
+        <div style="background:var(--glass-bg);
+                    border:0.5px solid var(--color-border-tertiary,var(--glass-border));
+                    border-radius:14px;padding:14px 16px">
+          <div style="font-size:11px;font-weight:500;color:var(--color-text-muted);text-transform:lowercase;margin-bottom:6px">Series</div>
+          <div style="font-size:20px;font-weight:600;color:var(--color-text);line-height:1.1">${setsSuffix}</div>
+        </div>
+        <!-- Repeticiones — label top / value bottom -->
+        <div style="background:var(--glass-bg);
+                    border:0.5px solid var(--color-border-tertiary,var(--glass-border));
+                    border-radius:14px;padding:14px 16px">
+          <div style="font-size:11px;font-weight:500;color:var(--color-text-muted);text-transform:lowercase;margin-bottom:6px">Repeticiones</div>
+          <div style="font-size:20px;font-weight:600;color:var(--color-text);line-height:1.1">${rpeSuffix}</div>
+        </div>
       </div>
     </div>
 
-    ${session.note ? `<div class="glass-card" style="margin-bottom:var(--space-md);padding:12px 14px;font-style:italic;font-size:13px">"${session.note}"</div>` : ''}
-
-    <div class="section-title">${t('entreno_sets_performed')}</div>
-    <div id="session-exercises-detail">
-      <div class="overlay-spinner"><div class="spinner-sm"></div></div>
+    <!-- Panel: Series -->
+    <div id="session-panel-series" class="session-panel" style="display:none">
+      <div id="session-exercises-detail">
+        <div class="overlay-spinner"><div class="spinner-sm"></div></div>
+      </div>
     </div>
 
-    <div class="section-title" style="margin-top:var(--space-md)" id="muscle-map-title">${t('entreno_muscles_worked')}</div>
-    <div id="session-muscle-map"></div>
- `;
+    <!-- Panel: Músculos -->
+    <div id="session-panel-musculos" class="session-panel" style="display:none">
+      <div id="session-muscle-map"></div>
+    </div>
+  `;
 
   openSheet(html);
 
-  // Ensure exercise data cache is loaded (needed for enrichExercises → muscle map)
+  // Wire tab switching
+  const sheetContent = document.getElementById('sheet-content') || document.querySelector('.sheet-body');
+  const getEl = id => sheetContent ? sheetContent.querySelector(id) : document.querySelector(id);
+
+  (sheetContent || document).querySelectorAll('.session-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      // Update tab styles
+      (sheetContent || document).querySelectorAll('.session-tab').forEach(b => {
+        const active = b.dataset.tab === tab;
+        b.style.color        = active ? 'var(--color-text)' : 'var(--color-text-muted)';
+        b.style.borderBottom = active ? '2px solid var(--color-text)' : '2px solid transparent';
+      });
+      // Show/hide panels
+      (sheetContent || document).querySelectorAll('.session-panel').forEach(p => {
+        p.style.display = p.id === `session-panel-${tab}` ? '' : 'none';
+      });
+    });
+  });
+
+  // Ensure exercise data cache
   if (!_exDataCache) {
     try {
       const { EXERCISES } = await import('../../data/data.js');
@@ -1556,19 +1936,15 @@ async function openSessionDetail(sessionId, session) {
     try {
       const routineSnap = await db.collection('routines').doc(session.routineId).get();
       exercises = routineSnap.exists ? (routineSnap.data().exercises || []) : [];
-    } catch { /* silently fall back to empty array */ }
+    } catch { /* silently fall back */ }
   }
 
   // Build exercise name lookup
   const exNameMap = {};
   exercises.forEach(ex => { exNameMap[ex.id] = ex.name || ex.id; });
 
-  // Render per-exercise breakdown
-  const sheetContent = document.getElementById('sheet-content') || document.querySelector('.sheet-body');
-  const detailEl = sheetContent
-    ? sheetContent.querySelector('#session-exercises-detail')
-    : document.querySelector('#session-exercises-detail');
-
+  // Render Series panel
+  const detailEl = getEl('#session-exercises-detail');
   if (detailEl) {
     const setData = session.setData || {};
     const exIds   = Object.keys(setData).filter(id => setData[id]?.sets?.length > 0);
@@ -1578,79 +1954,54 @@ async function openSessionDetail(sessionId, session) {
     } else {
       detailEl.innerHTML = exIds.map(exId => {
         const sets = setData[exId].sets || [];
-        const name = exNameMap[exId] || exId;
+        const name = toSentenceCase(exNameMap[exId] || exId);
         const rows = sets.map((set, i) => `
           <tr>
-            <td style="color:var(--color-text-muted);font-weight:700">${i + 1}</td>
-            <td>${set.reps || '—'}</td>
-            <td>${set.weight || '—'}</td>
-          </tr>
- `).join('');
+            <td style="padding:6px 4px 6px 16px;font-size:13px;color:var(--color-text-secondary)">${i + 1}</td>
+            <td style="padding:6px 4px;font-size:13px;color:var(--color-text-secondary)">${set.reps || '—'}</td>
+            <td style="padding:6px 16px 6px 4px;font-size:13px;color:var(--color-text-secondary)">${set.weight || '—'}</td>
+          </tr>`).join('');
 
         return `
-          <div class="glass-card" style="margin-bottom:var(--space-sm);padding:14px 16px">
-            <div style="font-weight:600;margin-bottom:var(--space-xs);font-size:14px">${name}</div>
-            <table class="sets-table" style="width:100%">
+          <div style="margin-bottom:10px;overflow:hidden;background:var(--glass-bg);
+                      border:0.5px solid var(--color-border-tertiary,var(--glass-border));border-radius:14px">
+            <div style="font-size:14px;font-weight:500;color:var(--color-text);
+                        padding:14px 16px 10px">${name}</div>
+            <div style="height:0.5px;background:var(--color-border-tertiary,var(--glass-border))"></div>
+            <table style="width:100%;border-collapse:collapse;padding:0 16px">
               <thead>
-                <tr><th>${t('entreno_set')}</th><th>${t('entreno_reps')}</th><th>Kg</th></tr>
+                <tr>
+                  <th style="padding:8px 4px 6px 16px;text-align:left;font-size:12px;font-weight:500;color:var(--color-text-muted)">${t('entreno_set')}</th>
+                  <th style="padding:8px 4px 6px;text-align:left;font-size:12px;font-weight:500;color:var(--color-text-muted)">${t('entreno_reps')}</th>
+                  <th style="padding:8px 16px 6px 4px;text-align:left;font-size:12px;font-weight:500;color:var(--color-text-muted)">Kg</th>
+                </tr>
               </thead>
               <tbody>${rows}</tbody>
             </table>
-          </div>
- `;
+          </div>`;
       }).join('');
     }
   }
 
-  // Render muscle map
+  // Render Músculos panel
   const performedExIds = Object.keys(session.setData || {})
     .filter(id => (session.setData[id]?.sets?.length || 0) > 0);
   const performedExercises = exercises.filter(ex => performedExIds.includes(ex.id));
+  const mapEl = getEl('#session-muscle-map');
 
-  const mapEl = sheetContent
-    ? sheetContent.querySelector('#session-muscle-map')
-    : document.querySelector('#session-muscle-map');
-
-  const mapTitleEl = sheetContent
-    ? sheetContent.querySelector('#muscle-map-title')
-    : document.querySelector('#muscle-map-title');
-
-  const renderMap = () => {
-    if (mapEl && performedExercises.length > 0) {
+  if (mapEl) {
+    if (performedExercises.length > 0) {
       renderMuscleMap(mapEl, enrichExercises(performedExercises));
-    } else if (mapEl && performedExIds.length > 0) {
-      // Fallback: exercises list came back empty or IDs don't match
-      // Build synthetic list from exercise names via _exDataCache
-      const synth = Object.keys(session.setData || {})
-        .filter(id => (session.setData[id]?.sets?.length || 0) > 0)
-        .map(id => {
-          const name = exNameMap[id];
-          const cached = _exDataCache?.[name];
-          return cached ? { id, name: cached.n, muscleGroup: cached.m, target: cached.target, sec: cached.sec } : null;
-        })
-        .filter(Boolean);
+    } else if (performedExIds.length > 0) {
+      // Fallback: build synthetic exercise list from cache
+      const synth = performedExIds.map(id => {
+        const name   = exNameMap[id];
+        const cached = _exDataCache?.[name];
+        return cached ? { id, name: cached.n, muscleGroup: cached.m, target: cached.target, sec: cached.sec } : null;
+      }).filter(Boolean);
       renderMuscleMap(mapEl, enrichExercises(synth));
-    } else if (mapEl) {
+    } else {
       mapEl.innerHTML = `<p style="color:var(--color-text-muted);font-size:13px">${t('entreno_no_muscle_data')}</p>`;
-    }
-  };
-
-  if (isCoach) {
-    renderMap();
-  } else {
-    // Toggle behaviour for non-coach roles
-    renderMap();
-
-    const toggleInput = sheetContent
-      ? sheetContent.querySelector('#toggle-session-map')
-      : document.querySelector('#toggle-session-map');
-
-    if (toggleInput && mapEl && mapTitleEl) {
-      toggleInput.addEventListener('change', () => {
-        const show = toggleInput.checked;
-        mapEl.style.display        = show ? '' : 'none';
-        mapTitleEl.style.display   = show ? '' : 'none';
-      });
     }
   }
 }
