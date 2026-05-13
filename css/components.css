@@ -6,44 +6,44 @@
 /* ── Bottom Navigation ──────────────────────── */
 .bottom-nav {
   position: fixed;
-  /* Isla de navegación flotante — negro sólido en dark mode (máximo contraste) */
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
   border-radius: var(--r-full);
-  padding: 12px 24px;
-  gap: 32px;
+  /* Compact pill — dot only on active item (no reservation on inactive) */
+  padding: 10px 22px;
+  gap: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #111111;
   z-index: 100;
-  border: none;
-  box-shadow: var(--shadow-sm);
+  /* §21 dark mode — subtle border, no shadow */
+  border: 0.5px solid #252525;
+  box-shadow: none;
 }
 .nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--color-text-muted);
-  transition: all var(--transition-fast);
+  color: var(--white);
+  transition: opacity var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
   position: relative;
   opacity: 0.4;
 }
 .nav-item.active { color: var(--white); opacity: 1; }
+/* Dot only on active item — keeps inactive items compact */
 .nav-item.active::after {
   content: "";
   display: block;
   width: 4px; height: 4px;
   border-radius: 50%;
-  background: #F0F0F0;
-  position: absolute;
-  bottom: -6px;
+  background: #FFFFFF;
+  margin-top: 3px;
 }
 .nav-item.active .nav-icon-wrap {
   background: rgba(193,8,1,0.12);
@@ -80,41 +80,35 @@
   display: none; /* we'll use structured inner HTML from JS */
 }
 
-/* When nav items are built with simple span.nav-icon: */
-.bottom-nav .nav-item > .nav-icon { display: flex; align-items: center; justify-content: center; }
+/* §22 — nav-icon span: 22×22 visual via SVG attributes, inherits color */
+.bottom-nav .nav-item > .nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .bottom-nav .nav-item > .nav-label { display: none !important; }
 
-/* SVG icon color in nav */
-.bottom-nav .nav-item .nav-icon svg { color: var(--color-text-muted); transition: color var(--transition-fast); }
-.bottom-nav .nav-item.active .nav-icon svg { color: var(--white); }
-.bottom-nav .nav-item:hover .nav-icon svg { color: var(--white); }
+/* SVG icon color via currentColor — inherits from nav-item opacity */
+.bottom-nav .nav-item .nav-icon svg { color: inherit; }
+.bottom-nav .nav-item.active .nav-icon svg { color: inherit; }
+.bottom-nav .nav-item:hover .nav-icon svg { color: inherit; }
 
 /* Staff panel nav item accent */
 .nav-item-staff .nav-icon svg { color: var(--red) !important; }
 
 
-/* ── Light mode nav & bar overrides ── */
+/* ── §21 — Light mode: anchored contrast element (#111111, border none, shadow) ── */
 body.light-mode .bottom-nav {
-  background: #FFFFFF;
-  border: 0.5px solid #E0E0E0;
+  background: #111111;
+  border: none;          /* overrides dark mode 0.5px border */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
 }
-body.light-mode .nav-item.active::after { background: #333333; }
-body.light-mode .nav-item.active {
-  color: var(--red);
-}
-body.light-mode .nav-item.active .nav-icon-wrap {
-  background: rgba(193,8,1,0.1);
-  border-color: rgba(193,8,1,0.25);
-}
-body.light-mode .bottom-nav .nav-item .nav-icon svg {
-  color: var(--color-text-muted);
-}
-body.light-mode .bottom-nav .nav-item.active .nav-icon svg {
-  color: var(--red);
-}
-body.light-mode .bottom-nav .nav-item:hover .nav-icon svg {
-  color: #111;
-}
+/* Active/inactive icons and dot are identical in both modes (#FFFFFF) */
+body.light-mode .nav-item.active::after { background: #FFFFFF; }
+body.light-mode .nav-item.active { color: #FFFFFF; }
+body.light-mode .bottom-nav .nav-item .nav-icon svg { color: #FFFFFF; }
+body.light-mode .bottom-nav .nav-item.active .nav-icon svg { color: #FFFFFF; }
+body.light-mode .bottom-nav .nav-item:hover .nav-icon svg { color: #FFFFFF; }
 body.light-mode .accordion-header:hover {
   color: var(--red);
 }
@@ -457,7 +451,7 @@ body.light-mode .chip:hover {
 .lock-title { font-size: var(--fs-lg); font-weight: 700; }
 .lock-desc { font-size: var(--fs-sm); color: var(--color-text-muted); max-width: 280px; }
 
-/* ── Workout Summary Card ────────────────────── */
+/* ── Workout Summary Card (legacy, kept for compatibility) ── */
 .summary-stat-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -482,6 +476,183 @@ body.light-mode .chip:hover {
   color: var(--color-text-muted);
   display: block;
   margin-top: 2px;
+}
+
+/* ── Workout Summary Card v2 (Hevy-style) ──── */
+.wsum-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Header */
+.wsum-header {
+  position: relative;
+  text-align: center;
+  padding: var(--space-xl) var(--space-md) var(--space-lg);
+  border-radius: var(--r-lg);
+  background: linear-gradient(160deg,
+    rgba(193,8,1,0.22) 0%,
+    rgba(193,8,1,0.08) 60%,
+    rgba(0,0,0,0) 100%);
+  border: 1px solid rgba(193,8,1,0.2);
+  overflow: hidden;
+}
+.wsum-header-glow {
+  position: absolute;
+  top: -40px; left: 50%;
+  transform: translateX(-50%);
+  width: 220px; height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(193,8,1,0.35) 0%, transparent 70%);
+  pointer-events: none;
+}
+.wsum-trophy {
+  font-size: 48px;
+  line-height: 1;
+  margin-bottom: var(--space-sm);
+  filter: drop-shadow(0 0 12px rgba(193,8,1,0.6));
+}
+.wsum-title {
+  font-size: var(--fs-xl);
+  font-weight: 900;
+  letter-spacing: -0.3px;
+  color: var(--color-text);
+}
+.wsum-routine-name {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--red);
+  margin-top: 4px;
+}
+.wsum-time-range {
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  margin-top: 6px;
+}
+
+/* Stats 2×2 grid */
+.wsum-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-sm);
+}
+@media (max-width: 360px) {
+  .wsum-stats { grid-template-columns: repeat(2, 1fr); }
+}
+.wsum-stat {
+  text-align: center;
+  padding: 10px 6px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-md);
+}
+.wsum-stat-val {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--red);
+  display: block;
+  line-height: 1.1;
+}
+.wsum-stat-val small {
+  font-size: 0.6em;
+  font-weight: 600;
+  opacity: 0.7;
+}
+.wsum-stat-key {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  display: block;
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Volume row */
+.wsum-volume-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  padding: 8px 12px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-md);
+}
+.wsum-volume-row strong {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+/* Note */
+.wsum-note {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  font-style: italic;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.03);
+  border-left: 3px solid var(--red);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+
+/* Muscle section */
+.wsum-muscle-section {
+  /* rendered by renderMuscleMap, just needs context */
+}
+
+/* Exercise breakdown */
+.wsum-ex-section {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-md);
+  padding: var(--space-md);
+}
+.wsum-section-label {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-sm);
+}
+.wsum-ex-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.wsum-ex-row:last-child { border-bottom: none; }
+.wsum-ex-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+.wsum-ex-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.wsum-ex-name {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wsum-ex-meta {
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+}
+
+/* Close button */
+.wsum-close-btn {
+  margin-top: var(--space-xs);
 }
 
 /* ── Welcome Banner (home) ──────────────────── */
