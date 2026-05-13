@@ -2,8 +2,8 @@
    TGWL Service Worker — PWA offline support
 ═══════════════════════════════════════════════ */
 const CACHE_NAME = 'tgwl-v2.04';
-const STATIC_CACHE = 'tgwl-static-v99.0';
-const DYNAMIC_CACHE = 'tgwl-dynamic-v99.0';
+const STATIC_CACHE = 'tgwl-static-v100.0';
+const DYNAMIC_CACHE = 'tgwl-dynamic-v100.0';
 
 const STATIC_ASSETS = [
   '/',
@@ -48,6 +48,11 @@ const STATIC_ASSETS = [
   '/admin/js/panels/plans.js',
   '/data/data.js',
   '/mapa%20muscular/baseImage_transparent.png',
+  '/assets/nutrition/lemon.png',
+  '/assets/nutrition/meat.jpg',
+  '/assets/nutrition/pistachio.jpg',
+  '/assets/nutrition/fruit.png',
+  '/assets/nutrition/supplement.jpg',
   '/assets/fonts/SF-Pro-Display/SFPRODISPLAYREGULAR.OTF',
   '/assets/fonts/SF-Pro-Display/SFPRODISPLAYMEDIUM.OTF',
   '/assets/fonts/SF-Pro-Display/SFPRODISPLAYBOLD.OTF',

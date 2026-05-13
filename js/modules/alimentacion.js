@@ -14,7 +14,16 @@ import { toast, todayString, msUntilLocalMidnight } from '../utils.js';
 import { openModal, closeModal } from '../components/modal.js';
 import { t } from '../i18n.js';
 
-// ── SVG Icons (stroke-width 1.5, currentColor) ────
+// ── Category image assets (44×44 placeholders) ────
+const IMG = {
+  lemon:      '/assets/nutrition/lemon.png',
+  meat:       '/assets/nutrition/meat.jpg',
+  pistachio:  '/assets/nutrition/pistachio.jpg',
+  fruit:      '/assets/nutrition/fruit.png',
+  supplement: '/assets/nutrition/supplement.jpg',
+};
+
+// ── SVG Icons (stroke-width 1.5, currentColor) — fallback ────
 const ICON = {
   pill:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="8" rx="4"/><line x1="12" y1="8" x2="12" y2="16"/></svg>`,
   meal:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8a2 2 0 0 0 2 2v8"/><path d="M7 3v6M5 3v6M9 3v6"/><path d="M17 3c-1.5 0-3 1-3 4v5h3v9"/></svg>`,
@@ -484,15 +493,13 @@ function _blockImage(block) {
                 style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0"
                 onerror="this.replaceWith(Object.assign(document.createElement('div'),{innerHTML:\`<div style='width:44px;height:44px;border-radius:8px;background:var(--color-background-secondary,rgba(255,255,255,0.08));display:flex;align-items:center;justify-content:center;color:var(--color-text-tertiary,var(--color-text-muted));flex-shrink:0'><svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='M3 11h18a9 9 0 0 1-18 0z'/><path d='M7 11a5 5 0 0 1 10 0'/></svg></div>\`}).firstChild)">`;
   }
-  // Category-specific placeholder icon: lemon, meat, pistachio, fruit, pill
-  const iconKey = block.kind === 'workout' ? 'pill' : (block.icon || 'meat');
-  const icon = ICON[iconKey] || ICON.meat;
-  return `<div style="width:44px;height:44px;border-radius:8px;
-                      background:var(--color-background-secondary,rgba(255,255,255,0.08));
-                      display:flex;align-items:center;justify-content:center;
-                      color:var(--color-text-tertiary,var(--color-text-muted));flex-shrink:0">
-            <span style="width:22px;height:22px;display:inline-flex">${icon}</span>
-          </div>`;
+  // Category image asset · meat/lemon/pistachio/fruit/supplement
+  const imgKey = block.kind === 'workout' ? 'supplement' : (block.icon || 'meat');
+  const imgSrc = IMG[imgKey] || IMG.meat;
+  const iconFallback = ICON[block.kind === 'workout' ? 'pill' : (block.icon || 'meat')] || ICON.meat;
+  return `<img src="${imgSrc}" alt=""
+              style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;display:block"
+              onerror="this.outerHTML='<div style=\\'width:44px;height:44px;border-radius:8px;background:var(--color-background-secondary,rgba(255,255,255,0.08));display:flex;align-items:center;justify-content:center;color:var(--color-text-tertiary,var(--color-text-muted));flex-shrink:0\\'><span style=\\'width:22px;height:22px;display:inline-flex\\'>${iconFallback.replace(/'/g, '\\\\\\'')}</span></div>'">`;
 }
 
 function _buildBlockBody(block, foods, checks, hasSupps, isWorkout) {
