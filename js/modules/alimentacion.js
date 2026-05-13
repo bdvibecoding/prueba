@@ -414,7 +414,7 @@ function _headerCheckIndicator(done) {
     return `<span class="meal-card-state-check" data-done="true"
             style="width:18px;height:18px;border-radius:50%;display:inline-flex;
                    align-items:center;justify-content:center;
-                   background:#111111;color:#FFFFFF;flex-shrink:0">
+                   background:var(--fill-on);color:var(--fill-on-contrast);flex-shrink:0">
             <span style="width:10px;height:10px;display:inline-flex">${ICON.checkSm}</span>
             </span>`;
   }
@@ -498,10 +498,10 @@ function _foodRow(f, checked, isLast) {
       <button class="food-check" data-food-idx="${f.idx}" aria-label="Marcar"
               style="width:22px;height:22px;border-radius:50%;
                      ${checked
-                       ? 'background:#111111;border:0.5px solid #111111;color:#FFFFFF'
+                       ? 'background:var(--fill-on);border:0.5px solid var(--fill-on);color:var(--fill-on-contrast)'
                        : 'background:transparent;border:0.5px solid var(--color-border-secondary,var(--glass-border));color:transparent'};
                      display:inline-flex;align-items:center;justify-content:center;
-                     cursor:pointer;flex-shrink:0;padding:0;transition:background 150ms ease,border-color 150ms ease">
+                     cursor:pointer;flex-shrink:0;padding:0;transition:background 150ms ease,border-color 150ms ease,color 150ms ease">
         <span style="width:12px;height:12px;display:inline-flex">${ICON.checkSm}</span>
       </button>
     </div>
@@ -555,9 +555,9 @@ function _wireBlocks(planEl, blocks, todayData, targets, profile) {
       // Optimistic UI
       row.dataset.checked = nowChecked ? 'true' : 'false';
       if (nowChecked) {
-        btn.style.background  = '#111111';
-        btn.style.borderColor = '#111111';
-        btn.style.color       = '#FFFFFF';
+        btn.style.background  = 'var(--fill-on)';
+        btn.style.borderColor = 'var(--fill-on)';
+        btn.style.color       = 'var(--fill-on-contrast)';
       } else {
         btn.style.background  = 'transparent';
         btn.style.borderColor = 'var(--color-border-secondary,var(--glass-border))';
@@ -593,14 +593,18 @@ function _wireBlocks(planEl, blocks, todayData, targets, profile) {
       if (stateEl) {
         if (allDone) {
           stateEl.dataset.done = 'true';
-          stateEl.style.background   = '#111111';
-          stateEl.style.borderColor  = '#111111';
-          stateEl.style.color        = '#FFFFFF';
+          stateEl.style.background   = 'var(--fill-on)';
+          stateEl.style.borderColor  = 'var(--fill-on)';
+          stateEl.style.color        = 'var(--fill-on-contrast)';
+          stateEl.style.border       = '';
+          stateEl.style.display      = 'inline-flex';
+          stateEl.style.alignItems   = 'center';
+          stateEl.style.justifyContent = 'center';
           stateEl.innerHTML = `<span style="width:10px;height:10px;display:inline-flex">${ICON.checkSm}</span>`;
         } else {
           stateEl.dataset.done = 'false';
           stateEl.style.background  = 'transparent';
-          stateEl.style.borderColor = 'var(--color-border-secondary,var(--glass-border))';
+          stateEl.style.border      = '0.5px solid var(--color-border-secondary,var(--glass-border))';
           stateEl.style.color       = 'transparent';
           stateEl.innerHTML = '';
         }
