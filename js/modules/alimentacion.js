@@ -25,7 +25,9 @@ const ICON = {
   refresh: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>`,
   barbell: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h2.5M17.5 6.5H20a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-2.5"/><rect x="6.5" y="4" width="3" height="16" rx="1.5"/><rect x="14.5" y="4" width="3" height="16" rx="1.5"/><line x1="9.5" y1="12" x2="14.5" y2="12"/></svg>`,
   dots:    `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="19" r="1.5" fill="currentColor"/></svg>`,
-  checkSm: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>`,
+  checkSm: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>`,
+  // §26 placeholders — generic (plato for meals, cápsula for supplements)
+  plate:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg>`,
   bowl:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11h18a9 9 0 0 1-18 0z"/><path d="M7 11a5 5 0 0 1 10 0"/></svg>`,
 };
 
@@ -45,6 +47,27 @@ function _mealMeta(label) {
     if (m.test.test(label || '')) return m;
   }
   return { rank: 35, icon: 'meal' };
+}
+
+// §27 · Compute which meal block matches the current time slot
+function _autoExpandKey(blocks) {
+  const meals = blocks.filter(b => b.kind === 'meal');
+  if (!meals.length) return null;
+  const h = new Date().getHours();
+  let targetRank;
+  if (h < 9)       targetRank = 0;   // 0-8 · Al despertar / Desayuno
+  else if (h < 12) targetRank = 20;  // 9-11 · Media mañana
+  else if (h < 16) targetRank = 30;  // 12-15 · Almuerzo
+  else if (h < 19) targetRank = 40;  // 16-18 · Merienda
+  else if (h < 23) targetRank = 50;  // 19-22 · Cena
+  else             targetRank = 55;  // 23-04 · Antes de acostarse
+  let closest = meals[0];
+  let minDiff = Math.abs(closest.rank - targetRank);
+  for (const b of meals) {
+    const d = Math.abs(b.rank - targetRank);
+    if (d < minDiff) { minDiff = d; closest = b; }
+  }
+  return closest.key;
 }
 
 // ── Parse description into food rows ──────────────
@@ -208,13 +231,16 @@ async function _loadPlanTab(container) {
     // Initial totals from checked foods
     const totals = _computeTotals(blocks, todayData);
 
+    // §27 · Auto-expand current time slot meal
+    const autoExpandKey = _autoExpandKey(blocks);
+
     planEl.innerHTML = `
       <!-- §24 · Bento macros -->
       <div id="macro-bento">${_buildBentoMacros(totals, targets)}</div>
 
       <!-- §25–§27 · Bloques (comidas + suplementos + entreno) -->
       <div id="meal-blocks" style="display:flex;flex-direction:column;gap:10px;margin-top:16px;padding-bottom:24px">
-        ${blocks.map((b, i) => _buildBlock(b, i, todayData)).join('')}
+        ${blocks.map((b, i) => _buildBlock(b, i, todayData, autoExpandKey)).join('')}
       </div>
     `;
 
@@ -229,16 +255,32 @@ async function _loadPlanTab(container) {
 function _composeBlocks(diet, suppDocs) {
   const blocks = [];
 
-  // Wake-up block (diet.wakeUp)
-  if (diet?.wakeUp && (diet.wakeUp.description || (diet.wakeUp.supplements && diet.wakeUp.supplements.length))) {
+  // Pre-bucket supplements by timing
+  const suppByTiming = {};
+  suppDocs.forEach(s => {
+    const k = (s.timing || 'anytime').toLowerCase();
+    (suppByTiming[k] = suppByTiming[k] || []).push(s);
+  });
+  const morningSupps = suppByTiming['morning'] || [];
+  const nightSupps   = suppByTiming['night']   || [];
+
+  // Wake-up block (diet.wakeUp + collection supps with timing:morning)
+  const dietWake = _normSupps(diet?.wakeUp?.supplements);
+  const wakeSupps = [
+    ...dietWake,
+    ...morningSupps
+      .map(s => ({ name: s.name, dose: s.dose, unit: s.unit }))
+      .filter(s => !dietWake.some(d => d.name === s.name)),
+  ];
+  if (diet?.wakeUp?.description || wakeSupps.length) {
     blocks.push({
       kind: 'meal',
       key:  'wakeup',
       label:'Al despertar',
       icon: 'sun',
-      description: diet.wakeUp.description || '',
-      foods: diet.wakeUp.foods || [],
-      supplements: _normSupps(diet.wakeUp.supplements),
+      description: diet?.wakeUp?.description || '',
+      foods: diet?.wakeUp?.foods || [],
+      supplements: wakeSupps,
       rank: 0,
     });
   }
@@ -260,16 +302,23 @@ function _composeBlocks(diet, suppDocs) {
     });
   });
 
-  // Pre-sleep
-  if (diet?.preSleep && (diet.preSleep.description || (diet.preSleep.supplements && diet.preSleep.supplements.length))) {
+  // Pre-sleep (diet.preSleep + collection supps with timing:night)
+  const dietSleep = _normSupps(diet?.preSleep?.supplements);
+  const sleepSupps = [
+    ...dietSleep,
+    ...nightSupps
+      .map(s => ({ name: s.name, dose: s.dose, unit: s.unit }))
+      .filter(s => !dietSleep.some(d => d.name === s.name)),
+  ];
+  if (diet?.preSleep?.description || sleepSupps.length) {
     blocks.push({
       kind: 'meal',
       key:  'presleep',
       label:'Antes de acostarse',
       icon: 'moon',
-      description: diet.preSleep.description || '',
-      foods: diet.preSleep.foods || [],
-      supplements: _normSupps(diet.preSleep.supplements),
+      description: diet?.preSleep?.description || '',
+      foods: diet?.preSleep?.foods || [],
+      supplements: sleepSupps,
       rank: 55,
     });
   }
@@ -278,12 +327,6 @@ function _composeBlocks(diet, suppDocs) {
   blocks.sort((a, b) => a.rank - b.rank);
 
   // §26 · Workout supplement blocks — always at the end
-  const suppByTiming = {};
-  suppDocs.forEach(s => {
-    const k = (s.timing || 'anytime').toLowerCase();
-    (suppByTiming[k] = suppByTiming[k] || []).push(s);
-  });
-
   const pre  = [..._normSupps(diet?.workout?.pre),   ...(suppByTiming.pre || []),  ...(suppByTiming.preworkout || [])];
   const intra= [..._normSupps(diet?.workout?.intra), ...(suppByTiming.intra || []),...(suppByTiming.intraworkout || [])];
   const post = [..._normSupps(diet?.workout?.post),  ...(suppByTiming.post || []), ...(suppByTiming.postworkout || [])];
@@ -369,12 +412,16 @@ function _fmtNum(n) {
 // ══════════════════════════════════════════════
 //  §25–§27 · Build a block (meal | workout)
 // ══════════════════════════════════════════════
-function _buildBlock(block, i, todayData) {
+function _buildBlock(block, i, todayData, autoExpandKey) {
   const isWorkout = block.kind === 'workout';
   const foods     = isWorkout ? [] : _foodsOf(block);
   const checks    = todayData[block.key]?.foods || {};
   const allDone   = foods.length > 0 && foods.every(f => checks[`f${f.idx}`]);
-  const expanded  = !!todayData[block.key]?.expanded;
+  // §27 · Default collapsed; auto-expand current time slot unless user toggled
+  const userToggled = typeof todayData[block.key]?.expanded === 'boolean';
+  const expanded  = userToggled
+    ? todayData[block.key].expanded
+    : block.key === autoExpandKey;
   const hasSupps  = block.supplements && block.supplements.length > 0;
 
   return `
@@ -430,12 +477,13 @@ function _blockImage(block) {
                 style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0"
                 onerror="this.replaceWith(Object.assign(document.createElement('div'),{innerHTML:\`<div style='width:44px;height:44px;border-radius:8px;background:var(--color-background-secondary,rgba(255,255,255,0.08));display:flex;align-items:center;justify-content:center;color:var(--color-text-tertiary,var(--color-text-muted));flex-shrink:0'><svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='M3 11h18a9 9 0 0 1-18 0z'/><path d='M7 11a5 5 0 0 1 10 0'/></svg></div>\`}).firstChild)">`;
   }
-  // Placeholder
+  // §26 · Generic placeholder — plato for meals, cápsula for supplements
+  const genericIcon = block.kind === 'workout' ? ICON.pill : ICON.plate;
   return `<div style="width:44px;height:44px;border-radius:8px;
                       background:var(--color-background-secondary,rgba(255,255,255,0.08));
                       display:flex;align-items:center;justify-content:center;
                       color:var(--color-text-tertiary,var(--color-text-muted));flex-shrink:0">
-            <span style="width:20px;height:20px;display:inline-flex">${ICON[block.icon] || ICON.meal}</span>
+            <span style="width:20px;height:20px;display:inline-flex">${genericIcon}</span>
           </div>`;
 }
 
