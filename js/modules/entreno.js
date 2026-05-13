@@ -1613,8 +1613,8 @@ function _buildCalHTML(year, month, trainedDays, selectedDay, isDark = false) {
   const selBg   = isDark ? '#111111'             : '#FFFFFF';
   const selClr  = isDark ? '#FFFFFF'             : '#111111';
   const selBdr  = isDark ? '0.5px solid #F0F0F0' : '0.5px solid #111111';
-  const dotClr  = isDark ? 'rgba(0,0,0,0.4)'    : 'rgba(255,255,255,0.4)';
-  const selDot  = isDark ? '#FFFFFF'             : '#111111';
+  const dotClr  = '#C10801';   // brand red — training day indicator
+  const selDot  = '#C10801';   // same red on selected day for consistency
 
   const heads = _CAL_HEADS.map(h =>
     `<div style="text-align:center;font-family:'SF Pro Text',var(--font-sans);font-size:11px;font-weight:500;color:${headClr};padding-bottom:6px">${h}</div>`
@@ -1636,7 +1636,7 @@ function _buildCalHTML(year, month, trainedDays, selectedDay, isDark = false) {
           transition:background 180ms ease,color 180ms ease,border 180ms ease">
           ${d}
         </div>
-        <div style="width:4px;height:4px;border-radius:50%;background:${hasDot ? (isSel ? selDot : dotClr) : 'transparent'}"></div>
+        <div style="width:6px;height:6px;border-radius:50%;background:${hasDot ? (isSel ? selDot : dotClr) : 'transparent'}"></div>
       </div>`;
   }
 
