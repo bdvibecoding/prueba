@@ -29,24 +29,31 @@ const ICON = {
   // §26 placeholders — generic (plato for meals, cápsula for supplements)
   plate:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg>`,
   bowl:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11h18a9 9 0 0 1-18 0z"/><path d="M7 11a5 5 0 0 1 10 0"/></svg>`,
+  // Category icons for meal blocks
+  lemon:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16c-2-3-1-7 2-9s8-1 9 2 0 7-3 8c-3 1-7 1-8-1z"/><path d="M16 6c1-1 2-1.5 3-1"/><path d="M17 7c0.5-0.5 1.2-0.6 2-0.4"/></svg>`,
+  meat:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 14c0-4 3-7 7-7 3 0 5 1 6 3 1 2 1 5-1 7-2 1-5 2-8 1-2-1-4-2-4-4z"/><circle cx="9" cy="13" r="1"/></svg>`,
+  pistachio:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4c3 0 5 3 5 8s-2 8-5 8-5-3-5-8 2-8 5-8z"/><path d="M12 8l2 4-2 4"/></svg>`,
+  fruit:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7c-1-2-3-3-5-3-3 0-5 2.5-5 6 0 5 4 11 6 11 1 0 2-1 3-1s2 1 3 1c2 0 6-6 6-11 0-3.5-2-6-5-6-2 0-4 1-3 3z"/><path d="M12 7c0-2 1-4 3-4"/></svg>`,
 };
 
-// ── Chronological order ───────────────────────────
+// ── Chronological order + category icon mapping ───
+// Al despertar → limón · Comidas → carne · Snacks → pistacho
+// Antes de acostarse → fruta · Suplementos → suple (pill)
 const MEAL_ORDER_KEYS = [
-  { test: /(al\s*despertar|wake)/i,          rank: 0,  icon: 'sun' },
-  { test: /desayuno|breakfast/i,             rank: 10, icon: 'sun' },
-  { test: /media\s*ma[ñn]ana|snack\s*1/i,    rank: 20, icon: 'apple' },
-  { test: /almuerzo|comida|lunch/i,          rank: 30, icon: 'meal' },
-  { test: /merienda|snack\s*2/i,             rank: 40, icon: 'apple' },
-  { test: /cena|dinner/i,                    rank: 50, icon: 'moon' },
-  { test: /antes\s*de\s*acostar|pre.?sleep/i,rank: 60, icon: 'moon' },
+  { test: /(al\s*despertar|wake)/i,          rank: 0,  icon: 'lemon'     },
+  { test: /desayuno|breakfast/i,             rank: 10, icon: 'meat'      },
+  { test: /media\s*ma[ñn]ana|snack\s*1/i,    rank: 20, icon: 'pistachio' },
+  { test: /almuerzo|comida|lunch/i,          rank: 30, icon: 'meat'      },
+  { test: /merienda|snack\s*2/i,             rank: 40, icon: 'pistachio' },
+  { test: /cena|dinner/i,                    rank: 50, icon: 'meat'      },
+  { test: /antes\s*de\s*acostar|pre.?sleep/i,rank: 60, icon: 'fruit'     },
 ];
 
 function _mealMeta(label) {
   for (const m of MEAL_ORDER_KEYS) {
     if (m.test.test(label || '')) return m;
   }
-  return { rank: 35, icon: 'meal' };
+  return { rank: 35, icon: 'meat' };
 }
 
 // §27 · Compute which meal block matches the current time slot
@@ -477,13 +484,14 @@ function _blockImage(block) {
                 style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0"
                 onerror="this.replaceWith(Object.assign(document.createElement('div'),{innerHTML:\`<div style='width:44px;height:44px;border-radius:8px;background:var(--color-background-secondary,rgba(255,255,255,0.08));display:flex;align-items:center;justify-content:center;color:var(--color-text-tertiary,var(--color-text-muted));flex-shrink:0'><svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='M3 11h18a9 9 0 0 1-18 0z'/><path d='M7 11a5 5 0 0 1 10 0'/></svg></div>\`}).firstChild)">`;
   }
-  // §26 · Generic placeholder — plato for meals, cápsula for supplements
-  const genericIcon = block.kind === 'workout' ? ICON.pill : ICON.plate;
+  // Category-specific placeholder icon: lemon, meat, pistachio, fruit, pill
+  const iconKey = block.kind === 'workout' ? 'pill' : (block.icon || 'meat');
+  const icon = ICON[iconKey] || ICON.meat;
   return `<div style="width:44px;height:44px;border-radius:8px;
                       background:var(--color-background-secondary,rgba(255,255,255,0.08));
                       display:flex;align-items:center;justify-content:center;
                       color:var(--color-text-tertiary,var(--color-text-muted));flex-shrink:0">
-            <span style="width:20px;height:20px;display:inline-flex">${genericIcon}</span>
+            <span style="width:22px;height:22px;display:inline-flex">${icon}</span>
           </div>`;
 }
 
