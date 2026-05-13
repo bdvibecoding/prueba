@@ -339,17 +339,18 @@ function _buildBentoMacros(totals, targets) {
 function _macroCell(label, consumed, target, unit, isBig) {
   const pct = target > 0 ? Math.min(100, (consumed / target) * 100) : 0;
   const over = target > 0 && consumed > target;
-  const valSize = isBig ? '22px' : '13px';
-  const valWeight = isBig ? '600' : '500';
+  const valSize   = isBig ? '22px' : '13px';
+  const valWeight = isBig ? '600'  : '500';
   const barH = isBig ? '4px' : '3px';
   const barR = isBig ? '2px' : '1.5px';
+  const tail = isBig ? ' kcal' : ' g';
 
   return `
     <div style="font-family:'SF Pro Text',var(--font-sans);font-size:11px;font-weight:500;
                 color:var(--color-text-tertiary,var(--color-text-muted));margin-bottom:4px">${label}</div>
     <div style="font-family:'SF Pro Display',var(--font-sans);font-size:${valSize};font-weight:${valWeight};
                 color:var(--color-text-primary,var(--color-text));line-height:1.1;margin-bottom:8px">
-      <span data-consumed>${_fmtNum(consumed)}</span><span style="color:var(--color-text-tertiary,var(--color-text-muted));font-weight:${isBig?500:400}"> / ${_fmtNum(target)}${isBig?' kcal':'g'}</span>
+      <span data-consumed>${_fmtNum(consumed)}</span><span style="color:var(--color-text-tertiary,var(--color-text-muted))"> / ${_fmtNum(target)}${tail}</span>
     </div>
     <div style="height:${barH};width:100%;background:var(--color-background-secondary,rgba(255,255,255,0.08));
                 border-radius:${barR};overflow:hidden">
