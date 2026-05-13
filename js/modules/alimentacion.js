@@ -488,18 +488,16 @@ function _headerCheckIndicator(done) {
 }
 
 function _blockImage(block) {
+  // Pick source: user-provided > category asset
+  let imgSrc;
   if (block.image) {
-    return `<img src="${_esc(block.image)}" alt=""
-                style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0"
-                onerror="this.replaceWith(Object.assign(document.createElement('div'),{innerHTML:\`<div style='width:44px;height:44px;border-radius:8px;background:var(--color-background-secondary,rgba(255,255,255,0.08));display:flex;align-items:center;justify-content:center;color:var(--color-text-tertiary,var(--color-text-muted));flex-shrink:0'><svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='M3 11h18a9 9 0 0 1-18 0z'/><path d='M7 11a5 5 0 0 1 10 0'/></svg></div>\`}).firstChild)">`;
+    imgSrc = block.image;
+  } else {
+    const imgKey = block.kind === 'workout' ? 'supplement' : (block.icon || 'meat');
+    imgSrc = IMG[imgKey] || IMG.meat;
   }
-  // Category image asset · meat/lemon/pistachio/fruit/supplement
-  const imgKey = block.kind === 'workout' ? 'supplement' : (block.icon || 'meat');
-  const imgSrc = IMG[imgKey] || IMG.meat;
-  const iconFallback = ICON[block.kind === 'workout' ? 'pill' : (block.icon || 'meat')] || ICON.meat;
-  return `<img src="${imgSrc}" alt=""
-              style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;display:block"
-              onerror="this.outerHTML='<div style=\\'width:44px;height:44px;border-radius:8px;background:var(--color-background-secondary,rgba(255,255,255,0.08));display:flex;align-items:center;justify-content:center;color:var(--color-text-tertiary,var(--color-text-muted));flex-shrink:0\\'><span style=\\'width:22px;height:22px;display:inline-flex\\'>${iconFallback.replace(/'/g, '\\\\\\'')}</span></div>'">`;
+  return `<img src="${_esc(imgSrc)}" alt=""
+              style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;display:block;background:var(--color-background-secondary,rgba(255,255,255,0.08))">`;
 }
 
 function _buildBlockBody(block, foods, checks, hasSupps, isWorkout) {
