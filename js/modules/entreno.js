@@ -1626,8 +1626,8 @@ function _buildCalHTML(year, month, trainedDays, selectedDay, isDark = false) {
     const isSel  = key === selectedDay;
     const hasDot = trainedDays.has(key);
     cells += `
-      <div data-date="${key}" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:1px 0">
-        <div style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;
+      <div data-date="${key}" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:1px 0;min-width:0">
+        <div style="width:100%;max-width:34px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;
           background:${isSel ? selBg : 'transparent'};
           border:${isSel ? selBdr : 'none'};
           color:${isSel ? selClr : numClr};
