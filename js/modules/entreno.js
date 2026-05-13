@@ -1613,8 +1613,8 @@ function _buildCalHTML(year, month, trainedDays, selectedDay, isDark = false) {
   const selBg   = isDark ? '#111111'             : '#FFFFFF';
   const selClr  = isDark ? '#FFFFFF'             : '#111111';
   const selBdr  = isDark ? '0.5px solid #F0F0F0' : '0.5px solid #111111';
-  // Solid brand red for trained days
-  const trainedBg = '#C10801';
+  // Brand gradient @ 15% opacity for trained days — decorative use of brand colors
+  const trainedBg = 'linear-gradient(135deg, rgba(0,0,0,0.15) 0%, rgba(193,8,1,0.15) 35%, rgba(241,96,1,0.15) 70%, rgba(217,195,171,0.15) 100%)';
 
   const heads = _CAL_HEADS.map(h =>
     `<div style="text-align:center;font-family:'SF Pro Text',var(--font-sans);font-size:11px;font-weight:500;color:${headClr};padding-bottom:6px">${h}</div>`
@@ -1626,7 +1626,7 @@ function _buildCalHTML(year, month, trainedDays, selectedDay, isDark = false) {
     const isSel  = key === selectedDay;
     const hasDot = trainedDays.has(key);
     const bg    = isSel ? selBg : (hasDot ? trainedBg : 'transparent');
-    const clr   = isSel ? selClr : (hasDot ? '#FFFFFF' : numClr);
+    const clr   = isSel ? selClr : numClr;
     const wgt   = (isSel || hasDot) ? '600' : '400';
     cells += `
       <div data-date="${key}" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;padding:3px 0;min-width:0">
