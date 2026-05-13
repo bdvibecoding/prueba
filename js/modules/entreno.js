@@ -1613,8 +1613,8 @@ function _buildCalHTML(year, month, trainedDays, selectedDay, isDark = false) {
   const selBg   = isDark ? '#111111'             : '#FFFFFF';
   const selClr  = isDark ? '#FFFFFF'             : '#111111';
   const selBdr  = isDark ? '0.5px solid #F0F0F0' : '0.5px solid #111111';
-  // Brand gradient for trained days — muted orange → red → dark, lower contrast
-  const trainedBg = 'radial-gradient(ellipse at 50% 0%, #C85220 0%, #8E1A0E 55%, #3A0A08 100%)';
+  // Brand gradient for trained days — semi-transparent, blends with card background
+  const trainedBg = 'radial-gradient(ellipse at 50% 0%, rgba(241,96,1,0.55) 0%, rgba(193,8,1,0.55) 55%, rgba(40,5,0,0.55) 100%)';
 
   const heads = _CAL_HEADS.map(h =>
     `<div style="text-align:center;font-family:'SF Pro Text',var(--font-sans);font-size:11px;font-weight:500;color:${headClr};padding-bottom:6px">${h}</div>`
