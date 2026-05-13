@@ -46,15 +46,15 @@ const ICON = {
 };
 
 // ── Chronological order + category icon mapping ───
-// Al despertar → limón · Comidas → carne · Snacks → pistacho
-// Antes de acostarse → fruta · Suplementos → suple (pill)
+// Al despertar/Desayuno → limón · Comida/Almuerzo → carne · Snacks → pistacho
+// Cena/Antes de acostarse → fruta · Suplementos → suple (pill)
 const MEAL_ORDER_KEYS = [
   { test: /(al\s*despertar|wake)/i,          rank: 0,  icon: 'lemon'     },
-  { test: /desayuno|breakfast/i,             rank: 10, icon: 'meat'      },
+  { test: /desayuno|breakfast/i,             rank: 10, icon: 'lemon'     },
   { test: /media\s*ma[ñn]ana|snack\s*1/i,    rank: 20, icon: 'pistachio' },
   { test: /almuerzo|comida|lunch/i,          rank: 30, icon: 'meat'      },
   { test: /merienda|snack\s*2/i,             rank: 40, icon: 'pistachio' },
-  { test: /cena|dinner/i,                    rank: 50, icon: 'meat'      },
+  { test: /cena|dinner/i,                    rank: 50, icon: 'fruit'     },
   { test: /antes\s*de\s*acostar|pre.?sleep/i,rank: 60, icon: 'fruit'     },
 ];
 
