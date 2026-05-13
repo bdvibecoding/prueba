@@ -46,15 +46,16 @@ const ICON = {
 };
 
 // ── Chronological order + category icon mapping ───
-// Al despertar/Desayuno → limón · Comida/Almuerzo → carne · Snacks → pistacho
-// Cena/Antes de acostarse → fruta · Suplementos → suple (pill)
+// Al despertar → limón · Comidas (Desayuno/Almuerzo/Cena) → carne
+// Snacks (Media mañana/Merienda) → pistacho · Antes de acostarse → fruta
+// Suplementos → suple (pill)
 const MEAL_ORDER_KEYS = [
   { test: /(al\s*despertar|wake)/i,          rank: 0,  icon: 'lemon'     },
-  { test: /desayuno|breakfast/i,             rank: 10, icon: 'lemon'     },
+  { test: /desayuno|breakfast/i,             rank: 10, icon: 'meat'      },
   { test: /media\s*ma[ñn]ana|snack\s*1/i,    rank: 20, icon: 'pistachio' },
   { test: /almuerzo|comida|lunch/i,          rank: 30, icon: 'meat'      },
   { test: /merienda|snack\s*2/i,             rank: 40, icon: 'pistachio' },
-  { test: /cena|dinner/i,                    rank: 50, icon: 'fruit'     },
+  { test: /cena|dinner/i,                    rank: 50, icon: 'meat'      },
   { test: /antes\s*de\s*acostar|pre.?sleep/i,rank: 60, icon: 'fruit'     },
 ];
 
@@ -293,7 +294,7 @@ function _composeBlocks(diet, suppDocs) {
       kind: 'meal',
       key:  'wakeup',
       label:'Al despertar',
-      icon: 'sun',
+      icon: 'lemon',
       description: diet?.wakeUp?.description || '',
       foods: diet?.wakeUp?.foods || [],
       supplements: wakeSupps,
@@ -331,7 +332,7 @@ function _composeBlocks(diet, suppDocs) {
       kind: 'meal',
       key:  'presleep',
       label:'Antes de acostarse',
-      icon: 'moon',
+      icon: 'fruit',
       description: diet?.preSleep?.description || '',
       foods: diet?.preSleep?.foods || [],
       supplements: sleepSupps,
@@ -487,13 +488,20 @@ function _headerCheckIndicator(done) {
                  background:transparent;flex-shrink:0"></span>`;
 }
 
+// Map legacy icon names to new category assets
+const LEGACY_ICON_MAP = {
+  sun: 'lemon', moon: 'fruit', apple: 'fruit',
+  meal: 'meat', sandwich: 'meat', bowl: 'meat',
+};
+
 function _blockImage(block) {
   // Pick source: user-provided > category asset
   let imgSrc;
   if (block.image) {
     imgSrc = block.image;
   } else {
-    const imgKey = block.kind === 'workout' ? 'supplement' : (block.icon || 'meat');
+    let imgKey = block.kind === 'workout' ? 'supplement' : (block.icon || 'meat');
+    imgKey = LEGACY_ICON_MAP[imgKey] || imgKey;
     imgSrc = IMG[imgKey] || IMG.meat;
   }
   return `<img src="${_esc(imgSrc)}" alt=""
