@@ -1632,8 +1632,8 @@ function _buildCalHTML(year, month, trainedDays, selectedDay, isDark = false) {
           border:${isSel ? selBdr : 'none'};
           color:${isSel ? selClr : numClr};
           font-family:'SF Pro Text',var(--font-sans);
-          font-weight:${isSel ? '600' : '400'};font-size:13px;
-          transition:background 150ms ease,color 150ms ease,border 150ms ease">
+          font-weight:${isSel ? '600' : '400'};font-size:11px;
+          transition:background 180ms ease,color 180ms ease,border 180ms ease">
           ${d}
         </div>
         <div style="width:4px;height:4px;border-radius:50%;background:${hasDot ? (isSel ? selDot : dotClr) : 'transparent'}"></div>
@@ -1852,21 +1852,12 @@ async function openSessionDetail(sessionId, session) {
       <button class="modal-close">✕</button>
     </div>
 
-    <!-- Tab bar -->
-    <div id="session-tab-bar"
-         style="display:flex;border-bottom:1px solid var(--glass-border);margin:12px 0 16px">
-      <button class="session-tab active" data-tab="resumen"
-        style="flex:1;background:none;border:none;border-bottom:2px solid var(--color-text);
-               margin-bottom:-1px;padding:8px 0;font-family:'SF Pro Display',var(--font-sans);
-               font-size:16px;font-weight:500;color:var(--color-text);cursor:pointer">Resumen</button>
-      <button class="session-tab" data-tab="series"
-        style="flex:1;background:none;border:none;border-bottom:2px solid transparent;
-               margin-bottom:-1px;padding:8px 0;font-family:'SF Pro Display',var(--font-sans);
-               font-size:16px;font-weight:500;color:var(--color-text-muted);cursor:pointer">Series</button>
-      <button class="session-tab" data-tab="musculos"
-        style="flex:1;background:none;border:none;border-bottom:2px solid transparent;
-               margin-bottom:-1px;padding:8px 0;font-family:'SF Pro Display',var(--font-sans);
-               font-size:16px;font-weight:500;color:var(--color-text-muted);cursor:pointer">Músculos</button>
+    <!-- Tab bar — underline indicator (Spec v2 §10), 16px/500 -->
+    <div class="tab-bar-underline tab-bar-underline--sm" id="session-tab-bar"
+         style="margin:12px 0 16px;gap:24px">
+      <button class="tab-btn-underline active session-tab" data-tab="resumen">Resumen</button>
+      <button class="tab-btn-underline session-tab" data-tab="series">Series</button>
+      <button class="tab-btn-underline session-tab" data-tab="musculos">Músculos</button>
     </div>
 
     <!-- Panel: Resumen -->
@@ -1922,21 +1913,31 @@ async function openSessionDetail(sessionId, session) {
   const sheetContent = document.getElementById('sheet-content') || document.querySelector('.sheet-body');
   const getEl = id => sheetContent ? sheetContent.querySelector(id) : document.querySelector(id);
 
+  // §18 · Animated underline indicator (Spec v2 §10)
+  const tabBarEl = (sheetContent || document).querySelector('#session-tab-bar');
+  function updateSessionIndicator(activeBtn) {
+    if (!tabBarEl || !activeBtn) return;
+    requestAnimationFrame(() => {
+      const btnRect = activeBtn.getBoundingClientRect();
+      const barRect = tabBarEl.getBoundingClientRect();
+      tabBarEl.style.setProperty('--indicator-width',  btnRect.width + 'px');
+      tabBarEl.style.setProperty('--indicator-offset', (btnRect.left - barRect.left) + 'px');
+    });
+  }
   (sheetContent || document).querySelectorAll('.session-tab').forEach(btn => {
     btn.addEventListener('click', () => {
+      (sheetContent || document).querySelectorAll('.session-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateSessionIndicator(btn);
       const tab = btn.dataset.tab;
-      // Update tab styles
-      (sheetContent || document).querySelectorAll('.session-tab').forEach(b => {
-        const active = b.dataset.tab === tab;
-        b.style.color        = active ? 'var(--color-text)' : 'var(--color-text-muted)';
-        b.style.borderBottom = active ? '2px solid var(--color-text)' : '2px solid transparent';
-      });
-      // Show/hide panels
       (sheetContent || document).querySelectorAll('.session-panel').forEach(p => {
         p.style.display = p.id === `session-panel-${tab}` ? '' : 'none';
       });
     });
   });
+  // Initial indicator position
+  const initialActive = (sheetContent || document).querySelector('.session-tab.active');
+  if (initialActive) setTimeout(() => updateSessionIndicator(initialActive), 50);
 
   // Ensure exercise data cache
   if (!_exDataCache) {
