@@ -1688,7 +1688,7 @@ async function loadHistorialTab(container) {
     const calBg     = isDark ? '#F0F0F0' : '#111111';
 
     histEl.innerHTML = `
-      <div id="cal-wrapper" style="width:60%;margin-bottom:16px">
+      <div id="cal-wrapper" style="width:100%;margin-bottom:16px">
         <div id="training-calendar"
              style="background:${calBg};border-radius:14px;padding:16px;touch-action:none;overflow:hidden">
           <div id="cal-inner" style="will-change:transform"></div>
