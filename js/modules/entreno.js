@@ -1613,8 +1613,8 @@ function _buildCalHTML(year, month, trainedDays, selectedDay, isDark = false) {
   const selBg   = isDark ? '#111111'             : '#FFFFFF';
   const selClr  = isDark ? '#FFFFFF'             : '#111111';
   const selBdr  = isDark ? '0.5px solid #F0F0F0' : '0.5px solid #111111';
-  const dotClr  = '#C10801';   // brand red — training day indicator
-  const selDot  = '#C10801';   // same red on selected day for consistency
+  // Brand gradient for trained days — orange top → red middle → dark bottom
+  const trainedBg = 'radial-gradient(ellipse at 50% 0%, #F16001 0%, #C10801 55%, #1A0000 100%)';
 
   const heads = _CAL_HEADS.map(h =>
     `<div style="text-align:center;font-family:'SF Pro Text',var(--font-sans);font-size:11px;font-weight:500;color:${headClr};padding-bottom:6px">${h}</div>`
@@ -1625,18 +1625,20 @@ function _buildCalHTML(year, month, trainedDays, selectedDay, isDark = false) {
     const key    = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const isSel  = key === selectedDay;
     const hasDot = trainedDays.has(key);
+    const bg    = isSel ? selBg : (hasDot ? trainedBg : 'transparent');
+    const clr   = isSel ? selClr : (hasDot ? '#FFFFFF' : numClr);
+    const wgt   = (isSel || hasDot) ? '600' : '400';
     cells += `
-      <div data-date="${key}" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:1px 0;min-width:0">
+      <div data-date="${key}" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;padding:3px 0;min-width:0">
         <div style="width:100%;max-width:34px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;
-          background:${isSel ? selBg : 'transparent'};
+          background:${bg};
           border:${isSel ? selBdr : 'none'};
-          color:${isSel ? selClr : numClr};
+          color:${clr};
           font-family:'SF Pro Text',var(--font-sans);
-          font-weight:${isSel ? '600' : '400'};font-size:11px;
+          font-weight:${wgt};font-size:11px;
           transition:background 180ms ease,color 180ms ease,border 180ms ease">
           ${d}
         </div>
-        <div style="width:6px;height:6px;border-radius:50%;background:${hasDot ? (isSel ? selDot : dotClr) : 'transparent'}"></div>
       </div>`;
   }
 
