@@ -1614,7 +1614,7 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
       <div id="swap-reason-chips" style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0">
         ${SWAP_REASONS.map(r => `
           <button type="button" class="swap-reason-chip" data-reason="${r.id}"
-                  style="padding:8px 14px;border-radius:var(--r-full);
+                  style="padding:8px 14px;border-radius:var(--r-md);
                          border:0.5px solid var(--color-border-secondary,var(--glass-border));
                          background:transparent;color:var(--color-text);font-size:13px;font-weight:500;
                          font-family:'SF Pro Text',var(--font-sans);cursor:pointer;
