@@ -491,8 +491,8 @@ body.light-mode .btn-start-workout,
   margin-bottom: var(--space-sm);
   table-layout: fixed;
 }
-.sets-table col.col-set   { width: 24px; }
-.sets-table col.col-prev  { width: 78px; }
+.sets-table col.col-set   { width: 32px; }
+.sets-table col.col-prev  { width: 80px; }
 .sets-table col.col-num   { } /* auto — reps & kg share remaining space */
 .sets-table col.col-check { width: 44px; }
 .sets-table th {
@@ -504,7 +504,7 @@ body.light-mode .btn-start-workout,
   padding: 4px 4px 10px;
   text-align: center;
 }
-.sets-table th.th-prev { text-align: left; padding-left: 4px; }
+.sets-table th.th-prev { text-align: left; padding-left: 12px; }
 .sets-table td {
   padding: 5px 4px;
   text-align: center;
@@ -517,7 +517,7 @@ body.light-mode .btn-start-workout,
   font-size: 11px;
   font-weight: 500;
   color: var(--color-text-muted);
-  padding-left: 4px;
+  padding-left: 12px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
