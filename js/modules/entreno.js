@@ -13,6 +13,7 @@ import { t } from '../i18n.js';
 
 let activeRoutineId       = null;
 let activeRoutineData     = null;
+let _reorderMode          = false;
 let activeAssignmentId    = null;
 let _workoutStartTime     = null; // for timestamp display
 
@@ -489,9 +490,24 @@ async function renderRoutineDetail(container, routine) {
         </button>
       ` : ''}
 
+      <!-- Reorder toggle -->
+      ${exercises.length > 1 ? `
+        <div style="display:flex;justify-content:flex-end;padding:0 var(--space-md);margin-bottom:8px">
+          <button id="btn-reorder-toggle" type="button"
+                  style="background:transparent;border:none;cursor:pointer;
+                         font-family:'SF Pro Text',var(--font-sans);font-size:13px;font-weight:500;
+                         color:${_reorderMode ? 'var(--red)' : 'var(--color-text-muted)'};
+                         display:inline-flex;align-items:center;gap:6px;padding:6px 8px">
+            ${_reorderMode
+              ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg> Listo`
+              : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="7 4 7 20"/><polyline points="4 7 7 4 10 7"/><polyline points="17 20 17 4"/><polyline points="14 17 17 20 20 17"/></svg> Reordenar`}
+          </button>
+        </div>
+      ` : ''}
+
       <!-- Exercise List -->
       <div class="exercise-list" id="exercise-list">
-        ${exercises.map((ex, i) => buildExerciseCard(ex, i, isActive, session, _exDataCache)).join('')}
+        ${exercises.map((ex, i) => buildExerciseCard(ex, i, isActive, session, _exDataCache, _reorderMode, exercises.length)).join('')}
       </div>
 
       ${exercises.length === 0 ? `
@@ -565,7 +581,7 @@ function buildMuscleBars(ex) {
 }
 
 // ── Exercise Card Builder ──────────────────────
-function buildExerciseCard(ex, index, sessionActive, session, exDataCache) {
+function buildExerciseCard(ex, index, sessionActive, session, exDataCache, reorderMode = false, total = 0) {
   const completedSets = session?.completedSets?.[ex.id] || [];
   const allDone = completedSets.length >= (ex.sets || 3);
 
@@ -588,9 +604,30 @@ function buildExerciseCard(ex, index, sessionActive, session, exDataCache) {
   // §13 three-dot overflow indicator
   const dotsSVG = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>`;
 
+  // Reorder controls (only shown in reorder mode)
+  const reorderControls = reorderMode ? `
+    <div style="display:flex;flex-direction:column;gap:4px;margin-right:6px">
+      <button class="ex-reorder-btn" data-action="move-up" data-exindex="${index}" ${index === 0 ? 'disabled' : ''}
+              style="width:32px;height:24px;border:0.5px solid var(--color-border-secondary,var(--glass-border));border-radius:6px;
+                     background:transparent;color:var(--color-text);
+                     display:flex;align-items:center;justify-content:center;cursor:${index === 0 ? 'default' : 'pointer'};
+                     opacity:${index === 0 ? '0.3' : '1'}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="6 15 12 9 18 15"/></svg>
+      </button>
+      <button class="ex-reorder-btn" data-action="move-down" data-exindex="${index}" ${index === total - 1 ? 'disabled' : ''}
+              style="width:32px;height:24px;border:0.5px solid var(--color-border-secondary,var(--glass-border));border-radius:6px;
+                     background:transparent;color:var(--color-text);
+                     display:flex;align-items:center;justify-content:center;cursor:${index === total - 1 ? 'default' : 'pointer'};
+                     opacity:${index === total - 1 ? '0.3' : '1'}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+  ` : '';
+
   return `
-    <div class="exercise-item ${allDone ? 'ex-all-done' : ''}" data-ex-id="${ex.id}" data-ex-index="${index}">
+    <div class="exercise-item ${allDone ? 'ex-all-done' : ''} ${reorderMode ? 'reorder-mode' : ''}" data-ex-id="${ex.id}" data-ex-index="${index}">
       <div class="exercise-header">
+        ${reorderControls}
         ${numOrPhoto}
         <div style="flex:1;min-width:0">
           <div class="exercise-name">${toSentenceCase(ex.name)}</div>
@@ -653,7 +690,7 @@ function buildSetsTable(ex, exIndex, session) {
       return `
         <tr class="set-row ${done ? 'completed locked' : ''}" data-exid="${ex.id}" data-setidx="${i}">
           <td class="set-num">${i + 1}</td>
-          <td class="td-prev">${prevLabel}</td>
+          <td class="td-prev ${prevSet.reps ? 'has-data' : ''}">${prevLabel}</td>
           <td>
             <div style="display:flex;align-items:center;gap:6px">
               <input type="text" inputmode="numeric" class="set-input" data-exid="${ex.id}" data-setidx="${i}" data-field="reps"
@@ -766,7 +803,7 @@ function buildSetsTable(ex, exIndex, session) {
     return `
       <tr class="set-row ${done ? 'completed locked' : ''}" data-exid="${ex.id}" data-setidx="${i}">
         <td class="set-num">${i + 1}</td>
-        <td class="td-prev">${prevLabel}</td>
+        <td class="td-prev ${(prevSet.reps && prevSet.weight) ? 'has-data' : ''}">${prevLabel}</td>
         <td>
           <input type="text" inputmode="numeric" class="set-input" data-exid="${ex.id}" data-setidx="${i}" data-field="reps"
                  value="${currentReps}" placeholder="${repsPlaceholder}" ${done ? 'disabled tabindex="-1"' : ''}>
@@ -965,6 +1002,33 @@ function initExerciseList(container, exercises, sessionActive) {
       _reindexDropRows(container, exId, setIdx);
     });
   });
+
+  // Reorder toggle
+  container.querySelector('#btn-reorder-toggle')?.addEventListener('click', () => {
+    _reorderMode = !_reorderMode;
+    renderRoutineDetail(container, activeRoutineData || routine);
+  });
+
+  // Reorder up/down buttons
+  container.querySelectorAll('.ex-reorder-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (btn.disabled) return;
+      const idx = parseInt(btn.dataset.exindex);
+      const dir = btn.dataset.action === 'move-up' ? -1 : 1;
+      const arr = activeRoutineData?.exercises || routine.exercises;
+      if (!arr || idx + dir < 0 || idx + dir >= arr.length) return;
+      [arr[idx], arr[idx + dir]] = [arr[idx + dir], arr[idx]];
+      renderRoutineDetail(container, activeRoutineData || routine);
+    });
+  });
+
+  // Block expansion in reorder mode
+  if (_reorderMode) {
+    container.querySelectorAll('.exercise-header').forEach(h => {
+      h.addEventListener('click', e => e.stopPropagation(), true);
+    });
+  }
 
   // Action buttons
   container.querySelectorAll('[data-action="swap"]').forEach(btn => {
@@ -1418,10 +1482,16 @@ function _exMatchesSwap(ex, q) {
 }
 
 // ── Exercise Swap ─────────────────────────────
+const SWAP_REASONS = [
+  { id: 'maquina_ocupada', label: 'Máquina ocupada' },
+  { id: 'no_hay_maquina',  label: 'No hay máquina'  },
+  { id: 'molestias',       label: 'Molestias'       },
+  { id: 'otro',            label: 'Otro'            },
+];
+
 async function openSwapExercise(currentEx, exIndex, container, allExercises) {
   const { EXERCISES } = await import('../../data/data.js');
   const selfName = currentEx.name || currentEx.id || '';
-  // Default pool: same muscle group (no query)
   const muscle    = currentEx.muscleGroup || currentEx.m || '';
   const sameGroup = EXERCISES.filter(ex => ex.m === muscle && ex.n !== selfName);
   const allPool   = EXERCISES.filter(ex => ex.n !== selfName);
@@ -1435,12 +1505,22 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
 
     <input type="text" id="swap-search" class="input-solo" placeholder="Buscar ejercicio..." style="margin-bottom:8px;font-size:13px" autocomplete="off">
 
-    <div id="swap-list" style="max-height:260px;overflow-y:auto;border:1px solid var(--glass-border);border-radius:var(--radius-sm);margin-bottom:12px"></div>
+    <div id="swap-list" style="max-height:240px;overflow-y:auto;border:1px solid var(--glass-border);border-radius:var(--r-sm);margin-bottom:14px"></div>
 
     <div style="margin-top:4px">
-      <label class="field-label">${t('entreno_swap_reason')} *</label>
-      <textarea id="swap-reason" class="input-solo" placeholder="${t('entreno_swap_reason_placeholder')}" rows="2"
-                style="padding:var(--space-md);margin-top:var(--space-xs)"></textarea>
+      <label class="field-label">Motivo del cambio *</label>
+      <div id="swap-reason-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0">
+        ${SWAP_REASONS.map(r => `
+          <button type="button" class="swap-reason-chip" data-reason="${r.id}"
+                  style="padding:7px 14px;border-radius:9999px;border:0.5px solid var(--color-border-secondary,var(--glass-border));
+                         background:transparent;color:var(--color-text);font-size:13px;font-weight:500;
+                         font-family:'SF Pro Text',var(--font-sans);cursor:pointer;
+                         transition:background 150ms ease,color 150ms ease,border-color 150ms ease">
+            ${r.label}
+          </button>`).join('')}
+      </div>
+      <input type="text" id="swap-reason-other" class="input-solo"
+             placeholder="Describe el motivo..." style="display:none;font-size:13px;margin-top:4px">
     </div>
     <button class="btn-primary btn-full" style="margin-top:var(--space-md)" id="btn-confirm-swap" disabled>
       ${t('entreno_confirm_swap')}
@@ -1450,6 +1530,16 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
   openModal(html);
   const modalEl = document.getElementById('modal-content');
   let selectedEx = null;
+  let selectedReason = null; // { id, label }
+
+  function updateConfirmEnabled() {
+    const otherInput = modalEl.querySelector('#swap-reason-other');
+    let reasonOk = !!selectedReason;
+    if (selectedReason?.id === 'otro') {
+      reasonOk = !!otherInput.value.trim();
+    }
+    modalEl.querySelector('#btn-confirm-swap').disabled = !selectedEx || !reasonOk;
+  }
 
   function renderSwapList(items) {
     const listEl = modalEl.querySelector('#swap-list');
@@ -1459,22 +1549,24 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
     }
     listEl.innerHTML = items.map(ex => `
       <div class="swap-option" data-ex-n="${ex.n.replace(/"/g,'&quot;')}"
-           style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05)">
+           style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-bottom:0.5px solid var(--color-border-tertiary,var(--glass-border))">
         <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:600;color:#e2e8f0">${ex.n}</div>
+          <div style="font-size:13px;font-weight:600;color:var(--color-text)">${ex.n}</div>
           <div style="font-size:11px;color:var(--color-text-muted);margin-top:2px">${ex.m}${ex.t==='c'?' · Compuesto':ex.t==='i'?' · Aislado':''}</div>
         </div>
         <span style="font-size:11px;color:var(--color-text-muted)">${ex.t==='c'?'C':'I'}</span>
       </div>`).join('');
 
     listEl.querySelectorAll('.swap-option').forEach(opt => {
-      opt.addEventListener('mouseenter', () => { if(opt.dataset.exN !== selectedEx?.n) opt.style.background='rgba(255,255,255,.05)'; });
-      opt.addEventListener('mouseleave', () => { if(opt.dataset.exN !== selectedEx?.n) opt.style.background=''; });
       opt.addEventListener('click', () => {
-        listEl.querySelectorAll('.swap-option').forEach(o => o.style.background='');
-        opt.style.background = 'rgba(148,10,10,0.2)';
+        listEl.querySelectorAll('.swap-option').forEach(o => {
+          o.style.background = '';
+          o.style.borderLeft = '';
+        });
+        opt.style.background = 'var(--color-background-secondary,rgba(255,255,255,0.08))';
+        opt.style.borderLeft = '3px solid var(--red)';
         selectedEx = allPool.find(e => e.n === opt.dataset.exN) || sameGroup.find(e => e.n === opt.dataset.exN);
-        modalEl.querySelector('#btn-confirm-swap').disabled = !modalEl.querySelector('#swap-reason').value.trim();
+        updateConfirmEnabled();
       });
     });
   }
@@ -1488,22 +1580,71 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
     renderSwapList(hits);
   });
 
-  modalEl.querySelector('#swap-reason').addEventListener('input', (e) => {
-    modalEl.querySelector('#btn-confirm-swap').disabled = !selectedEx || !e.target.value.trim();
+  // Reason chips
+  modalEl.querySelectorAll('.swap-reason-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      modalEl.querySelectorAll('.swap-reason-chip').forEach(c => {
+        c.style.background = 'transparent';
+        c.style.color = 'var(--color-text)';
+        c.style.borderColor = 'var(--color-border-secondary,var(--glass-border))';
+      });
+      chip.style.background = 'var(--red)';
+      chip.style.color = '#FFFFFF';
+      chip.style.borderColor = 'var(--red)';
+      const id = chip.dataset.reason;
+      selectedReason = SWAP_REASONS.find(r => r.id === id);
+      const otherInput = modalEl.querySelector('#swap-reason-other');
+      otherInput.style.display = id === 'otro' ? 'block' : 'none';
+      if (id !== 'otro') otherInput.value = '';
+      updateConfirmEnabled();
+    });
   });
 
+  modalEl.querySelector('#swap-reason-other').addEventListener('input', updateConfirmEnabled);
+
   modalEl.querySelector('#btn-confirm-swap').addEventListener('click', async () => {
-    const reason = modalEl.querySelector('#swap-reason').value.trim();
-    if (!reason) { toast(t('entreno_swap_reason_required'), 'warning'); return; }
+    if (!selectedEx || !selectedReason) return;
+    const reason = selectedReason.id === 'otro'
+      ? modalEl.querySelector('#swap-reason-other').value.trim()
+      : selectedReason.label;
+    if (!reason) { toast('Indica el motivo del cambio', 'warning'); return; }
+
+    // §13 · Actually replace the exercise in the active routine
+    const newEx = {
+      id: `ex_${_norm(selectedEx.n).replace(/[^a-z0-9]+/g, '_')}_${Date.now()}`,
+      name: selectedEx.n,
+      muscleGroup: selectedEx.m,
+      sets: currentEx.sets,
+      reps: currentEx.reps,
+      weight: currentEx.weight,
+      restSeconds: currentEx.restSeconds,
+    };
+    if (activeRoutineData && Array.isArray(activeRoutineData.exercises)) {
+      activeRoutineData.exercises[exIndex] = newEx;
+    }
+    if (Array.isArray(allExercises)) {
+      allExercises[exIndex] = newEx;
+    }
+
     closeModal();
     toast(t('entreno_swapped_to').replace('{name}', selectedEx.n), 'success');
+
+    // Persist note (audit trail)
     const profile = getUserProfile();
     if (profile?.uid) {
       await collections.notes(profile.uid).add({
-        type: 'swap', exerciseId: currentEx.id, exerciseName: currentEx.name,
-        swappedTo: selectedEx.n, reason, date: timestamp(),
+        type: 'swap',
+        exerciseId: currentEx.id,
+        exerciseName: currentEx.name,
+        swappedTo: selectedEx.n,
+        reasonId: selectedReason.id,
+        reason,
+        date: timestamp(),
       }).catch(() => {});
     }
+
+    // Re-render so the new exercise appears immediately
+    if (activeRoutineData) renderRoutineDetail(container, activeRoutineData);
   });
 }
 

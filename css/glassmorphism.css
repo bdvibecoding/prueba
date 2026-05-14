@@ -150,6 +150,12 @@ body.light-mode .app-icon-label {
   text-shadow: 0 1px 2px rgba(255,255,255,0.6);
 }
 
+/* ── Session History Card ────────────────────── */
+.session-history-card {
+  padding: 14px 16px;
+}
+.session-history-card:active { opacity: 0.75; }
+
 /* ── Routine / Content Cards ────────────────── */
 /* ── Routine Card — content-first layout (§11) ── */
 .routine-card {
@@ -202,12 +208,13 @@ body.light-mode .app-icon-label {
   overflow: hidden;
   height: 100%;
 }
-/* ── Top bar (§12.1) — flex-shrink:0, always visible ── */
+/* ── Top bar (§12.1 + §19) — flex-shrink:0, always visible ── */
 .workout-topbar {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
+  min-height: 52px;
   border-bottom: 0.5px solid var(--glass-border);
   background: var(--color-bg);
   flex-shrink: 0;
@@ -220,36 +227,59 @@ body.light-mode .app-icon-label {
   border-radius: 50%; transition: background var(--transition-fast);
 }
 .workout-topbar-back:active { background: var(--glass-bg); }
-/* Title: flex:1 + text-align:center — standard iOS/native pattern */
-.workout-topbar-title {
+/* §19 — Center block: title stacked above muscle subtitle */
+.workout-topbar-center {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
   text-align: center;
-  font-size: 17px;
+}
+.workout-topbar-title {
+  width: 100%;
+  text-align: center;
+  font-size: 16px;
   font-weight: 500;
   color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: 0;
 }
-/* Terminar — compact secondary pill, uses design tokens */
+/* §19 — Muscle groups subtitle */
+.workout-topbar-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+/* §20 — Terminar — high-contrast CTA (luminance contrast inversion) */
 .btn-topbar-finish {
-  background: var(--glass-bg);
-  color: var(--color-text);
-  border: 1px solid var(--glass-border);
-  -webkit-backdrop-filter: blur(var(--glass-blur-sm));
-  backdrop-filter: blur(var(--glass-blur-sm));
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  padding: 6px 14px;
-  border-radius: var(--r-full);
+  /* Default = dark mode: light button on dark background */
+  background: #F0F0F0;
+  color: #0A0A0A;
+  border: none;
+  font-family: 'SF Pro Text', var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 7px 16px;
+  border-radius: 9999px;
   cursor: pointer;
-  font-family: inherit;
-  transition: all var(--transition-fast);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
   white-space: nowrap;
   flex-shrink: 0;
 }
-.btn-topbar-finish:hover { background: var(--glass-bg-strong); }
+/* §20 — Light mode: dark button on light background */
+body.light-mode .btn-topbar-finish {
+  background: #111111;
+  color: #FFFFFF;
+}
+.btn-topbar-finish:hover { opacity: 0.88; }
 .btn-topbar-finish:active { transform: scale(0.97); }
 /* ── Scroll area — takes remaining height, scrolls independently ── */
 .workout-scroll-area {
@@ -453,35 +483,50 @@ body.light-mode .btn-start-workout,
 }
 .setup-note textarea::placeholder { color: rgba(193,8,1,0.4); }
 
-/* ── Sets Table — §14.1 new 5-col layout ─────── */
-/* Cols: Set(28) | Kg(52) | Rep.(52) | Notas(auto) | Check(44) */
+/* ── Sets Table — 4-col layout: # | PREV | REPS | KG | ✓ */
+/* Cols: Set(28) | Prev(60) | Reps(56) | Kg(56) | Check(44) */
 .sets-table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: var(--space-sm);
   table-layout: fixed;
 }
-.sets-table col.col-set   { width: 28px; }
-.sets-table col.col-num   { width: 52px; }
-.sets-table col.col-note  { } /* auto */
+.sets-table col.col-set   { width: 24px; }
+.sets-table col.col-prev  { width: 78px; }
+.sets-table col.col-num   { } /* auto — reps & kg share remaining space */
 .sets-table col.col-check { width: 44px; }
 .sets-table th {
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 4px 4px 8px;
+  letter-spacing: 0.06em;
+  padding: 4px 4px 10px;
   text-align: center;
 }
-.sets-table th.th-notes { text-align: left; padding-left: 6px; }
+.sets-table th.th-prev { text-align: left; padding-left: 4px; }
 .sets-table td {
   padding: 5px 4px;
   text-align: center;
   border-top: 1px solid var(--glass-border);
   vertical-align: middle;
 }
-.sets-table td.td-notes { text-align: left; }
+/* PREV cell — last-session reference, subtle but readable */
+.sets-table td.td-prev {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  padding-left: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sets-table td.td-prev.has-data {
+  color: var(--red);
+  opacity: 0.85;
+  font-weight: 600;
+}
 
 /* ── Set Row ─────────────────────────────────── */
 .set-row { transition: background var(--transition-base), opacity var(--transition-base); }
