@@ -1611,22 +1611,15 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
 
     <div style="margin-top:4px">
       <label class="field-label">Motivo del cambio *</label>
-      <div id="swap-reason-chips" style="display:flex;flex-direction:column;gap:6px;margin:6px 0">
+      <div id="swap-reason-chips" style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0">
         ${SWAP_REASONS.map(r => `
           <button type="button" class="swap-reason-chip" data-reason="${r.id}"
-                  style="display:flex;align-items:center;gap:10px;width:100%;
-                         padding:7px 10px;border-radius:var(--r-sm);
+                  style="padding:8px 14px;border-radius:var(--r-full);
                          border:0.5px solid var(--color-border-secondary,var(--glass-border));
-                         background:transparent;color:var(--color-text);font-size:12px;font-weight:500;
-                         font-family:'SF Pro Text',var(--font-sans);text-align:left;cursor:pointer;
+                         background:transparent;color:var(--color-text);font-size:13px;font-weight:500;
+                         font-family:'SF Pro Text',var(--font-sans);cursor:pointer;
                          transition:background 150ms ease,color 150ms ease,border-color 150ms ease">
-            <span class="swap-reason-letter"
-                  style="display:inline-flex;align-items:center;justify-content:center;
-                         width:18px;height:18px;border-radius:var(--r-xs);
-                         border:0.5px solid var(--color-border-secondary,var(--glass-border));
-                         font-size:10px;font-weight:600;color:var(--color-text-muted);
-                         flex-shrink:0;font-family:'SF Pro Display',var(--font-sans)">${r.letter}</span>
-            <span style="flex:1;min-width:0">${r.label}</span>
+            ${r.label}
           </button>`).join('')}
       </div>
       <input type="text" id="swap-reason-other" class="input-solo"
@@ -1690,29 +1683,17 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
     renderSwapList(hits);
   });
 
-  // Reason chips (vertical list)
+  // Reason chips (horizontal row · pill via --r-full token)
   modalEl.querySelectorAll('.swap-reason-chip').forEach(chip => {
     chip.addEventListener('click', () => {
       modalEl.querySelectorAll('.swap-reason-chip').forEach(c => {
         c.style.background  = 'transparent';
         c.style.color       = 'var(--color-text)';
         c.style.borderColor = 'var(--color-border-secondary,var(--glass-border))';
-        const letter = c.querySelector('.swap-reason-letter');
-        if (letter) {
-          letter.style.background  = 'transparent';
-          letter.style.color       = 'var(--color-text-muted)';
-          letter.style.borderColor = 'var(--color-border-secondary,var(--glass-border))';
-        }
       });
       chip.style.background  = 'var(--red)';
       chip.style.color       = '#FFFFFF';
       chip.style.borderColor = 'var(--red)';
-      const letter = chip.querySelector('.swap-reason-letter');
-      if (letter) {
-        letter.style.background  = '#FFFFFF';
-        letter.style.color       = 'var(--red)';
-        letter.style.borderColor = '#FFFFFF';
-      }
       const id = chip.dataset.reason;
       selectedReason = SWAP_REASONS.find(r => r.id === id);
       const otherInput = modalEl.querySelector('#swap-reason-other');
