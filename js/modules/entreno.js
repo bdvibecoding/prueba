@@ -1565,10 +1565,10 @@ function _exMatchesSwap(ex, q) {
 
 // ── Exercise Swap ─────────────────────────────
 const SWAP_REASONS = [
-  { id: 'maquina_ocupada', label: 'Máquina ocupada' },
-  { id: 'no_hay_maquina',  label: 'No hay máquina'  },
-  { id: 'molestias',       label: 'Molestias'       },
-  { id: 'otro',            label: 'Otro'            },
+  { id: 'ocupada',         letter: 'A', label: 'Ocupada'                  },
+  { id: 'no_tengo_gym',    letter: 'B', label: 'No tengo en el gym'       },
+  { id: 'no_se_hacer',     letter: 'C', label: 'No sé hacer el ejercicio' },
+  { id: 'otro',            letter: 'D', label: 'Otro'                     },
 ];
 
 async function openSwapExercise(currentEx, exIndex, container, allExercises) {
@@ -1591,14 +1591,22 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
 
     <div style="margin-top:4px">
       <label class="field-label">Motivo del cambio *</label>
-      <div id="swap-reason-chips" style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0">
+      <div id="swap-reason-chips" style="display:flex;flex-direction:column;gap:8px;margin:8px 0">
         ${SWAP_REASONS.map(r => `
           <button type="button" class="swap-reason-chip" data-reason="${r.id}"
-                  style="padding:10px 14px;border-radius:var(--r-md);border:0.5px solid var(--color-border-secondary,var(--glass-border));
-                         background:transparent;color:var(--color-text);font-size:13px;font-weight:500;
-                         font-family:'SF Pro Text',var(--font-sans);cursor:pointer;
+                  style="display:flex;align-items:center;gap:12px;width:100%;
+                         padding:12px 14px;border-radius:var(--r-md);
+                         border:0.5px solid var(--color-border-secondary,var(--glass-border));
+                         background:transparent;color:var(--color-text);font-size:14px;font-weight:500;
+                         font-family:'SF Pro Text',var(--font-sans);text-align:left;cursor:pointer;
                          transition:background 150ms ease,color 150ms ease,border-color 150ms ease">
-            ${r.label}
+            <span class="swap-reason-letter"
+                  style="display:inline-flex;align-items:center;justify-content:center;
+                         width:24px;height:24px;border-radius:var(--r-sm);
+                         border:0.5px solid var(--color-border-secondary,var(--glass-border));
+                         font-size:11px;font-weight:600;color:var(--color-text-muted);
+                         flex-shrink:0;font-family:'SF Pro Display',var(--font-sans)">${r.letter}</span>
+            <span style="flex:1;min-width:0">${r.label}</span>
           </button>`).join('')}
       </div>
       <input type="text" id="swap-reason-other" class="input-solo"
@@ -1662,17 +1670,29 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
     renderSwapList(hits);
   });
 
-  // Reason chips
+  // Reason chips (vertical list)
   modalEl.querySelectorAll('.swap-reason-chip').forEach(chip => {
     chip.addEventListener('click', () => {
       modalEl.querySelectorAll('.swap-reason-chip').forEach(c => {
-        c.style.background = 'transparent';
-        c.style.color = 'var(--color-text)';
+        c.style.background  = 'transparent';
+        c.style.color       = 'var(--color-text)';
         c.style.borderColor = 'var(--color-border-secondary,var(--glass-border))';
+        const letter = c.querySelector('.swap-reason-letter');
+        if (letter) {
+          letter.style.background  = 'transparent';
+          letter.style.color       = 'var(--color-text-muted)';
+          letter.style.borderColor = 'var(--color-border-secondary,var(--glass-border))';
+        }
       });
-      chip.style.background = 'var(--red)';
-      chip.style.color = '#FFFFFF';
+      chip.style.background  = 'var(--red)';
+      chip.style.color       = '#FFFFFF';
       chip.style.borderColor = 'var(--red)';
+      const letter = chip.querySelector('.swap-reason-letter');
+      if (letter) {
+        letter.style.background  = '#FFFFFF';
+        letter.style.color       = 'var(--red)';
+        letter.style.borderColor = '#FFFFFF';
+      }
       const id = chip.dataset.reason;
       selectedReason = SWAP_REASONS.find(r => r.id === id);
       const otherInput = modalEl.querySelector('#swap-reason-other');
