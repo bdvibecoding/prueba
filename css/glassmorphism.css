@@ -563,8 +563,8 @@ body.light-mode .btn-start-workout,
 /* ── Set Done Button ─────────────────────────── */
 .set-done-btn {
   width: 32px; height: 32px;
-  border-radius: 50%;
-  border: 2px solid var(--glass-border);
+  border-radius: var(--r-sm);
+  border: 0.5px solid var(--color-border-secondary, var(--glass-border));
   background: transparent;
   display: flex;
   align-items: center;
