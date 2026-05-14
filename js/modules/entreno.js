@@ -581,6 +581,107 @@ function buildMuscleBars(ex) {
 }
 
 // ── Exercise Card Builder ──────────────────────
+// ── Drag-and-drop reorder ─────────────────────
+function _setupExerciseDragDrop(container, routine) {
+  const list = container.querySelector('#exercise-list');
+  if (!list) return;
+
+  list.querySelectorAll('.ex-drag-handle').forEach((handle) => {
+    handle.addEventListener('pointerdown', (e) => {
+      if (!_reorderMode) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const item = handle.closest('.exercise-item');
+      if (!item) return;
+
+      const items = Array.from(list.querySelectorAll('.exercise-item'));
+      const fromIdx = items.indexOf(item);
+      if (fromIdx < 0) return;
+
+      // Capture initial layout (used for hit-testing in pointermove)
+      const positions = items.map(it => {
+        const r = it.getBoundingClientRect();
+        return { el: it, top: r.top, height: r.height, mid: r.top + r.height / 2 };
+      });
+      const myHeight = positions[fromIdx].height;
+      const myTop    = positions[fromIdx].top;
+      const startY   = e.clientY;
+
+      // Style dragging item
+      item.style.zIndex     = '1000';
+      item.style.transition = 'box-shadow 150ms ease';
+      item.style.boxShadow  = '0 8px 24px rgba(0,0,0,0.25)';
+      item.style.position   = 'relative';
+      item.classList.add('is-dragging');
+
+      handle.setPointerCapture(e.pointerId);
+      let toIdx = fromIdx;
+
+      function onMove(ev) {
+        const dy = ev.clientY - startY;
+        item.style.transform = `translateY(${dy}px)`;
+
+        // Determine new slot index based on midpoint of dragged item
+        const myMid = myTop + myHeight / 2 + dy;
+        let newIdx = fromIdx;
+        for (let i = 0; i < positions.length; i++) {
+          if (i === fromIdx) continue;
+          const p = positions[i];
+          if (i < fromIdx && myMid < p.mid) { newIdx = i; break; }
+          if (i > fromIdx && myMid > p.mid) newIdx = i;
+        }
+
+        if (newIdx !== toIdx) {
+          toIdx = newIdx;
+          // Shift other items to visualize the gap
+          positions.forEach((p, i) => {
+            if (i === fromIdx) return;
+            let shift = 0;
+            if (fromIdx < toIdx && i > fromIdx && i <= toIdx) shift = -myHeight;
+            else if (fromIdx > toIdx && i >= toIdx && i < fromIdx) shift = myHeight;
+            p.el.style.transition = 'transform 180ms ease';
+            p.el.style.transform  = shift ? `translateY(${shift}px)` : '';
+          });
+        }
+      }
+
+      function cleanup() {
+        positions.forEach(p => {
+          p.el.style.transition = '';
+          p.el.style.transform  = '';
+        });
+        item.style.transition = '';
+        item.style.boxShadow  = '';
+        item.style.zIndex     = '';
+        item.style.position   = '';
+        item.style.transform  = '';
+        item.classList.remove('is-dragging');
+        handle.removeEventListener('pointermove', onMove);
+        handle.removeEventListener('pointerup', onUp);
+        handle.removeEventListener('pointercancel', onCancel);
+      }
+
+      function onUp() {
+        // Commit array change
+        if (fromIdx !== toIdx && routine?.exercises) {
+          const arr = routine.exercises;
+          const [moved] = arr.splice(fromIdx, 1);
+          arr.splice(toIdx, 0, moved);
+        }
+        cleanup();
+        if (fromIdx !== toIdx) renderRoutineDetail(container, routine);
+      }
+
+      function onCancel() { cleanup(); }
+
+      handle.addEventListener('pointermove', onMove);
+      handle.addEventListener('pointerup', onUp);
+      handle.addEventListener('pointercancel', onCancel);
+    });
+  });
+}
+
 function buildExerciseCard(ex, index, sessionActive, session, exDataCache, reorderMode = false, total = 0) {
   const completedSets = session?.completedSets?.[ex.id] || [];
   const allDone = completedSets.length >= (ex.sets || 3);
@@ -604,30 +705,24 @@ function buildExerciseCard(ex, index, sessionActive, session, exDataCache, reord
   // §13 three-dot overflow indicator
   const dotsSVG = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>`;
 
-  // Reorder controls (only shown in reorder mode)
-  const reorderControls = reorderMode ? `
-    <div style="display:flex;flex-direction:column;gap:4px;margin-right:6px">
-      <button class="ex-reorder-btn" data-action="move-up" data-exindex="${index}" ${index === 0 ? 'disabled' : ''}
-              style="width:32px;height:24px;border:0.5px solid var(--color-border-secondary,var(--glass-border));border-radius:6px;
-                     background:transparent;color:var(--color-text);
-                     display:flex;align-items:center;justify-content:center;cursor:${index === 0 ? 'default' : 'pointer'};
-                     opacity:${index === 0 ? '0.3' : '1'}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="6 15 12 9 18 15"/></svg>
-      </button>
-      <button class="ex-reorder-btn" data-action="move-down" data-exindex="${index}" ${index === total - 1 ? 'disabled' : ''}
-              style="width:32px;height:24px;border:0.5px solid var(--color-border-secondary,var(--glass-border));border-radius:6px;
-                     background:transparent;color:var(--color-text);
-                     display:flex;align-items:center;justify-content:center;cursor:${index === total - 1 ? 'default' : 'pointer'};
-                     opacity:${index === total - 1 ? '0.3' : '1'}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
+  // Drag handle (only shown in reorder mode)
+  const dragHandle = reorderMode ? `
+    <div class="ex-drag-handle" data-exindex="${index}" aria-label="Reordenar"
+         style="display:flex;align-items:center;justify-content:center;width:32px;height:44px;
+                margin-right:6px;cursor:grab;color:var(--color-text-muted);touch-action:none;
+                flex-shrink:0;border-radius:var(--r-sm)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px">
+        <line x1="4" y1="8" x2="20" y2="8"/>
+        <line x1="4" y1="12" x2="20" y2="12"/>
+        <line x1="4" y1="16" x2="20" y2="16"/>
+      </svg>
     </div>
   ` : '';
 
   return `
     <div class="exercise-item ${allDone ? 'ex-all-done' : ''} ${reorderMode ? 'reorder-mode' : ''}" data-ex-id="${ex.id}" data-ex-index="${index}">
       <div class="exercise-header">
-        ${reorderControls}
+        ${dragHandle}
         ${numOrPhoto}
         <div style="flex:1;min-width:0">
           <div class="exercise-name">${toSentenceCase(ex.name)}</div>
@@ -1009,25 +1104,12 @@ function initExerciseList(container, exercises, sessionActive) {
     renderRoutineDetail(container, activeRoutineData || routine);
   });
 
-  // Reorder up/down buttons
-  container.querySelectorAll('.ex-reorder-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (btn.disabled) return;
-      const idx = parseInt(btn.dataset.exindex);
-      const dir = btn.dataset.action === 'move-up' ? -1 : 1;
-      const arr = activeRoutineData?.exercises || routine.exercises;
-      if (!arr || idx + dir < 0 || idx + dir >= arr.length) return;
-      [arr[idx], arr[idx + dir]] = [arr[idx + dir], arr[idx]];
-      renderRoutineDetail(container, activeRoutineData || routine);
-    });
-  });
-
-  // Block expansion in reorder mode
+  // Block expansion in reorder mode + setup drag-and-drop
   if (_reorderMode) {
     container.querySelectorAll('.exercise-header').forEach(h => {
       h.addEventListener('click', e => e.stopPropagation(), true);
     });
+    _setupExerciseDragDrop(container, activeRoutineData || routine);
   }
 
   // Action buttons
@@ -1509,10 +1591,10 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
 
     <div style="margin-top:4px">
       <label class="field-label">Motivo del cambio *</label>
-      <div id="swap-reason-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0">
+      <div id="swap-reason-chips" style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0">
         ${SWAP_REASONS.map(r => `
           <button type="button" class="swap-reason-chip" data-reason="${r.id}"
-                  style="padding:7px 14px;border-radius:9999px;border:0.5px solid var(--color-border-secondary,var(--glass-border));
+                  style="padding:10px 14px;border-radius:var(--r-md);border:0.5px solid var(--color-border-secondary,var(--glass-border));
                          background:transparent;color:var(--color-text);font-size:13px;font-weight:500;
                          font-family:'SF Pro Text',var(--font-sans);cursor:pointer;
                          transition:background 150ms ease,color 150ms ease,border-color 150ms ease">
