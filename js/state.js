@@ -70,6 +70,7 @@ export const appState = new Store({
     notifications:   true,
     keepAwake:       false,
     showMuscleMap:   true,
+    units:           'metric',   // 'metric' (kg, cm) | 'imperial' (lb, ft/in)
   },
   // Active workout session
   activeSession: {

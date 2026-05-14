@@ -32,6 +32,73 @@ export function pad(n) {
   return String(n).padStart(2, '0');
 }
 
+// ── Unit conversion & formatting ──────────────
+// Weight: 1 kg = 2.2046226218 lb
+export const KG_TO_LB = 2.2046226218;
+export function kgToLb(kg) { return Number(kg) * KG_TO_LB; }
+export function lbToKg(lb) { return Number(lb) / KG_TO_LB; }
+
+// Length: 1 cm = 0.3937 in, 12 in = 1 ft
+export const CM_TO_IN = 0.3937007874;
+export function cmToInches(cm) { return Number(cm) * CM_TO_IN; }
+export function inchesToCm(inches) { return Number(inches) / CM_TO_IN; }
+export function cmToFtIn(cm) {
+  const totalIn = cmToInches(cm);
+  const ft = Math.floor(totalIn / 12);
+  const inch = Math.round(totalIn - ft * 12);
+  return { ft, inch };
+}
+export function ftInToCm(ft, inch = 0) {
+  return inchesToCm((Number(ft) || 0) * 12 + (Number(inch) || 0));
+}
+
+// User-facing units helper — reads current settings
+export function getUnits() {
+  return appState.get('settings')?.units || 'metric';
+}
+export function unitLabel(type, units = getUnits()) {
+  if (type === 'weight') return units === 'imperial' ? 'lb' : 'kg';
+  if (type === 'height') return units === 'imperial' ? 'ft' : 'cm';
+  return '';
+}
+
+// Format weight stored in kg, display in current units
+export function fmtWeight(kg, opts = {}) {
+  if (kg == null || kg === '' || isNaN(Number(kg))) return opts.fallback ?? '—';
+  const units = opts.units || getUnits();
+  if (units === 'imperial') {
+    const lb = kgToLb(kg);
+    return opts.noUnit ? lb.toFixed(opts.decimals ?? 1) : `${lb.toFixed(opts.decimals ?? 1)} lb`;
+  }
+  const v = Number(kg);
+  const formatted = v % 1 === 0 ? String(v) : v.toFixed(opts.decimals ?? 1);
+  return opts.noUnit ? formatted : `${formatted} kg`;
+}
+
+// Format height stored in cm, display in current units
+export function fmtHeight(cm, opts = {}) {
+  if (cm == null || cm === '' || isNaN(Number(cm))) return opts.fallback ?? '—';
+  const units = opts.units || getUnits();
+  if (units === 'imperial') {
+    const { ft, inch } = cmToFtIn(cm);
+    return opts.noUnit ? `${ft}'${inch}"` : `${ft}' ${inch}"`;
+  }
+  return opts.noUnit ? String(Math.round(cm)) : `${Math.round(cm)} cm`;
+}
+
+// Convert a user-typed weight value in current units → kg for storage
+export function inputToKg(value, units = getUnits()) {
+  const v = parseFloat(String(value).replace(',', '.'));
+  if (isNaN(v)) return null;
+  return units === 'imperial' ? lbToKg(v) : v;
+}
+
+// Convert stored kg → display value in current units (numeric, no unit suffix)
+export function kgToInput(kg, units = getUnits()) {
+  if (kg == null || kg === '') return '';
+  return units === 'imperial' ? kgToLb(kg).toFixed(1).replace(/\.0$/, '') : String(kg);
+}
+
 export function getAge(birthDateStr) {
   if (!birthDateStr) return null;
   const today = new Date();

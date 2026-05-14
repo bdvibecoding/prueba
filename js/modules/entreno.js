@@ -5,7 +5,8 @@
 
 import { getUserProfile, getActiveSession, startWorkoutSession, endSession, markSetDone, unmarkSetDone, updateSetData, appState } from '../state.js';
 import { collections, timestamp, db } from '../firebase-config.js';
-import { toast, formatTime, formatDate, pad, launchConfetti, requestWakeLock, releaseWakeLock } from '../utils.js';
+import { toast, formatTime, formatDate, pad, launchConfetti, requestWakeLock, releaseWakeLock,
+         getUnits, unitLabel, kgToInput, inputToKg } from '../utils.js';
 import { openModal, closeModal, openSheet, closeSheet, confirm, alert, openRPESheet, promptModal } from '../components/modal.js';
 import { initWorkoutTimerBar, stopWorkoutTimer, clearRestTimer, getElapsedMs } from '../components/timer.js';
 import { renderMuscleMap } from '../components/muscle-map.js';
@@ -876,7 +877,7 @@ function buildSetsTable(ex, exIndex, session) {
         <td>
           <input type="text" inputmode="decimal" class="set-input drop-input"
                  data-exid="${ex.id}" data-setidx="${i}" data-dropidx="${di}" data-field="weight"
-                 value="${drop.weight ?? ''}" placeholder="0">
+                 value="${drop.weight != null && drop.weight !== '' ? kgToInput(drop.weight) : ''}" placeholder="0">
         </td>
         <td>
           <button class="btn-remove-drop" data-exid="${ex.id}" data-setidx="${i}" data-dropidx="${di}"
@@ -885,14 +886,18 @@ function buildSetsTable(ex, exIndex, session) {
       </tr>
  `).join('');
 
-    // Ghost placeholders from prev session
-    const prevWeight      = prevSet.weight ? String(prevSet.weight) : '';
+    // Ghost placeholders from prev session — converted to user's preferred units
+    const userUnits       = getUnits();
+    const wLabel          = unitLabel('weight', userUnits);
+    const prevWeightDisp  = prevSet.weight ? kgToInput(prevSet.weight, userUnits) : '';
     const prevReps        = prevSet.reps   ? String(prevSet.reps)   : '';
-    const kgPlaceholder   = prevWeight || (ex.weight ? String(ex.weight) : '');
+    const kgPlaceholder   = prevWeightDisp || (ex.weight ? kgToInput(ex.weight, userUnits) : '');
     const repsPlaceholder = prevReps   || defaultRep || '—';
-    // PREV label — shown in red: "12×60kg" or "—"
+    const savedWeightDisp = setDataStore[i]?.weight != null && setDataStore[i].weight !== ''
+                            ? kgToInput(setDataStore[i].weight, userUnits) : '';
+    // PREV label — "12×60kg" or "12×132lb" or "—"
     const prevLabel = (prevSet.reps && prevSet.weight)
-      ? `${prevSet.reps}×${prevSet.weight}kg`
+      ? `${prevSet.reps}×${prevWeightDisp}${wLabel}`
       : '—';
 
     return `
@@ -905,7 +910,7 @@ function buildSetsTable(ex, exIndex, session) {
         </td>
         <td>
           <input type="text" inputmode="decimal" class="set-input" data-exid="${ex.id}" data-setidx="${i}" data-field="weight"
-                 value="${savedWeight}" placeholder="${kgPlaceholder || '0'}" ${done ? 'disabled' : ''}>
+                 value="${savedWeightDisp}" placeholder="${kgPlaceholder || '0'}" ${done ? 'disabled' : ''}>
         </td>
         <td>
           <div class="set-actions-cell">
@@ -936,7 +941,7 @@ function buildSetsTable(ex, exIndex, session) {
           <th>${t('entreno_set')}</th>
           <th class="th-prev">Prev</th>
           <th>Reps</th>
-          <th>Kg</th>
+          <th>${unitLabel('weight').charAt(0).toUpperCase() + unitLabel('weight').slice(1)}</th>
           <th>✓</th>
         </tr>
       </thead>
@@ -1002,8 +1007,12 @@ function initExerciseList(container, exercises, sessionActive) {
         const notesInput  = row?.querySelector(`.set-input[data-field="notes"]:not(.drop-input)`);
         if (repsInput?.value)   updateSetData(exId, setIdx, 'reps', repsInput.value);
         // Use typed value OR fall back to placeholder (last known weight)
+        // Convert from user's display units (lb/kg) → kg for storage
         const weightVal = weightInput?.value || weightInput?.placeholder || '';
-        if (weightVal) updateSetData(exId, setIdx, 'weight', weightVal);
+        if (weightVal) {
+          const kg = inputToKg(weightVal);
+          if (kg != null) updateSetData(exId, setIdx, 'weight', kg);
+        }
         if (notesInput?.value)  updateSetData(exId, setIdx, 'notes', notesInput.value);
 
         markSetDone(exId, setIdx);
@@ -1058,10 +1067,16 @@ function initExerciseList(container, exercises, sessionActive) {
   });
 
   // Set input changes (kg, reps, notes — all non-drop)
+  // Weight inputs are in user's display units (lb/kg) — convert to kg before storing
   container.querySelectorAll('.set-input:not(.drop-input)').forEach(input => {
     input.addEventListener('change', () => {
       if (!sessionActive) return;
-      updateSetData(input.dataset.exid, parseInt(input.dataset.setidx), input.dataset.field, input.value);
+      let value = input.value;
+      if (input.dataset.field === 'weight' && value) {
+        const kg = inputToKg(value);
+        if (kg != null) value = kg;
+      }
+      updateSetData(input.dataset.exid, parseInt(input.dataset.setidx), input.dataset.field, value);
     });
   });
 
@@ -1069,7 +1084,12 @@ function initExerciseList(container, exercises, sessionActive) {
   container.querySelectorAll('.drop-input').forEach(input => {
     input.addEventListener('change', () => {
       if (!sessionActive) return;
-      _updateDropData(input.dataset.exid, parseInt(input.dataset.setidx), parseInt(input.dataset.dropidx), input.dataset.field, input.value);
+      let value = input.value;
+      if (input.dataset.field === 'weight' && value) {
+        const kg = inputToKg(value);
+        if (kg != null) value = kg;
+      }
+      _updateDropData(input.dataset.exid, parseInt(input.dataset.setidx), parseInt(input.dataset.dropidx), input.dataset.field, value);
     });
   });
 
@@ -2218,11 +2238,12 @@ async function openSessionDetail(sessionId, session) {
       detailEl.innerHTML = exIds.map(exId => {
         const sets = setData[exId].sets || [];
         const name = toSentenceCase(exNameMap[exId] || exId);
+        const wLabel = unitLabel('weight');
         const rows = sets.map((set, i) => `
           <tr>
             <td style="padding:6px 4px 6px 16px;font-size:13px;color:var(--color-text-secondary)">${i + 1}</td>
             <td style="padding:6px 4px;font-size:13px;color:var(--color-text-secondary)">${set.reps || '—'}</td>
-            <td style="padding:6px 16px 6px 4px;font-size:13px;color:var(--color-text-secondary)">${set.weight || '—'}</td>
+            <td style="padding:6px 16px 6px 4px;font-size:13px;color:var(--color-text-secondary)">${set.weight != null && set.weight !== '' ? kgToInput(set.weight) : '—'}</td>
           </tr>`).join('');
 
         return `
@@ -2236,7 +2257,7 @@ async function openSessionDetail(sessionId, session) {
                 <tr>
                   <th style="padding:8px 4px 6px 16px;text-align:left;font-size:12px;font-weight:500;color:var(--color-text-muted)">${t('entreno_set')}</th>
                   <th style="padding:8px 4px 6px;text-align:left;font-size:12px;font-weight:500;color:var(--color-text-muted)">${t('entreno_reps')}</th>
-                  <th style="padding:8px 16px 6px 4px;text-align:left;font-size:12px;font-weight:500;color:var(--color-text-muted)">Kg</th>
+                  <th style="padding:8px 16px 6px 4px;text-align:left;font-size:12px;font-weight:500;color:var(--color-text-muted)">${wLabel.charAt(0).toUpperCase() + wLabel.slice(1)}</th>
                 </tr>
               </thead>
               <tbody>${rows}</tbody>

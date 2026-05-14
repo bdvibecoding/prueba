@@ -70,6 +70,26 @@ export async function render(container) {
           </div>
         </div>
 
+        <!-- Unidades -->
+        <div class="section-title">${t('units_section') || 'Unidades'}</div>
+        <div class="settings-group">
+          <div class="settings-item">
+            <div class="settings-item-icon" style="background:rgba(34,197,94,0.15)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M3 6h18M3 12h18M3 18h18"/><path d="M7 6v12M17 6v12"/></svg>
+            </div>
+            <div class="settings-item-info">
+              <div class="settings-item-label">${t('units_label') || 'Sistema de unidades'}</div>
+              <div class="settings-item-desc">${t('units_desc') || 'Métrico (kg, cm) o imperial (lb, ft)'}</div>
+            </div>
+            <div class="settings-item-right">
+              <select id="select-units" style="background:transparent;border:none;color:var(--color-text-muted);font-size:13px">
+                <option value="metric"   ${(settings.units || 'metric') === 'metric'   ? 'selected' : ''}>${t('units_metric')   || 'Métrico · kg/cm'}</option>
+                <option value="imperial" ${settings.units === 'imperial' ? 'selected' : ''}>${t('units_imperial') || 'Imperial · lb/ft'}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         <!-- Notificaciones -->
         <div class="section-title">${t('notifications')}</div>
         <div class="settings-group">
@@ -206,6 +226,13 @@ export async function init(container) {
     updateSettings({ language: lang });
     setLang(lang);
     toast(lang === 'es' ? 'Idioma: Español' : 'Language: English', 'info');
+  });
+
+  // Units selector — metric / imperial
+  container.querySelector('#select-units')?.addEventListener('change', (e) => {
+    const units = e.target.value;
+    updateSettings({ units });
+    toast(units === 'imperial' ? 'Unidades: lb / ft' : 'Unidades: kg / cm', 'info');
   });
 
   // Notifications toggle
