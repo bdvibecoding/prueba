@@ -546,9 +546,11 @@ async function renderRoutineDetail(container, routine) {
   // Exercise accordion + actions
   initExerciseList(container, exercises, isActive);
 
-  // Auto-open first exercise
-  const firstItem = container.querySelector('.exercise-item');
-  if (firstItem) firstItem.classList.add('open');
+  // Auto-open first exercise — but NOT in reorder mode (keep all collapsed for easier sorting)
+  if (!_reorderMode) {
+    const firstItem = container.querySelector('.exercise-item');
+    if (firstItem) firstItem.classList.add('open');
+  }
 }
 
 // ── Muscle Group Bars ─────────────────────────
@@ -952,9 +954,10 @@ function buildSetsTable(ex, exIndex, session) {
 
 // ── Init Exercise List Events ─────────────────
 function initExerciseList(container, exercises, sessionActive) {
-  // Accordion toggle
+  // Accordion toggle (disabled in reorder mode)
   container.querySelectorAll('.exercise-header').forEach(header => {
     header.addEventListener('click', () => {
+      if (_reorderMode) return;
       const item = header.closest('.exercise-item');
       item.classList.toggle('open');
     });
@@ -1124,11 +1127,8 @@ function initExerciseList(container, exercises, sessionActive) {
     renderRoutineDetail(container, activeRoutineData || routine);
   });
 
-  // Block expansion in reorder mode + setup drag-and-drop
+  // Setup drag-and-drop in reorder mode (header toggle is blocked by _reorderMode check)
   if (_reorderMode) {
-    container.querySelectorAll('.exercise-header').forEach(h => {
-      h.addEventListener('click', e => e.stopPropagation(), true);
-    });
     _setupExerciseDragDrop(container, activeRoutineData || routine);
   }
 
