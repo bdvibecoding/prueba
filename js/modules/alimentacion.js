@@ -256,7 +256,7 @@ async function _loadPlanTab(container) {
       <div id="macro-bento">${_buildBentoMacros(totals, targets)}</div>
 
       <!-- §25–§27 · Bloques (comidas + suplementos + entreno) -->
-      <div id="meal-blocks" style="display:flex;flex-direction:column;gap:10px;margin-top:16px;padding-bottom:24px">
+      <div id="meal-blocks" style="display:flex;flex-direction:column;gap:10px;margin-top:16px;padding-bottom:var(--nav-clearance,96px)">
         ${blocks.map((b, i) => _buildBlock(b, i, todayData, autoExpandKey)).join('')}
       </div>
     `;

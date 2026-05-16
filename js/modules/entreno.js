@@ -1583,6 +1583,25 @@ function _exMatchesSwap(ex, q) {
   return false;
 }
 
+// ── Swap target frequency tracker (localStorage) ────
+const SWAP_FREQ_KEY = 'tgwl_swap_targets_v1';
+function _loadSwapFreq() {
+  try { return JSON.parse(localStorage.getItem(SWAP_FREQ_KEY)) || {}; }
+  catch { return {}; }
+}
+function _incrementSwapFreq(targetName) {
+  if (!targetName) return;
+  try {
+    const freq = _loadSwapFreq();
+    freq[targetName] = (freq[targetName] || 0) + 1;
+    localStorage.setItem(SWAP_FREQ_KEY, JSON.stringify(freq));
+  } catch {}
+}
+function _sortByFreq(items) {
+  const freq = _loadSwapFreq();
+  return [...items].sort((a, b) => (freq[b.n] || 0) - (freq[a.n] || 0));
+}
+
 // ── Exercise Swap ─────────────────────────────
 const SWAP_REASONS = [
   { id: 'ocupada',         letter: 'A', label: 'Ocupada'                  },
@@ -1595,8 +1614,10 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
   const { EXERCISES } = await import('../../data/data.js');
   const selfName = currentEx.name || currentEx.id || '';
   const muscle    = currentEx.muscleGroup || currentEx.m || '';
-  const sameGroup = EXERCISES.filter(ex => ex.m === muscle && ex.n !== selfName);
-  const allPool   = EXERCISES.filter(ex => ex.n !== selfName);
+  // Sort by frequency — exercises the user picks often appear at top
+  const sameGroup = _sortByFreq(EXERCISES.filter(ex => ex.m === muscle && ex.n !== selfName));
+  const allPool   = _sortByFreq(EXERCISES.filter(ex => ex.n !== selfName));
+  const swapFreq  = _loadSwapFreq();
 
   const html = `
     <div class="modal-header">
@@ -1650,15 +1671,30 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
       listEl.innerHTML = `<div style="padding:14px;text-align:center;color:var(--color-text-muted);font-size:13px">Sin resultados</div>`;
       return;
     }
-    listEl.innerHTML = items.map(ex => `
+    listEl.innerHTML = items.map(ex => {
+      const usedCount = swapFreq[ex.n] || 0;
+      const freqBadge = usedCount > 0
+        ? `<span title="Usado ${usedCount} ${usedCount === 1 ? 'vez' : 'veces'}"
+                 style="display:inline-flex;align-items:center;gap:3px;padding:2px 6px;
+                        font-size:10px;font-weight:500;color:var(--red);
+                        background:rgba(193,8,1,0.10);border-radius:var(--r-xs);
+                        margin-left:6px;font-family:'SF Pro Text',var(--font-sans)">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:9px;height:9px"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+             Frecuente
+           </span>`
+        : '';
+      return `
       <div class="swap-option" data-ex-n="${ex.n.replace(/"/g,'&quot;')}"
            style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-bottom:0.5px solid var(--color-border-tertiary,var(--glass-border))">
         <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:600;color:var(--color-text)">${ex.n}</div>
+          <div style="font-size:13px;font-weight:600;color:var(--color-text);display:flex;align-items:center">
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ex.n}</span>${freqBadge}
+          </div>
           <div style="font-size:11px;color:var(--color-text-muted);margin-top:2px">${ex.m}${ex.t==='c'?' · Compuesto':ex.t==='i'?' · Aislado':''}</div>
         </div>
         <span style="font-size:11px;color:var(--color-text-muted)">${ex.t==='c'?'C':'I'}</span>
-      </div>`).join('');
+      </div>`;
+    }).join('');
 
     listEl.querySelectorAll('.swap-option').forEach(opt => {
       opt.addEventListener('click', () => {
@@ -1728,6 +1764,9 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
     if (Array.isArray(allExercises)) {
       allExercises[exIndex] = newEx;
     }
+
+    // Track frequency for "most-used" sorting next time
+    _incrementSwapFreq(selectedEx.n);
 
     closeModal();
     toast(t('entreno_swapped_to').replace('{name}', selectedEx.n), 'success');
