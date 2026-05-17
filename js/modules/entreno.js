@@ -15,6 +15,33 @@ import { t } from '../i18n.js';
 let activeRoutineId       = null;
 let activeRoutineData     = null;
 let _reorderMode          = false;
+let _liveDurationIv       = null;
+
+function _formatLiveDuration(ms) {
+  const total = Math.floor(ms / 1000);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  if (h > 0) return `${h}h ${String(m).padStart(2,'0')}min ${String(s).padStart(2,'0')}s`;
+  return `${m}min ${String(s).padStart(2,'0')}s`;
+}
+function _startLiveDuration() {
+  if (_liveDurationIv) clearInterval(_liveDurationIv);
+  const tick = () => {
+    const el = document.getElementById('workout-live-duration');
+    if (!el) { _stopLiveDuration(); return; }
+    el.textContent = _formatLiveDuration(getElapsedMs());
+  };
+  tick();
+  _liveDurationIv = setInterval(tick, 1000);
+}
+function _stopLiveDuration(finalMs = null) {
+  if (_liveDurationIv) { clearInterval(_liveDurationIv); _liveDurationIv = null; }
+  if (finalMs != null) {
+    const el = document.getElementById('workout-live-duration');
+    if (el) el.textContent = _formatLiveDuration(finalMs);
+  }
+}
 let activeAssignmentId    = null;
 let _workoutStartTime     = null; // for timestamp display
 
@@ -481,6 +508,10 @@ async function renderRoutineDetail(container, routine) {
           <span class="workout-ts-label">Hora fin</span>
           <span class="workout-ts-value" id="workout-end-time">--:--</span>
         </div>
+        <div class="workout-ts-row">
+          <span class="workout-ts-label">Duración</span>
+          <span class="workout-ts-value" id="workout-live-duration">0min 0s</span>
+        </div>
       </div>
       ` : ''}
 
@@ -551,6 +582,10 @@ async function renderRoutineDetail(container, routine) {
     const firstItem = container.querySelector('.exercise-item');
     if (firstItem) firstItem.classList.add('open');
   }
+
+  // Live duration counter — runs while workout is active, stops on finish
+  if (isActive) _startLiveDuration();
+  else _stopLiveDuration();
 }
 
 // ── Muscle Group Bars ─────────────────────────
@@ -2335,6 +2370,9 @@ async function finishWorkout(container) {
   const session     = getActiveSession();
   const durationMs  = getElapsedMs();
 
+  // Freeze the live duration counter on its final value
+  _stopLiveDuration(durationMs);
+
   // 1. General note
   const note = await promptModal(t('entreno_general_note'), t('entreno_general_note_placeholder'));
 
@@ -2536,6 +2574,7 @@ async function cancelWorkout(container) {
   if (!ok) return;
   clearRestTimer();
   releaseWakeLock();
+  _stopLiveDuration();
   endSession();
   toast(t('entreno_cancelled'), 'info');
   import('../router.js').then(({ navigate }) => navigate('home'));
