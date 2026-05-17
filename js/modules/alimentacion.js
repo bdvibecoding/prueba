@@ -451,7 +451,7 @@ function _buildBlock(block, i, todayData, autoExpandKey) {
            style="display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer">
         ${_blockImage(block)}
         <div class="meal-card-title" style="flex:1;min-width:0;font-family:'SF Pro Text',var(--font-sans);
-                                            font-size:14px;font-weight:500;
+                                            font-size:15px;font-weight:500;
                                             color:var(--color-text-primary,var(--color-text));
                                             white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
           ${_esc(block.label)}
@@ -556,12 +556,12 @@ function _foodRow(f, checked, isLast) {
          style="display:flex;align-items:center;gap:12px;padding:12px 16px;
                 ${isLast?'':'border-bottom:0.5px solid var(--color-border-tertiary,var(--glass-border))'}">
       <div style="flex:1;min-width:0">
-        <div style="font-family:'SF Pro Text',var(--font-sans);font-size:13px;font-weight:400;
+        <div style="font-family:'SF Pro Text',var(--font-sans);font-size:15px;font-weight:400;
                     color:var(--color-text-primary,var(--color-text))">${_esc(f.name)}</div>
-        ${f.qty ? `<div style="font-family:'SF Pro Text',var(--font-sans);font-size:12px;
+        ${f.qty ? `<div style="font-family:'SF Pro Text',var(--font-sans);font-size:13px;
                               color:var(--color-text-tertiary,var(--color-text-muted));margin-top:2px">${_esc(f.qty)}</div>` : ''}
       </div>
-      ${f.kcal ? `<span style="font-family:'SF Pro Text',var(--font-sans);font-size:12px;
+      ${f.kcal ? `<span style="font-family:'SF Pro Text',var(--font-sans);font-size:13px;
                                 color:var(--color-text-secondary,var(--color-text-muted));margin-right:12px">
                     ${Math.round(f.kcal)} kcal</span>` : ''}
       <button class="food-check" data-food-idx="${f.idx}" aria-label="Marcar"
