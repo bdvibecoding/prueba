@@ -703,6 +703,27 @@ async function openUserDetailSheet(user, allUsers) {
  `<option value="${u.uid || u.id}" ${assignedId === (u.uid || u.id) ? 'selected' : ''}>${u.name}</option>`
     ).join('');
 
+  // Resolve "Desbloqueado por" UID → user-friendly name (fallback: code shown)
+  async function resolveUserLabel(uidOrCode) {
+    if (!uidOrCode) return '';
+    if (uidOrCode === 'invitation') return 'Invitación';
+    if (uidOrCode === 'admin')      return 'Administrador';
+    // 1) Try local cache (allUsers)
+    const localHit = allUsers.find(u => (u.uid || u.id) === uidOrCode);
+    if (localHit) return localHit.name || localHit.email || uidOrCode;
+    // 2) Fall back to Firestore lookup
+    try {
+      const snap = await db.collection('users').doc(uidOrCode).get();
+      if (snap.exists) {
+        const d = snap.data();
+        return d.name || d.email || uidOrCode;
+      }
+    } catch (_) {}
+    return uidOrCode; // last resort — show the raw value
+  }
+
+  const grantedByLabel = await resolveUserLabel(user.accessGrantedBy);
+
   const coaches       = byRole('coach');
   const medicos       = byRole('medico');
   const fisios        = byRole('fisio');
@@ -814,7 +835,7 @@ async function openUserDetailSheet(user, allUsers) {
 
       ${user.accessGrantedBy ? `
         <p style="font-size:var(--fs-xs);color:var(--color-text-muted);margin-top:var(--space-sm);margin-bottom:0">
-          ${t('admin_access_granted_by')}: ${user.accessGrantedBy}
+          ${t('admin_access_granted_by')}: ${grantedByLabel}
         </p>
  ` : ''}
     </div>
