@@ -2,8 +2,8 @@
    TGWL Service Worker — PWA offline support
 ═══════════════════════════════════════════════ */
 const CACHE_NAME = 'tgwl-v2.04';
-const STATIC_CACHE = 'tgwl-static-v123.0';
-const DYNAMIC_CACHE = 'tgwl-dynamic-v123.0';
+const STATIC_CACHE = 'tgwl-static-v124.0';
+const DYNAMIC_CACHE = 'tgwl-dynamic-v124.0';
 
 const STATIC_ASSETS = [
   '/',
@@ -77,14 +77,20 @@ self.addEventListener('install', event => {
 // ── Activate ─────────────────────────────────
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
+    (async () => {
+      // 1. Nuke ALL old caches (not just outdated ones — full wipe on each version bump)
+      const keys = await caches.keys();
+      await Promise.all(
         keys.filter(key => key !== STATIC_CACHE && key !== DYNAMIC_CACHE)
             .map(key => caches.delete(key))
-      )
-    )
+      );
+      // 2. Claim all clients immediately
+      await self.clients.claim();
+      // 3. Tell every open tab to reload so the new JS/CSS is used right away
+      const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      clients.forEach(c => c.postMessage({ type: 'NEW_VERSION_RELOAD', cache: STATIC_CACHE }));
+    })()
   );
-  self.clients.claim();
 });
 
 // ── Fetch Strategy: Cache-first for static, Network-first for API ──

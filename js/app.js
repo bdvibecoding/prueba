@@ -76,6 +76,21 @@ async function registerSW() {
       if (_reloadOnController) window.location.reload();
     });
 
+    // Auto-reload when SW pushes a NEW_VERSION_RELOAD message — used to force
+    // immediate refresh of stale UI strings after a version bump
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      if (event.data?.type === 'NEW_VERSION_RELOAD') {
+        // Avoid infinite loops: only reload if we haven't already reloaded for this cache
+        const key = 'tgwl-sw-reloaded-for';
+        try {
+          if (sessionStorage.getItem(key) !== event.data.cache) {
+            sessionStorage.setItem(key, event.data.cache);
+            window.location.reload();
+          }
+        } catch (_) { window.location.reload(); }
+      }
+    });
+
   } catch (err) {
     console.warn('[App] SW registration failed:', err);
   }
