@@ -264,8 +264,10 @@ function renderRows(container, list) {
     const statusBadge = isPending
       ? `<span class="us-badge us-badge-pending">Pendiente</span>`
       : `<span class="us-badge">Activo</span>`;
+    const isClient = ['cliente','atleta'].includes(role);
     return `
-      <tr>
+      <tr ${isClient ? `class="us-row-clickable" data-uid="${c.uid}"` : ''}
+          style="${isClient ? 'cursor:pointer' : ''}">
         <td>
           <div class="us-user-cell">
             <div class="us-avatar">${getInitials(c.name || '?')}</div>
@@ -286,6 +288,123 @@ function renderRows(container, list) {
         <td><span style="font-size:12px;color:var(--color-text-muted)">${fmtDate(c.updatedAt)}</span></td>
       </tr>`;
   }).join('');
+
+  // Wire row clicks to open the permission editor (clients only)
+  tbody.querySelectorAll('.us-row-clickable').forEach(row => {
+    row.addEventListener('click', () => {
+      const uid = row.dataset.uid;
+      const user = _clients.find(c => c.uid === uid);
+      if (user) openUserPermissionsModal(user);
+    });
+  });
+}
+
+// ── User permissions modal (canCreateRoutines · canUseDropsets) ──────
+function openUserPermissionsModal(user) {
+  const existing = document.getElementById('us-perm-modal');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'us-perm-modal';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:99990;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(0,0,0,0.6);padding:20px;
+  `;
+  overlay.innerHTML = `
+    <div style="background:var(--color-bg-card,#1A1A1A);
+                border:0.5px solid var(--color-border-tertiary,var(--glass-border));
+                border-radius:var(--r-md,14px);padding:24px;
+                max-width:420px;width:100%;
+                font-family:'SF Pro Text',var(--font-sans)">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px">
+        <div style="flex:1;min-width:0">
+          <h3 style="margin:0 0 4px;font-size:17px;font-weight:600;color:var(--color-text-primary,var(--color-text))">
+            ${user.name || 'Usuario'}
+          </h3>
+          <p style="margin:0;font-size:12px;color:var(--color-text-tertiary,var(--color-text-muted))">${user.email || ''}</p>
+        </div>
+        <button id="us-perm-close" style="background:none;border:none;font-size:20px;
+                color:var(--color-text-muted);cursor:pointer;padding:4px 8px;line-height:1">&times;</button>
+      </div>
+
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;
+                  color:var(--color-text-tertiary,var(--color-text-muted));margin-bottom:10px;font-weight:600">
+        Permisos
+      </div>
+
+      <div style="padding:14px;background:var(--color-background-primary,var(--glass-bg));
+                  border:0.5px solid var(--color-border-tertiary,var(--glass-border));
+                  border-radius:var(--r-sm,8px);display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:500;color:var(--color-text-primary,var(--color-text))">
+            Crear sus propias rutinas
+          </div>
+          <div style="font-size:12px;color:var(--color-text-tertiary,var(--color-text-muted));margin-top:2px">
+            Permite a este cliente crear y editar sus rutinas desde la app
+          </div>
+        </div>
+        <label class="toggle-switch" style="flex-shrink:0">
+          <input type="checkbox" id="us-perm-routines" ${user.canCreateRoutines ? 'checked' : ''}>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div style="padding:14px;background:var(--color-background-primary,var(--glass-bg));
+                  border:0.5px solid var(--color-border-tertiary,var(--glass-border));
+                  border-radius:var(--r-sm,8px);display:flex;align-items:center;gap:12px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:500;color:var(--color-text-primary,var(--color-text))">
+            Usar drop sets
+          </div>
+          <div style="font-size:12px;color:var(--color-text-tertiary,var(--color-text-muted));margin-top:2px">
+            Muestra el botón "Drop" en cada serie durante el entreno
+          </div>
+        </div>
+        <label class="toggle-switch" style="flex-shrink:0">
+          <input type="checkbox" id="us-perm-drops" ${user.canUseDropsets ? 'checked' : ''}>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // Close handlers
+  const close = () => overlay.remove();
+  overlay.querySelector('#us-perm-close').addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+  // Toggle handlers
+  overlay.querySelector('#us-perm-routines').addEventListener('change', async (e) => {
+    const enabled = e.target.checked;
+    try {
+      await db.collection('users').doc(user.uid).update({
+        canCreateRoutines: enabled,
+        updatedAt: new Date(),
+      });
+      user.canCreateRoutines = enabled;
+      toast(enabled ? 'Permiso activado · puede crear rutinas' : 'Permiso desactivado', 'success');
+    } catch (err) {
+      e.target.checked = !enabled;
+      toast('Error: ' + err.message, 'error');
+    }
+  });
+
+  overlay.querySelector('#us-perm-drops').addEventListener('change', async (e) => {
+    const enabled = e.target.checked;
+    try {
+      await db.collection('users').doc(user.uid).update({
+        canUseDropsets: enabled,
+        updatedAt: new Date(),
+      });
+      user.canUseDropsets = enabled;
+      toast(enabled ? 'Drop sets activados' : 'Drop sets desactivados', 'success');
+    } catch (err) {
+      e.target.checked = !enabled;
+      toast('Error: ' + err.message, 'error');
+    }
+  });
 }
 
 function fmtDate(ts) {
