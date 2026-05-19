@@ -365,7 +365,40 @@ async function renderPlansView(container, plans, individualRoutines = []) {
     html += `</div></div>`;
   }
 
+  // ── "Create my own routine" button — only if coach enabled it ──
+  const userProfile = getUserProfile();
+  if (userProfile?.canCreateRoutines) {
+    html += `
+      <div style="margin-top:28px">
+        <button id="btn-create-own-routine"
+                style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+                       padding:14px;border:none;border-radius:var(--r-md);
+                       background:linear-gradient(135deg,#E53935 0%,#C10801 55%,#8A0500 100%);
+                       color:#FFFFFF;font-family:'SF Pro Text',var(--font-sans);font-size:14px;font-weight:600;
+                       cursor:pointer;box-shadow:0 2px 10px rgba(193,8,1,0.28);
+                       transition:transform 150ms ease,filter 150ms ease,box-shadow 150ms ease">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span>Crear mi propia rutina</span>
+        </button>
+      </div>
+    `;
+  }
+
   listEl.innerHTML = html;
+
+  // Wire "Create my own routine" if shown
+  listEl.querySelector('#btn-create-own-routine')?.addEventListener('click', () => {
+    import('../admin/routine-creator.js').then(mod => {
+      if (mod && typeof mod.openRoutineCreator === 'function') {
+        mod.openRoutineCreator({ ownerUid: userProfile.uid, mode: 'self' });
+      } else {
+        toast('Editor de rutinas próximamente disponible', 'info');
+      }
+    }).catch(() => toast('Editor de rutinas próximamente disponible', 'info'));
+  });
 
   // ── Wire active plan routine clicks ──
   listEl.querySelectorAll('#active-plan-routines .routine-card').forEach(card => {
@@ -1102,6 +1135,16 @@ function initExerciseList(container, exercises, sessionActive) {
       row?.classList.toggle('locked', !isDone);
       row?.querySelectorAll('.warmup-input').forEach(inp => { inp.disabled = !isDone; });
     });
+  });
+
+  // Select existing value on focus so typing overwrites instead of appending
+  container.querySelectorAll('.set-input').forEach(input => {
+    const selectAll = () => {
+      // Small delay because some mobile browsers reposition the caret right after focus
+      setTimeout(() => { try { input.select(); } catch (_) {} }, 0);
+    };
+    input.addEventListener('focus', selectAll);
+    input.addEventListener('click', selectAll);
   });
 
   // Set input changes (kg, reps, notes — all non-drop)

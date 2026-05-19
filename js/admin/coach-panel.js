@@ -143,7 +143,25 @@ async function openClientSheet(client, profile) {
         <div class="glass-card stat-card"><div class="stat-value" id="cs-workouts">—</div><div class="stat-label">Entrenos</div></div>
         <div class="glass-card stat-card"><div class="stat-value" id="cs-rpe">—</div><div class="stat-label">RPE medio</div></div>
       </div>
-      <div id="cs-last-workout" class="text-muted"></div>
+      <div id="cs-last-workout" class="text-muted" style="margin-bottom:16px"></div>
+
+      <!-- Permisos del cliente -->
+      <div style="margin-top:8px;padding:12px 14px;background:var(--color-background-primary,var(--glass-bg));
+                  border:0.5px solid var(--color-border-tertiary,var(--glass-border));border-radius:var(--r-md);
+                  display:flex;align-items:center;gap:12px">
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'SF Pro Text',var(--font-sans);font-size:14px;font-weight:500;
+                      color:var(--color-text-primary,var(--color-text))">Crear sus propias rutinas</div>
+          <div style="font-family:'SF Pro Text',var(--font-sans);font-size:12px;
+                      color:var(--color-text-tertiary,var(--color-text-muted));margin-top:2px">
+            Permite a ${(client.name || 'el cliente').split(' ')[0]} crear y editar sus rutinas desde la app
+          </div>
+        </div>
+        <label class="toggle-switch" style="flex-shrink:0">
+          <input type="checkbox" id="toggle-can-create-routines" ${client.canCreateRoutines ? 'checked' : ''}>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
     </div>
 
     <div id="ctab-routines" style="display:none">
@@ -182,6 +200,21 @@ async function openClientSheet(client, profile) {
 
   // Add routine
   sc.querySelector('#btn-add-routine-client')?.addEventListener('click', () => openAssignRoutineFromCoach(uid));
+
+  // Permission toggle — allow client to create their own routines
+  sc.querySelector('#toggle-can-create-routines')?.addEventListener('change', async (e) => {
+    const enabled = e.target.checked;
+    try {
+      await db.collection('users').doc(uid).update({
+        canCreateRoutines: enabled,
+        updatedAt: timestamp(),
+      });
+      toast(enabled ? 'Permiso activado · puede crear rutinas' : 'Permiso desactivado', 'success');
+    } catch (err) {
+      e.target.checked = !enabled;  // revert
+      toast('Error: ' + err.message, 'error');
+    }
+  });
 
   // Save coach notes
   sc.querySelector('#btn-save-coach-notes')?.addEventListener('click', async () => {
