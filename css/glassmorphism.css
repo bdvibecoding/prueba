@@ -297,23 +297,42 @@ body.light-mode .btn-topbar-finish {
   text-align: center;
   border-top: 0.5px solid var(--glass-border);
 }
-.btn-cancel-workout {
-  /* Red gradient button — clear CTA, no longer floats as text */
+/* Primary "Terminar rutina" button — solid red CTA */
+.btn-finish-workout {
   background: linear-gradient(135deg, #E53935 0%, #C10801 55%, #8A0500 100%);
   border: none;
   cursor: pointer;
   font-family: 'SF Pro Text', var(--font-sans);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: #FFFFFF;
   letter-spacing: 0.01em;
-  padding: 10px 22px;
+  padding: 14px 22px;
   border-radius: var(--r-sm);
   box-shadow: 0 2px 10px rgba(193, 8, 1, 0.32);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
+  width: 100%;
 }
-.btn-cancel-workout:hover  { filter: brightness(1.05); box-shadow: 0 3px 14px rgba(193, 8, 1, 0.42); }
-.btn-cancel-workout:active { transform: scale(0.97); box-shadow: 0 1px 6px rgba(193, 8, 1, 0.30); }
+.btn-finish-workout:hover  { filter: brightness(1.05); box-shadow: 0 3px 14px rgba(193, 8, 1, 0.42); }
+.btn-finish-workout:active { transform: scale(0.985); box-shadow: 0 1px 6px rgba(193, 8, 1, 0.30); }
+
+/* Secondary "Cancelar entrenamiento" — outline / ghost red */
+.btn-cancel-workout {
+  background: transparent;
+  border: 0.5px solid var(--red, #C10801);
+  cursor: pointer;
+  font-family: 'SF Pro Text', var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--red, #C10801);
+  letter-spacing: 0.01em;
+  padding: 10px 22px;
+  border-radius: var(--r-sm);
+  transition: background var(--transition-fast), transform var(--transition-fast);
+  width: 100%;
+}
+.btn-cancel-workout:hover  { background: rgba(193, 8, 1, 0.08); }
+.btn-cancel-workout:active { transform: scale(0.985); }
 /* ── Start Workout Button (§12.3 ghost, elevation) ── */
 .btn-start-workout {
   width: 100%;
@@ -503,35 +522,35 @@ body.light-mode .btn-start-workout,
 .sets-table col.col-num   { } /* auto — reps & kg share remaining space */
 .sets-table col.col-check { width: 44px; }
 .sets-table th {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary, var(--color-text-muted));
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  padding: 4px 4px 10px;
+  padding: 6px 4px 10px;
   text-align: center;
 }
-.sets-table th.th-prev { text-align: left; padding-left: 12px; }
+.sets-table th.th-prev { text-align: center; padding-left: 4px; }
 .sets-table td {
-  padding: 5px 4px;
+  padding: 6px 4px;
   text-align: center;
   border-top: 1px solid var(--glass-border);
   vertical-align: middle;
+  font-size: 14px;
 }
-/* PREV cell — last-session reference, subtle but readable */
+/* PREV cell — last-session reference, centered */
 .sets-table td.td-prev {
-  text-align: left;
+  text-align: center;
   font-size: 12px;
   font-weight: 500;
-  color: var(--color-text-tertiary, var(--color-text-muted));
-  padding-left: 12px;
+  color: var(--color-text-secondary, var(--color-text-muted));
+  padding-left: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .sets-table td.td-prev.has-data {
-  color: var(--red);
-  opacity: 0.85;
+  color: var(--color-text-primary, var(--color-text));
   font-weight: 600;
 }
 

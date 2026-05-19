@@ -16,6 +16,8 @@ let activeRoutineId       = null;
 let activeRoutineData     = null;
 let _reorderMode          = false;
 let _liveDurationIv       = null;
+// User permission: show "Drop" button on each set during workout
+let _dropsEnabled         = false;
 
 function _formatLiveDuration(ms) {
   const total = Math.floor(ms / 1000);
@@ -496,6 +498,10 @@ async function renderRoutineDetail(container, routine) {
     } catch(_) {}
   }
 
+  // Permission check — admin can toggle dropsets per client
+  const _profile = getUserProfile();
+  _dropsEnabled = !!_profile?.canUseDropsets;
+
   const exercises = routine.exercises || [];
   const session   = getActiveSession();
   const isActive  = session?.routineId === routine.id;
@@ -518,7 +524,7 @@ async function renderRoutineDetail(container, routine) {
         <div class="workout-topbar-title">${routine.name}</div>
         ${(() => { const sub = getTopMuscleSubtitle(routine.exercises || []); return sub ? `<div class="workout-topbar-subtitle">${sub}</div>` : ''; })()}
       </div>
-      ${isActive ? `<button class="btn-topbar-finish" id="btn-finish-top">Terminar</button>` : ''}
+      <!-- Topbar action removed — Terminar lives at the bottom alongside Cancelar -->
     </div>
 
     <!-- ── Scrollable content area ── -->
@@ -584,7 +590,8 @@ async function renderRoutineDetail(container, routine) {
       ` : ''}
 
       ${isActive ? `
-      <div class="workout-cancel-zone">
+      <div class="workout-cancel-zone" style="display:flex;flex-direction:column;gap:10px;padding:16px var(--space-md)">
+        <button class="btn-finish-workout" id="btn-finish-bottom">Terminar rutina</button>
         <button class="btn-cancel-workout" id="btn-cancel-bottom">Cancelar entrenamiento</button>
       </div>
       ` : ''}
@@ -602,7 +609,7 @@ async function renderRoutineDetail(container, routine) {
 
   // Top-bar Terminar / Cancelar
   if (isActive) {
-    container.querySelector('#btn-finish-top')?.addEventListener('click', () => finishWorkout(container));
+    container.querySelector('#btn-finish-bottom')?.addEventListener('click', () => finishWorkout(container));
     container.querySelector('#btn-cancel-bottom')?.addEventListener('click', () => cancelWorkout(container));
     requestWakeLock();
   }
@@ -988,7 +995,7 @@ function buildSetsTable(ex, exIndex, session) {
                     data-exid="${ex.id}" data-setidx="${i}" data-done="${done}">
               ${done ? '✓' : '○'}
             </button>
-            ${!done ? `<button class="btn-add-drop" data-exid="${ex.id}" data-setidx="${i}"
+            ${(!done && _dropsEnabled) ? `<button class="btn-add-drop" data-exid="${ex.id}" data-setidx="${i}"
                     title="${t('entreno_add_drop')}">${t('entreno_add_drop')}</button>` : ''}
           </div>
         </td>
@@ -1054,9 +1061,9 @@ function initExerciseList(container, exercises, sessionActive) {
           inp.disabled = false;
           inp.tabIndex = 0;
         });
-        // Re-show drop button
+        // Re-show drop button (only if user has permission)
         const actCell = row?.querySelector('.set-actions-cell');
-        if (actCell && !actCell.querySelector('.btn-add-drop')) {
+        if (actCell && _dropsEnabled && !actCell.querySelector('.btn-add-drop')) {
           const dropBtn = document.createElement('button');
           dropBtn.className = 'btn-add-drop';
           dropBtn.dataset.exid = exId;
@@ -1281,25 +1288,28 @@ function _addDropRow(container, exId, setIdx, exercises) {
   const remaining = Math.max(0, plannedReps - enteredReps);
   const dropReps  = remaining + 4;
 
-  // §14.1 — 5-col layout: Set | Kg | Rep | Notas | Check
+  // Convert auto-calc drop weight (in kg) to user's display units
+  const dropWeightDisp = dropWeight ? kgToInput(dropWeight) : '';
+
+  // Layout matches the rendered dropset rows in buildSetsTable:
+  // col 1-2 (colspan): "Drop" label  ·  col 3: REPS  ·  col 4: KG  ·  col 5: ✕
   const tr = document.createElement('tr');
   tr.className = 'dropset-row';
   tr.dataset.exid    = exId;
   tr.dataset.setidx  = String(setIdx);
   tr.dataset.dropidx = String(dropIdx);
   tr.innerHTML = `
-    <td><span class="dropset-label">Drop</span></td>
-    <td>
-      <input type="text" inputmode="decimal" class="set-input drop-input"
-             data-exid="${exId}" data-setidx="${setIdx}" data-dropidx="${dropIdx}" data-field="weight"
-             value="${dropWeight || ''}" placeholder="${dropWeight || '0'}">
-    </td>
+    <td colspan="2"><span class="dropset-label">${t('entreno_dropset_label')}</span></td>
     <td>
       <input type="text" inputmode="numeric" class="set-input drop-input"
              data-exid="${exId}" data-setidx="${setIdx}" data-dropidx="${dropIdx}" data-field="reps"
-             value="${dropReps}">
+             value="${dropReps || ''}" placeholder="—">
     </td>
-    <td></td>
+    <td>
+      <input type="text" inputmode="decimal" class="set-input drop-input"
+             data-exid="${exId}" data-setidx="${setIdx}" data-dropidx="${dropIdx}" data-field="weight"
+             value="${dropWeightDisp}" placeholder="0">
+    </td>
     <td>
       <button class="btn-remove-drop" data-exid="${exId}" data-setidx="${setIdx}" data-dropidx="${dropIdx}"
               title="${t('entreno_remove_drop')}">✕</button>
@@ -1315,16 +1325,29 @@ function _addDropRow(container, exId, setIdx, exercises) {
     tbody.appendChild(tr);
   }
 
-  // Bind events on new row
-  tr.querySelector('.drop-input')?.addEventListener('change', (e) => {
-    const inp = e.target;
-    _updateDropData(inp.dataset.exid, parseInt(inp.dataset.setidx), parseInt(inp.dataset.dropidx), inp.dataset.field, inp.value);
-  });
+  // Bind change handler on each input — convert weight from user units → kg
   tr.querySelectorAll('.drop-input').forEach(inp => {
     inp.addEventListener('change', (e) => {
-      _updateDropData(e.target.dataset.exid, parseInt(e.target.dataset.setidx), parseInt(e.target.dataset.dropidx), e.target.dataset.field, e.target.value);
+      let value = e.target.value;
+      if (e.target.dataset.field === 'weight' && value) {
+        const kg = inputToKg(value);
+        if (kg != null) value = kg;
+      }
+      _updateDropData(
+        e.target.dataset.exid,
+        parseInt(e.target.dataset.setidx),
+        parseInt(e.target.dataset.dropidx),
+        e.target.dataset.field,
+        value
+      );
     });
+    // Select-on-focus to overwrite
+    inp.addEventListener('focus', () => setTimeout(() => { try { inp.select(); } catch (_) {} }, 0));
   });
+  // Persist auto-calculated initial values
+  if (dropReps)   _updateDropData(exId, setIdx, dropIdx, 'reps',   dropReps);
+  if (dropWeight) _updateDropData(exId, setIdx, dropIdx, 'weight', dropWeight);
+
   tr.querySelector('.btn-remove-drop')?.addEventListener('click', (e) => {
     e.stopPropagation();
     const btn = e.currentTarget;

@@ -146,21 +146,40 @@ async function openClientSheet(client, profile) {
       <div id="cs-last-workout" class="text-muted" style="margin-bottom:16px"></div>
 
       <!-- Permisos del cliente -->
-      <div style="margin-top:8px;padding:12px 14px;background:var(--color-background-primary,var(--glass-bg));
-                  border:0.5px solid var(--color-border-tertiary,var(--glass-border));border-radius:var(--r-md);
-                  display:flex;align-items:center;gap:12px">
-        <div style="flex:1;min-width:0">
-          <div style="font-family:'SF Pro Text',var(--font-sans);font-size:14px;font-weight:500;
-                      color:var(--color-text-primary,var(--color-text))">Crear sus propias rutinas</div>
-          <div style="font-family:'SF Pro Text',var(--font-sans);font-size:12px;
-                      color:var(--color-text-tertiary,var(--color-text-muted));margin-top:2px">
-            Permite a ${(client.name || 'el cliente').split(' ')[0]} crear y editar sus rutinas desde la app
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+        <div style="padding:12px 14px;background:var(--color-background-primary,var(--glass-bg));
+                    border:0.5px solid var(--color-border-tertiary,var(--glass-border));border-radius:var(--r-md);
+                    display:flex;align-items:center;gap:12px">
+          <div style="flex:1;min-width:0">
+            <div style="font-family:'SF Pro Text',var(--font-sans);font-size:14px;font-weight:500;
+                        color:var(--color-text-primary,var(--color-text))">Crear sus propias rutinas</div>
+            <div style="font-family:'SF Pro Text',var(--font-sans);font-size:12px;
+                        color:var(--color-text-tertiary,var(--color-text-muted));margin-top:2px">
+              Permite a ${(client.name || 'el cliente').split(' ')[0]} crear y editar sus rutinas desde la app
+            </div>
           </div>
+          <label class="toggle-switch" style="flex-shrink:0">
+            <input type="checkbox" id="toggle-can-create-routines" ${client.canCreateRoutines ? 'checked' : ''}>
+            <span class="toggle-slider"></span>
+          </label>
         </div>
-        <label class="toggle-switch" style="flex-shrink:0">
-          <input type="checkbox" id="toggle-can-create-routines" ${client.canCreateRoutines ? 'checked' : ''}>
-          <span class="toggle-slider"></span>
-        </label>
+
+        <div style="padding:12px 14px;background:var(--color-background-primary,var(--glass-bg));
+                    border:0.5px solid var(--color-border-tertiary,var(--glass-border));border-radius:var(--r-md);
+                    display:flex;align-items:center;gap:12px">
+          <div style="flex:1;min-width:0">
+            <div style="font-family:'SF Pro Text',var(--font-sans);font-size:14px;font-weight:500;
+                        color:var(--color-text-primary,var(--color-text))">Usar drop sets</div>
+            <div style="font-family:'SF Pro Text',var(--font-sans);font-size:12px;
+                        color:var(--color-text-tertiary,var(--color-text-muted));margin-top:2px">
+              Muestra el botón "Drop" en cada serie durante el entreno
+            </div>
+          </div>
+          <label class="toggle-switch" style="flex-shrink:0">
+            <input type="checkbox" id="toggle-can-use-dropsets" ${client.canUseDropsets ? 'checked' : ''}>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
       </div>
     </div>
 
@@ -212,6 +231,21 @@ async function openClientSheet(client, profile) {
       toast(enabled ? 'Permiso activado · puede crear rutinas' : 'Permiso desactivado', 'success');
     } catch (err) {
       e.target.checked = !enabled;  // revert
+      toast('Error: ' + err.message, 'error');
+    }
+  });
+
+  // Permission toggle — allow client to use dropsets during workouts
+  sc.querySelector('#toggle-can-use-dropsets')?.addEventListener('change', async (e) => {
+    const enabled = e.target.checked;
+    try {
+      await db.collection('users').doc(uid).update({
+        canUseDropsets: enabled,
+        updatedAt: timestamp(),
+      });
+      toast(enabled ? 'Drop sets activados' : 'Drop sets desactivados', 'success');
+    } catch (err) {
+      e.target.checked = !enabled;
       toast('Error: ' + err.message, 'error');
     }
   });
