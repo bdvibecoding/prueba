@@ -264,10 +264,9 @@ function renderRows(container, list) {
     const statusBadge = isPending
       ? `<span class="us-badge us-badge-pending">Pendiente</span>`
       : `<span class="us-badge">Activo</span>`;
-    const isClient = ['cliente','atleta'].includes(role);
+    // All roles can be clients of the gym — admins/coaches train too
     return `
-      <tr ${isClient ? `class="us-row-clickable" data-uid="${c.uid}"` : ''}
-          style="${isClient ? 'cursor:pointer' : ''}">
+      <tr class="us-row-clickable" data-uid="${c.uid}" style="cursor:pointer">
         <td>
           <div class="us-user-cell">
             <div class="us-avatar">${getInitials(c.name || '?')}</div>

@@ -818,8 +818,9 @@ async function openUserDetailSheet(user, allUsers) {
         </p>
  ` : ''}
     </div>
+ ` : ''}
 
-    <!-- Permisos extra del cliente -->
+    <!-- Permisos — todos los usuarios pueden ser clientes del gym (admin/coach también entrenan) -->
     <div class="glass-card" style="padding:var(--space-md);margin-bottom:var(--space-md)">
       <div class="section-title" style="margin-bottom:var(--space-sm)">Permisos</div>
 
@@ -839,7 +840,6 @@ async function openUserDetailSheet(user, allUsers) {
         <span style="font-size:var(--fs-sm)">Puede usar drop sets en el entreno</span>
       </label>
     </div>
- ` : ''}
 
     <div class="section-title">${t('admin_routines_title')}</div>
     <div id="sheet-routines"><div class="spinner-sm"></div></div>
