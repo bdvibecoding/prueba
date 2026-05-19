@@ -307,7 +307,7 @@ body.light-mode .btn-topbar-finish {
   text-align: center;
   border-top: 0.5px solid var(--glass-border);
 }
-/* "Terminar rutina" — follows .btn-primary conventions (solid red, no shadow, ::before sheen) */
+/* "Terminar rutina" — primary CTA with subtle red glow + brand gradient sheen */
 .btn-finish-workout {
   display: flex;
   align-items: center;
@@ -325,21 +325,29 @@ body.light-mode .btn-topbar-finish {
   letter-spacing: 0.02em;
   cursor: pointer;
   transition: all var(--transition-base);
-  box-shadow: none;
+  /* Subtle elevation glow — same opacity language as other elevated elements */
+  box-shadow: 0 2px 12px rgba(193, 8, 1, 0.30);
   position: relative;
   overflow: hidden;
 }
+/* Brand-gradient sheen at 12% opacity, decorative — within the 8-15% system range */
 .btn-finish-workout::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.10), transparent);
+  background: linear-gradient(135deg,
+    rgba(0,0,0,0.12) 0%,
+    rgba(193,8,1,0.12) 35%,
+    rgba(241,96,1,0.12) 70%,
+    rgba(217,195,171,0.12) 100%);
   opacity: 0;
   transition: opacity var(--transition-fast);
+  pointer-events: none;
 }
 .btn-finish-workout:hover::before { opacity: 1; }
-.btn-finish-workout:active { transform: scale(0.97); }
-.btn-finish-workout:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-finish-workout:hover  { box-shadow: 0 3px 16px rgba(193, 8, 1, 0.40); }
+.btn-finish-workout:active { transform: scale(0.97); box-shadow: 0 1px 6px rgba(193, 8, 1, 0.28); }
+.btn-finish-workout:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 
 /* Secondary "Cancelar entrenamiento" — outline / ghost red */
 .btn-cancel-workout {

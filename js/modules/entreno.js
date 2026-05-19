@@ -18,6 +18,8 @@ let _reorderMode          = false;
 let _liveDurationIv       = null;
 // User permission: show "Drop" button on each set during workout
 let _dropsEnabled         = false;
+// One-shot flag: when true, skip the auto-redirect to the active workout in init()
+let _skipActiveRedirect   = false;
 
 function _formatLiveDuration(ms) {
   const total = Math.floor(ms / 1000);
@@ -120,12 +122,14 @@ export async function render(container) {
 }
 
 export async function init(container) {
-  // If there's an active session, show it
+  // If there's an active session, show it — unless the user just pressed back
+  // from the workout view (in which case they explicitly want the routine list)
   const session = getActiveSession();
-  if (session?.routineId) {
+  if (session?.routineId && !_skipActiveRedirect) {
     await loadActiveRoutine(container, session.routineId);
     return;
   }
+  _skipActiveRedirect = false; // one-shot, reset
   await loadRoutinesList(container);
 
   // Tab switching — underline style
@@ -601,9 +605,10 @@ async function renderRoutineDetail(container, routine) {
     </div>
  `;
 
-  // Back button
+  // Back button — skip the auto-redirect so user lands on the routine list
   container.querySelector('#btn-back-routines')?.addEventListener('click', () => {
     document.body.classList.remove('hide-bottom-nav');
+    _skipActiveRedirect = true;
     import('../router.js').then(({ navigate }) => navigate('entreno'));
   });
 
