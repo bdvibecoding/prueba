@@ -588,30 +588,37 @@ body.light-mode .btn-start-workout,
   font-weight: 600;
 }
 
-/* ── Añadir serie — ghost button under the last set row ─────── */
-.add-set-row td { padding: 0; text-align: center; }
+/* ── Añadir serie — outline button matching the system radius ─── */
+.add-set-row td {
+  padding: 10px 4px 4px;
+  text-align: center;
+  border-top: 0.5px solid var(--color-border-tertiary, var(--glass-border));
+}
 .btn-add-set {
-  width: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 10px 12px;
+  padding: 7px 14px;
   background: transparent;
-  border: none;
+  border: 0.5px solid var(--color-border-secondary, var(--glass-border));
+  border-radius: var(--r-sm);
   cursor: pointer;
   font-family: 'SF Pro Text', var(--font-sans);
   font-size: 12px;
   font-weight: 500;
-  color: var(--color-text-tertiary, var(--color-text-muted));
+  color: var(--color-text-secondary, var(--color-text-muted));
   letter-spacing: 0.02em;
-  border-radius: var(--r-sm);
-  transition: background var(--transition-fast), color var(--transition-fast);
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
 }
-.btn-add-set:hover  { background: var(--glass-bg); color: var(--color-text); }
-.btn-add-set:active { transform: scale(0.98); }
-.btn-add-set svg { opacity: 0.7; }
+.btn-add-set:hover  {
+  background: var(--glass-bg);
+  color: var(--color-text);
+  border-color: var(--color-text-secondary, var(--color-text-muted));
+}
+.btn-add-set:active { transform: scale(0.97); }
+.btn-add-set svg    { opacity: 0.85; }
 
 /* ── Set Row ─────────────────────────────────── */
 .set-row { transition: background var(--transition-base), opacity var(--transition-base); }

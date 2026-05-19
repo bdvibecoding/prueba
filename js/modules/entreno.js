@@ -1040,7 +1040,7 @@ function buildSetsTable(ex, exIndex, session) {
       ${session?.routineId ? `
         <tfoot>
           <tr class="add-set-row">
-            <td colspan="5" style="padding:0;border-top:0.5px solid var(--color-border-tertiary,var(--glass-border))">
+            <td colspan="5">
               <button class="btn-add-set" data-exid="${ex.id}" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px">
                   <line x1="12" y1="5" x2="12" y2="19"/>
