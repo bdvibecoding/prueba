@@ -150,8 +150,13 @@ function buildIconGrid(profile) {
     });
   }
 
+  // Hardcoded fallback if translation lookup fails (returns the raw key)
+  const subscriptionLabel = (() => {
+    const v = t('icon_suscripcion');
+    return v === 'icon_suscripcion' ? 'Membresía' : v;
+  })();
   icons.push(
-    { route: 'suscripcion',   svg: SVG_ICONS.suscripcion,   label: t('icon_suscripcion'),   cls: 'icon-suscripcion',   accent: '#D9C3AB' },
+    { route: 'suscripcion',   svg: SVG_ICONS.suscripcion,   label: subscriptionLabel,        cls: 'icon-suscripcion',   accent: '#D9C3AB' },
     { route: 'configuracion', svg: SVG_ICONS.configuracion, label: t('icon_configuracion'), cls: 'icon-configuracion', accent: '#8A8A8A' },
   );
 

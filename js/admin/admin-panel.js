@@ -818,6 +818,27 @@ async function openUserDetailSheet(user, allUsers) {
         </p>
  ` : ''}
     </div>
+
+    <!-- Permisos extra del cliente -->
+    <div class="glass-card" style="padding:var(--space-md);margin-bottom:var(--space-md)">
+      <div class="section-title" style="margin-bottom:var(--space-sm)">Permisos</div>
+
+      <label style="display:flex;align-items:center;gap:var(--space-sm);cursor:pointer;margin-bottom:var(--space-md)">
+        <div class="toggle-switch" style="flex-shrink:0">
+          <input type="checkbox" id="togglePermCreateRoutines" data-uid="${user.uid || user.id}" ${user.canCreateRoutines ? 'checked' : ''}>
+          <span class="toggle-slider"></span>
+        </div>
+        <span style="font-size:var(--fs-sm)">Puede crear sus propias rutinas</span>
+      </label>
+
+      <label style="display:flex;align-items:center;gap:var(--space-sm);cursor:pointer">
+        <div class="toggle-switch" style="flex-shrink:0">
+          <input type="checkbox" id="togglePermDropsets" data-uid="${user.uid || user.id}" ${user.canUseDropsets ? 'checked' : ''}>
+          <span class="toggle-slider"></span>
+        </div>
+        <span style="font-size:var(--fs-sm)">Puede usar drop sets en el entreno</span>
+      </label>
+    </div>
  ` : ''}
 
     <div class="section-title">${t('admin_routines_title')}</div>
@@ -891,6 +912,24 @@ async function openUserDetailSheet(user, allUsers) {
       await db.collection('users').doc(uid).update({ isClient: e.target.checked, updatedAt: timestamp() });
       toast(e.target.checked ? 'Marcado como cliente' : 'Perfil de cliente desactivado', 'info');
     } catch(err) { toast('Error: ' + err.message, 'error'); }
+  });
+
+  // Permission: create own routines
+  sc.querySelector('#togglePermCreateRoutines')?.addEventListener('change', async (e) => {
+    const enabled = e.target.checked;
+    try {
+      await db.collection('users').doc(uid).update({ canCreateRoutines: enabled, updatedAt: timestamp() });
+      toast(enabled ? 'Permiso activado · puede crear rutinas' : 'Permiso desactivado', 'success');
+    } catch(err) { e.target.checked = !enabled; toast('Error: ' + err.message, 'error'); }
+  });
+
+  // Permission: use dropsets
+  sc.querySelector('#togglePermDropsets')?.addEventListener('change', async (e) => {
+    const enabled = e.target.checked;
+    try {
+      await db.collection('users').doc(uid).update({ canUseDropsets: enabled, updatedAt: timestamp() });
+      toast(enabled ? 'Drop sets activados' : 'Drop sets desactivados', 'success');
+    } catch(err) { e.target.checked = !enabled; toast('Error: ' + err.message, 'error'); }
   });
 
   // ── Access Control (cliente / atleta only) ──
@@ -990,7 +1029,7 @@ async function loadSheetRoutines(sc, user) {
       btn.addEventListener('click', async () => {
         const ok = await confirm(t('admin_delete_assign_title'), t('admin_delete_assign_confirm'), { danger: true });
         if (!ok) return;
-        await collections.assignments(btn.dataset.uid).doc(btn.dataset.assignId).delete();
+        await collections.assignments(btn.dataset.uid).doc(btn.dataset.assignId).update({ unassigned: true });
         toast(t('admin_assign_deleted'), 'info');
         loadSheetRoutines(sc, user);
       });
