@@ -3,7 +3,7 @@
    Workout Module — Full Training Session Flow
 ═══════════════════════════════════════════════ */
 
-import { getUserProfile, getActiveSession, startWorkoutSession, endSession, markSetDone, unmarkSetDone, updateSetData, addExtraSet, appState } from '../state.js';
+import { getUserProfile, getActiveSession, startWorkoutSession, endSession, markSetDone, unmarkSetDone, updateSetData, addExtraSet, removeExtraSet, appState } from '../state.js';
 import { collections, timestamp, db } from '../firebase-config.js';
 import { toast, formatTime, formatDate, pad, launchConfetti, requestWakeLock, releaseWakeLock,
          getUnits, unitLabel, kgToInput, inputToKg } from '../utils.js';
@@ -1041,13 +1041,23 @@ function buildSetsTable(ex, exIndex, session) {
         <tfoot>
           <tr class="add-set-row">
             <td colspan="5">
-              <button class="btn-add-set" data-exid="${ex.id}" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px">
-                  <line x1="12" y1="5" x2="12" y2="19"/>
-                  <line x1="5" y1="12" x2="19" y2="12"/>
-                </svg>
-                <span>Añadir serie</span>
-              </button>
+              <div class="set-actions-row">
+                ${extraSets > 0 ? `
+                  <button class="btn-remove-set" data-exid="${ex.id}" data-base="${baseSets}" type="button" aria-label="Quitar última serie">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px">
+                      <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    <span>Quitar serie</span>
+                  </button>
+                ` : ''}
+                <button class="btn-add-set" data-exid="${ex.id}" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  <span>Añadir serie</span>
+                </button>
+              </div>
             </td>
           </tr>
         </tfoot>
@@ -1228,7 +1238,19 @@ function initExerciseList(container, exercises, sessionActive) {
       if (!sessionActive) { toast(t('entreno_start_first') || 'Inicia el entreno primero', 'info'); return; }
       const exId = btn.dataset.exid;
       addExtraSet(exId);
-      // Re-render the routine detail so the new set row appears with proper indexing
+      const routine = activeRoutineData;
+      if (routine) renderRoutineDetail(container, routine);
+    });
+  });
+
+  // Remove last extra set button — drops the most recent added set + its data
+  container.querySelectorAll('.btn-remove-set').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!sessionActive) return;
+      const exId  = btn.dataset.exid;
+      const baseS = parseInt(btn.dataset.base) || 3;
+      removeExtraSet(exId, baseS);
       const routine = activeRoutineData;
       if (routine) renderRoutineDetail(container, routine);
     });

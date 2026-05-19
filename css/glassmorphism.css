@@ -588,13 +588,21 @@ body.light-mode .btn-start-workout,
   font-weight: 600;
 }
 
-/* ── Añadir serie — outline button matching the system radius ─── */
+/* ── Add / Remove set — outline buttons in a centered row ─────── */
 .add-set-row td {
   padding: 10px 4px 4px;
   text-align: center;
   border-top: 0.5px solid var(--color-border-tertiary, var(--glass-border));
 }
-.btn-add-set {
+.set-actions-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.btn-add-set,
+.btn-remove-set {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -612,13 +620,20 @@ body.light-mode .btn-start-workout,
   transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
 }
-.btn-add-set:hover  {
+.btn-add-set:hover    {
   background: var(--glass-bg);
   color: var(--color-text);
   border-color: var(--color-text-secondary, var(--color-text-muted));
 }
-.btn-add-set:active { transform: scale(0.97); }
-.btn-add-set svg    { opacity: 0.85; }
+.btn-remove-set:hover {
+  background: rgba(193, 8, 1, 0.08);
+  color: var(--red);
+  border-color: var(--red);
+}
+.btn-add-set:active,
+.btn-remove-set:active { transform: scale(0.97); }
+.btn-add-set svg,
+.btn-remove-set svg    { opacity: 0.85; }
 
 /* ── Set Row ─────────────────────────────────── */
 .set-row { transition: background var(--transition-base), opacity var(--transition-base); }
