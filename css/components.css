@@ -4,6 +4,9 @@
 ═══════════════════════════════════════════════ */
 
 /* ── Bottom Navigation ──────────────────────── */
+/* Hide pill when inside an active workout — use top-left arrow to navigate back */
+body.hide-bottom-nav .bottom-nav { display: none !important; }
+
 .bottom-nav {
   position: fixed;
   bottom: 24px;

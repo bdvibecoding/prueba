@@ -92,6 +92,8 @@ let _exDataCache      = null;
 // ══════════════════════════════════════════════
 export async function render(container) {
   historialLoaded = false;
+  // Restore bottom nav if entering the routine list (no active workout view)
+  document.body.classList.remove('hide-bottom-nav');
   container.innerHTML = `
     <div class="page active" id="entreno-page">
       <div style="padding:var(--page-pad)">
@@ -601,6 +603,7 @@ async function renderRoutineDetail(container, routine) {
 
   // Back button
   container.querySelector('#btn-back-routines')?.addEventListener('click', () => {
+    document.body.classList.remove('hide-bottom-nav');
     import('../router.js').then(({ navigate }) => navigate('entreno'));
   });
 
@@ -626,6 +629,9 @@ async function renderRoutineDetail(container, routine) {
   // Live duration counter — runs while workout is active, stops on finish
   if (isActive) _startLiveDuration();
   else _stopLiveDuration();
+
+  // Hide bottom-nav pill while inside an active workout (use top arrow to go back)
+  document.body.classList.toggle('hide-bottom-nav', !!isActive);
 }
 
 // ── Muscle Group Bars ─────────────────────────
@@ -2432,6 +2438,8 @@ async function finishWorkout(container) {
 
   clearRestTimer();
   releaseWakeLock();
+  // Restore bottom nav pill — the workout is ending
+  document.body.classList.remove('hide-bottom-nav');
 
   const session     = getActiveSession();
   const durationMs  = getElapsedMs();
@@ -2641,6 +2649,7 @@ async function cancelWorkout(container) {
   clearRestTimer();
   releaseWakeLock();
   _stopLiveDuration();
+  document.body.classList.remove('hide-bottom-nav');
   endSession();
   toast(t('entreno_cancelled'), 'info');
   import('../router.js').then(({ navigate }) => navigate('home'));
