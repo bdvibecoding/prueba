@@ -307,7 +307,7 @@ body.light-mode .btn-topbar-finish {
   text-align: center;
   border-top: 0.5px solid var(--glass-border);
 }
-/* "Terminar rutina" — primary CTA with subtle red glow + brand gradient sheen */
+/* "Terminar rutina" — §20 luminance contrast inversion (light btn on dark bg) */
 .btn-finish-workout {
   display: flex;
   align-items: center;
@@ -315,8 +315,8 @@ body.light-mode .btn-topbar-finish {
   gap: var(--space-sm);
   width: 100%;
   padding: 15px var(--space-xl);
-  background: var(--red);
-  color: var(--white);
+  background: #F0F0F0;
+  color: #0A0A0A;
   border: none;
   border-radius: var(--r-sm);
   font-family: 'SF Pro Text', var(--font-sans);
@@ -325,29 +325,30 @@ body.light-mode .btn-topbar-finish {
   letter-spacing: 0.02em;
   cursor: pointer;
   transition: all var(--transition-base);
-  /* Subtle elevation glow — same opacity language as other elevated elements */
-  box-shadow: 0 2px 12px rgba(193, 8, 1, 0.30);
+  box-shadow: none;
   position: relative;
   overflow: hidden;
 }
-/* Brand-gradient sheen at 12% opacity, decorative — within the 8-15% system range */
+/* Light mode — inverted: dark button on light bg */
+body.light-mode .btn-finish-workout {
+  background: #111111;
+  color: #FFFFFF;
+}
 .btn-finish-workout::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg,
-    rgba(0,0,0,0.12) 0%,
-    rgba(193,8,1,0.12) 35%,
-    rgba(241,96,1,0.12) 70%,
-    rgba(217,195,171,0.12) 100%);
+  background: linear-gradient(135deg, rgba(0,0,0,0.06), transparent);
   opacity: 0;
   transition: opacity var(--transition-fast);
   pointer-events: none;
 }
+body.light-mode .btn-finish-workout::before {
+  background: linear-gradient(135deg, rgba(255,255,255,0.10), transparent);
+}
 .btn-finish-workout:hover::before { opacity: 1; }
-.btn-finish-workout:hover  { box-shadow: 0 3px 16px rgba(193, 8, 1, 0.40); }
-.btn-finish-workout:active { transform: scale(0.97); box-shadow: 0 1px 6px rgba(193, 8, 1, 0.28); }
-.btn-finish-workout:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+.btn-finish-workout:active   { transform: scale(0.97); }
+.btn-finish-workout:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* Secondary "Cancelar entrenamiento" — outline / ghost red */
 .btn-cancel-workout {
