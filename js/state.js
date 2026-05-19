@@ -210,20 +210,22 @@ export function addExtraSet(exerciseId) {
   return extra[exerciseId];
 }
 
-// Remove the last extra set of an exercise (returns the new count, or 0)
-// Also cleans up that set's stored data and any completed flag for it.
+// Remove the last set of an exercise (extras first, then base sets if needed).
+// The original routine definition is NOT modified — this is per-session only.
+// Returns the new total set count (clamped to >= 1).
 export function removeExtraSet(exerciseId, baseSets) {
   const s = getActiveSession();
-  if (!s.routineId) return 0;
-  const currentExtra = (s.extraSets || {})[exerciseId] || 0;
-  if (currentExtra <= 0) return 0;
+  if (!s.routineId) return baseSets;
+  const currentDelta = (s.extraSets || {})[exerciseId] || 0;
+  const currentTotal = baseSets + currentDelta;
+  if (currentTotal <= 1) return currentTotal;  // never go below 1 set
 
   const extra = { ...(s.extraSets || {}) };
-  extra[exerciseId] = currentExtra - 1;
+  extra[exerciseId] = currentDelta - 1;  // can become negative when shaving base sets
   if (extra[exerciseId] === 0) delete extra[exerciseId];
 
-  // Index of the set being removed (last one)
-  const removedIdx = baseSets + currentExtra - 1;
+  // Index of the set being removed (the last visible one)
+  const removedIdx = currentTotal - 1;
 
   // Drop the data for that set
   const setData = { ...(s.setData || {}) };
@@ -240,14 +242,14 @@ export function removeExtraSet(exerciseId, baseSets) {
     setData[exerciseId] = exData;
   }
 
-  // Remove from completedSets if it was marked
+  // Remove from completedSets if that set was marked done
   const completedSets = { ...(s.completedSets || {}) };
   if (completedSets[exerciseId]) {
     completedSets[exerciseId] = completedSets[exerciseId].filter(i => i !== removedIdx);
   }
 
   appState.set('activeSession', { ...s, extraSets: extra, setData, completedSets });
-  return extra[exerciseId] || 0;
+  return currentTotal - 1;
 }
 
 export function pauseSession() {

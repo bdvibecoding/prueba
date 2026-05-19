@@ -773,7 +773,7 @@ function _setupExerciseDragDrop(container, routine) {
 
 function buildExerciseCard(ex, index, sessionActive, session, exDataCache, reorderMode = false, total = 0) {
   const completedSets = session?.completedSets?.[ex.id] || [];
-  const totalSetsForEx = (ex.sets || 3) + (session?.extraSets?.[ex.id] || 0);
+  const totalSetsForEx = Math.max(1, (ex.sets || 3) + (session?.extraSets?.[ex.id] || 0));
   const allDone = completedSets.length >= totalSetsForEx;
 
   // §13 image: rectangular rounded (40×40, r-md) — no circular
@@ -859,8 +859,8 @@ function buildSetsTable(ex, exIndex, session) {
   const _cStr    = ((ex.muscleGroup || ex.m || '') + ' ' + (ex.name || ex.n || '')).toLowerCase();
   const isCardio = /cardio|cardiovascular|caminata|running|correr|bicicleta|elíptica|natación/.test(_cStr);
   const baseSets      = ex.sets || 3;
-  const extraSets     = session?.extraSets?.[ex.id] || 0;
-  const numSets       = baseSets + extraSets;
+  const setsDelta     = session?.extraSets?.[ex.id] || 0;   // can be negative
+  const numSets       = Math.max(1, baseSets + setsDelta);
   const completedSets = session?.completedSets?.[ex.id] || [];
   const setDataStore  = session?.setData?.[ex.id]?.sets || [];
   // dropsets stored as { [setIdx]: [{reps,weight},...] }
@@ -1042,7 +1042,7 @@ function buildSetsTable(ex, exIndex, session) {
           <tr class="add-set-row">
             <td colspan="5">
               <div class="set-actions-row">
-                ${extraSets > 0 ? `
+                ${numSets > 1 ? `
                   <button class="btn-remove-set" data-exid="${ex.id}" data-base="${baseSets}" type="button" aria-label="Quitar última serie">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px">
                       <line x1="5" y1="12" x2="19" y2="12"/>
@@ -1154,7 +1154,7 @@ function initExerciseList(container, exercises, sessionActive) {
         // Auto-advance accordion when all sets of exercise are done
         const session = getActiveSession();
         const doneCount = (session?.completedSets?.[exId] || []).length;
-        const totalSets = (exercise?.sets || 3) + (session?.extraSets?.[exId] || 0);
+        const totalSets = Math.max(1, (exercise?.sets || 3) + (session?.extraSets?.[exId] || 0));
         if (doneCount >= totalSets) {
           const currentCard = container.querySelector(`[data-ex-id="${exId}"]`);
           currentCard?.classList.remove('open');
