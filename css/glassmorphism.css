@@ -209,33 +209,43 @@ body.light-mode .app-icon-label {
   height: 100%;
 }
 /* ── Top bar (§12.1 + §19) — flex-shrink:0, always visible ── */
+/* Two-row topbar: back arrow on its own line, then full-width centered title.
+   Using `position: relative` + absolutely-positioned back so the title can
+   center against the full viewport width without being pushed by the arrow. */
 .workout-topbar {
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  min-height: 52px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  padding: 6px 16px 10px;
+  min-height: 76px;
   border-bottom: 0.5px solid var(--glass-border);
   background: var(--color-bg);
   flex-shrink: 0;
 }
 .workout-topbar-back {
+  position: absolute;
+  top: 4px;
+  left: 8px;
   width: 36px; height: 36px;
   display: flex; align-items: center; justify-content: center;
   background: none; border: none; cursor: pointer;
   color: var(--color-text-muted); flex-shrink: 0;
   border-radius: 50%; transition: background var(--transition-fast);
+  z-index: 2;
 }
 .workout-topbar-back:active { background: var(--glass-bg); }
-/* §19 — Center block: title stacked above muscle subtitle */
+/* Title row — full width, fills below the back button row */
 .workout-topbar-center {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
   min-width: 0;
   text-align: center;
+  width: 100%;
+  margin-top: 18px;   /* room for the absolute back button on top-left */
 }
 .workout-topbar-title {
   width: 100%;
