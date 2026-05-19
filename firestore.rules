@@ -20,6 +20,13 @@ service cloud.firestore {
           in ['coach', 'medico', 'fisio', 'psicologo', 'nutricionista'];
     }
 
+    // Helper: returns true if the requesting user has been granted permission
+    // by their coach/admin to create and manage their own routines
+    function canCreateOwnRoutines() {
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('canCreateRoutines', false) == true;
+    }
+
     // ── users ────────────────────────────────────────────────────────────────
     match /users/{userId} {
       // Any authenticated user can read their own document
@@ -48,6 +55,17 @@ service cloud.firestore {
 
     // ── users/{uid}/assignments ──────────────────────────────────────────────
     match /users/{userId}/assignments/{assignmentId} {
+      allow read:   if isAuthenticated() && request.auth.uid == userId;
+      allow read:   if isAuthenticated() && (isAdmin() || isStaff());
+      allow write:  if isAdmin() || isStaff();
+      // Clients with canCreateRoutines: true can assign their OWN routines to themselves
+      allow write:  if isAuthenticated()
+        && request.auth.uid == userId
+        && canCreateOwnRoutines();
+    }
+
+    // ── users/{uid}/plans ────────────────────────────────────────────────────
+    match /users/{userId}/plans/{planId} {
       allow read:   if isAuthenticated() && request.auth.uid == userId;
       allow read:   if isAuthenticated() && (isAdmin() || isStaff());
       allow write:  if isAdmin() || isStaff();
@@ -117,11 +135,37 @@ service cloud.firestore {
       allow delete: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
     }
 
+    // ── planTemplates (plantillas globales reutilizables) ────────────────────
+    match /planTemplates/{tplId} {
+      allow read:   if isAuthenticated();
+      allow write:  if isAdmin() || isStaff();
+    }
+
     // ── routines ─────────────────────────────────────────────────────────────
     match /routines/{routineId} {
       // Staff (admin, coach) can read all routines; clients read their assigned ones via assignments
       allow read:   if isAuthenticated();
+
+      // Admin: full write access
       allow write:  if isAdmin();
+
+      // Staff (coach, etc.): can create/update routines for clients
+      allow create: if isStaff();
+      allow update: if isStaff();
+
+      // Clients with canCreateRoutines === true can create routines they own.
+      // The new routine must have ownerUid pointing to themselves so it can be
+      // distinguished from staff-authored routines.
+      allow create: if canCreateOwnRoutines()
+        && request.resource.data.ownerUid == request.auth.uid;
+
+      // Same clients can update/delete only routines they own
+      allow update: if canCreateOwnRoutines()
+        && resource.data.get('ownerUid', '') == request.auth.uid
+        && request.resource.data.ownerUid == request.auth.uid;
+
+      allow delete: if canCreateOwnRoutines()
+        && resource.data.get('ownerUid', '') == request.auth.uid;
     }
 
     // ── dietTemplates (plantillas de dieta reutilizables) ────────────────────

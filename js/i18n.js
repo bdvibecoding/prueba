@@ -935,7 +935,7 @@ const translations = {
     icon_salud:'Salud',
     icon_progreso:'Progreso',
     icon_perfil:'Perfil',
-    icon_suscripcion:'Premium',
+    icon_suscripcion:'Membresía',
     icon_configuracion:'Ajustes',
     icon_admin:'Panel',
   },
@@ -1872,7 +1872,7 @@ const translations = {
     icon_salud:'Health',
     icon_progreso:'Progress',
     icon_perfil:'Profile',
-    icon_suscripcion:'Premium',
+    icon_suscripcion:'Membership',
     icon_configuracion:'Settings',
     icon_admin:'Panel',
 

@@ -33,7 +33,7 @@ export function showUpgradeModal(feature = '') {
     salud:         'Monitoriza tu salud con tu médico o fisio',
     progreso:      'Visualiza tu evolución y estadísticas avanzadas',
   };
-  const desc = labels[feature] || 'Accede a funciones avanzadas con un plan Premium';
+  const desc = labels[feature] || 'Accede a funciones avanzadas con una membresía';
 
   const existing = document.getElementById('upgrade-modal-overlay');
   if (existing) existing.remove();
@@ -46,7 +46,7 @@ export function showUpgradeModal(feature = '') {
       <div style="display:flex;justify-content:center;margin-bottom:12px">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:44px;height:44px;color:#8A8A8A"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
       </div>
-      <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:8px;color:#F0F0F0">Función Premium</h2>
+      <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:8px;color:#F0F0F0">Función exclusiva de membresía</h2>
       <p style="color:#8A8A8A;font-size:14px;margin-bottom:24px;line-height:1.5">${desc}</p>
       <button id="upgrade-btn-more" style="width:100%;padding:14px;background:#C10801;color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px">Saber más</button>
       <button id="upgrade-btn-close" style="width:100%;padding:12px;background:rgba(255,255,255,0.05);color:#8A8A8A;border:0.5px solid #252525;border-radius:var(--r-md);font-size:14px;cursor:pointer">Cerrar</button>
@@ -106,7 +106,7 @@ export function navigate(route, params = {}) {
     }
   }
 
-  // Basico role guard — block premium routes
+  // Basico role guard — block membership-only routes
   if (route !== 'login') {
     const profile = getUserProfile();
     if (profile?.role === 'basico' && !BASICO_ALLOWED_ROUTES.has(route)) {
