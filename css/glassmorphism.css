@@ -307,24 +307,39 @@ body.light-mode .btn-topbar-finish {
   text-align: center;
   border-top: 0.5px solid var(--glass-border);
 }
-/* Primary "Terminar rutina" button — solid red CTA */
+/* "Terminar rutina" — follows .btn-primary conventions (solid red, no shadow, ::before sheen) */
 .btn-finish-workout {
-  background: linear-gradient(135deg, #E53935 0%, #C10801 55%, #8A0500 100%);
-  border: none;
-  cursor: pointer;
-  font-family: 'SF Pro Text', var(--font-sans);
-  font-size: 15px;
-  font-weight: 600;
-  color: #FFFFFF;
-  letter-spacing: 0.01em;
-  padding: 14px 22px;
-  border-radius: var(--r-sm);
-  box-shadow: 0 2px 10px rgba(193, 8, 1, 0.32);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
   width: 100%;
+  padding: 15px var(--space-xl);
+  background: var(--red);
+  color: var(--white);
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: 'SF Pro Text', var(--font-sans);
+  font-size: var(--fs-base);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: none;
+  position: relative;
+  overflow: hidden;
 }
-.btn-finish-workout:hover  { filter: brightness(1.05); box-shadow: 0 3px 14px rgba(193, 8, 1, 0.42); }
-.btn-finish-workout:active { transform: scale(0.985); box-shadow: 0 1px 6px rgba(193, 8, 1, 0.30); }
+.btn-finish-workout::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.10), transparent);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+.btn-finish-workout:hover::before { opacity: 1; }
+.btn-finish-workout:active { transform: scale(0.97); }
+.btn-finish-workout:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* Secondary "Cancelar entrenamiento" — outline / ghost red */
 .btn-cancel-workout {
