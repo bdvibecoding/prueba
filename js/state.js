@@ -194,9 +194,20 @@ export function startWorkoutSession(routineId, routineName, exercises) {
     totalPauseMs: 0,
     completedSets: {},
     setData: {},
+    extraSets: {},      // { exerciseId: number } — extra sets added on the fly
     notes: '',
     rpe: null,
   });
+}
+
+// Add one extra set to an exercise (returns the new total count for that exercise)
+export function addExtraSet(exerciseId) {
+  const s = getActiveSession();
+  if (!s.routineId) return null;
+  const extra = { ...(s.extraSets || {}) };
+  extra[exerciseId] = (extra[exerciseId] || 0) + 1;
+  appState.set('activeSession', { ...s, extraSets: extra });
+  return extra[exerciseId];
 }
 
 export function pauseSession() {

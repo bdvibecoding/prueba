@@ -3,7 +3,7 @@
    Workout Module — Full Training Session Flow
 ═══════════════════════════════════════════════ */
 
-import { getUserProfile, getActiveSession, startWorkoutSession, endSession, markSetDone, unmarkSetDone, updateSetData, appState } from '../state.js';
+import { getUserProfile, getActiveSession, startWorkoutSession, endSession, markSetDone, unmarkSetDone, updateSetData, addExtraSet, appState } from '../state.js';
 import { collections, timestamp, db } from '../firebase-config.js';
 import { toast, formatTime, formatDate, pad, launchConfetti, requestWakeLock, releaseWakeLock,
          getUnits, unitLabel, kgToInput, inputToKg } from '../utils.js';
@@ -773,7 +773,8 @@ function _setupExerciseDragDrop(container, routine) {
 
 function buildExerciseCard(ex, index, sessionActive, session, exDataCache, reorderMode = false, total = 0) {
   const completedSets = session?.completedSets?.[ex.id] || [];
-  const allDone = completedSets.length >= (ex.sets || 3);
+  const totalSetsForEx = (ex.sets || 3) + (session?.extraSets?.[ex.id] || 0);
+  const allDone = completedSets.length >= totalSetsForEx;
 
   // §13 image: rectangular rounded (40×40, r-md) — no circular
   const exPhoto = exDataCache?.[ex.name]?.localImg?.[0];
@@ -857,7 +858,9 @@ function buildExerciseCard(ex, index, sessionActive, session, exDataCache, reord
 function buildSetsTable(ex, exIndex, session) {
   const _cStr    = ((ex.muscleGroup || ex.m || '') + ' ' + (ex.name || ex.n || '')).toLowerCase();
   const isCardio = /cardio|cardiovascular|caminata|running|correr|bicicleta|elíptica|natación/.test(_cStr);
-  const numSets       = ex.sets || 3;
+  const baseSets      = ex.sets || 3;
+  const extraSets     = session?.extraSets?.[ex.id] || 0;
+  const numSets       = baseSets + extraSets;
   const completedSets = session?.completedSets?.[ex.id] || [];
   const setDataStore  = session?.setData?.[ex.id]?.sets || [];
   // dropsets stored as { [setIdx]: [{reps,weight},...] }
@@ -1034,6 +1037,21 @@ function buildSetsTable(ex, exIndex, session) {
         </tr>
       </thead>
       <tbody id="sets-body-${ex.id}">${warmupRows}${rows}</tbody>
+      ${session?.routineId ? `
+        <tfoot>
+          <tr class="add-set-row">
+            <td colspan="5" style="padding:0;border-top:0.5px solid var(--color-border-tertiary,var(--glass-border))">
+              <button class="btn-add-set" data-exid="${ex.id}" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                <span>Añadir serie</span>
+              </button>
+            </td>
+          </tr>
+        </tfoot>
+      ` : ''}
     </table>
  `;
 }
@@ -1126,7 +1144,7 @@ function initExerciseList(container, exercises, sessionActive) {
         // Auto-advance accordion when all sets of exercise are done
         const session = getActiveSession();
         const doneCount = (session?.completedSets?.[exId] || []).length;
-        const totalSets = exercise?.sets || 3;
+        const totalSets = (exercise?.sets || 3) + (session?.extraSets?.[exId] || 0);
         if (doneCount >= totalSets) {
           const currentCard = container.querySelector(`[data-ex-id="${exId}"]`);
           currentCard?.classList.remove('open');
@@ -1200,6 +1218,19 @@ function initExerciseList(container, exercises, sessionActive) {
       const exId   = btn.dataset.exid;
       const setIdx = parseInt(btn.dataset.setidx);
       _addDropRow(container, exId, setIdx, exercises);
+    });
+  });
+
+  // Add extra set button — appends one set to the exercise on the fly
+  container.querySelectorAll('.btn-add-set').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!sessionActive) { toast(t('entreno_start_first') || 'Inicia el entreno primero', 'info'); return; }
+      const exId = btn.dataset.exid;
+      addExtraSet(exId);
+      // Re-render the routine detail so the new set row appears with proper indexing
+      const routine = activeRoutineData;
+      if (routine) renderRoutineDetail(container, routine);
     });
   });
 
