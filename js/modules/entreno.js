@@ -777,7 +777,7 @@ function buildExerciseCard(ex, index, sessionActive, session, exDataCache, reord
   const allDone = completedSets.length >= totalSetsForEx;
 
   // §13 image: rectangular rounded (40×40, r-md) — no circular
-  const exPhoto = exDataCache?.[ex.name]?.localImg?.[0];
+  const exPhoto = exDataCache?.[(ex.name || '').toUpperCase()]?.localImg?.[0];
   const numOrPhoto = exPhoto
     ? `<div class="exercise-num-img"><img src="${encodeURI(exPhoto)}" alt="${ex.name}" style="width:40px;height:40px;border-radius:var(--r-md);object-fit:cover;flex-shrink:0"></div>`
     : `<div class="exercise-num">${index + 1}</div>`;
