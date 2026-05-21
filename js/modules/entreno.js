@@ -89,6 +89,36 @@ function toSentenceCase(str = '') {
 let historialLoaded   = false;
 let _exDataCache      = null;
 
+// ── Exercise lookup helper ────────────────────
+// Tolerates case differences and parenthetical suffixes used in routines.
+// Examples that all resolve to the EXERCISES entry with n: "CAMINATA":
+//   "CAMINATA", "Caminata", "caminata", "Caminata (cardio liss)"
+function _normExName(name) {
+  return String(name || '')
+    .replace(/\s*\([^)]*\)\s*/g, ' ')   // strip parenthetical suffixes
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toUpperCase();
+}
+function findExData(searchName) {
+  if (!searchName || !_exDataCache) return null;
+  const upper = String(searchName).toUpperCase();
+  // 1. Exact uppercase match (cache keys are stored upper-cased)
+  if (_exDataCache[upper]) return _exDataCache[upper];
+  // 2. Stripped-parens match
+  const stripped = _normExName(searchName);
+  if (stripped && _exDataCache[stripped]) return _exDataCache[stripped];
+  // 3. Look for a cache entry whose normalized form equals the stripped search
+  //    (covers cases where data.js entry has the parens but routine doesn't, or vice-versa)
+  const keys = Object.keys(_exDataCache);
+  const candidates = keys.filter(k => _normExName(k) === stripped);
+  if (candidates.length === 1) return _exDataCache[candidates[0]];
+  // 4. Prefix match: search "CAMINATA (CARDIO LISS)" starts with cache key "CAMINATA "
+  const prefix = keys.filter(k => upper.startsWith(k + ' (') || upper.startsWith(k + ' '));
+  if (prefix.length === 1) return _exDataCache[prefix[0]];
+  return null;
+}
+
 // ══════════════════════════════════════════════
 //  RENDER — Routines List + Historial Tabs
 // ══════════════════════════════════════════════
@@ -777,7 +807,7 @@ function buildExerciseCard(ex, index, sessionActive, session, exDataCache, reord
   const allDone = completedSets.length >= totalSetsForEx;
 
   // §13 image: rectangular rounded (40×40, r-md) — no circular
-  const exPhoto = exDataCache?.[(ex.name || '').toUpperCase()]?.localImg?.[0];
+  const exPhoto = findExData(ex.name)?.localImg?.[0];
   const numOrPhoto = exPhoto
     ? `<div class="exercise-num-img"><img src="${encodeURI(exPhoto)}" alt="${ex.name}" style="width:40px;height:40px;border-radius:var(--r-md);object-fit:cover;flex-shrink:0"></div>`
     : `<div class="exercise-num">${index + 1}</div>`;
@@ -1587,9 +1617,13 @@ function showRestTimer(container, exId, seconds) {
 // ── Exercise Info — §15 Bottom Sheet with 3 tabs ──
 async function openExerciseInfoModal(exName) {
   const { EXERCISES } = await import('../../data/data.js');
-  // Case-insensitive lookup: routines may store names in any case
-  const target = (exName || '').toUpperCase();
-  const exData = EXERCISES.find(e => (e.n || '').toUpperCase() === target);
+  // Ensure cache is hot for the helper
+  if (!_exDataCache) {
+    _exDataCache = {};
+    EXERCISES.forEach(e => { if (e?.n) _exDataCache[e.n.toUpperCase()] = e; });
+  }
+  // Tolerates case + parenthetical suffixes ("Caminata (cardio liss)" → "CAMINATA")
+  const exData = findExData(exName);
   if (!exData || (!exData.localVideo && !exData.localImg?.length)) {
     toast('Sin contenido multimedia para este ejercicio', 'info');
     return;
@@ -2472,7 +2506,7 @@ async function openSessionDetail(sessionId, session) {
       // Fallback: build synthetic exercise list from cache
       const synth = performedExIds.map(id => {
         const name   = exNameMap[id];
-        const cached = _exDataCache?.[(name || '').toUpperCase()];
+        const cached = findExData(name);
         return cached ? { id, name: cached.n, muscleGroup: cached.m, target: cached.target, sec: cached.sec } : null;
       }).filter(Boolean);
       renderMuscleMap(mapEl, enrichExercises(synth));
@@ -2564,7 +2598,7 @@ async function finishWorkout(container) {
 function enrichExercises(exercises = []) {
   return exercises.map(ex => {
     if (ex.target) return ex;          // already has the key we need
-    const cached = _exDataCache?.[(ex.name || '').toUpperCase()];
+    const cached = findExData(ex.name);
     if (!cached) return ex;
     return { ...ex, target: cached.target, sec: cached.sec || [] };
   });
