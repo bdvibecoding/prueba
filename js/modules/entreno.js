@@ -1622,15 +1622,20 @@ async function openExerciseInfoModal(exName) {
     </div>
   ` : `<div class="empty-state"><div class="empty-title" style="font-size:13px">Sin imágenes disponibles</div></div>`;
 
-  // ── Tab: Video ────────────────────────────────
-  const tabVideo = vid ? `
-    <div>
-      <video controls playsinline
-        style="width:100%;border-radius:var(--r-md);background:#000;max-height:260px;display:block">
-        <source src="${encodeURI(vid)}" type="video/mp4">
-      </video>
-    </div>
-  ` : `<div class="empty-state"><div class="empty-title" style="font-size:13px">Sin vídeo disponible</div></div>`;
+  // ── Tab: Video (or animated GIF fallback) ─────
+  const isGif = vid && /\.gif$/i.test(vid);
+  const tabVideo = vid
+    ? (isGif
+        ? `<div><img src="${encodeURI(vid)}" alt="${title}"
+              style="width:100%;border-radius:var(--r-md);background:#000;max-height:260px;
+                     object-fit:contain;display:block"></div>`
+        : `<div>
+            <video controls playsinline
+              style="width:100%;border-radius:var(--r-md);background:#000;max-height:260px;display:block">
+              <source src="${encodeURI(vid)}" type="video/mp4">
+            </video>
+          </div>`)
+    : `<div class="empty-state"><div class="empty-title" style="font-size:13px">Sin vídeo disponible</div></div>`;
 
   // ── Tab: Pasos ────────────────────────────────
   const tabPasos = steps.length ? `

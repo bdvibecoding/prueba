@@ -1,0 +1,122 @@
+[
+  {
+    "exName": "RUEDA ABDOMINAL (AB WHEEL)",
+    "ok": true,
+    "dataJsPath": "videos info/Abdomen - Abs/rueda_abdominal.gif"
+  },
+  {
+    "exName": "CRUNCH POLEA ALTA",
+    "ok": true,
+    "dataJsPath": "videos info/Abdomen - Abs/crunch_polea_alta.gif"
+  },
+  {
+    "exName": "CURL CONCENTRADO",
+    "ok": true,
+    "dataJsPath": "videos info/Bíceps - Biceps/curl_concentrado.gif"
+  },
+  {
+    "exName": "CURL EN POLEA UNILATERAL",
+    "ok": true,
+    "dataJsPath": "videos info/Bíceps - Biceps/curl_polea_unilateral.gif"
+  },
+  {
+    "exName": "CURL ARAÑA (SPIDER CURL)",
+    "ok": true,
+    "dataJsPath": "videos info/Bíceps - Biceps/curl_arana_spider.gif"
+  },
+  {
+    "exName": "SENTADILLA JACA (HACK)",
+    "ok": true,
+    "dataJsPath": "videos info/Cuádriceps - Quadriceps/sentadilla_jaca.gif"
+  },
+  {
+    "exName": "SENTADILLA BÚLGARA MANCUERNAS",
+    "ok": true,
+    "dataJsPath": "videos info/Cuádriceps - Quadriceps/sentadilla_bulgara.gif"
+  },
+  {
+    "exName": "SENTADILLA SISSY",
+    "ok": true,
+    "dataJsPath": "videos info/Cuádriceps - Quadriceps/sentadilla_sissy.gif"
+  },
+  {
+    "exName": "JALÓN AL PECHO AGARRE ANCHO",
+    "ok": true,
+    "dataJsPath": "videos info/Dorsales - Lats/jalon_al_pecho_agarre_ancho.gif"
+  },
+  {
+    "exName": "REMO SENTADO POLEA BAJA",
+    "ok": true,
+    "dataJsPath": "videos info/Espalda - Back/remo_sentado_polea_baja.gif"
+  },
+  {
+    "exName": "FACE PULL",
+    "ok": true,
+    "dataJsPath": "videos info/Hombros - Shoulders/face_pull.gif"
+  },
+  {
+    "exName": "PESO MUERTO CONVENCIONAL (ESPALDA)",
+    "ok": true,
+    "dataJsPath": "videos info/Espalda - Back/peso_muerto_convencional.gif"
+  },
+  {
+    "exName": "GEMELO EN PRENSA",
+    "ok": true,
+    "dataJsPath": "videos info/Pantorrillas - Calves/gemelo_en_prensa.gif"
+  },
+  {
+    "exName": "GEMELO SENTADO MÁQUINA",
+    "ok": true,
+    "dataJsPath": "videos info/Pantorrillas - Calves/gemelo_sentado_maquina.gif"
+  },
+  {
+    "exName": "HIP THRUST UNILATERAL",
+    "ok": true,
+    "dataJsPath": "videos info/Glúteos - Glutes/hip_thrust_unilateral.gif"
+  },
+  {
+    "exName": "PESO MUERTO RUMANO (GLÚTEOS)",
+    "ok": true,
+    "dataJsPath": "videos info/Glúteos - Glutes/peso_muerto_rumano_gluteos.gif"
+  },
+  {
+    "exName": "ELEVACIONES LATERALES POLEA",
+    "ok": true,
+    "dataJsPath": "videos info/Hombros - Shoulders/elevaciones_laterales_polea.gif"
+  },
+  {
+    "exName": "CURL FEMORAL TUMBADO",
+    "ok": true,
+    "dataJsPath": "videos info/Isquiotibiales - Hamstrings/curl_femoral_tumbado.gif"
+  },
+  {
+    "exName": "PESO MUERTO RUMANO BARRA",
+    "ok": true,
+    "dataJsPath": "videos info/Isquiotibiales - Hamstrings/peso_muerto_rumano_barra.gif"
+  },
+  {
+    "exName": "BUENOS DÍAS BARRA",
+    "ok": true,
+    "dataJsPath": "videos info/Isquiotibiales - Hamstrings/buenos_dias_barra.gif"
+  },
+  {
+    "exName": "FONDOS EN PARALELAS (PECHO)",
+    "ok": true,
+    "dataJsPath": "videos info/Pecho - Chest/fondos_paralelas.gif"
+  },
+  {
+    "exName": "PRESS BANCA MANCUERNAS PLANO",
+    "ok": true,
+    "dataJsPath": "videos info/Pecho - Chest/press_banca_mancuernas_plano.gif"
+  },
+  {
+    "exName": "PRESS PECHO EN MÁQUINA",
+    "ok": true,
+    "dataJsPath": "videos info/Pecho - Chest/press_pecho_maquina.gif"
+  },
+  {
+    "exName": "PRESS FRANCÉS BARRA Z",
+    "ok": true,
+    "dataJsPath": "videos info/Tríceps - Triceps/press_frances_barra_z.gif"
+  }
+]
