@@ -137,6 +137,6 @@ export const EXERCISES = [
 
 
 // ─── CARDIO ───
-{ n: "CAMINATA", img: "cardio.png", m: "Cardio", t: "c", target: "cardio", sec: [], instructions: ["Camina a ritmo moderado-rápido manteniendo una postura erguida.","Activa el core y mantén los hombros relajados hacia atrás.","Aterriza con el talón y empuja con el dedo gordo en cada paso.","Mueve los brazos de forma natural acompañando el ritmo.","Mantén una intensidad que te permita hablar pero no cantar.","Camina el tiempo previsto."], v: "", localVideo: "videos info/Cardio - Cardio/caminata.gif" , localImg: ["videos info/Cardio - Cardio/caminata_thumb.png"]},
+{ n: "CAMINAR", aliases: ["CAMINATA"], img: "cardio.png", m: "Cardio", t: "c", target: "cardio", sec: [], instructions: ["Camina o trota a ritmo moderado en cinta o exterior manteniendo una postura erguida.","Activa el core y mantén los hombros relajados hacia atrás.","Aterriza con el talón y empuja con el dedo gordo en cada paso.","Mueve los brazos de forma natural acompañando el ritmo.","Mantén una intensidad que te permita hablar pero no cantar.","Camina o trota el tiempo previsto."], v: "", localVideo: "videos info/Cardio - Cardio/caminata.gif" , localImg: ["videos info/Cardio - Cardio/caminata_thumb.png"]},
 
 ];

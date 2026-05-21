@@ -530,7 +530,13 @@ async function renderRoutineDetail(container, routine) {
     try {
       const { EXERCISES } = await import('../../data/data.js');
       _exDataCache = {};
-      EXERCISES.forEach(e => { if (e?.n) _exDataCache[e.n.toUpperCase()] = e; });
+      EXERCISES.forEach(e => {
+        if (!e?.n) return;
+        _exDataCache[e.n.toUpperCase()] = e;
+        if (Array.isArray(e.aliases)) {
+          e.aliases.forEach(a => { if (a) _exDataCache[String(a).toUpperCase()] = e; });
+        }
+      });
     } catch(_) {}
   }
 
@@ -1620,7 +1626,13 @@ async function openExerciseInfoModal(exName) {
   // Ensure cache is hot for the helper
   if (!_exDataCache) {
     _exDataCache = {};
-    EXERCISES.forEach(e => { if (e?.n) _exDataCache[e.n.toUpperCase()] = e; });
+    EXERCISES.forEach(e => {
+      if (!e?.n) return;
+      _exDataCache[e.n.toUpperCase()] = e;
+      if (Array.isArray(e.aliases)) {
+        e.aliases.forEach(a => { if (a) _exDataCache[String(a).toUpperCase()] = e; });
+      }
+    });
   }
   // Tolerates case + parenthetical suffixes ("Caminata (cardio liss)" → "CAMINATA")
   const exData = findExData(exName);
@@ -2435,7 +2447,13 @@ async function openSessionDetail(sessionId, session) {
     try {
       const { EXERCISES } = await import('../../data/data.js');
       _exDataCache = {};
-      EXERCISES.forEach(e => { if (e?.n) _exDataCache[e.n.toUpperCase()] = e; });
+      EXERCISES.forEach(e => {
+        if (!e?.n) return;
+        _exDataCache[e.n.toUpperCase()] = e;
+        if (Array.isArray(e.aliases)) {
+          e.aliases.forEach(a => { if (a) _exDataCache[String(a).toUpperCase()] = e; });
+        }
+      });
     } catch (_) {}
   }
 
@@ -2583,7 +2601,13 @@ async function finishWorkout(container) {
     try {
       const { EXERCISES } = await import('../../data/data.js');
       _exDataCache = {};
-      EXERCISES.forEach(e => { if (e?.n) _exDataCache[e.n.toUpperCase()] = e; });
+      EXERCISES.forEach(e => {
+        if (!e?.n) return;
+        _exDataCache[e.n.toUpperCase()] = e;
+        if (Array.isArray(e.aliases)) {
+          e.aliases.forEach(a => { if (a) _exDataCache[String(a).toUpperCase()] = e; });
+        }
+      });
     } catch (_) {}
   }
   launchConfetti();
