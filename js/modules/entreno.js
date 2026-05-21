@@ -500,7 +500,7 @@ async function renderRoutineDetail(container, routine) {
     try {
       const { EXERCISES } = await import('../../data/data.js');
       _exDataCache = {};
-      EXERCISES.forEach(e => { _exDataCache[e.n] = e; });
+      EXERCISES.forEach(e => { if (e?.n) _exDataCache[e.n.toUpperCase()] = e; });
     } catch(_) {}
   }
 
@@ -1587,7 +1587,9 @@ function showRestTimer(container, exId, seconds) {
 // ── Exercise Info — §15 Bottom Sheet with 3 tabs ──
 async function openExerciseInfoModal(exName) {
   const { EXERCISES } = await import('../../data/data.js');
-  const exData = EXERCISES.find(e => e.n === exName);
+  // Case-insensitive lookup: routines may store names in any case
+  const target = (exName || '').toUpperCase();
+  const exData = EXERCISES.find(e => (e.n || '').toUpperCase() === target);
   if (!exData || (!exData.localVideo && !exData.localImg?.length)) {
     toast('Sin contenido multimedia para este ejercicio', 'info');
     return;
@@ -2399,7 +2401,7 @@ async function openSessionDetail(sessionId, session) {
     try {
       const { EXERCISES } = await import('../../data/data.js');
       _exDataCache = {};
-      EXERCISES.forEach(e => { _exDataCache[e.n] = e; });
+      EXERCISES.forEach(e => { if (e?.n) _exDataCache[e.n.toUpperCase()] = e; });
     } catch (_) {}
   }
 
@@ -2470,7 +2472,7 @@ async function openSessionDetail(sessionId, session) {
       // Fallback: build synthetic exercise list from cache
       const synth = performedExIds.map(id => {
         const name   = exNameMap[id];
-        const cached = _exDataCache?.[name];
+        const cached = _exDataCache?.[(name || '').toUpperCase()];
         return cached ? { id, name: cached.n, muscleGroup: cached.m, target: cached.target, sec: cached.sec } : null;
       }).filter(Boolean);
       renderMuscleMap(mapEl, enrichExercises(synth));
@@ -2547,7 +2549,7 @@ async function finishWorkout(container) {
     try {
       const { EXERCISES } = await import('../../data/data.js');
       _exDataCache = {};
-      EXERCISES.forEach(e => { _exDataCache[e.n] = e; });
+      EXERCISES.forEach(e => { if (e?.n) _exDataCache[e.n.toUpperCase()] = e; });
     } catch (_) {}
   }
   launchConfetti();
@@ -2562,7 +2564,7 @@ async function finishWorkout(container) {
 function enrichExercises(exercises = []) {
   return exercises.map(ex => {
     if (ex.target) return ex;          // already has the key we need
-    const cached = _exDataCache?.[ex.name];
+    const cached = _exDataCache?.[(ex.name || '').toUpperCase()];
     if (!cached) return ex;
     return { ...ex, target: cached.target, sec: cached.sec || [] };
   });
