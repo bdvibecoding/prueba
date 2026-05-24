@@ -27,7 +27,7 @@ export async function render(container) {
         <!-- Avatar -->
         <div class="profile-avatar-wrap">
           <div class="profile-avatar" id="profile-avatar" style="cursor:pointer">
-            ${profile?.photoURL ? `<img src="${profile.photoURL}" alt="Avatar">` : getInitials(profile?.name || '?')}
+            ${profile?.photoURL ? `<img loading="lazy" decoding="async" src="${profile.photoURL}" alt="Avatar">` : getInitials(profile?.name || '?')}
             <div style="position:absolute;bottom:0;right:0;width:28px;height:28px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid var(--color-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
           </div>
           <div class="profile-name">${profile?.name || t('user')}</div>
@@ -292,7 +292,7 @@ export async function init(container) {
         await db.collection('users').doc(user.uid).update({ photoURL: url, updatedAt: timestamp() });
         const newProfile = { ...profile, photoURL: url };
         setUser(user, newProfile);
-        avatarEl.innerHTML = `<img src="${url}" alt="Avatar">
+        avatarEl.innerHTML = `<img loading="lazy" decoding="async" src="${url}" alt="Avatar">
           <div style="position:absolute;bottom:0;right:0;width:28px;height:28px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid var(--color-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>`;
         toast(t('perfil_photo_updated'), 'success');
       } catch (e) { toast(t('perfil_photo_error') + ': ' + e.message, 'error'); }

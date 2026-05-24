@@ -137,13 +137,16 @@ export async function render(container) {
         <!-- Routines tab -->
         <div id="tab-rutinas" class="tab-content">
           <div id="routines-container">
-            <div class="overlay-spinner"><div class="spinner-sm"></div></div>
+            <div class="skeleton-row"><div class="skeleton skeleton-avatar"></div><div style="flex:1"><div class="skeleton skeleton-line long"></div><div class="skeleton skeleton-line short"></div></div></div>
+            <div class="skeleton-row"><div class="skeleton skeleton-avatar"></div><div style="flex:1"><div class="skeleton skeleton-line long"></div><div class="skeleton skeleton-line short"></div></div></div>
+            <div class="skeleton-row"><div class="skeleton skeleton-avatar"></div><div style="flex:1"><div class="skeleton skeleton-line long"></div><div class="skeleton skeleton-line short"></div></div></div>
           </div>
         </div>
         <!-- History tab -->
         <div id="tab-historial" class="tab-content hidden">
           <div id="history-container">
-            <div class="overlay-spinner"><div class="spinner-sm"></div></div>
+            <div class="skeleton-row"><div class="skeleton skeleton-avatar"></div><div style="flex:1"><div class="skeleton skeleton-line long"></div><div class="skeleton skeleton-line short"></div></div></div>
+            <div class="skeleton-row"><div class="skeleton skeleton-avatar"></div><div style="flex:1"><div class="skeleton skeleton-line long"></div><div class="skeleton skeleton-line short"></div></div></div>
           </div>
         </div>
       </div>
@@ -815,7 +818,7 @@ function buildExerciseCard(ex, index, sessionActive, session, exDataCache, reord
   // §13 image: rectangular rounded (40×40, r-md) — no circular
   const exPhoto = findExData(ex.name)?.localImg?.[0];
   const numOrPhoto = exPhoto
-    ? `<div class="exercise-num-img"><img src="${encodeURI(exPhoto)}" alt="${ex.name}" style="width:40px;height:40px;border-radius:var(--r-md);object-fit:cover;flex-shrink:0"></div>`
+    ? `<div class="exercise-num-img"><img loading="lazy" decoding="async" src="${encodeURI(exPhoto)}" alt="${ex.name}" style="width:40px;height:40px;border-radius:var(--r-md);object-fit:cover;flex-shrink:0"></div>`
     : `<div class="exercise-num">${index + 1}</div>`;
 
   // §13 series format: "3 Series · 10 Repeticiones" / cardio: "1 Series · 25-30 min"
@@ -1591,7 +1594,7 @@ function showRestTimer(container, exId, seconds) {
     nextCard.innerHTML = `
       <div class="rest-next-label">PRÓXIMO EJERCICIO · PREPARA</div>
       <div class="rest-next-row">
-        ${nextImg ? `<img src="${encodeURI(nextImg)}" alt="" class="rest-next-img">`
+        ${nextImg ? `<img loading="lazy" decoding="async" src="${encodeURI(nextImg)}" alt="" class="rest-next-img">`
                   : `<div class="rest-next-img rest-next-img-placeholder"></div>`}
         <div class="rest-next-info">
           <div class="rest-next-name">${nextName}</div>
@@ -1710,7 +1713,7 @@ async function openExerciseInfoModal(exName) {
   const isGif = vid && /\.gif$/i.test(vid);
   const tabVideo = vid
     ? (isGif
-        ? `<div><img src="${encodeURI(vid)}" alt="${title}"
+        ? `<div><img loading="lazy" decoding="async" src="${encodeURI(vid)}" alt="${title}"
               style="width:100%;border-radius:var(--r-md);background:#000;max-height:260px;
                      object-fit:contain;display:block"></div>`
         : `<div>

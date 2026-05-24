@@ -54,6 +54,10 @@ export function openSheet(html, options = {}) {
   content.innerHTML = html;
   overlay.classList.remove('hidden');
 
+  // Wire up any ✕ close button inside the sheet
+  const sheetCloseBtn = content.querySelector('.modal-close');
+  if (sheetCloseBtn) sheetCloseBtn.addEventListener('click', closeSheet);
+
   if (!options.noClickClose) {
     overlay.onclick = (e) => {
       if (e.target === overlay) closeSheet();
@@ -62,12 +66,19 @@ export function openSheet(html, options = {}) {
     overlay.onclick = null;
   }
 
-  // Swipe to close
-  let startY = 0;
-  container.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
+  // Swipe to close — only triggers when already scrolled to top
+  // so normal scroll inside the sheet is never confused with a close gesture
+  let startY    = 0;
+  let mayClose  = false;
+  container.addEventListener('touchstart', (e) => {
+    startY   = e.touches[0].clientY;
+    // Allow close only if the sheet is not scrolled down
+    mayClose = container.scrollTop <= 0;
+  }, { passive: true });
   container.addEventListener('touchmove', (e) => {
+    if (!mayClose) return;
     const deltaY = e.touches[0].clientY - startY;
-    if (deltaY > 60) closeSheet();
+    if (deltaY > 80) closeSheet();
   }, { passive: true });
 
   if (options.onOpen) options.onOpen(container);

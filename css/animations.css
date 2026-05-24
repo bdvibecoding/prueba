@@ -92,6 +92,37 @@
 .skeleton-text { height: 14px; margin-bottom: 8px; }
 .skeleton-text:last-child { width: 60%; }
 .skeleton-card { height: 100px; }
+/* Light-mode shimmer — darker tint over light background */
+body.light-mode .skeleton { background: rgba(0,0,0,0.05); }
+body.light-mode .skeleton::after {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(0,0,0,0.04) 40%,
+    rgba(0,0,0,0.08) 50%,
+    rgba(0,0,0,0.04) 60%,
+    transparent 100%);
+}
+/* Convenience helpers — typical row layouts for lists */
+.skeleton-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  background: var(--color-background-primary, var(--glass-bg));
+  border: 0.5px solid var(--color-border-tertiary, var(--glass-border));
+  border-radius: var(--r-md);
+  margin-bottom: 10px;
+}
+.skeleton-avatar {
+  width: 44px; height: 44px; border-radius: var(--r-sm);
+  flex-shrink: 0;
+}
+.skeleton-line {
+  height: 12px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+.skeleton-line.short { width: 40%; }
+.skeleton-line.long  { width: 80%; }
+.skeleton-line:last-child { margin-bottom: 0; }
 
 /* ── Number Count Up ────────────────────────── */
 @keyframes countUp {

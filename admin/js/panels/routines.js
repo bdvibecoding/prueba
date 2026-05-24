@@ -193,7 +193,7 @@ function renderClientsList(container) {
 
   el.innerHTML = _clients.map(c => `
     <div class="dash-client-card" data-uid="${c.uid}" data-name="${(c.name||'').replace(/"/g,'')}">
-      <div class="dash-avatar">${c.photoURL ? `<img src="${c.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : getInitials(c.name || '?')}</div>
+      <div class="dash-avatar">${c.photoURL ? `<img loading="lazy" decoding="async" src="${c.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : getInitials(c.name || '?')}</div>
       <div style="flex:1;min-width:0">
         <div style="font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.name || 'Sin nombre'}</div>
         <div style="font-size:12px;color:var(--color-text-muted);margin-top:4px">${c.email || ''}</div>
@@ -334,7 +334,7 @@ async function openAssignOverlay(routineId, routineName) {
       <div class="assign-modal-body">
         ${_clients.map(c => `
           <div class="assign-client-item" data-cuid="${c.uid}" data-cname="${(c.name||'').replace(/"/g,'')}">
-            <div class="dash-avatar" style="width:36px;height:36px;font-size:13px">${c.photoURL ? `<img src="${c.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : getInitials(c.name||'?')}</div>
+            <div class="dash-avatar" style="width:36px;height:36px;font-size:13px">${c.photoURL ? `<img loading="lazy" decoding="async" src="${c.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : getInitials(c.name||'?')}</div>
             <div style="flex:1;min-width:0">
               <div style="font-weight:600;font-size:14px">${c.name || 'Sin nombre'}</div>
               <div style="font-size:11px;color:var(--color-text-muted)">${c.email || ''}</div>

@@ -141,7 +141,10 @@ export async function render(container) {
         <!-- Plan tab -->
         <div id="tab-nutricion-plan" class="tab-content">
           <div id="nutricion-plan-container">
-            <div class="overlay-spinner"><div class="spinner-sm"></div></div>
+            <div class="skeleton skeleton-card" style="height:140px;margin-bottom:16px"></div>
+            <div class="skeleton-row"><div class="skeleton skeleton-avatar"></div><div style="flex:1"><div class="skeleton skeleton-line long"></div><div class="skeleton skeleton-line short"></div></div></div>
+            <div class="skeleton-row"><div class="skeleton skeleton-avatar"></div><div style="flex:1"><div class="skeleton skeleton-line long"></div><div class="skeleton skeleton-line short"></div></div></div>
+            <div class="skeleton-row"><div class="skeleton skeleton-avatar"></div><div style="flex:1"><div class="skeleton skeleton-line long"></div><div class="skeleton skeleton-line short"></div></div></div>
           </div>
         </div>
 
@@ -504,7 +507,7 @@ function _blockImage(block) {
     imgKey = LEGACY_ICON_MAP[imgKey] || imgKey;
     imgSrc = IMG[imgKey] || IMG.meat;
   }
-  return `<img src="${_esc(imgSrc)}" alt=""
+  return `<img loading="lazy" decoding="async" src="${_esc(imgSrc)}" alt=""
               style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;display:block;background:var(--color-background-secondary,rgba(255,255,255,0.08))">`;
 }
 

@@ -1,93 +1,97 @@
 /* ═══════════════════════════════════════════════
    TGWL — components/muscle-map.js
    PNG-based Muscle Activation Heatmap
-   Uses layered PNG masks tinted with brand reds
+   target field in data.js === PNG filename (no extension)
+   e.g.  target:"cuadriceps"  →  cuadriceps.png
 ═══════════════════════════════════════════════ */
 
 const BASE_URL = '/mapa%20muscular/';
 
-// ── Muscle group → PNG overlay filename ──────────
-const MUSCLE_PNG = {
-  pectoral:        'pecho.png',
-  lats:            'dorsales.png',
-  trapezius:       'espalda_alta.png',
-  lower_back:      'espalda_baja.png',
-  deltoid_front:   'hombros_frontal.png',
-  deltoid_rear:    'hombros_posterior.png',
-  biceps:          'biceps.png',
-  triceps:         'triceps.png',
-  forearms_front:  'antebrazos.png',
-  abs:             'abs.png',
-  quads:           'cuadriceps.png',
-  hamstrings:      'isquios.png',
-  glutes:          'gluteos.png',
-  calves_back:     'gemelos.png',
-  calves_front:    'gemelos.png',
-};
+// ── Known PNG files in /mapa muscular/ ───────────
+// Used to validate that a target key has a real file.
+const KNOWN_PNGs = new Set([
+  'abductores','abs','aductores','antebrazo','antebrazos',
+  'biceps','core','core_inferior','core_superior',
+  'cuadriceps','cuello','dorsales','espalda','espalda_alta','espalda_baja',
+  'gemelos','gluteos','hombros','hombros_frontal','hombros_posterior',
+  'isquios','oblicuos','pecho','piernas','triceps',
+]);
 
-// ── Display labels ────────────────────────────────
-const MUSCLE_LABELS = {
-  pectoral:        'Pectoral',
-  lats:            'Dorsales',
-  trapezius:       'Trapecio',
-  lower_back:      'Lumbar',
-  deltoid_front:   'Hombros',
-  deltoid_rear:    'Hombros Post.',
-  biceps:          'Bíceps',
-  triceps:         'Tríceps',
-  forearms_front:  'Antebrazos',
-  abs:             'Abdominales',
-  quads:           'Cuádriceps',
-  hamstrings:      'Isquios',
-  glutes:          'Glúteos',
-  calves_back:     'Gemelos',
-  calves_front:    'Gemelos',
+// ── Display labels per target key ─────────────────
+const LABELS = {
+  abductores:       'Abductores',
+  abs:              'Abdominales',
+  aductores:        'Aductores',
+  antebrazo:        'Antebrazos',
+  antebrazos:       'Antebrazos',
+  biceps:           'Bíceps',
+  core:             'Core',
+  core_inferior:    'Core Inf.',
+  core_superior:    'Core Sup.',
+  cuadriceps:       'Cuádriceps',
+  cuello:           'Cuello',
+  dorsales:         'Dorsales',
+  espalda:          'Espalda',
+  espalda_alta:     'Espalda Alta',
+  espalda_baja:     'Lumbar',
+  gemelos:          'Gemelos',
+  gluteos:          'Glúteos',
+  hombros:          'Hombros',
+  hombros_frontal:  'Hombros Front.',
+  hombros_posterior:'Hombros Post.',
+  isquios:          'Isquios',
+  oblicuos:         'Oblicuos',
+  pecho:            'Pectoral',
+  piernas:          'Piernas',
+  triceps:          'Tríceps',
 };
 
 // ── Intensity sort order ──────────────────────────
 const INTENSITY_ORDER = { high: 0, mid: 1, low: 2 };
 
-// ── Exercise type → muscle groups activated ───────
-export const EXERCISE_MUSCLES = {
-  // Chest
-  'press-banca':            { primary: ['pectoral'],               secondary: ['triceps','deltoid_front'] },
-  'press-inclinado':        { primary: ['pectoral'],               secondary: ['deltoid_front','triceps'] },
-  'aperturas':              { primary: ['pectoral'],               secondary: ['deltoid_front'] },
-  // Back
-  'dominadas':              { primary: ['lats'],                   secondary: ['biceps','trapezius'] },
-  'remo-barra':             { primary: ['lats','trapezius'],       secondary: ['biceps','lower_back'] },
-  'polea-alta':             { primary: ['lats'],                   secondary: ['biceps','trapezius'] },
-  // Shoulders
-  'press-militar':          { primary: ['deltoid_front'],          secondary: ['trapezius','triceps'] },
-  'elevaciones-laterales':  { primary: ['deltoid_front'],          secondary: [] },
-  'pajaros':                { primary: ['deltoid_rear'],           secondary: ['trapezius'] },
-  // Arms
-  'curl-barra':             { primary: ['biceps'],                 secondary: ['forearms_front'] },
-  'press-frances':          { primary: ['triceps'],                secondary: [] },
-  'fondos':                 { primary: ['triceps'],                secondary: ['pectoral','deltoid_front'] },
-  // Legs
-  'sentadilla':             { primary: ['quads','glutes'],         secondary: ['hamstrings','lower_back'] },
-  'prensa':                 { primary: ['quads'],                  secondary: ['glutes','hamstrings'] },
-  'peso-muerto':            { primary: ['lats','lower_back'],      secondary: ['glutes','hamstrings','trapezius'] },
-  'estocadas':              { primary: ['quads','glutes'],         secondary: ['hamstrings'] },
-  'curl-femoral':           { primary: ['hamstrings'],             secondary: ['glutes'] },
-  'elevacion-gemelos':      { primary: ['calves_back','calves_front'], secondary: [] },
-  // Core
-  'crunch':                 { primary: ['abs'],                    secondary: [] },
-  'plancha':                { primary: ['abs'],                    secondary: ['lower_back'] },
-  'russian-twist':          { primary: ['abs'],                    secondary: [] },
-};
+// ── Validate and normalise a target/sec key ───────
+// Returns the key if it has a PNG, otherwise null.
+function resolveKey(raw) {
+  if (!raw) return null;
+  const k = String(raw).toLowerCase().trim();
+  if (KNOWN_PNGs.has(k)) return k;
+  // Strip combining diacritical marks (NFD decomposition + remove marks U+0300–U+036F)
+  const plain = k.normalize('NFD').replace(/[̀-ͯ]/g, '');
+  if (KNOWN_PNGs.has(plain)) return plain;
+  // Also replace spaces with underscores (e.g. "espalda alta" → "espalda_alta")
+  const underscored = plain.replace(/\s+/g, '_');
+  if (KNOWN_PNGs.has(underscored)) return underscored;
+  return null;
+}
 
-// ── Compute active groups + intensity from exercises
+// ── Compute active groups from exercise list ──────
+// Priority:
+//  1. ex.target      — lowercase PNG key from data.js  (e.g. "cuadriceps")
+//  2. ex.muscleGroup — Spanish name stored by admin     (e.g. "Cuádriceps")
+//  3. ex.m           — Spanish name from data.js
+//  ex.sec            — array of secondary PNG keys
 export function computeActiveGroups(exercises = []) {
   const counts = {};
+
   exercises.forEach(ex => {
-    const key = ex.id || ex.name?.toLowerCase().replace(/ /g, '-');
-    const mapping = EXERCISE_MUSCLES[key];
-    if (!mapping) return;
-    mapping.primary.forEach(m   => { counts[m] = (counts[m] || 0) + 2; });
-    mapping.secondary.forEach(m => { counts[m] = (counts[m] || 0) + 1; });
+    // Primary: first candidate that resolves to a known PNG
+    const primary = resolveKey(ex.target)
+                 || resolveKey(ex.muscleGroup)
+                 || resolveKey(ex.m);
+    if (primary) {
+      counts[primary] = (counts[primary] || 0) + 2;
+    }
+
+    // Secondary muscles (from data.js sec array)
+    if (Array.isArray(ex.sec)) {
+      ex.sec.forEach(s => {
+        const k = resolveKey(s);
+        if (k) counts[k] = (counts[k] || 0) + 1;
+      });
+    }
   });
+
+  if (Object.keys(counts).length === 0) return {};
 
   const maxCount = Math.max(...Object.values(counts), 1);
   const active = {};
@@ -102,24 +106,21 @@ export function computeActiveGroups(exercises = []) {
 export function renderMuscleMap(container, exercises = []) {
   const activeGroups = computeActiveGroups(exercises);
 
-  // Build layer list; resolve duplicate PNGs to highest intensity
+  // Build layer list; duplicate PNGs → keep highest intensity
   const bestByFile = {};
   Object.entries(activeGroups).forEach(([id, intensity]) => {
-    const file = MUSCLE_PNG[id];
-    if (!file) return;
+    const file = id + '.png';
     const existing = bestByFile[file];
     if (!existing || INTENSITY_ORDER[intensity] < INTENSITY_ORDER[existing.intensity]) {
-      bestByFile[file] = { id, file, label: MUSCLE_LABELS[id] || id, intensity };
+      bestByFile[file] = { id, file, label: LABELS[id] || id, intensity };
     }
   });
 
-  // Collect all labels (including lower-priority duplicates) for the legend
+  // Legend labels, deduped by text
   const allLabels = Object.entries(activeGroups)
-    .filter(([id]) => MUSCLE_PNG[id])
-    .map(([id, intensity]) => ({ id, label: MUSCLE_LABELS[id] || id, intensity }))
+    .map(([id, intensity]) => ({ id, label: LABELS[id] || id, intensity }))
     .sort((a, b) => INTENSITY_ORDER[a.intensity] - INTENSITY_ORDER[b.intensity]);
 
-  // Deduplicate labels by label text (calves_front / calves_back → same label)
   const seenLabels = new Set();
   const uniqueLabels = allLabels.filter(l => {
     if (seenLabels.has(l.label)) return false;
@@ -127,8 +128,9 @@ export function renderMuscleMap(container, exercises = []) {
     return true;
   });
 
+  // Layers: low first, high on top
   const layers = Object.values(bestByFile)
-    .sort((a, b) => INTENSITY_ORDER[b.intensity] - INTENSITY_ORDER[a.intensity]); // low first, high on top
+    .sort((a, b) => INTENSITY_ORDER[b.intensity] - INTENSITY_ORDER[a.intensity]);
 
   if (layers.length === 0) {
     container.innerHTML = `

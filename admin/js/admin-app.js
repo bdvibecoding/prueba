@@ -17,12 +17,14 @@ const SVG = {
   health:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`,
   fisio:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><circle cx="12" cy="5" r="3"/><path d="M6.5 8a5.5 5.5 0 0 0 0 11h11a5.5 5.5 0 0 0 0-11"/><path d="M12 8v11M8 13h8"/></svg>`,
   psych:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M9.5 2A6.5 6.5 0 0 1 16 8.5c0 2.5-1.3 4.7-3.3 6l-.7 4.5H9l-.7-4.5A6.5 6.5 0 0 1 9.5 2z"/><path d="M9 15.5h3"/></svg>`,
+  plans:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>`,
 };
 
 // Define available panels
 const PANELS = {
   users:    { id: 'users',    icon: SVG.users,    title: 'Usuarios' },
   routines: { id: 'routines', icon: SVG.routines, title: 'Rutinas' },
+  plans:    { id: 'plans',    icon: SVG.plans,    title: 'Planes' },
   diet:     { id: 'diet',     icon: SVG.diet,     title: 'Plan Nutricional' },
   health:   { id: 'health',   icon: SVG.health,   title: 'Historial Médico' },
   fisio:    { id: 'fisio',    icon: SVG.fisio,    title: 'Fisioterapia' },
@@ -31,8 +33,8 @@ const PANELS = {
 
 // Map roles to panels
 const ROLE_PANELS = {
-  admin:         ['users', 'routines', 'diet', 'health', 'fisio', 'psych'],
-  coach:         ['users', 'routines'],
+  admin:         ['users', 'routines', 'plans', 'diet', 'health', 'fisio', 'psych'],
+  coach:         ['users', 'routines', 'plans'],
   nutricionista: ['users', 'diet'],
   medico:        ['users', 'health'],
   fisio:         ['users', 'fisio'],

@@ -202,7 +202,7 @@ async function loadPhotosForWeek(container, profile, date, angle) {
 
     if (photoURL) {
       slot.innerHTML = `
-        <img src="${photoURL}" alt="${angle}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-md)">
+        <img loading="lazy" decoding="async" src="${photoURL}" alt="${angle}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-md)">
         <div class="photo-slot-overlay">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;cursor:pointer" id="btn-expand-photo"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </div>
@@ -311,7 +311,7 @@ function openUploadModal(profile, container) {
       const reader = new FileReader();
       reader.onload = (ev) => {
         slot.innerHTML = `
-          <img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:calc(var(--radius-md) - 2px)">
+          <img loading="lazy" decoding="async" src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:calc(var(--radius-md) - 2px)">
           <div class="photo-slot-overlay">
             <span style="color:white;font-size:13px">${t('change')}</span>
           </div>
@@ -364,7 +364,7 @@ function openPhotoModal(url, date) {
       <h3 class="modal-title"> ${date}</h3>
       <button class="modal-close">✕</button>
     </div>
-    <img src="${url}" alt="Progreso" style="width:100%;border-radius:var(--radius-md);max-height:70vh;object-fit:contain">
+    <img loading="lazy" decoding="async" src="${url}" alt="Progreso" style="width:100%;border-radius:var(--radius-md);max-height:70vh;object-fit:contain">
  `;
   openModal(html);
 }

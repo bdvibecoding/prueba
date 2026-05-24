@@ -265,7 +265,7 @@ async function loadRecentActivity(container) {
 function renderEmptyActivity() {
   return `
     <div class="empty-state" style="padding:var(--space-lg)">
-      <div class="empty-icon"><img src="logotipo/jus W Logo/TGWL --07.png" alt="W" style="height:52px;width:52px;object-fit:contain;opacity:0.4"></div>
+      <div class="empty-icon"><img loading="lazy" decoding="async" src="logotipo/jus W Logo/TGWL --07.png" alt="W" style="height:52px;width:52px;object-fit:contain;opacity:0.4"></div>
       <div class="empty-title">${t('no_workouts')}</div>
       <div class="empty-subtitle">${t('start_first')}</div>
     </div>

@@ -173,11 +173,23 @@ function _showNetBanner(online) {
   _netBanner = el;
 }
 // Initialize network status listeners once
+let _wasOffline = false;
 export function initNetworkStatus() {
   if (typeof window === 'undefined') return;
+  _wasOffline = !navigator.onLine;
   _showNetBanner(navigator.onLine);
-  window.addEventListener('online',  () => _showNetBanner(true));
-  window.addEventListener('offline', () => _showNetBanner(false));
+  window.addEventListener('offline', () => {
+    _wasOffline = true;
+    _showNetBanner(false);
+  });
+  window.addEventListener('online',  () => {
+    _showNetBanner(true);
+    if (_wasOffline) {
+      _wasOffline = false;
+      // Use the existing toast() helper to confirm reconnection
+      toast('Conexión restaurada · sincronizando…', 'success', 2500);
+    }
+  });
 }
 
 // ── Drag-and-drop reorder for a list of children rows ─────
