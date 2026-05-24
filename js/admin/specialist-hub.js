@@ -8,7 +8,7 @@
 
 import { getUserProfile }                   from '../state.js';
 import { db, collections, timestamp }       from '../firebase-config.js';
-import { toast, formatDate, getInitials }   from '../utils.js';
+import { toast, formatDate, getInitials, enableListDragDrop } from '../utils.js';
 import { openModal, closeModal }            from '../components/modal.js';
 import { t }                                from '../i18n.js';
 
@@ -635,7 +635,7 @@ async function loadRoutinesTab(infoEl, uid) {
   el.dataset.loaded = '1';
   try {
     const snap = await collections.assignments(uid).orderBy('assignedAt','desc').limit(10).get();
-    const existing = snap.docs.map(d => d.data());
+    const existing = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
     el.innerHTML = `
       <div class="sh-info-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg> Rutinas asignadas</div>
       ${existing.length ? existing.map(r => `
@@ -643,12 +643,25 @@ async function loadRoutinesTab(infoEl, uid) {
           <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></span>
           <div style="flex:1;font-size:12px">${_esc(r.name || r.routineId)}</div>
           <span style="font-size:10px;color:var(--color-text-muted)">${formatDate(r.assignedAt?.toDate?.() || r.assignedAt)}</span>
+          <button class="btn-dh-del sh-del-assign" data-assign-id="${r._id}" data-uid="${uid}" style="padding:4px 6px;border-radius:6px" title="Eliminar asignación">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg>
+          </button>
         </div>`).join('')
       : `<p style="font-size:12px;color:var(--color-text-muted)">Sin rutinas asignadas</p>`}
       <button class="btn-primary btn-full" id="btn-assign-routine-${uid}" style="margin-top:10px;font-size:12px;padding:8px">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg> Asignar rutina
       </button>`;
     el.querySelector(`#btn-assign-routine-${uid}`)?.addEventListener('click', () => openAssignRoutineModal(uid));
+    el.querySelectorAll('.sh-del-assign').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('¿Desasignar esta rutina? El cliente dejará de verla.')) return;
+        try {
+          await collections.assignments(btn.dataset.uid).doc(btn.dataset.assignId).update({ unassigned: true });
+          delete el.dataset.loaded;
+          loadRoutinesTab(infoEl, uid);
+        } catch (e) { alert('Error: ' + e.message); }
+      });
+    });
   } catch (e) { el.innerHTML = `<p class="text-muted">Error: ${e.message}</p>`; }
 }
 
@@ -894,19 +907,32 @@ async function _loadBlockInto(el, uid, clientName, type) {
   if (type === 'routines') {
     try {
       const snap = await collections.assignments(uid).orderBy('assignedAt','desc').limit(10).get();
-      const list  = snap.docs.map(d => d.data());
+      const list  = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
       el.innerHTML = `
         <div class="sh-info-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;vertical-align:-4px"><path d="M6.5 6.5H4a1 1 0 00-1 1v9a1 1 0 001 1h2.5M17.5 6.5H20a1 1 0 011 1v9a1 1 0 01-1 1h-2.5"/><path d="M6.5 8.5h11v7h-11zM9 6.5v11M15 6.5v11"/></svg> Rutinas asignadas</div>
         ${list.length ? list.map(r => `
           <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">
             <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></span>
             <div style="flex:1;font-size:12px">${_esc(r.name || r.routineId)}</div>
+            <button class="btn-dh-del sh-del-assign-blk" data-assign-id="${r._id}" data-uid="${uid}" style="padding:4px 6px;border-radius:6px" title="Eliminar asignación">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg>
+            </button>
           </div>`).join('')
         : `<p style="font-size:12px;color:var(--color-text-muted)">Sin rutinas asignadas</p>`}
         <button class="btn-primary btn-full" id="btn-asign-r-${uid}" style="margin-top:8px;font-size:12px;padding:8px">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg> Asignar rutina
         </button>`;
       el.querySelector(`#btn-asign-r-${uid}`)?.addEventListener('click', () => openAssignRoutineModal(uid));
+      el.querySelectorAll('.sh-del-assign-blk').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          if (!confirm('¿Desasignar esta rutina? El cliente dejará de verla.')) return;
+          try {
+            await collections.assignments(btn.dataset.uid).doc(btn.dataset.assignId).update({ unassigned: true });
+            delete el.dataset.loaded;
+            _loadBlockInto(el, uid, clientName, 'routines');
+          } catch (e) { alert('Error: ' + e.message); }
+        });
+      });
     } catch {}
   }
 
@@ -1237,7 +1263,10 @@ async function openRoutineEditor(routineId, mc) {
     const el = m.querySelector('#re-ex-list');
     if (!exercises.length) { el.innerHTML=`<p style="color:var(--color-text-muted);font-size:12px;margin-bottom:4px">Sin ejercicios aún</p>`; return; }
     el.innerHTML = exercises.map((ex,i)=>`
-      <div style="display:flex;align-items:center;gap:6px;padding:7px;background:var(--glass-bg);border-radius:var(--radius-sm);margin-bottom:4px">
+      <div class="re-ex-row" data-row-idx="${i}" style="display:flex;align-items:center;gap:6px;padding:7px;background:var(--glass-bg);border-radius:var(--radius-sm);margin-bottom:4px">
+        <span class="list-drag-handle" title="Arrastrar para reordenar" style="cursor:grab;color:var(--color-text-muted);padding:4px 2px;display:inline-flex;align-items:center;touch-action:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="16" x2="20" y2="16"/></svg>
+        </span>
         <span style="font-size:11px;font-weight:700;color:var(--color-text-muted);min-width:18px">${i+1}</span>
         <div style="flex:1;min-width:0">
           <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${_esc(ex.name||ex.n||'')}</div>
@@ -1258,6 +1287,12 @@ async function openRoutineEditor(routineId, mc) {
     el.querySelectorAll('[data-sets]').forEach(b => b.addEventListener('change', ()=>{ exercises[+b.dataset.sets].sets = parseInt(b.value)||3; }));
     el.querySelectorAll('[data-reps]').forEach(b => b.addEventListener('change', ()=>{ exercises[+b.dataset.reps].reps = b.value; }));
     el.querySelectorAll('.ex-warmup-input').forEach(b => b.addEventListener('change', ()=>{ exercises[+b.dataset.index].warmupSets = parseInt(b.value)||0; }));
+    // Drag-and-drop reorder
+    enableListDragDrop(el, (from, to) => {
+      const [moved] = exercises.splice(from, 1);
+      exercises.splice(to, 0, moved);
+      renderExList();
+    });
   };
   renderExList();
 

@@ -5,7 +5,7 @@
 
 import { getUserProfile } from '../state.js';
 import { db, collections, timestamp } from '../firebase-config.js';
-import { toast, formatDate, translateRole, getInitials } from '../utils.js';
+import { toast, formatDate, translateRole, getInitials, enableListDragDrop } from '../utils.js';
 import { openModal, closeModal, confirm, openSheet, closeSheet } from '../components/modal.js';
 import { t } from '../i18n.js';
 
@@ -1399,7 +1399,10 @@ async function openAdminRoutineEditor(routineId, container) {
     const listEl = m.querySelector('#rar-ex-list');
     if (!exercises.length) { listEl.innerHTML=`<p style="color:var(--color-text-muted);font-size:12px;margin-bottom:4px">Sin ejercicios aún</p>`; return; }
     listEl.innerHTML = exercises.map((ex,i)=>`
-      <div style="display:flex;align-items:center;gap:6px;padding:7px;background:var(--glass-bg);border-radius:var(--radius-sm);margin-bottom:4px">
+      <div class="rar-ex-row" data-row-idx="${i}" style="display:flex;align-items:center;gap:6px;padding:7px;background:var(--glass-bg);border-radius:var(--radius-sm);margin-bottom:4px">
+        <span class="list-drag-handle" title="Arrastrar para reordenar" style="cursor:grab;color:var(--color-text-muted);padding:4px 2px;display:inline-flex;align-items:center;touch-action:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="16" x2="20" y2="16"/></svg>
+        </span>
         <span style="font-size:11px;font-weight:700;color:var(--color-text-muted);min-width:18px">${i+1}</span>
         <div style="flex:1;min-width:0">
           <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${_esc(ex.name||ex.n||'')}</div>
@@ -1420,6 +1423,12 @@ async function openAdminRoutineEditor(routineId, container) {
     listEl.querySelectorAll('[data-sets]').forEach(b=>b.addEventListener('change',()=>{ exercises[+b.dataset.sets].sets=parseInt(b.value)||3; }));
     listEl.querySelectorAll('[data-reps]').forEach(b=>b.addEventListener('change',()=>{ exercises[+b.dataset.reps].reps=b.value; }));
     listEl.querySelectorAll('.ex-warmup-input').forEach(b=>b.addEventListener('change',()=>{ exercises[+b.dataset.index].warmupSets=parseInt(b.value)||0; }));
+    // Drag-and-drop reorder
+    enableListDragDrop(listEl, (from, to) => {
+      const [moved] = exercises.splice(from, 1);
+      exercises.splice(to, 0, moved);
+      renderList();
+    });
   };
   renderList();
 

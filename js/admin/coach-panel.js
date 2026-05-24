@@ -5,7 +5,7 @@
 
 import { getUserProfile } from '../state.js';
 import { db, collections, timestamp } from '../firebase-config.js';
-import { toast, formatDate, getInitials } from '../utils.js';
+import { toast, formatDate, getInitials, enableListDragDrop } from '../utils.js';
 import { openModal, closeModal, openSheet, closeSheet } from '../components/modal.js';
 
 export async function render(container) {
@@ -549,6 +549,12 @@ async function openEditRoutineModal(routineId, profile, container) {
     listEl.querySelectorAll('[data-sets]').forEach(b => b.addEventListener('change', () => { exercises[+b.dataset.sets].sets = parseInt(b.value) || 3; }));
     listEl.querySelectorAll('[data-reps]').forEach(b => b.addEventListener('change', () => { exercises[+b.dataset.reps].reps = b.value; }));
     listEl.querySelectorAll('.ex-warmup-input').forEach(b => b.addEventListener('change', () => { exercises[+b.dataset.index].warmupSets = parseInt(b.value) || 0; }));
+    // Drag-and-drop reorder
+    enableListDragDrop(listEl, (from, to) => {
+      const [moved] = exercises.splice(from, 1);
+      exercises.splice(to, 0, moved);
+      refreshExerciseList();
+    });
   }
 
   refreshExerciseList();
@@ -586,7 +592,10 @@ async function openEditRoutineModal(routineId, profile, container) {
 
 function buildRoutineExRow(ex, index) {
   return `
-    <div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--glass-bg);border-radius:var(--radius-sm);margin-bottom:4px">
+    <div class="cp-ex-row" data-row-idx="${index}" style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--glass-bg);border-radius:var(--radius-sm);margin-bottom:4px">
+      <span class="list-drag-handle" title="Arrastrar para reordenar" style="cursor:grab;color:var(--color-text-muted);padding:4px 2px;display:inline-flex;align-items:center;touch-action:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="16" x2="20" y2="16"/></svg>
+      </span>
       <span style="font-size:12px;font-weight:700;color:var(--color-text-muted);min-width:20px">${index + 1}</span>
       <div style="flex:1">
         <div style="font-size:13px;font-weight:600">${ex.name}</div>

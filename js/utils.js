@@ -99,6 +99,93 @@ export function kgToInput(kg, units = getUnits()) {
   return units === 'imperial' ? kgToLb(kg).toFixed(1).replace(/\.0$/, '') : String(kg);
 }
 
+// ── Drag-and-drop reorder for a list of children rows ─────
+// Wires pointer events on each direct child of `listEl`.
+// Only initiates a drag when the pointerdown lands on an element matching
+// `handleSelector` (defaults to the row itself, minus inputs/buttons).
+// Calls `onReorder(fromIdx, toIdx)` after a successful drop so the caller can
+// mutate the underlying array and re-render.
+export function enableListDragDrop(listEl, onReorder, opts = {}) {
+  if (!listEl) return;
+  const handleSelector = opts.handleSelector || '.list-drag-handle';
+  const rows = Array.from(listEl.children).filter(c => c.nodeType === 1);
+
+  rows.forEach((row, idx) => {
+    const handle = handleSelector ? row.querySelector(handleSelector) : row;
+    if (!handle) return;
+    handle.style.touchAction = 'none';
+
+    handle.addEventListener('pointerdown', (e) => {
+      // Don't drag from interactive controls
+      if (e.target.closest('input, button, select, textarea, a')) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const positions = rows.map(r => {
+        const b = r.getBoundingClientRect();
+        return { el: r, top: b.top, height: b.height, mid: b.top + b.height / 2 };
+      });
+      const myHeight = positions[idx].height;
+      const myTop    = positions[idx].top;
+      const startY   = e.clientY;
+
+      row.style.zIndex     = '1000';
+      row.style.position   = 'relative';
+      row.style.transition = 'box-shadow 150ms ease';
+      row.style.boxShadow  = '0 6px 18px rgba(0,0,0,0.30)';
+      row.classList.add('is-dragging');
+
+      try { handle.setPointerCapture(e.pointerId); } catch(_) {}
+      let toIdx = idx;
+
+      function onMove(ev) {
+        const dy = ev.clientY - startY;
+        row.style.transform = `translateY(${dy}px)`;
+
+        const myMid = myTop + myHeight / 2 + dy;
+        let newIdx = idx;
+        for (let i = 0; i < positions.length; i++) {
+          if (i === idx) continue;
+          if (i < idx && myMid < positions[i].mid) { newIdx = i; break; }
+          if (i > idx && myMid > positions[i].mid) newIdx = i;
+        }
+        if (newIdx !== toIdx) {
+          toIdx = newIdx;
+          positions.forEach((p, i) => {
+            if (i === idx) return;
+            let shift = 0;
+            if (idx < toIdx && i > idx && i <= toIdx) shift = -myHeight;
+            else if (idx > toIdx && i >= toIdx && i < idx) shift = myHeight;
+            p.el.style.transition = 'transform 180ms ease';
+            p.el.style.transform  = shift ? `translateY(${shift}px)` : '';
+          });
+        }
+      }
+
+      function cleanup() {
+        positions.forEach(p => { p.el.style.transition = ''; p.el.style.transform = ''; });
+        row.style.transition = ''; row.style.boxShadow = '';
+        row.style.zIndex = ''; row.style.position = ''; row.style.transform = '';
+        row.classList.remove('is-dragging');
+        handle.removeEventListener('pointermove', onMove);
+        handle.removeEventListener('pointerup', onUp);
+        handle.removeEventListener('pointercancel', onCancel);
+      }
+
+      function onUp() {
+        const from = idx, to = toIdx;
+        cleanup();
+        if (from !== to && typeof onReorder === 'function') onReorder(from, to);
+      }
+      function onCancel() { cleanup(); }
+
+      handle.addEventListener('pointermove', onMove);
+      handle.addEventListener('pointerup', onUp);
+      handle.addEventListener('pointercancel', onCancel);
+    });
+  });
+}
+
 export function getAge(birthDateStr) {
   if (!birthDateStr) return null;
   const today = new Date();

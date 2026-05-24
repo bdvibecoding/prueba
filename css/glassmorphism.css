@@ -883,6 +883,53 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   color: var(--color-text);
   margin-bottom: var(--space-sm);
 }
+
+/* ── Next-exercise hint card (shown when current ex finished) ─────── */
+.rest-next-ex-card {
+  margin-top: 16px;
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--color-background-primary, var(--glass-bg));
+  border: 0.5px solid var(--color-border-tertiary, var(--glass-border));
+  border-radius: var(--r-sm);
+  text-align: left;
+}
+.rest-next-label {
+  font-family: 'SF Pro Text', var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--red, #C10801);
+  margin-bottom: 8px;
+}
+.rest-next-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.rest-next-img {
+  width: 40px; height: 40px;
+  border-radius: var(--r-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-background-secondary, rgba(255,255,255,0.08));
+}
+.rest-next-img-placeholder {
+  display: inline-block;
+}
+.rest-next-info { flex: 1; min-width: 0; }
+.rest-next-name {
+  font-family: 'SF Pro Text', var(--font-sans);
+  font-size: 14px; font-weight: 600;
+  color: var(--color-text-primary, var(--color-text));
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rest-next-meta {
+  font-family: 'SF Pro Text', var(--font-sans);
+  font-size: 12px; font-weight: 500;
+  color: var(--color-text-tertiary, var(--color-text-muted));
+  margin-top: 2px;
+}
 .rest-timer-modal-ring.timer-ring {
   width: 200px;
   height: 200px;

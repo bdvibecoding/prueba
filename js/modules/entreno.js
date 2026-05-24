@@ -1495,6 +1495,18 @@ function showRestTimer(container, exId, seconds) {
   const exCard = container.querySelector(`[data-ex-id="${exId}"] .exercise-name`);
   const exName = exCard?.textContent || exId;
 
+  // ── Compute "next exercise" hint when current set was the last one ──
+  const _session    = getActiveSession();
+  const _exerciseList = activeRoutineData?.exercises || _session?.exercises || [];
+  const _curIdx     = _exerciseList.findIndex(e => e.id === exId);
+  const _curEx      = _exerciseList[_curIdx];
+  const _baseSets   = _curEx?.sets || 3;
+  const _extraSets  = _session?.extraSets?.[exId] || 0;
+  const _totalSets  = Math.max(1, _baseSets + _extraSets);
+  const _doneCount  = (_session?.completedSets?.[exId] || []).length;
+  const _isLastSet  = _doneCount >= _totalSets;
+  const _nextEx     = (_isLastSet && _curIdx >= 0) ? _exerciseList[_curIdx + 1] : null;
+
   // Remove any existing rest modal
   document.getElementById('rest-timer-modal')?.remove();
   clearRestTimer();
@@ -1566,6 +1578,30 @@ function showRestTimer(container, exId, seconds) {
 
   card.appendChild(titleEl); card.appendChild(nameEl);
   card.appendChild(ringWrap); card.appendChild(btnRow);
+
+  // ── Next-exercise hint (only shown when current exercise just finished) ──
+  if (_nextEx) {
+    const nextName   = _nextEx.name || _nextEx.n || '';
+    const nextReps   = _nextEx.reps ? String(_nextEx.reps) : '—';
+    const nextWeight = _nextEx.weight ? `${kgToInput(_nextEx.weight)} ${unitLabel('weight')}` : '';
+    const nextImg    = findExData(nextName)?.localImg?.[0];
+
+    const nextCard = document.createElement('div');
+    nextCard.className = 'rest-next-ex-card';
+    nextCard.innerHTML = `
+      <div class="rest-next-label">PRÓXIMO EJERCICIO · PREPARA</div>
+      <div class="rest-next-row">
+        ${nextImg ? `<img src="${encodeURI(nextImg)}" alt="" class="rest-next-img">`
+                  : `<div class="rest-next-img rest-next-img-placeholder"></div>`}
+        <div class="rest-next-info">
+          <div class="rest-next-name">${nextName}</div>
+          <div class="rest-next-meta">${nextReps} reps${nextWeight ? ` · ${nextWeight}` : ''}</div>
+        </div>
+      </div>
+    `;
+    card.appendChild(nextCard);
+  }
+
   overlay.appendChild(card);
   document.body.appendChild(overlay);
 
