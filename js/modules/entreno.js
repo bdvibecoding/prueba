@@ -1025,15 +1025,20 @@ function buildSetsTable(ex, exIndex, session) {
     const repsPlaceholder = prevReps   || defaultRep || '—';
     const savedWeightDisp = setDataStore[i]?.weight != null && setDataStore[i].weight !== ''
                             ? kgToInput(setDataStore[i].weight, userUnits) : '';
-    // PREV label — "12×60kg" or "12×132lb" or "—"
-    const prevLabel = (prevSet.reps && prevSet.weight)
-      ? `${prevSet.reps}×${prevWeightDisp}${wLabel}`
-      : '—';
+    // PREV label — shows previous-session record.
+    //   reps + weight → "12×60kg"
+    //   reps only     → "12 reps"  (bodyweight / cardio exercises)
+    //   none          → "—"
+    const hasPrevReps   = prevSet.reps != null && prevSet.reps !== '';
+    const hasPrevWeight = prevSet.weight != null && prevSet.weight !== '' && Number(prevSet.weight) > 0;
+    let prevLabel = '—';
+    if (hasPrevReps && hasPrevWeight) prevLabel = `${prevSet.reps}×${prevWeightDisp}${wLabel}`;
+    else if (hasPrevReps)             prevLabel = `${prevSet.reps} reps`;
 
     return `
       <tr class="set-row ${done ? 'completed locked' : ''}" data-exid="${ex.id}" data-setidx="${i}">
         <td class="set-num">${i + 1}</td>
-        <td class="td-prev ${(prevSet.reps && prevSet.weight) ? 'has-data' : ''}">${prevLabel}</td>
+        <td class="td-prev ${hasPrevReps ? 'has-data' : ''}">${prevLabel}</td>
         <td>
           <input type="text" inputmode="numeric" class="set-input" data-exid="${ex.id}" data-setidx="${i}" data-field="reps"
                  value="${currentReps}" placeholder="${repsPlaceholder}" ${done ? 'disabled tabindex="-1"' : ''}>
@@ -1584,15 +1589,18 @@ function showRestTimer(container, exId, seconds) {
 
   // ── Next-exercise hint (only shown when current exercise just finished) ──
   if (_nextEx) {
-    const nextName   = _nextEx.name || _nextEx.n || '';
-    const nextReps   = _nextEx.reps ? String(_nextEx.reps) : '—';
-    const nextWeight = _nextEx.weight ? `${kgToInput(_nextEx.weight)} ${unitLabel('weight')}` : '';
-    const nextImg    = findExData(nextName)?.localImg?.[0];
+    const nextName    = _nextEx.name || _nextEx.n || '';
+    const nextReps    = _nextEx.reps ? String(_nextEx.reps) : '—';
+    // Weight cascade: planned routine weight → last session weight → none
+    const prevWeightKg = (_nextEx.previousSets || []).find(s => s && s.weight)?.weight;
+    const weightKg    = _nextEx.weight || prevWeightKg || null;
+    const nextWeight  = weightKg ? `${kgToInput(weightKg)} ${unitLabel('weight')}` : '';
+    const nextImg     = findExData(nextName)?.localImg?.[0];
 
     const nextCard = document.createElement('div');
     nextCard.className = 'rest-next-ex-card';
     nextCard.innerHTML = `
-      <div class="rest-next-label">PRÓXIMO EJERCICIO · PREPARA</div>
+      <div class="rest-next-label">PRÓXIMO EJERCICIO</div>
       <div class="rest-next-row">
         ${nextImg ? `<img loading="lazy" decoding="async" src="${encodeURI(nextImg)}" alt="" class="rest-next-img">`
                   : `<div class="rest-next-img rest-next-img-placeholder"></div>`}

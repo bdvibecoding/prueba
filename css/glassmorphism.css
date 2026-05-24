@@ -899,7 +899,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.06em;
-  color: var(--red, #C10801);
+  color: var(--color-text, #F0F0F0);
   margin-bottom: 8px;
 }
 .rest-next-row {
