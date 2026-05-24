@@ -22,6 +22,22 @@ export const db        = firebase.firestore();
 export const storage   = firebase.storage();
 export const firestore = firebase.firestore;
 
+// ── Offline persistence ───────────────────────
+// Stores Firestore reads in IndexedDB so the app works fully offline.
+// Writes are queued and replayed when the connection returns.
+// synchronizeTabs:true keeps multiple tabs in sync.
+db.enablePersistence({ synchronizeTabs: true }).catch(err => {
+  if (err.code === 'failed-precondition') {
+    // Multiple tabs open and one already has persistence
+    console.warn('[Firestore] Persistence not enabled — multiple tabs');
+  } else if (err.code === 'unimplemented') {
+    // Browser doesn't support (Safari incognito, very old browsers)
+    console.warn('[Firestore] Persistence not supported by browser');
+  } else {
+    console.warn('[Firestore] Persistence error:', err.message);
+  }
+});
+
 // ── Firestore helpers ─────────────────────────
 export const timestamp = () => firebase.firestore.FieldValue.serverTimestamp();
 export const arrayUnion = (...items) => firebase.firestore.FieldValue.arrayUnion(...items);
@@ -34,6 +50,8 @@ export const collections = {
   routines:        () => db.collection('routines'),
   dietTemplates:   () => db.collection('dietTemplates'),
   assignments:     (uid) => db.collection('users').doc(uid).collection('assignments'),
+  plans:           (uid) => db.collection('users').doc(uid).collection('plans'),
+  planTemplates:   () => db.collection('planTemplates'),
   workoutSessions: (uid) => db.collection('users').doc(uid).collection('workoutSessions'),
   meals:           (uid) => db.collection('users').doc(uid).collection('meals'),
   biomedidas:      (uid) => db.collection('users').doc(uid).collection('biomedidas'),

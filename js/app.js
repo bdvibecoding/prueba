@@ -6,6 +6,7 @@
 import { initAuthListener, initAuthForms } from './auth.js';
 import { loadPersistedSettings, loadPersistedSession, appState } from './state.js';
 import { initI18n, setLang, applyTranslations } from './i18n.js';
+import { initNetworkStatus } from './utils.js';
 
 // ══════════════════════════════════════════════
 //  BOOTSTRAP
@@ -22,6 +23,9 @@ async function bootstrap() {
 
   // 2. Register Service Worker (PWA)
   registerSW();
+
+  // 2b. Network status banner (shows when offline, dismisses when back online)
+  initNetworkStatus();
 
   // 3. Init auth forms (login, register, forgot)
   initAuthForms();

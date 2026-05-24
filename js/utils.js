@@ -99,6 +99,87 @@ export function kgToInput(kg, units = getUnits()) {
   return units === 'imperial' ? kgToLb(kg).toFixed(1).replace(/\.0$/, '') : String(kg);
 }
 
+// ── Promise timeout helper ────────────────────
+// Wraps any promise so it rejects after `ms` if not settled.
+// Optional `fallback` value is returned instead of throwing on timeout.
+export function withTimeout(promise, ms = 8000, fallback = undefined) {
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error('timeout')), ms);
+  });
+  return Promise.race([promise, timeoutPromise])
+    .then(value => { clearTimeout(timeoutId); return value; })
+    .catch(err => {
+      clearTimeout(timeoutId);
+      if (err && err.message === 'timeout' && fallback !== undefined) return fallback;
+      throw err;
+    });
+}
+
+// ── Retry with exponential backoff ────────────
+// Retries `fn` up to `tries` times with delays of 200ms, 400ms, 800ms...
+export async function withRetry(fn, tries = 3, baseDelay = 200) {
+  let lastErr;
+  for (let i = 0; i < tries; i++) {
+    try { return await fn(); }
+    catch (err) {
+      lastErr = err;
+      if (i < tries - 1) {
+        await new Promise(r => setTimeout(r, baseDelay * Math.pow(2, i)));
+      }
+    }
+  }
+  throw lastErr;
+}
+
+// ── Network status banner ─────────────────────
+// Shows a small fixed banner when the user goes offline.
+// Auto-removes when connection is restored.
+let _netBanner = null;
+function _showNetBanner(online) {
+  // Remove old banner first
+  if (_netBanner) { _netBanner.remove(); _netBanner = null; }
+  if (online) return;  // online → no banner needed
+  const el = document.createElement('div');
+  el.id = 'net-status-banner';
+  el.style.cssText = `
+    position: fixed; left: 50%; top: 12px;
+    transform: translateX(-50%);
+    z-index: 99999;
+    padding: 8px 16px;
+    background: rgba(193, 8, 1, 0.92);
+    color: #FFFFFF;
+    border-radius: 9999px;
+    font-family: 'SF Pro Text', system-ui, sans-serif;
+    font-size: 13px; font-weight: 500;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.30);
+    display: flex; align-items: center; gap: 8px;
+    backdrop-filter: blur(8px);
+    animation: netBannerIn 220ms ease;
+  `;
+  el.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:14px;height:14px">
+      <path d="M1 1l22 22M9 18l3-3 3 3M21 9c-2-2-5-3-9-3M3 9c1-1 2-2 4-2"/>
+    </svg>
+    <span>Sin conexión · usando datos en caché</span>
+  `;
+  if (!document.getElementById('net-banner-keyframes')) {
+    const style = document.createElement('style');
+    style.id = 'net-banner-keyframes';
+    style.textContent = '@keyframes netBannerIn { from { opacity:0; transform:translate(-50%,-8px); } to { opacity:1; transform:translate(-50%,0); } }';
+    document.head.appendChild(style);
+  }
+  document.body.appendChild(el);
+  _netBanner = el;
+}
+// Initialize network status listeners once
+export function initNetworkStatus() {
+  if (typeof window === 'undefined') return;
+  _showNetBanner(navigator.onLine);
+  window.addEventListener('online',  () => _showNetBanner(true));
+  window.addEventListener('offline', () => _showNetBanner(false));
+}
+
 // ── Drag-and-drop reorder for a list of children rows ─────
 // Wires pointer events on each direct child of `listEl`.
 // Only initiates a drag when the pointerdown lands on an element matching

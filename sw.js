@@ -2,8 +2,8 @@
    TGWL Service Worker — PWA offline support
 ═══════════════════════════════════════════════ */
 const CACHE_NAME = 'tgwl-v2.04';
-const STATIC_CACHE = 'tgwl-static-v152.0';
-const DYNAMIC_CACHE = 'tgwl-dynamic-v152.0';
+const STATIC_CACHE = 'tgwl-static-v153.0';
+const DYNAMIC_CACHE = 'tgwl-dynamic-v153.0';
 
 const STATIC_ASSETS = [
   '/',
@@ -64,13 +64,20 @@ const STATIC_ASSETS = [
 ];
 
 // ── Install ──────────────────────────────────
+// Use allSettled instead of addAll so a single failure (e.g. external CDN
+// unreachable) doesn't abort the entire install.
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(STATIC_CACHE).then(cache => {
-      console.log('[SW] Caching static assets');
-      return cache.addAll(STATIC_ASSETS.map(url => new Request(url, { cache: 'reload' })));
-    }).catch(err => console.warn('[SW] Cache failed:', err))
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(STATIC_CACHE);
+    const results = await Promise.allSettled(
+      STATIC_ASSETS.map(url =>
+        fetch(new Request(url, { cache: 'reload' }))
+          .then(resp => { if (resp.ok) return cache.put(url, resp); })
+      )
+    );
+    const failed = results.filter(r => r.status === 'rejected').length;
+    console.log(`[SW] Cached ${results.length - failed}/${results.length} assets (${failed} failed)`);
+  })());
   self.skipWaiting();
 });
 
@@ -112,11 +119,20 @@ self.addEventListener('fetch', event => {
   event.respondWith(cacheFirst(request));
 });
 
+// Race a fetch against a timeout so slow networks don't block the user
+function fetchWithTimeout(request, ms) {
+  return Promise.race([
+    fetch(request),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('fetch-timeout')), ms))
+  ]);
+}
+
 async function cacheFirst(request) {
   const cached = await caches.match(request);
   if (cached) return cached;
   try {
-    const response = await fetch(request);
+    // Network with 5s timeout so a hung request doesn't block forever
+    const response = await fetchWithTimeout(request, 5000);
     const cache = await caches.open(DYNAMIC_CACHE);
     if (response.status === 200) cache.put(request, response.clone());
     return response;
@@ -129,7 +145,9 @@ async function cacheFirst(request) {
 
 async function networkFirst(request) {
   try {
-    const response = await fetch(request);
+    // Firebase/API: try network with 4s timeout, then fall back to cache.
+    // Without timeout, the user waits forever when on a flaky connection.
+    const response = await fetchWithTimeout(request, 4000);
     const cache = await caches.open(DYNAMIC_CACHE);
     if (response.status === 200) cache.put(request, response.clone());
     return response;
