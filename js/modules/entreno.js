@@ -559,6 +559,17 @@ async function renderRoutineDetail(container, routine) {
 
   // Flex-column layout: topbar fixed at top, only scroll area scrolls
   const page = container.querySelector('#entreno-page');
+
+  // Snapshot which exercise cards are currently open + scroll position so we
+  // can restore them after the re-render. Without this, editing sets on a
+  // later exercise would re-render and jump back to the first card.
+  const _openExIds = Array.from(page.querySelectorAll('.exercise-item.open'))
+    .map(el => el.dataset.exId)
+    .filter(Boolean);
+  const _scrollEl   = page.querySelector('.workout-scroll-area');
+  const _scrollTop  = _scrollEl ? _scrollEl.scrollTop : 0;
+  const _isInitialRender = _openExIds.length === 0 && _scrollTop === 0;
+
   page.classList.add('workout-detail-layout');
   page.innerHTML = `
 
@@ -677,10 +688,27 @@ async function renderRoutineDetail(container, routine) {
   // Exercise accordion + actions
   initExerciseList(container, exercises, isActive);
 
-  // Auto-open first exercise — but NOT in reorder mode (keep all collapsed for easier sorting)
+  // Restore which exercises were open before the re-render (avoids the "jump to
+  // first exercise" issue when editing sets on a later card).
+  // On the initial render (no cards were open), auto-open the first one as default.
   if (!_reorderMode) {
-    const firstItem = container.querySelector('.exercise-item');
-    if (firstItem) firstItem.classList.add('open');
+    if (_isInitialRender) {
+      const firstItem = container.querySelector('.exercise-item');
+      if (firstItem) firstItem.classList.add('open');
+    } else if (_openExIds.length) {
+      _openExIds.forEach(id => {
+        const card = container.querySelector(`.exercise-item[data-ex-id="${id}"]`);
+        if (card) card.classList.add('open');
+      });
+    }
+  }
+
+  // Restore scroll position (avoids losing your place after an in-place edit)
+  if (!_isInitialRender) {
+    requestAnimationFrame(() => {
+      const newScrollEl = container.querySelector('.workout-scroll-area');
+      if (newScrollEl) newScrollEl.scrollTop = _scrollTop;
+    });
   }
 
   // Live duration counter — runs while workout is active, stops on finish
