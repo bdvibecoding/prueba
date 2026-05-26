@@ -32,9 +32,10 @@ function _formatLiveDuration(ms) {
 function _startLiveDuration() {
   if (_liveDurationIv) clearInterval(_liveDurationIv);
   const tick = () => {
-    const el = document.getElementById('workout-live-duration');
-    if (!el) { _stopLiveDuration(); return; }
-    el.textContent = _formatLiveDuration(getElapsedMs());
+    const els = document.querySelectorAll('[data-live-duration]');
+    if (!els.length) { _stopLiveDuration(); return; }
+    const txt = _formatLiveDuration(getElapsedMs());
+    els.forEach(el => { el.textContent = txt; });
   };
   tick();
   _liveDurationIv = setInterval(tick, 1000);
@@ -42,8 +43,9 @@ function _startLiveDuration() {
 function _stopLiveDuration(finalMs = null) {
   if (_liveDurationIv) { clearInterval(_liveDurationIv); _liveDurationIv = null; }
   if (finalMs != null) {
-    const el = document.getElementById('workout-live-duration');
-    if (el) el.textContent = _formatLiveDuration(finalMs);
+    document.querySelectorAll('[data-live-duration]').forEach(el => {
+      el.textContent = _formatLiveDuration(finalMs);
+    });
   }
 }
 let activeAssignmentId    = null;
@@ -569,7 +571,18 @@ async function renderRoutineDetail(container, routine) {
         <div class="workout-topbar-title">${routine.name}</div>
         ${(() => { const sub = getTopMuscleSubtitle(routine.exercises || []); return sub ? `<div class="workout-topbar-subtitle">${sub}</div>` : ''; })()}
       </div>
-      <!-- Topbar action removed — Terminar lives at the bottom alongside Cancelar -->
+      ${isActive ? `
+        <div class="workout-topbar-chrono" aria-label="Cronómetro de entreno">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex-shrink:0">
+            <circle cx="12" cy="13" r="8"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="13" x2="15" y2="15"/>
+            <line x1="9" y1="2" x2="15" y2="2"/>
+            <line x1="12" y1="2" x2="12" y2="5"/>
+          </svg>
+          <span data-live-duration>0min 0s</span>
+        </div>
+      ` : ''}
     </div>
 
     <!-- ── Scrollable content area ── -->
@@ -594,7 +607,7 @@ async function renderRoutineDetail(container, routine) {
         </div>
         <div class="workout-ts-row">
           <span class="workout-ts-label">Duración</span>
-          <span class="workout-ts-value" id="workout-live-duration">0min 0s</span>
+          <span class="workout-ts-value" data-live-duration>0min 0s</span>
         </div>
       </div>
       ` : ''}
