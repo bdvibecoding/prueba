@@ -236,10 +236,10 @@ body.light-mode .app-icon-label {
   z-index: 2;
 }
 .workout-topbar-back:active { background: var(--glass-bg); }
-/* Live workout chrono — pill anchored top-right, always visible */
+/* Live workout chrono — anchored top-right, always visible (uses --r-sm) */
 .workout-topbar-chrono {
   position: absolute;
-  top: 8px;
+  top: 6px;
   right: 12px;
   z-index: 2;
   display: inline-flex;
@@ -249,7 +249,7 @@ body.light-mode .app-icon-label {
   background: rgba(193, 8, 1, 0.10);
   border: 0.5px solid rgba(193, 8, 1, 0.30);
   color: var(--red, #C10801);
-  border-radius: 9999px;
+  border-radius: var(--r-sm);
   font-family: 'SF Pro Text', var(--font-sans);
   font-size: 11px;
   font-weight: 600;
@@ -271,7 +271,9 @@ body.light-mode .workout-topbar-chrono {
   min-width: 0;
   text-align: center;
   width: 100%;
-  margin-top: 18px;   /* room for the absolute back button on top-left */
+  margin-top: 18px;            /* room for the absolute back button on top-left */
+  padding: 0 96px 0 44px;       /* keep title clear of the back arrow (left) + chrono (right) */
+  box-sizing: border-box;
 }
 .workout-topbar-title {
   width: 100%;
