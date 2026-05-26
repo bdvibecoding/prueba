@@ -1516,7 +1516,10 @@ function showRestTimer(container, exId, seconds) {
   const exCard = container.querySelector(`[data-ex-id="${exId}"] .exercise-name`);
   const exName = exCard?.textContent || exId;
 
-  // ── Compute "next exercise" hint when current set was the last one ──
+  // ── Compute hint shown below the timer ──
+  //   · Last set of an exercise → preview the NEXT exercise
+  //   · Otherwise               → preview the NEXT SET of the same exercise
+  //                               (weight from previous session, so user can prep)
   const _session    = getActiveSession();
   const _exerciseList = activeRoutineData?.exercises || _session?.exercises || [];
   const _curIdx     = _exerciseList.findIndex(e => e.id === exId);
@@ -1527,6 +1530,26 @@ function showRestTimer(container, exId, seconds) {
   const _doneCount  = (_session?.completedSets?.[exId] || []).length;
   const _isLastSet  = _doneCount >= _totalSets;
   const _nextEx     = (_isLastSet && _curIdx >= 0) ? _exerciseList[_curIdx + 1] : null;
+
+  // Build "next-set" hint for non-last sets
+  let _nextSetHint = null;
+  if (!_isLastSet && _curEx) {
+    const nextSetIdx = _doneCount; // 0-based index of the upcoming set
+    const prevSet = _curEx.previousSets?.[nextSetIdx] || {};
+    const userSetData = _session?.setData?.[exId]?.sets?.[nextSetIdx] || {};
+    // Cascade: weight the user already entered for that set → previous session → planned
+    const weightKg = userSetData.weight || prevSet.weight || _curEx.weight || null;
+    if (weightKg) {
+      // Compute reps to display: planned for this set position
+      const repArr = _curEx.reps ? String(_curEx.reps).split(/[-\/]/).map(r => r.trim()).filter(Boolean) : [];
+      const plannedReps = repArr[nextSetIdx] ?? repArr[0] ?? prevSet.reps ?? '';
+      _nextSetHint = {
+        label: 'PRÓXIMA SERIE',
+        title: `Serie ${nextSetIdx + 1} de ${_totalSets}`,
+        meta:  `${plannedReps ? plannedReps + ' reps · ' : ''}${kgToInput(weightKg)} ${unitLabel('weight')}`,
+      };
+    }
+  }
 
   // Remove any existing rest modal
   document.getElementById('rest-timer-modal')?.remove();
@@ -1600,11 +1623,11 @@ function showRestTimer(container, exId, seconds) {
   card.appendChild(titleEl); card.appendChild(nameEl);
   card.appendChild(ringWrap); card.appendChild(btnRow);
 
-  // ── Next-exercise hint (only shown when current exercise just finished) ──
+  // ── Hint card below the timer ────────────────
   if (_nextEx) {
-    const nextName    = _nextEx.name || _nextEx.n || '';
+    // LAST set of current exercise → preview the next EXERCISE
+    const nextName    = toSentenceCase(_nextEx.name || _nextEx.n || '');
     const nextReps    = _nextEx.reps ? String(_nextEx.reps) : '—';
-    // Weight cascade: planned routine weight → last session weight → none
     const prevWeightKg = (_nextEx.previousSets || []).find(s => s && s.weight)?.weight;
     const weightKg    = _nextEx.weight || prevWeightKg || null;
     const nextWeight  = weightKg ? `${kgToInput(weightKg)} ${unitLabel('weight')}` : '';
@@ -1620,6 +1643,20 @@ function showRestTimer(container, exId, seconds) {
         <div class="rest-next-info">
           <div class="rest-next-name">${nextName}</div>
           <div class="rest-next-meta">${nextReps} reps${nextWeight ? ` · ${nextWeight}` : ''}</div>
+        </div>
+      </div>
+    `;
+    card.appendChild(nextCard);
+  } else if (_nextSetHint) {
+    // Mid-exercise rest → suggest weight to prep for the next set
+    const nextCard = document.createElement('div');
+    nextCard.className = 'rest-next-ex-card';
+    nextCard.innerHTML = `
+      <div class="rest-next-label">${_nextSetHint.label}</div>
+      <div class="rest-next-row">
+        <div class="rest-next-info">
+          <div class="rest-next-name">${_nextSetHint.title}</div>
+          <div class="rest-next-meta">${_nextSetHint.meta}</div>
         </div>
       </div>
     `;
@@ -1962,11 +1999,11 @@ async function openSwapExercise(currentEx, exIndex, container, allExercises) {
            </span>`
         : '';
       return `
-      <div class="swap-option" data-ex-n="${ex.n.replace(/"/g,'&quot;')}"
+      <div class="swap-option" data-ex-n="${ex.n.replace(/"/g,'&quot;')}" data-ex-display="${toSentenceCase(ex.n).replace(/"/g,'&quot;')}"
            style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-bottom:0.5px solid var(--color-border-tertiary,var(--glass-border))">
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:600;color:var(--color-text);display:flex;align-items:center">
-            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ex.n}</span>${freqBadge}
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${toSentenceCase(ex.n)}</span>${freqBadge}
           </div>
           <div style="font-size:11px;color:var(--color-text-muted);margin-top:2px">${ex.m}${ex.t==='c'?' · Compuesto':ex.t==='i'?' · Aislado':''}</div>
         </div>
@@ -2743,7 +2780,7 @@ function showWorkoutSummary(container, durationMs, session, rpe, note) {
       <div class="wsum-ex-row">
         <div class="wsum-ex-dot"></div>
         <div class="wsum-ex-info">
-          <span class="wsum-ex-name">${ex.name || 'Ejercicio'}</span>
+          <span class="wsum-ex-name">${toSentenceCase(ex.name || 'Ejercicio')}</span>
           <span class="wsum-ex-meta">${setsStr}${muscle ? ' · ' + muscle : ''}</span>
         </div>
       </div>`;
