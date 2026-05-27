@@ -26,3 +26,13 @@ npm-debug.log*
 # Build output
 dist/
 build/
+
+# Firebase build artifacts (regenerated on each deploy)
+.firebase/
+
+# Legacy backups (keep locally, never commit)
+data/data viejo.js
+para revisar/
+
+# Reports / temp
+scripts/*.result.json
