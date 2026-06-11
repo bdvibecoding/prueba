@@ -1,19 +1,135 @@
 /* ═══════════════════════════════════════════════
-   TGWL — glassmorphism.css
-   Liquid Glass UI Components
+   TGWL — Frosted Glass Spec v8
+   Gradiente de fondo + glassmorphism cards
 ═══════════════════════════════════════════════ */
 
-/* ── Base Glass Card ────────────────────────── */
+/* ── Gradient Background (capaz fija, z-index 0) ────────────── */
+#gradient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: #0A0A0A; /* base dark */
+}
+/* Gradient overlay encima del base — via ::after */
+#gradient-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Dark mode — rojo oscuro → disolverse al negro */
+  background: linear-gradient(
+    180deg,
+    rgba( 80,  0,  0, 0.75)  0%,   /* rojo muy oscuro */
+    rgba(120,  8,  0, 0.65) 10%,   /* rojo profundo */
+    rgba(160, 20,  5, 0.50) 20%,   /* rojo con calor */
+    rgba(193, 40,  5, 0.30) 32%,   /* rojo-naranja oscuro */
+    rgba(200, 70, 10, 0.15) 44%,   /* naranja muy tenue */
+    rgba(180, 80, 20, 0.06) 56%,   /* casi invisible */
+    rgba(  0,  0,  0, 0.00) 70%    /* negro puro */
+  );
+}
+/* Light mode — gradiente cálido sobre blanco */
+body.light-mode #gradient-bg {
+  background: #FFFFFF;
+}
+body.light-mode #gradient-bg::after {
+  background: linear-gradient(
+    180deg,
+    rgba( 60,  0,  0, 0.92)  0%,   /* rojo casi negro */
+    rgba(140, 10,  0, 0.85)  8%,   /* rojo oscuro */
+    rgba(200, 38,  5, 0.78) 16%,   /* rojo vibrante */
+    rgba(230, 70,  5, 0.65) 26%,   /* naranja-rojo */
+    rgba(241,110, 10, 0.45) 36%,   /* naranja intenso */
+    rgba(241,140, 30, 0.25) 46%,   /* naranja cálido */
+    rgba(245,190, 80, 0.10) 56%,   /* ámbar tenue */
+    rgba(255,230,160, 0.03) 66%,   /* casi invisible */
+    rgba(255,255,255, 0.00) 76%    /* disuelto */
+  );
+}
+
+/* ── Base Glass Card (card principal) ─────────────── */
 .glass-card {
-  background: var(--glass-bg);
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+  background: var(--glass-bg);              /* rgba(26,26,26,0.88) dark */
+  -webkit-backdrop-filter: blur(var(--glass-blur));   /* 12px */
   backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-radius: var(--r-md);
-  box-shadow: var(--shadow-xs);
+  border: 0.5px solid var(--glass-border); /* rgba(255,255,255,0.08) dark */
+  border-radius: var(--r-md);              /* 14px */
+  box-shadow: none;
   position: relative;
   overflow: hidden;
 }
+body.light-mode .glass-card {
+  background: rgba(255,255,255,0.82);
+  border-color: rgba(255,255,255,0.95);
+}
+
+/* ── Cards secundarias (menor jerarquía, más transparentes) ── */
+.glass-card-secondary {
+  background: var(--glass-bg-secondary);   /* rgba(26,26,26,0.80) dark */
+  -webkit-backdrop-filter: blur(var(--glass-blur-sm)); /* 10px */
+  backdrop-filter: blur(var(--glass-blur-sm));
+  border: 0.5px solid #252525;
+  border-radius: var(--r-md);
+  box-shadow: none;
+  position: relative;
+  overflow: hidden;
+}
+body.light-mode .glass-card-secondary {
+  background: rgba(255,255,255,0.72);
+  border-color: rgba(255,255,255,0.90);
+}
+
+/* Sparklines — radio más pequeño (--r-sm = 8px) */
+.glass-card-sparkline {
+  border-radius: var(--r-sm);
+}
+
+/* ── Cards sobre zona de gradiente (opacidad ligeramente mayor) ── */
+.glass-card-on-gradient {
+  background: var(--glass-bg-strong); /* 0.90 dark, 0.82 light */
+}
+body.light-mode .glass-card-on-gradient {
+  background: rgba(255,255,255,0.82);
+}
+
+/* ── Fallback — sin backdrop-filter ─────────────────────── */
+@supports not (backdrop-filter: blur(1px)) {
+  .glass-card,
+  .glass-card-secondary {
+    background: var(--glass-bg-fallback, #1A1A1A);
+    border-color: var(--glass-border-fallback, #252525);
+  }
+  body.light-mode .glass-card,
+  body.light-mode .glass-card-secondary {
+    background: var(--glass-bg-fallback, rgba(255,255,255,0.96));
+    border-color: var(--glass-border-fallback, #E8E8E8);
+  }
+}
+@supports not (-webkit-backdrop-filter: blur(1px)) {
+  .glass-card,
+  .glass-card-secondary {
+    background: var(--glass-bg-fallback, #1A1A1A);
+  }
+  body.light-mode .glass-card,
+  body.light-mode .glass-card-secondary {
+    background: var(--glass-bg-fallback, rgba(255,255,255,0.96));
+  }
+}
+
+/* ── Greeting — texto blanco sobre gradiente oscuro ─────── */
+/* El greeting vive en la zona roja oscura del gradiente en ambos modos */
+.home-greeting-line1 {
+  color: #FFFFFF;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.25);
+}
+.home-greeting-line2 {
+  color: rgba(255,255,255,0.55);
+  text-shadow: 0 1px 8px rgba(0,0,0,0.25);
+}
+body:not(.light-mode) .home-greeting-line2 {
+  color: rgba(255,255,255,0.35);
+}
+
 /* Shimmer overlay — top light reflection */
 .glass-card::before {
   content: '';

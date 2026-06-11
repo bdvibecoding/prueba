@@ -163,6 +163,10 @@ async function renderRoute(route, params) {
     window.__activeModule = null;
   }
 
+  // Set route class on page-container so CSS can show gradient only on Home
+  const isHome = route === 'home';
+  container.classList.toggle('route-home', isHome);
+
   // Clear previous
   container.innerHTML = `
     <div class="overlay-spinner">

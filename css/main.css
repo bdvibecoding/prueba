@@ -51,13 +51,16 @@
   /* Branding Gradient (decorative only, 8-15% opacity) */
   --brand-gradient:   linear-gradient(135deg, #000000, #C10801, #F16001, #D9C3AB);
 
-  /* Glass */
-  --glass-bg:          rgba(255,255,255,0.07);
-  --glass-bg-strong:   rgba(255,255,255,0.12);
-  --glass-border:      rgba(255,255,255,0.15);
-  --glass-blur:        20px;
-  --glass-blur-sm:     10px;
-  --glass-shadow:      var(--shadow-xs);
+  /* Glass — Dark mode (Spec v8 Frosted) */
+  --glass-bg:           rgba(26,26,26,0.88);    /* card principal — mayor jerarquía */
+  --glass-bg-strong:    rgba(26,26,26,0.90);    /* card sobre zona de gradiente */
+  --glass-bg-secondary: rgba(26,26,26,0.80);    /* cards secundarias — más transparentes */
+  --glass-border:       rgba(255,255,255,0.08); /* dark mode border color */
+  --glass-blur:         12px;  /* card principal */
+  --glass-blur-sm:      10px;  /* cards secundarias / sparklines */
+  --glass-shadow:       none;  /* sin sombra — profundidad por opacidad */
+  --glass-bg-fallback:      #1A1A1A;  /* fallback sin backdrop-filter */
+  --glass-border-fallback:  #252525;
 
   /* Shadow system — escala aprobada */
   --shadow-none: none;
@@ -123,10 +126,15 @@ body.light-mode {
   --color-border-high: #E0E0E0;
   --color-text:     #333333;
   --color-text-muted: #757575;
-  --glass-bg:       rgba(255,255,255,0.65);
-  --glass-bg-strong: rgba(255,255,255,0.85);
-  --glass-border:   rgba(0,0,0,0.08);
-  --glass-shadow:   var(--shadow-xs);
+  --glass-bg:           rgba(255,255,255,0.82);  /* card principal light */
+  --glass-bg-strong:    rgba(255,255,255,0.82);  /* card sobre gradiente — mismo, ya contrasta */
+  --glass-bg-secondary: rgba(255,255,255,0.72);  /* cards secundarias light */
+  --glass-border:       rgba(255,255,255,0.95);  /* light mode border color */
+  --glass-blur:         12px;
+  --glass-blur-sm:      10px;
+  --glass-shadow:       none;
+  --glass-bg-fallback:     rgba(255,255,255,0.96);
+  --glass-border-fallback: #E8E8E8;
 
   /* §06 / §08 semantic tokens (Feedback v2) — light mode
      WCAG AA on #FFFFFF: primary 15.3:1, secondary 7.0:1, tertiary 3.5:1 (large text) */
@@ -158,7 +166,7 @@ body.light-mode select option {
   color: #1a1a1a;
 }
 body.light-mode .app-section {
-  background: var(--color-bg) !important;
+  background: transparent;
 }
 
 /* ── Reset ──────────────────────────────────── */
@@ -691,14 +699,12 @@ select option, select optgroup {
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: #0A0A0A;
+  background: transparent;  /* gradiente visible desde #gradient-bg */
   overflow: hidden;
 }
-body.dark-mode .app-section {
-  background: #0A0A0A;
-}
+/* Sin override de background en dark/light — lo controla #gradient-bg */
 body.light-mode .app-section {
-  background: #FFFFFF;
+  background: transparent;
 }
 
 /* ── Page Container ─────────────────────────── */
@@ -710,6 +716,12 @@ body.light-mode .app-section {
   overscroll-behavior-y: contain;
   padding-top: calc(var(--safe-top) + 16px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* Fondo base opaco en páginas no-Home — cubrirá el gradiente */
+  background: var(--color-bg, #0A0A0A);
+}
+/* Home — fondo transparente para que el gradiente sea visible */
+.page-container.route-home {
+  background: transparent;
 }
 
 

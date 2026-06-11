@@ -1262,7 +1262,21 @@ async function openRoutineEditor(routineId, mc) {
   const renderExList = () => {
     const el = m.querySelector('#re-ex-list');
     if (!exercises.length) { el.innerHTML=`<p style="color:var(--color-text-muted);font-size:12px;margin-bottom:4px">Sin ejercicios aún</p>`; return; }
-    el.innerHTML = exercises.map((ex,i)=>`
+    // Cabecera de columnas
+    const header = `
+      <div style="display:flex;align-items:center;gap:6px;padding:0 7px 4px;margin-bottom:2px">
+        <span style="width:14px;flex-shrink:0"></span>
+        <span style="min-width:18px;flex-shrink:0"></span>
+        <div style="flex:1"></div>
+        <span style="width:36px;text-align:center;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--color-text-muted);letter-spacing:.5px">Series</span>
+        <div style="display:flex;gap:4px">
+          <span style="width:40px;text-align:center;font-size:9px;font-weight:700;text-transform:uppercase;color:rgba(251,146,60,.8);letter-spacing:.5px">Calent.</span>
+        </div>
+        <span style="width:10px"></span>
+        <span style="width:72px;text-align:center;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--color-text-muted);letter-spacing:.5px">Reps</span>
+        <span style="width:16px"></span>
+      </div>`;
+    el.innerHTML = header + exercises.map((ex,i)=>`
       <div class="re-ex-row" data-row-idx="${i}" style="display:flex;align-items:center;gap:6px;padding:7px;background:var(--glass-bg);border-radius:var(--radius-sm);margin-bottom:4px">
         <span class="list-drag-handle" title="Arrastrar para reordenar" style="cursor:grab;color:var(--color-text-muted);padding:4px 2px;display:inline-flex;align-items:center;touch-action:none">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="16" x2="20" y2="16"/></svg>

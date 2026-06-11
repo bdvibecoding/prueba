@@ -1,7 +1,16 @@
 /* ═══════════════════════════════════════════════
    TGWL — components/charts.js
    Chart.js Wrappers
+   Paleta: #F16001 naranja · #C10801 rojo · #D9C3AB crema · #000000 negro
 ═══════════════════════════════════════════════ */
+
+/* ── Branding gradient palette (única fuente de color para charts) ── */
+const CHART_PALETTE = {
+  naranja:  '#F16001',  /* Naranja principal */
+  rojo:     '#C10801',  /* Rojo acento */
+  crema:    '#D9C3AB',  /* Crema */
+  negro:    '#000000',  /* Negro */
+};
 
 const CHART_DEFAULTS = {
   responsive:          true,
@@ -122,7 +131,7 @@ export function createDoughnutChart(canvasId, labels, data, colors, options = {}
 }
 
 // ── Dataset builders ──────────────────────────
-export function lineDataset(label, data, color = '#19f9f9', options = {}) {
+export function lineDataset(label, data, color = CHART_PALETTE.naranja, options = {}) {
   return {
     label,
     data,
@@ -139,7 +148,7 @@ export function lineDataset(label, data, color = '#19f9f9', options = {}) {
   };
 }
 
-export function barDataset(label, data, color = '#940a0a', options = {}) {
+export function barDataset(label, data, color = CHART_PALETTE.rojo, options = {}) {
   return {
     label,
     data,
@@ -163,7 +172,7 @@ export function renderWeightChart(canvasId, data = []) {
   if (!data.length) return;
   const labels   = data.map(d => d.date);
   const weights  = data.map(d => d.weight);
-  const datasets = [lineDataset('Peso (kg)', weights, '#19f9f9')];
+  const datasets = [lineDataset('Peso (kg)', weights, CHART_PALETTE.naranja)];
   createLineChart(canvasId, labels, datasets, { beginAtZero: false });
 }
 
@@ -174,8 +183,8 @@ export function renderBodyFatChart(canvasId, data = []) {
   const fatData  = data.map(d => d.fatPercent);
   const muscleData = data.map(d => d.musclePercent);
   const datasets = [
-    lineDataset('% Grasa', fatData,   '#ef4444'),
-    lineDataset('% Músculo', muscleData, '#22c55e'),
+    lineDataset('% Grasa',    fatData,    CHART_PALETTE.rojo),
+    lineDataset('% Músculo',  muscleData, CHART_PALETTE.crema),
   ];
   createLineChart(canvasId, labels, datasets, { beginAtZero: false });
 }
@@ -187,8 +196,8 @@ export function renderWorkoutChart(canvasId, sessions = []) {
   const rpeData  = sessions.map(s => s.rpe || 0);
   const durationData = sessions.map(s => Math.round(s.durationMs / 60000));
   createBarChart(canvasId, labels, [
-    barDataset('RPE', rpeData, '#940a0a'),
-    barDataset('Duración (min)', durationData, '#19f9f9'),
+    barDataset('RPE',           rpeData,      CHART_PALETTE.rojo),
+    barDataset('Duración (min)', durationData, CHART_PALETTE.naranja),
   ]);
 }
 
@@ -198,7 +207,11 @@ export function renderCompositionChart(canvasId, fat = 0, muscle = 0, other = 0)
     canvasId,
     ['% Grasa', '% Músculo', 'Otros'],
     [fat, muscle, other],
-    ['rgba(239,68,68,0.8)', 'rgba(34,197,94,0.8)', 'rgba(107,114,128,0.5)'],
+    [
+      hexToRgba(CHART_PALETTE.rojo,   0.8),
+      hexToRgba(CHART_PALETTE.naranja, 0.8),
+      hexToRgba(CHART_PALETTE.crema,   0.6),
+    ],
   );
 }
 
@@ -206,7 +219,7 @@ export function renderCompositionChart(canvasId, fat = 0, muscle = 0, other = 0)
 export function renderSkinfoldChart(canvasId, data = {}) {
   const labels = Object.keys(data);
   const values = Object.values(data);
-  createBarChart(canvasId, labels, [barDataset('Pliegues (mm)', values, '#f59e0b')]);
+  createBarChart(canvasId, labels, [barDataset('Pliegues (mm)', values, CHART_PALETTE.crema)]);
 }
 
 // ── Perimetral measurements ───────────────────
@@ -217,9 +230,9 @@ export function renderPerimetralsChart(canvasId, data = []) {
   const hip      = data.map(d => d.hip);
   const chest    = data.map(d => d.chest);
   createLineChart(canvasId, labels, [
-    lineDataset('Cintura', waist, '#f59e0b'),
-    lineDataset('Cadera',  hip,   '#a855f7'),
-    lineDataset('Pecho',   chest, '#3b82f6'),
+    lineDataset('Cintura', waist, CHART_PALETTE.rojo),
+    lineDataset('Cadera',  hip,   CHART_PALETTE.naranja),
+    lineDataset('Pecho',   chest, CHART_PALETTE.crema),
   ]);
 }
 

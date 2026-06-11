@@ -41,6 +41,11 @@
 <body class="dark-mode">
 
   <!-- ═══════════════════════════════════════════
+       GRADIENT BACKGROUND (fixed, z-index 0)
+  ═══════════════════════════════════════════ -->
+  <div id="gradient-bg" aria-hidden="true"></div>
+
+  <!-- ═══════════════════════════════════════════
        LOADING SCREEN
   ═══════════════════════════════════════════ -->
   <div id="loading-screen" class="loading-screen active">
@@ -200,7 +205,7 @@
   <!-- ═══════════════════════════════════════════
        MAIN APP
   ═══════════════════════════════════════════ -->
-  <div id="app-section" class="app-section hidden">
+  <div id="app-section" class="app-section hidden" style="position:relative;z-index:1">
 
     <!-- Page Container -->
     <main class="page-container" id="page-container">

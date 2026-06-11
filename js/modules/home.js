@@ -40,15 +40,15 @@ export async function render(container) {
 
       <!-- Quick Stats -->
       <div class="quick-stats" id="quick-stats-row">
-        <div class="glass-card stat-card card-appear stagger-1">
+        <div class="glass-card glass-card-secondary glass-card-on-gradient stat-card card-appear stagger-1">
           <div class="stat-value" id="stat-workouts">—</div>
           <div class="stat-label">${t('workouts')}</div>
         </div>
-        <div class="glass-card stat-card card-appear stagger-2">
+        <div class="glass-card glass-card-secondary glass-card-on-gradient stat-card card-appear stagger-2">
           <div class="stat-value" id="stat-streak">—</div>
           <div class="stat-label">${t('streak')}</div>
         </div>
-        <div class="glass-card stat-card card-appear stagger-3">
+        <div class="glass-card glass-card-secondary glass-card-on-gradient stat-card card-appear stagger-3">
           <div class="stat-value" id="stat-objectives">—</div>
           <div class="stat-label">Objetivos</div>
         </div>
@@ -247,7 +247,7 @@ async function loadRecentActivity(container) {
       const date = formatDate(s.startTime?.toDate?.() || new Date(s.startTime));
       const dur = s.durationMs ? formatTime(s.durationMs) : '—';
       return `
-        <div class="glass-card" style="padding:var(--space-md);margin-bottom:var(--space-sm);display:flex;align-items:center;gap:var(--space-md)">
+        <div class="glass-card glass-card-secondary" style="padding:var(--space-md);margin-bottom:var(--space-sm);display:flex;align-items:center;gap:var(--space-md)">
           <svg style="width:24px;height:24px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z"/></svg>
           <div style="flex:1;min-width:0">
             <div style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.routineName || 'Entreno'}</div>
@@ -305,7 +305,7 @@ async function loadSpecialists(container) {
   }));
 
   el.innerHTML = cards.map(sp => `
-    <div class="glass-card" style="padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer" data-sp-uid="${sp.uid}" data-sp-name="${sp.name}" data-sp-label="${sp.label}">
+    <div class="glass-card glass-card-secondary" style="padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer" data-sp-uid="${sp.uid}" data-sp-name="${sp.name}" data-sp-label="${sp.label}">
       <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--brand-3,#F16001));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">
         ${sp.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()}
       </div>
