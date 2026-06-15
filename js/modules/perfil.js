@@ -362,11 +362,11 @@ export async function render(container) {
 
         <!-- ══════════════════════════════════════════
              §43 · BLOQUE 7 — Cerrar sesión
-             Acción destructiva suelta, al final absoluto.
-             Patrón: isolated destructive action.
+             Acción destructiva suelta, fuera de cualquier bloque.
+             Sin icono. Texto centrado. color:#C10801 · 14px · 400.
+             padding-top: 24px · padding-bottom (safe area): 32px
         ══════════════════════════════════════════ -->
-        <button class="btn-logout-destructive" id="btn-logout" style="margin-top:var(--space-xl);margin-bottom:var(--space-lg)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <button class="btn-logout-destructive" id="btn-logout">
           ${t('perfil_logout')}
         </button>
 
