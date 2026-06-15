@@ -280,6 +280,7 @@ body.light-mode .chip:hover {
   inset: 0;
   width: 100%; height: 100%;
   object-fit: cover;
+  border-radius: 50%;
 }
 /* §41.2 — placeholder iniciales */
 .profile-avatar-initials {
