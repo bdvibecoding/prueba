@@ -205,35 +205,61 @@ body.light-mode .chip:hover {
 .settings-item-desc { font-size: var(--fs-xs); color: var(--color-text-muted); margin-top: 2px; }
 .settings-item-right { flex-shrink: 0; color: var(--color-text-muted); font-size: var(--fs-sm); }
 
-/* ── Profile Avatar ─────────────────────────── */
+/* ── Profile Avatar — §41.2 clean (no red border, no camera badge) ── */
 .profile-avatar-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-xl) 0 var(--space-lg);
+  gap: 0;
+  padding: var(--space-lg) 0 0;
 }
-.profile-avatar {
-  width: 96px; height: 96px;
+/* §41.2 — limpio: 72px, sin borde, sin badge */
+.profile-avatar--clean {
+  width: 72px; height: 72px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--red-light), var(--red-dark));
+  background: var(--color-background-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 36px;
-  font-weight: 800;
-  color: var(--white);
-  border: 3px solid rgba(255,255,255,0.15);
-  box-shadow: var(--shadow-md);
   position: relative;
   overflow: hidden;
+  transition: opacity 100ms ease;
 }
-.profile-avatar img {
+.profile-avatar--clean img {
   position: absolute;
   inset: 0;
   width: 100%; height: 100%;
   object-fit: cover;
 }
+/* §41.2 — placeholder iniciales */
+.profile-avatar-initials {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  line-height: 1;
+  text-transform: uppercase;
+  user-select: none;
+}
+/* §41.3 — nombre: 18px 500 centrado, text-transform capitalize */
+.profile-name--unified {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-align: center;
+  text-transform: capitalize;
+  margin-top: 12px;
+}
+/* §41.3 — email: 13px, color-text-tertiary, centrado */
+.profile-email-line {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  text-align: center;
+  margin-top: 3px;
+}
+/* Legacy — keep existing .profile-name for backward compat */
 .profile-name { font-size: var(--fs-xl); font-weight: 800; text-align: center; }
 .profile-role-badge {
   padding: 4px 14px;
@@ -242,6 +268,96 @@ body.light-mode .chip:hover {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+
+/* ── §42 · Upgrade Banner — value signal gradient ─────────────────── */
+.upgrade-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-radius: var(--r-md);
+  padding: 14px 14px 14px 16px;
+  margin: 16px 0 0;
+  background:
+    radial-gradient(ellipse at 28% 50%, rgba(255,255,255,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 20%, rgba(255,120,0,0.12) 0%, transparent 45%),
+    linear-gradient(135deg, #1A0000 0%, #3D0500 20%, #8C1A00 45%, #C84500 70%, #F16001 100%);
+  cursor: pointer;
+  transition: opacity 100ms ease, transform 100ms ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.upgrade-banner-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.upgrade-banner-eyebrow {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.55);
+}
+.upgrade-banner-title {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 600;
+  color: #FFFFFF;
+  line-height: 1.2;
+}
+.upgrade-banner-subtitle {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  color: rgba(255,255,255,0.60);
+  line-height: 1.4;
+  max-width: 170px;
+}
+.upgrade-banner-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.15);
+  border: 0.5px solid rgba(255,255,255,0.30);
+  border-radius: var(--r-full);
+  padding: 7px 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: #FFFFFF;
+  cursor: pointer;
+  pointer-events: none;
+}
+
+/* ── §43·7 · Logout — isolated destructive action ───────────────────── */
+.btn-logout-destructive {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  border: none;
+  border-radius: var(--r-md);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-danger);
+  cursor: pointer;
+  transition: opacity 150ms ease, background 150ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-logout-destructive:active {
+  opacity: 0.7;
+  background: rgba(239,68,68,0.06);
 }
 
 /* ── Profile Subnav Cards ───────────────────── */
