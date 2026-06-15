@@ -45,7 +45,7 @@ export async function render(container) {
 
         <!-- §41.2 · Avatar — limpio, sin borde rojo, sin badge de cámara -->
         <div class="profile-avatar-wrap" style="gap:0;padding:var(--space-lg) 0 0">
-          <div class="profile-avatar profile-avatar--clean" id="profile-avatar" style="cursor:pointer">
+          <div class="profile-avatar--clean" id="profile-avatar" style="cursor:pointer">
             ${avatarInner}
           </div>
 
