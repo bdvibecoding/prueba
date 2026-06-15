@@ -16,11 +16,11 @@ import { t } from '../i18n.js';
 
 // ── Category image assets (44×44 placeholders) ────
 const IMG = {
-  lemon:      '/assets/nutrition/lemon.png',
-  meat:       '/assets/nutrition/meat.jpg',
-  pistachio:  '/assets/nutrition/pistachio.jpg',
-  fruit:      '/assets/nutrition/fruit.png',
-  supplement: '/assets/nutrition/supplement.jpg',
+  lemon:      './assets/nutrition/lemon.png',
+  meat:       './assets/nutrition/meat.jpg',
+  pistachio:  './assets/nutrition/pistachio.jpg',
+  fruit:      './assets/nutrition/fruit.png',
+  supplement: './assets/nutrition/supplement.jpg',
 };
 
 // ── SVG Icons (stroke-width 1.5, currentColor) — fallback ────
