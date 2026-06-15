@@ -119,9 +119,9 @@
 
 /* ── Light Mode Override ────────────────────── */
 body.light-mode {
-  --color-bg:       #FFFFFF;
+  --color-bg:       #F2F2F7;
   --color-bg-2:     #FAFAFA;
-  --color-bg-card:  #F2F2F2;
+  --color-bg-card:  #FFFFFF;
   --color-border:   #E8E8E8;
   --color-border-high: #E0E0E0;
   --color-text:     #333333;
