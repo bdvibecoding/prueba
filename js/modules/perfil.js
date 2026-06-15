@@ -73,10 +73,10 @@ export async function render(container) {
         <div class="section-title" style="margin-top:var(--space-lg)">MIS DATOS</div>
         <div class="settings-group">
 
-          <!-- Biomedidas -->
+          <!-- Biomedidas — §46: scale/weight icon -->
           <div class="settings-item" data-nav="biomedidas" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(193,8,1,0.08)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <div class="settings-item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M6 2h12l2 7H4L6 2z"/><path d="M4 9a8 8 0 0 0 16 0"/><path d="M10 15h4"/><circle cx="12" cy="18" r="1" fill="currentColor" stroke="none"/></svg>
             </div>
             <div class="settings-item-info">
               <div class="settings-item-label">Biomedidas</div>
@@ -85,10 +85,10 @@ export async function render(container) {
             <div class="settings-item-right">›</div>
           </div>
 
-          <!-- Salud -->
+          <!-- Salud — §46: heart rate/pulse icon -->
           <div class="settings-item" data-nav="salud" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(193,8,1,0.08)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M12 21C12 21 3 14.5 3 8.5C3 6 5 4 7.5 4C9.24 4 10.91 5 12 6.5C13.09 5 14.76 4 16.5 4C19 4 21 6 21 8.5C21 14.5 12 21 12 21Z"/></svg>
+            <div class="settings-item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l1.5-3 2 6.5 1.5-4.5H19"/></svg>
             </div>
             <div class="settings-item-info">
               <div class="settings-item-label">Salud</div>
@@ -97,10 +97,10 @@ export async function render(container) {
             <div class="settings-item-right">›</div>
           </div>
 
-          <!-- Progreso -->
+          <!-- Progreso — §46: chart/trending up icon -->
           <div class="settings-item" data-nav="progreso" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(193,8,1,0.08)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M3 17L8 12L12 16L17 9L21 13"/><rect x="3" y="3" width="18" height="18" rx="var(--r-sm)"/></svg>
+            <div class="settings-item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
             </div>
             <div class="settings-item-info">
               <div class="settings-item-label">Progreso</div>
@@ -109,9 +109,9 @@ export async function render(container) {
             <div class="settings-item-right">›</div>
           </div>
 
-          <!-- Datos de usuario — accordion -->
+          <!-- Datos de usuario — §46: person/user icon -->
           <div class="settings-item" id="btn-datos-usuario" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(193,8,1,0.08)">
+            <div class="settings-item-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
             </div>
             <div class="settings-item-info">
@@ -144,7 +144,7 @@ export async function render(container) {
             <div class="section-title" style="margin-top:var(--space-md)">${t('perfil_physical_data')}</div>
             <div class="settings-group">
               <div class="settings-item">
-                <div class="settings-item-icon" style="background:rgba(193,8,1,0.08)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+                <div class="settings-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
                 <div class="settings-item-info"><div class="settings-item-label">${t('perfil_height')}</div></div>
                 <div class="settings-item-right">
                   <input type="number" id="profile-height" class="measurement-input" value="${profile?.height || ''}" placeholder="175" min="100" max="250">
@@ -152,7 +152,7 @@ export async function render(container) {
                 </div>
               </div>
               <div class="settings-item">
-                <div class="settings-item-icon" style="background:rgba(193,8,1,0.08)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v4"/></svg></div>
+                <div class="settings-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v4"/></svg></div>
                 <div class="settings-item-info"><div class="settings-item-label">${t('perfil_initial_weight')}</div></div>
                 <div class="settings-item-right">
                   <input type="number" id="profile-weight" class="measurement-input" value="${profile?.weight || ''}" placeholder="75" min="30" max="300" step="0.5">
@@ -193,9 +193,9 @@ export async function render(container) {
         ══════════════════════════════════════════ -->
         <div class="section-title" style="margin-top:var(--space-lg)">${t('appearance')}</div>
         <div class="settings-group">
-          <!-- Modo oscuro — toggle row -->
+          <!-- Modo oscuro — §46: moon icon -->
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(107,114,128,0.18)">
+            <div class="settings-item-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             </div>
             <div class="settings-item-info">
@@ -207,10 +207,10 @@ export async function render(container) {
               <span class="toggle-slider"></span>
             </label>
           </div>
-          <!-- Mapa muscular — toggle row -->
+          <!-- Mapa muscular — §46: body/torso silhouette icon -->
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(25,199,199,0.15)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <div class="settings-item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M18 4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2l-1 5h3v11h8V9h3L18 4z"/><path d="M9 9c-1.5 0-2.5 1-2.5 2.5"/><path d="M15 9c1.5 0 2.5 1 2.5 2.5"/></svg>
             </div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('muscle_map')}</div>
@@ -229,9 +229,9 @@ export async function render(container) {
         ══════════════════════════════════════════ -->
         <div class="section-title" style="margin-top:var(--space-lg)">PREFERENCIAS</div>
         <div class="settings-group">
-          <!-- Idioma — value row -->
+          <!-- Idioma — §46: globe icon -->
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(59,130,246,0.18)">
+            <div class="settings-item-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
             </div>
             <div class="settings-item-info">
@@ -244,10 +244,10 @@ export async function render(container) {
               </select>
             </div>
           </div>
-          <!-- Unidades — value row -->
+          <!-- Unidades — §46: ruler/measure icon -->
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(34,197,94,0.15)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+            <div class="settings-item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 6v4M10 6v2M14 6v4M18 6v2"/></svg>
             </div>
             <div class="settings-item-info">
               <div class="settings-item-label">${_tFb('units_label','Sistema de unidades')}</div>
@@ -260,9 +260,9 @@ export async function render(container) {
               </select>
             </div>
           </div>
-          <!-- Notificaciones push — toggle row -->
+          <!-- Notificaciones push — §46: bell icon -->
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(245,158,11,0.18)">
+            <div class="settings-item-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             </div>
             <div class="settings-item-info">
@@ -281,9 +281,9 @@ export async function render(container) {
         ══════════════════════════════════════════ -->
         <div class="section-title" style="margin-top:var(--space-lg)">${t('perfil_account')}</div>
         <div class="settings-group">
-          <!-- Cambiar contraseña — navigation row -->
+          <!-- Cambiar contraseña — §46: lock icon -->
           <div class="settings-item" id="btn-change-password" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(193,8,1,0.08)">
+            <div class="settings-item-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </div>
             <div class="settings-item-info">
@@ -298,9 +298,9 @@ export async function render(container) {
         ══════════════════════════════════════════ -->
         <div class="section-title" style="margin-top:var(--space-lg)">${t('app')}</div>
         <div class="settings-group">
-          <!-- Instalar en dispositivo — navigation row -->
+          <!-- Instalar en dispositivo — §46: download/add to home icon -->
           <div class="settings-item" id="btn-install-pwa" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(193,8,1,0.15)">
+            <div class="settings-item-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             </div>
             <div class="settings-item-info">
@@ -309,10 +309,10 @@ export async function render(container) {
             </div>
             <div class="settings-item-right">›</div>
           </div>
-          <!-- Limpiar caché — navigation row -->
+          <!-- Limpiar caché — §46: trash/clear icon -->
           <div class="settings-item" id="btn-clear-cache" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(107,114,128,0.18)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+            <div class="settings-item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
             </div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('clear_cache')}</div>
@@ -328,29 +328,29 @@ export async function render(container) {
         ══════════════════════════════════════════ -->
         <div class="section-title" style="margin-top:var(--space-lg)">${t('about')}</div>
         <div class="settings-group">
-          <!-- Versión de la app — info row (no tappable) -->
+          <!-- Versión de la app — §46: info circle icon -->
           <div class="settings-item">
-            <div class="settings-item-icon" style="background:rgba(107,114,128,0.18)">
+            <div class="settings-item-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             </div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('version')}</div>
             </div>
-            <div class="settings-item-right" style="font-size:13px;color:var(--color-text-muted)">1.0.0</div>
+            <div class="settings-item-right" style="font-size:13px;color:var(--color-text-tertiary)">1.0.0</div>
           </div>
-          <!-- Política de privacidad — navigation row -->
+          <!-- Política de privacidad — §46: shield icon -->
           <div class="settings-item" id="btn-privacy" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(193,8,1,0.12)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <div class="settings-item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             </div>
             <div class="settings-item-info">
               <div class="settings-item-label">${t('privacy')}</div>
             </div>
             <div class="settings-item-right">›</div>
           </div>
-          <!-- Términos de uso — navigation row -->
+          <!-- Términos de uso — §46: document icon -->
           <div class="settings-item" id="btn-terms" style="cursor:pointer">
-            <div class="settings-item-icon" style="background:rgba(107,114,128,0.18)">
+            <div class="settings-item-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
             </div>
             <div class="settings-item-info">
@@ -599,7 +599,7 @@ export async function init(container) {
 function profileField(type, id, label, value, icon, readonly = false) {
   return `
     <div class="settings-item">
-      ${icon ? `<div class="settings-item-icon" style="background:rgba(193,8,1,0.08)">${icon}</div>` : ''}
+      ${icon ? `<div class="settings-item-icon">${icon}</div>` : ''}
       <div class="settings-item-info">
         <div class="settings-item-label">${label}</div>
       </div>
@@ -616,7 +616,7 @@ function profileSelectField(id, label, value, options, icon = '') {
   const opts = options.map(o => `<option value="${o.value}" ${o.value === value ? 'selected' : ''}>${o.label}</option>`).join('');
   return `
     <div class="settings-item">
-      ${icon ? `<div class="settings-item-icon" style="background:rgba(193,8,1,0.08)">${icon}</div>` : ''}
+      ${icon ? `<div class="settings-item-icon">${icon}</div>` : ''}
       <div class="settings-item-info">
         <div class="settings-item-label">${label}</div>
       </div>
