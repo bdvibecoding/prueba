@@ -223,17 +223,17 @@ body.light-mode .chip:hover {
 
 .settings-item-info { flex: 1; min-width: 0; }
 
-/* §44 · Título: SF Pro Text · 14px · 400 · color-text-primary */
+/* §44 · Título: SF Pro Text · 17px · 400 · color-text-primary (Body) */
 .settings-item-label {
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: var(--fs-md);
   font-weight: 400;
   color: var(--color-text-primary);
 }
-/* §44 · Subtítulo (cuando existe): SF Pro Text · 11px · 400 · color-text-tertiary · margin-top 1px */
+/* §44 · Subtítulo (cuando existe): SF Pro Text · 12px · 400 · color-text-tertiary (Caption 1) */
 .settings-item-desc {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: var(--fs-caption-1);
   font-weight: 400;
   color: var(--color-text-tertiary);
   margin-top: 1px;
@@ -292,20 +292,20 @@ body.light-mode .chip:hover {
   text-transform: uppercase;
   user-select: none;
 }
-/* §41.3 — nombre: 18px 500 centrado, text-transform capitalize */
+/* §41.3 — nombre: 20px 500 centrado (Title 3) */
 .profile-name--unified {
   font-family: var(--font-heading);
-  font-size: 18px;
+  font-size: var(--fs-lg);
   font-weight: 500;
   color: var(--color-text-primary);
   text-align: center;
   text-transform: capitalize;
   margin-top: 12px;
 }
-/* §41.3 — email: 13px, color-text-tertiary, centrado */
+/* §41.3 — email: 13px (Footnote) */
 .profile-email-line {
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: var(--fs-sm);
   color: var(--color-text-tertiary);
   text-align: center;
   margin-top: 3px;
@@ -531,8 +531,8 @@ body.light-mode .chip:hover {
   flex: 1;
   padding: 9px var(--space-sm);
   border-radius: calc(var(--r-md) - 3px);
-  font-size: var(--fs-sm);
-  font-weight: 600;
+  font-size: var(--fs-callout);
+  font-weight: 500;
   color: var(--color-text-muted);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -1446,7 +1446,7 @@ body.light-mode .nutrition-macro-bar {
 
 .home-greeting-line1 {
   font-family: 'SF Pro Display', var(--font-display, -apple-system), BlinkMacSystemFont, sans-serif;
-  font-size: 34px;
+  font-size: var(--fs-3xl); /* Large Title: 34pt */
   font-weight: 600;
   line-height: 41px;
   color: #F0F0F0;
@@ -1455,7 +1455,7 @@ body.light-mode .nutrition-macro-bar {
 
 .home-greeting-line2 {
   font-family: 'SF Pro Display', var(--font-display, -apple-system), BlinkMacSystemFont, sans-serif;
-  font-size: 34px;
+  font-size: var(--fs-3xl); /* Large Title: 34pt */
   font-weight: 600;
   line-height: 41px;
   color: #555555;

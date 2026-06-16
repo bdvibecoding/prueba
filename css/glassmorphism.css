@@ -301,7 +301,7 @@ body.light-mode .app-icon-label {
   min-width: 0;
 }
 .routine-card-title {
-  font-size: 14px;
+  font-size: var(--fs-base); /* Subheadline: 15pt */
   font-weight: 500;
   color: var(--color-text);
   white-space: nowrap;
@@ -309,7 +309,7 @@ body.light-mode .app-icon-label {
   text-overflow: ellipsis;
 }
 .routine-card-meta {
-  font-size: 12px;
+  font-size: var(--fs-sm); /* Footnote: 13pt */
   color: var(--color-text-muted);
   margin-top: 2px;
   white-space: nowrap;
@@ -464,8 +464,8 @@ body.light-mode .btn-topbar-finish {
   border: none;
   border-radius: var(--r-sm);
   font-family: 'SF Pro Text', var(--font-sans);
-  font-size: var(--fs-base);
-  font-weight: 700;
+  font-size: var(--fs-base); /* Subheadline: 15pt */
+  font-weight: 500;
   letter-spacing: 0.02em;
   cursor: pointer;
   transition: all var(--transition-base);
@@ -607,10 +607,10 @@ body.light-mode .btn-start-workout,
   color: var(--red-light);
   flex-shrink: 0;
 }
-/* §13: sentence case, 500 weight */
-.exercise-name { font-weight: 500; font-size: 15px; color: var(--color-text); }
-/* §13: expanded "3 Series · 10 Repeticiones" */
-.exercise-sets { font-size: 13px; color: var(--color-text-tertiary, var(--color-text-muted)); margin-top: 3px; }
+/* §13: sentence case, 400 weight (Subheadline) */
+.exercise-name { font-weight: 400; font-size: var(--fs-base); color: var(--color-text); }
+/* §13: expanded "3 Series · 10 Repeticiones" (Footnote) */
+.exercise-sets { font-size: var(--fs-sm); color: var(--color-text-tertiary, var(--color-text-muted)); margin-top: 3px; }
 .ex-done-check {
   color: var(--color-success);
   font-size: 18px;
@@ -714,13 +714,13 @@ body.light-mode .btn-start-workout,
   text-align: center;
   border-top: 1px solid var(--glass-border);
   vertical-align: middle;
-  font-size: 14px;
+  font-size: var(--fs-base); /* Subheadline: 15pt */
 }
 /* PREV cell — last-session reference, centered */
 .sets-table td.td-prev {
   text-align: center;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: var(--fs-sm); /* Footnote: 13pt */
+  font-weight: 400;
   color: var(--color-text-secondary, var(--color-text-muted));
   padding-left: 4px;
   overflow: hidden;

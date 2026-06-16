@@ -559,14 +559,14 @@ function _foodRow(f, checked, isLast) {
          style="display:flex;align-items:center;gap:12px;padding:12px 16px;
                 ${isLast?'':'border-bottom:0.5px solid var(--color-border-tertiary,var(--glass-border))'}">
       <div style="flex:1;min-width:0">
-        <div style="font-family:'SF Pro Text',var(--font-sans);font-size:15px;font-weight:400;
-                    color:var(--color-text-primary,var(--color-text))">${_esc(f.name)}</div>
-        ${f.qty ? `<div style="font-family:'SF Pro Text',var(--font-sans);font-size:13px;
-                              color:var(--color-text-tertiary,var(--color-text-muted));margin-top:2px">${_esc(f.qty)}</div>` : ''}
+        <div style="font-family:'SF Pro Text',var(--font-sans);font-size:var(--fs-base);font-weight:400;
+                    color:var(--color-text-primary,var(--color-text));line-height:1.3">${_esc(f.name)}</div>
+        ${f.qty ? `<div style="font-family:'SF Pro Text',var(--font-sans);font-size:var(--fs-sm);
+                        color:var(--color-text-tertiary,var(--color-text-muted));margin-top:2px">${_esc(f.qty)}</div>` : ''}
       </div>
-      ${f.kcal ? `<span style="font-family:'SF Pro Text',var(--font-sans);font-size:13px;
-                                color:var(--color-text-secondary,var(--color-text-muted));margin-right:12px">
-                    ${Math.round(f.kcal)} kcal</span>` : ''}
+      ${f.kcal ? `<span style="font-family:'SF Pro Text',var(--font-sans);font-size:var(--fs-sm);
+                          color:var(--color-text-tertiary,var(--color-text-muted));font-weight:500;
+                          background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px">${Math.round(f.kcal)} kcal</span>` : ''}
       <button class="food-check" data-food-idx="${f.idx}" aria-label="Marcar"
               style="width:22px;height:22px;border-radius:50%;
                      ${checked
@@ -586,10 +586,10 @@ function _suppRow(s, isLast) {
                 ${isLast?'':'border-bottom:0.5px solid var(--color-border-tertiary,var(--glass-border))'}">
       <span style="width:16px;height:16px;display:inline-flex;
                    color:var(--color-text-tertiary,var(--color-text-muted));flex-shrink:0">${ICON.pill}</span>
-      <span style="font-family:'SF Pro Text',var(--font-sans);font-size:13px;
-                   color:var(--color-text-primary,var(--color-text));flex:1">${_esc(s.name)}</span>
-      ${s.dose ? `<span style="font-family:'SF Pro Text',var(--font-sans);font-size:12px;
-                                color:var(--color-text-tertiary,var(--color-text-muted))">${_esc(s.dose)}${_esc(s.unit||'')}</span>` : ''}
+      <span style="font-family:'SF Pro Text',var(--font-sans);font-size:var(--fs-sm);
+                   color:var(--color-text-primary,var(--color-text));font-weight:500">${_esc(s.name)}</span>
+      ${s.dose ? `<span style="font-family:'SF Pro Text',var(--font-sans);font-size:var(--fs-caption-1);
+                        color:var(--color-text-tertiary,var(--color-text-muted))">${_esc(s.dose)}${_esc(s.unit||'')}</span>` : ''}
     </div>
   `;
 }
