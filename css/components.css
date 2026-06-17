@@ -223,17 +223,17 @@ body.light-mode .chip:hover {
 
 .settings-item-info { flex: 1; min-width: 0; }
 
-/* §44 · Título: SF Pro Text · 17px · 400 · color-text-primary (Body) */
+/* §44 · Título: SF Pro Text · 15px · 400 · color-text-primary (Subheadline) */
 .settings-item-label {
   font-family: var(--font-sans);
-  font-size: var(--fs-md);
+  font-size: var(--fs-base);
   font-weight: 400;
   color: var(--color-text-primary);
 }
-/* §44 · Subtítulo (cuando existe): SF Pro Text · 12px · 400 · color-text-tertiary (Caption 1) */
+/* §44 · Subtítulo (cuando existe): SF Pro Text · 11px · 400 · color-text-tertiary (Caption 2) */
 .settings-item-desc {
   font-family: var(--font-sans);
-  font-size: var(--fs-caption-1);
+  font-size: var(--fs-xs);
   font-weight: 400;
   color: var(--color-text-tertiary);
   margin-top: 1px;
