@@ -31,14 +31,14 @@ export async function render(container) {
 
   container.innerHTML = `
     <div class="page active" id="perfil-page">
-      <div style="padding:var(--page-pad)">
+      <div style="padding:8px var(--page-pad) var(--page-pad)">
 
         <!-- §41.1 · Top Bar — solo icono de edición a la derecha -->
         <div class="page-header">
           <h2 class="page-title">${t('perfil_title')}</h2>
           <div style="display:flex;gap:8px">
             <button class="btn-icon" id="btn-edit-toggle" title="${t('edit')}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
             </button>
           </div>
         </div>
