@@ -2,8 +2,8 @@
    TGWL Service Worker — PWA offline support
 ═══════════════════════════════════════════════ */
 const CACHE_NAME = 'tgwl-v2.07';
-const STATIC_CACHE = 'tgwl-static-v172.0';
-const DYNAMIC_CACHE = 'tgwl-dynamic-v172.0';
+const STATIC_CACHE = 'tgwl-static-v173.0';
+const DYNAMIC_CACHE = 'tgwl-dynamic-v173.0';
 
 const STATIC_ASSETS = [
   '/',

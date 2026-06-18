@@ -618,6 +618,7 @@ select option, select optgroup {
   border: 1px solid var(--glass-border);
   border-radius: var(--r-md);
   font-size: 18px;
+  color: var(--color-text);
   cursor: pointer;
   transition: all var(--transition-fast);
   -webkit-backdrop-filter: blur(var(--glass-blur-sm));
