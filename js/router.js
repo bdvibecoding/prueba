@@ -183,7 +183,7 @@ async function renderRoute(route, params) {
       case 'biomedidas':    module = await import('./modules/biomedidas.js'); break;
       case 'salud':         module = await import('./modules/salud.js'); break;
       case 'progreso':      module = await import('./modules/progreso.js'); break;
-      case 'perfil':        module = await import('./modules/perfil.js?v=167'); break;
+      case 'perfil':        module = await import('./modules/perfil.js?v=173'); break;
       case 'suscripcion':   module = await import('./modules/suscripcion.js'); break;
       case 'configuracion': module = await import('./modules/configuracion.js'); break;
       case 'admin': {
