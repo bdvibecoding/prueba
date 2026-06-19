@@ -48,19 +48,32 @@
   <!-- ═══════════════════════════════════════════
        LOADING SCREEN
   ═══════════════════════════════════════════ -->
-  <div id="loading-screen" class="loading-screen active">
-    <div class="auth-bg" style="position:absolute;inset:0;z-index:0">
-      <img src="imagenes/Fondo%20login.jpg" alt="" class="auth-bg-img">
-      <div class="auth-bg-overlay"></div>
-    </div>
-    <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:20px">
-      <div class="loading-logo">
-        <img src="logotipo/jus%20W%20Logo/TGWL%20--07.png" alt="TGWL" style="height:80px;filter:drop-shadow(0 0 20px rgba(25,249,249,0.4))">
-      </div>
-      <div class="loading-spinner"></div>
-      <p class="loading-text">Cargando...</p>
+  <div id="loading-screen" class="loading-screen active" style="position:fixed;inset:0;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;overflow:hidden">
+    <!-- Ambient Loading Background -->
+    <div style="position:absolute;top:-10%;left:-10%;right:-10%;bottom:-10%;background:linear-gradient(180deg,#F16001 0%,#E8470A 12%,#D2300C 24%,#BC1A0C 36%,#9E0F0E 48%,#7A0A10 60%,#560810 72%,#2E0810 84%,#0F0710 94%,#0A0510 100%);background-size:100% 130%;animation:verticalBreathe 8s ease-in-out infinite, hueShiftSubtle 12s ease-in-out infinite;z-index:0"></div>
+    
+    <!-- Breathing Logo -->
+    <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:center">
+      <img src="logotipo/jus%20W%20Logo/TGWL%20--07.png" alt="TGWL" style="height:90px;animation:splashLogoBreathe 4s ease-in-out infinite">
     </div>
   </div>
+
+  <style>
+    @keyframes verticalBreathe {
+      0%   { background-position: 50% 0%; }
+      50%  { background-position: 50% 8%; }
+      100% { background-position: 50% 0%; }
+    }
+    @keyframes hueShiftSubtle {
+      0%   { filter: hue-rotate(0deg) brightness(1); }
+      50%  { filter: hue-rotate(15deg) brightness(1.1); }
+      100% { filter: hue-rotate(0deg) brightness(1); }
+    }
+    @keyframes splashLogoBreathe {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(241,96,1,0.2)) brightness(1); }
+      50%      { transform: scale(1.08); filter: drop-shadow(0 0 25px rgba(255,255,255,0.7)) brightness(1.15); }
+    }
+  </style>
 
   <!-- ═══════════════════════════════════════════
        AUTH SECTION
@@ -282,7 +295,7 @@
        JS MODULES (ES Modules)
   ═══════════════════════════════════════════ -->
   <script type="module" src="js/firebase-config.js"></script>
-  <script type="module" src="js/app.js?v=173"></script>
+  <script type="module" src="js/app.js?v=175"></script>
 
   <!-- Force Cache Cleanup for Clients -->
   <script>
