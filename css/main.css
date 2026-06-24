@@ -1005,3 +1005,69 @@ body.light-mode .app-section {
   0%, 100% { opacity: 0.7; }
   50%       { opacity: 1; }
 }
+
+/* ── Home Timeline & Sparklines ────────────────────── */
+.spark-label { font-family: var(--font-sans); font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-tertiary); margin-bottom: 3px; }
+.spark-value { font-family: var(--font-display); font-size: 15px; font-weight: 600; color: var(--color-text-primary); }
+.spark-bar { height: 3px; border-radius: 1.5px; margin-top: 6px; background: var(--bg-track); overflow: hidden; }
+.spark-fill { height: 100%; border-radius: 1.5px; }
+
+body.light-mode {
+  --spark1: rgba(241, 96, 1, 0.75);
+  --spark2: rgba(193, 8, 1, 0.65);
+  --spark3: rgba(217, 195, 171, 0.90);
+  --bg-track: rgba(0, 0, 0, 0.07);
+  --opacity-glow-arc: 0.18;
+  --blur-glow-arc: 5px;
+}
+body:not(.light-mode) {
+  --spark1: rgba(241, 96, 1, 0.80);
+  --spark2: rgba(193, 8, 1, 0.80);
+  --spark3: rgba(217, 195, 171, 0.75);
+  --bg-track: rgba(255, 255, 255, 0.06);
+  --opacity-glow-arc: 0.22;
+  --blur-glow-arc: 6px;
+}
+
+.card-label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-tertiary); }
+.card-val-main { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--color-text-primary); }
+.card-val-sub { font-family: var(--font-sans); font-size: 13px; font-weight: 400; color: var(--color-text-tertiary); }
+.scroll-hint { font-family: var(--font-sans); font-size: 11px; font-weight: 400; color: var(--color-text-tertiary); margin-top: 4px; height: 16px; transition: opacity 0.3s; }
+
+.timeline-scroll-area {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 0 4px 4px;
+}
+.timeline-scroll-area::-webkit-scrollbar { display: none; }
+
+.session-block {
+  min-width: 44px;
+  scroll-snap-align: start;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.exercise-bars-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1.5px;
+  height: 52px;
+}
+.exercise-bar {
+  width: 3.5px;
+  border-radius: 2px 2px 0 0;
+  background: var(--bg-track);
+}
+.session-day-label {
+  font-family: var(--font-sans); font-size: 10px; text-transform: uppercase; margin-top: 3px; display: flex; align-items: center; gap: 2px;
+}
+.session-series-total {
+  font-family: var(--font-sans); font-size: 10px; color: var(--color-text-tertiary); margin-top: 1px;
+}

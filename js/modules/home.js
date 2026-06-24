@@ -1,182 +1,120 @@
-/* ═══════════════════════════════════════════════
-   TGWL — modules/home.js
-   iOS-style Home Screen
-═══════════════════════════════════════════════ */
-
 import { getUserProfile, getActiveSession, appState } from '../state.js';
 import { navigate } from '../router.js';
-import { getGreeting, getTimeLabel, formatDate, formatTime, translateRole } from '../utils.js';
+import { getGreeting, t } from '../utils.js';
 import { collections, db, timestamp } from '../firebase-config.js';
-import { t } from '../i18n.js';
-import { openDirectChat } from '../components/direct-chat.js';
 
 export async function render(container) {
   const profile = getUserProfile();
   const name    = profile?.name?.split(' ')[0] || 'Atleta';
-  const hour    = new Date().getHours();
   const greeting = getGreeting();
-  const session  = getActiveSession();
 
   container.innerHTML = `
-    <div class="home-screen" id="home-page">
+    <div class="home-screen" id="home-page" style="padding-bottom: 100px;">
 
       <!-- Greeting -->
-      <div class="home-greeting-display">
+      <div class="home-greeting-display" style="width:100%; margin-bottom:24px;">
         <div class="home-greeting-line1">${greeting},</div>
         <div class="home-greeting-line2">${name}</div>
       </div>
 
-      <!-- Active Session Resume Banner -->
-      ${session?.routineId ? `
-      <div class="glass-card glass-card-red" id="active-session-banner"
-           style="padding:var(--space-md);margin-bottom:var(--space-md);cursor:pointer;display:flex;align-items:center;gap:var(--space-md)">
-        <svg style="width:20px;height:20px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z"/></svg>
-        <div style="flex:1">
-          <div style="font-weight:700">${t('active_session')}</div>
-          <div class="text-muted">${session.routineName || 'Rutina activa'}</div>
-        </div>
-        <span style="color:var(--red);font-size:13px;font-weight:600">${t('continue')}</span>
-      </div>` : ''}
-
-      <!-- Quick Stats -->
-      <div class="quick-stats" id="quick-stats-row">
-        <div class="glass-card glass-card-secondary glass-card-on-gradient stat-card card-appear stagger-1">
-          <div class="stat-value" id="stat-workouts">—</div>
-          <div class="stat-label">${t('workouts')}</div>
-        </div>
-        <div class="glass-card glass-card-secondary glass-card-on-gradient stat-card card-appear stagger-2">
-          <div class="stat-value" id="stat-streak">—</div>
-          <div class="stat-label">${t('streak')}</div>
-        </div>
-        <div class="glass-card glass-card-secondary glass-card-on-gradient stat-card card-appear stagger-3">
-          <div class="stat-value" id="stat-objectives">—</div>
-          <div class="stat-label">Objetivos</div>
+      <!-- 1. Arc Gauge -->
+      <div class="glass-card" style="margin-bottom:10px; padding:16px; cursor:pointer; position:relative;" id="card-arc-gauge">
+        <svg width="100%" viewBox="0 0 200 110" style="overflow:visible;">
+          <defs>
+            <linearGradient id="arcGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#C10801"/>
+              <stop offset="50%" stop-color="#F16001"/>
+              <stop offset="100%" stop-color="#D9C3AB"/>
+            </linearGradient>
+          </defs>
+          <path d="M 20,100 A 80,80 0 0,1 180,100" fill="none" stroke="var(--bg-track, rgba(255,255,255,0.07))" stroke-width="10" stroke-linecap="round"/>
+          <path d="M 20,100 A 80,80 0 0,1 180,100" fill="none" stroke="url(#arcGradient)" stroke-width="18" stroke-dasharray="251.3" stroke-dashoffset="32.6" opacity="var(--opacity-glow-arc, 0.22)" filter="blur(var(--blur-glow-arc, 6px))" stroke-linecap="round"/>
+          <path id="arc-main" d="M 20,100 A 80,80 0 0,1 180,100" fill="none" stroke="url(#arcGradient)" stroke-width="10" stroke-dasharray="251.3" stroke-dashoffset="251.3" stroke-linecap="round" style="transition: stroke-dashoffset 800ms cubic-bezier(0.4, 0, 0.2, 1)"/>
+          
+          <text x="100" y="88" text-anchor="middle" font-family="var(--font-display)" font-size="32px" font-weight="600" fill="var(--color-text-primary)">87%</text>
+          <text x="100" y="104" text-anchor="middle" font-family="var(--font-sans)" font-size="12px" fill="var(--color-text-tertiary)">de adherencia</text>
+        </svg>
+        <div style="text-align:center; margin-top: 12px; font-family: var(--font-sans); font-size: 12px; color: var(--color-text-tertiary);">
+          1.840 / 2.065 kcal · Proteínas 162 / 180g
         </div>
       </div>
 
-      <!-- App Grid (iOS-style) -->
-      <div class="section-title">${t('modules')}</div>
-      <div class="home-grid" id="app-grid">
-        ${buildIconGrid(profile)}
-      </div>
-
-      <!-- Recent Activity -->
-      <div class="section">
-        <div class="section-title">${t('recent_activity')}</div>
-        <div id="recent-activity">
-          <div class="skeleton skeleton-card" style="height:70px;border-radius:var(--r-md);margin-bottom:8px"></div>
-          <div class="skeleton skeleton-card" style="height:70px;border-radius:var(--r-md)"></div>
+      <!-- 2. Sparklines -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div class="glass-card-secondary glass-card-sparkline" style="padding:10px 12px;">
+          <div class="spark-label">Racha</div>
+          <div class="spark-value" id="spark-racha">0 días</div>
+          <div class="spark-bar"><div class="spark-fill" style="width:80%;background:var(--spark1)"></div></div>
+        </div>
+        <div class="glass-card-secondary glass-card-sparkline" style="padding:10px 12px;">
+          <div class="spark-label">Kcal</div>
+          <div class="spark-value">89%</div>
+          <div class="spark-bar"><div class="spark-fill" style="width:89%;background:var(--spark2)"></div></div>
+        </div>
+        <div class="glass-card-secondary glass-card-sparkline" style="padding:10px 12px;">
+          <div class="spark-label">Proteína</div>
+          <div class="spark-value">162g</div>
+          <div class="spark-bar"><div class="spark-fill" style="width:90%;background:var(--spark3)"></div></div>
         </div>
       </div>
 
-      <!-- Specialists Chat -->
-      <div class="section" id="specialists-section" style="display:none">
-        <div class="section-title">${t('specialists')}</div>
-        <div id="specialists-list" style="display:flex;flex-direction:column;gap:8px"></div>
+      <!-- 3. Scrollable Session Timeline -->
+      <div class="glass-card-secondary" style="margin-bottom:10px; padding:16px 0; cursor:pointer;" id="card-timeline">
+        <div style="padding:0 16px;">
+          <div class="card-label">VOLUMEN SEMANAL</div>
+          <div style="display:flex;align-items:baseline;gap:6px;">
+            <div class="card-val-main" id="timeline-sessions-count">0 sesiones</div>
+            <div class="card-val-sub">esta semana</div>
+          </div>
+          <div class="scroll-hint" id="timeline-scroll-hint">← desliza para ver todas las sesiones</div>
+        </div>
+        
+        <div class="timeline-scroll-area" id="timeline-scroll-area">
+          <!-- Populated by JS -->
+        </div>
+        
+        <div class="timeline-dots" id="timeline-dots" style="display:flex;justify-content:center;gap:4px;margin-top:12px;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- 4. Dot matrix heatmap -->
+      <div class="glass-card-secondary" style="margin-bottom:24px; padding:16px; cursor:pointer;" id="card-heatmap">
+        <div class="card-label" style="margin-bottom:16px;">CONSISTENCIA · 4 SEMANAS</div>
+        <div style="display:flex; justify-content:space-between; max-width: 280px; margin:0 auto;" id="heatmap-grid">
+          <!-- Populated by JS -->
+        </div>
+        <div style="display:flex; gap:16px; margin-top:20px; font-family:var(--font-sans); font-size:10px; color:var(--color-text-tertiary); justify-content:center; align-items:center;">
+          <div style="display:flex; align-items:center; gap:6px;"><div style="width:5px;height:5px;border-radius:50%;background:#F16001;"></div>Entrenado</div>
+          <div style="display:flex; align-items:center; gap:6px;"><div style="width:5px;height:5px;border-radius:50%;background:var(--color-text-tertiary);"></div>Descanso</div>
+        </div>
       </div>
 
     </div>
- `;
+  `;
 }
 
 export async function init(container) {
-  // Wire app icon clicks
-  container.querySelectorAll('.app-icon').forEach(icon => {
-    icon.addEventListener('click', () => {
-      const route = icon.dataset.route;
-      if (route) navigate(route);
-    });
-  });
+  // Setup navigation
+  container.querySelector('#card-arc-gauge')?.addEventListener('click', () => navigate('alimentacion'));
+  container.querySelector('#card-timeline')?.addEventListener('click', () => navigate('entreno'));
+  container.querySelector('#card-heatmap')?.addEventListener('click', () => navigate('entreno'));
 
-  // Active session resume
-  container.querySelector('#active-session-banner')?.addEventListener('click', () => navigate('entreno'));
+  // Trigger Arc Gauge Animation
+  setTimeout(() => {
+    const arc = container.querySelector('#arc-main');
+    if (arc) {
+      // 87% adherencia = 251.3 * (1 - 0.87) = 32.669
+      arc.style.strokeDashoffset = '32.669';
+    }
+  }, 200);
 
-  // Load stats async
-  loadStats(container);
-  loadRecentActivity(container);
-  loadSpecialists(container);
-
-  // Daily check-in (clients/athletes only)
-  const profile = getUserProfile();
-  if (['cliente','atleta'].includes(profile?.role)) {
-    try {
-      const { showDailyCheckin } = await import('../components/daily-checkin.js');
-      await showDailyCheckin(profile.uid);
-    } catch (e) { /* optional component */ }
-  }
-
-  // Chat send button
-  container.querySelector('#btn-chat-send')?.addEventListener('click', () => sendChatMessage(container));
-  container.querySelector('#chat-input')?.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(container); }
-  });
+  // Load actual data for Timeline & Heatmap
+  loadWorkoutData(container);
 }
 
-// ── SVG icon definitions ──────────────────────
-const SVG_ICONS = {
-  entreno: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M6.5 6.5H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h2.5M17.5 6.5H20a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="6.5" y="4" width="3" height="16" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="14.5" y="4" width="3" height="16" rx="1.5" stroke="currentColor" stroke-width="1.8"/><line x1="9.5" y1="12" x2="14.5" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
-  alimentacion: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 3C9.5 3 6 5 6 9C6 12.5 8 14.5 8 16V20C8 20.55 8.45 21 9 21H15C15.55 21 16 20.55 16 20V16C16 14.5 18 12.5 18 9C18 5 14.5 3 12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><line x1="9" y1="17" x2="15" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="3" x2="12" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`,
-  biomedidas: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M3 17L8 12L12 16L17 9L21 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.8"/></svg>`,
-  salud: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 21C12 21 3 14.5 3 8.5C3 6 5 4 7.5 4C9.24 4 10.91 5 12 6.5C13.09 5 14.76 4 16.5 4C19 4 21 6 21 8.5C21 14.5 12 21 12 21Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
-  progreso: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-  perfil: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M4 20C4 17 7.6 14 12 14C16.4 14 20 17 20 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
-  suscripcion: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
-  configuracion: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="1.8"/></svg>`,
-  admin: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.8"/><rect x="3" y="13" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="13" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.8"/></svg>`,
-  fisio: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3a9 9 0 1 0 0 18A9 9 0 0 0 12 3z" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v1M12 15v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
-  psicologo: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
-  medico: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2a5 5 0 0 1 5 5v2a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z" stroke="currentColor" stroke-width="1.8"/><path d="M3 21v-1a7 7 0 0 1 7-7h4a7 7 0 0 1 7 7v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="13" x2="12" y2="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="10" y1="15" x2="14" y2="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
-  nutricionista: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 3C9.5 3 6 5 6 9C6 12.5 8 14.5 8 16V20C8 20.55 8.45 21 9 21H15C15.55 21 16 20.55 16 20V16C16 14.5 18 12.5 18 9C18 5 14.5 3 12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><line x1="9" y1="17" x2="15" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`,
-};
-
-// ── App icons grid ─────────────────────────────
-function buildIconGrid(profile) {
-  const icons = [
-    { route: 'entreno',       svg: SVG_ICONS.entreno,       label: t('icon_entreno'),       cls: 'icon-entreno',       accent: 'var(--red)' },
-    { route: 'alimentacion',  svg: SVG_ICONS.alimentacion,  label: t('icon_alimentacion'),  cls: 'icon-alimentacion',  accent: 'var(--cyan)' },
-  ];
-
-  // Especialistas asignados — mostrar icono de chat si el usuario los tiene asignados
-  const specialistMap = [
-    { key: 'assignedNutricionista', route: 'alimentacion', svg: SVG_ICONS.nutricionista, label: 'Nutricionista', cls: 'icon-nutricionista', accent: '#F16001' },
-    { key: 'assignedFisio',         route: 'salud',         svg: SVG_ICONS.fisio,         label: 'Fisio',         cls: 'icon-fisio',         accent: '#8A8A8A' },
-    { key: 'assignedPsicologo',     route: 'salud',         svg: SVG_ICONS.psicologo,     label: 'Psicólogo',     cls: 'icon-psicologo',     accent: '#8A8A8A' },
-    { key: 'assignedMedico',        route: 'salud',         svg: SVG_ICONS.medico,        label: 'Médico',        cls: 'icon-medico',        accent: '#C10801' },
-  ];
-  const clientRoles = ['cliente', 'atleta', 'basico'];
-  if (clientRoles.includes(profile?.role)) {
-    specialistMap.forEach(sp => {
-      if (profile?.[sp.key]) icons.push(sp);
-    });
-  }
-
-  // Hardcoded fallback if translation lookup fails (returns the raw key)
-  const subscriptionLabel = (() => {
-    const v = t('icon_suscripcion');
-    return v === 'icon_suscripcion' ? 'Membresía' : v;
-  })();
-  icons.push(
-    { route: 'suscripcion',   svg: SVG_ICONS.suscripcion,   label: subscriptionLabel,        cls: 'icon-suscripcion',   accent: '#D9C3AB' },
-    { route: 'configuracion', svg: SVG_ICONS.configuracion, label: t('icon_configuracion'), cls: 'icon-configuracion', accent: '#8A8A8A' },
-  );
-
-  const staffRoles = ['admin','coach','medico','fisio','psicologo','nutricionista'];
-  if (staffRoles.includes(profile?.role)) {
-    icons.push({ route: 'admin', svg: SVG_ICONS.admin, label: 'Panel', cls: 'icon-admin', accent: 'var(--red)' });
-  }
-
-  return icons.map((item, i) => `
-    <div class="app-icon card-appear stagger-${Math.min(i + 1, 8)}" data-route="${item.route}">
-      <div class="app-icon-inner ${item.cls} glass-shimmer" style="--icon-accent:${item.accent}">
-        ${item.svg}
-      </div>
-      <span class="app-icon-label">${item.label}</span>
-    </div>
- `).join('');
-}
-
-// ── Load workout stats ─────────────────────────
-async function loadStats(container) {
+// Data Loading Logic
+async function loadWorkoutData(container) {
   const profile = getUserProfile();
   if (!profile?.uid) return;
 
@@ -187,13 +125,8 @@ async function loadStats(container) {
       .get();
 
     const sessions = snap.docs.map(d => d.data());
-    const thisWeek = sessions.filter(s => {
-      const d = s.startTime?.toDate?.() || new Date(s.startTime);
-      const diff = (Date.now() - d.getTime()) / (1000 * 60 * 60 * 24);
-      return diff < 7;
-    });
-
-    // Streak calculation
+    
+    // Calculate streak
     const sortedDates = [...new Set(
       sessions.map(s => {
         const d = s.startTime?.toDate?.() || new Date(s.startTime);
@@ -202,74 +135,23 @@ async function loadStats(container) {
     )].sort().reverse();
 
     let streak = 0;
-    const today = new Date().toISOString().split('T')[0];
-    let current = today;
+    const todayStr = new Date().toISOString().split('T')[0];
+    let current = todayStr;
     for (const date of sortedDates) {
       if (date === current) { streak++; current = getPrevDay(current); }
       else if (date < current) break;
     }
+    const streakEl = container.querySelector('#spark-racha');
+    if (streakEl) streakEl.textContent = \`\${streak} días\`;
 
-    container.querySelector('#stat-workouts').textContent  = sessions.length;
-    container.querySelector('#stat-streak').textContent    = `${streak}d`;
-    container.querySelector('#stat-objectives').textContent = `${thisWeek.length}/${profile?.weeklyGoal || 3}`;
+    renderTimeline(container, sessions);
+    renderHeatmap(container, sortedDates);
+
   } catch (e) {
-    ['#stat-workouts','#stat-streak'].forEach(id => {
-      const el = container.querySelector(id);
-      if (el) el.textContent = '0';
-    });
-    const objEl = container.querySelector('#stat-objectives');
-    if (objEl) objEl.textContent = `0/${profile?.weeklyGoal || 3}`;
+    console.error("Error loading workout data", e);
+    renderTimeline(container, []);
+    renderHeatmap(container, []);
   }
-}
-
-// ── Load recent activity ───────────────────────
-async function loadRecentActivity(container) {
-  const profile = getUserProfile();
-  const el = container.querySelector('#recent-activity');
-  if (!el || !profile?.uid) {
-    if (el) el.innerHTML = renderEmptyActivity();
-    return;
-  }
-
-  try {
-    const snap = await collections.workoutSessions(profile.uid)
-      .orderBy('startTime', 'desc')
-      .limit(3)
-      .get();
-
-    if (snap.empty) {
-      el.innerHTML = renderEmptyActivity();
-      return;
-    }
-
-    el.innerHTML = snap.docs.map(doc => {
-      const s = doc.data();
-      const date = formatDate(s.startTime?.toDate?.() || new Date(s.startTime));
-      const dur = s.durationMs ? formatTime(s.durationMs) : '—';
-      return `
-        <div class="glass-card glass-card-secondary" style="padding:var(--space-md);margin-bottom:var(--space-sm);display:flex;align-items:center;gap:var(--space-md)">
-          <svg style="width:24px;height:24px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z"/></svg>
-          <div style="flex:1;min-width:0">
-            <div style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.routineName || 'Entreno'}</div>
-            <div class="text-muted">${date} · ${dur}</div>
-          </div>
-          ${s.rpe ? `<span class="badge badge-red">RPE ${s.rpe}</span>` : ''}
-        </div>
- `;
-    }).join('');
-  } catch (e) {
-    el.innerHTML = renderEmptyActivity();
-  }
-}
-
-function renderEmptyActivity() {
-  return `
-    <div class="empty-state" style="padding:var(--space-lg)">
-      <div class="empty-icon"><img loading="lazy" decoding="async" src="logotipo/jus W Logo/TGWL --07.png" alt="W" style="height:52px;width:52px;object-fit:contain;opacity:0.4"></div>
-      <div class="empty-title">${t('no_workouts')}</div>
-      <div class="empty-subtitle">${t('start_first')}</div>
-    </div>
- `;
 }
 
 function getPrevDay(dateStr) {
@@ -278,108 +160,241 @@ function getPrevDay(dateStr) {
   return d.toISOString().split('T')[0];
 }
 
-// ── Load assigned specialists ──────────────────
-async function loadSpecialists(container) {
-  const profile = getUserProfile();
-  if (!profile?.uid) return;
-  const section = container.querySelector('#specialists-section');
-  const el = container.querySelector('#specialists-list');
-  if (!el) return;
+function renderTimeline(container, sessions) {
+  const isDark = document.body.classList.contains('dark-mode') || !document.body.classList.contains('light-mode');
+  const today = new Date();
+  const day = today.getDay(); 
+  const diff = today.getDate() - day + (day === 0 ? -6 : 1); 
+  const monday = new Date(today.setDate(diff));
+  
+  let daysOfWeek = [];
+  let maxVolumeOfWeek = 1;
+  let weeklySessionsCount = 0;
 
-  // Check if user has any specialist assigned
-  const fields = { coach: 'coach', medico: 'medico', fisio: 'fisio', psicologo: 'psicologo', nutricionista: 'nutricionista' };
-  const assigned = Object.entries(fields).filter(([key]) => profile[`assigned${key.charAt(0).toUpperCase() + key.slice(1)}`]);
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const dateStr = d.toISOString().split('T')[0];
+    const isToday = dateStr === new Date().toISOString().split('T')[0];
+    const isFuture = d > new Date();
+    
+    const daySessions = sessions.filter(s => {
+      const sd = s.startTime?.toDate?.() || new Date(s.startTime);
+      return sd.toISOString().split('T')[0] === dateStr;
+    });
 
-  if (!assigned.length) return;
-  section.style.display = '';
-
-  // Load specialist profiles
-  const cards = await Promise.all(assigned.map(async ([key]) => {
-    const uid = profile[`assigned${key.charAt(0).toUpperCase() + key.slice(1)}`];
-    const label = translateRole(key);
-    try {
-      const snap = await db.collection('users').doc(uid).get();
-      const sp = snap.data() || {};
-      return { uid, label, name: sp.name || label, key };
-    } catch { return { uid, label, name: label, key }; }
-  }));
-
-  el.innerHTML = cards.map(sp => `
-    <div class="glass-card glass-card-secondary" style="padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer" data-sp-uid="${sp.uid}" data-sp-name="${sp.name}" data-sp-label="${sp.label}">
-      <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--brand-3,#F16001));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">
-        ${sp.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()}
-      </div>
-      <div style="flex:1">
-        <div style="font-weight:600;font-size:14px">${sp.name}</div>
-        <div style="font-size:12px;color:var(--color-text-muted)">${sp.label}</div>
-      </div>
-      <span style="font-size:12px;color:var(--red);font-weight:600">${t('message')}</span>
-    </div>
- `).join('');
-
-  el.querySelectorAll('[data-sp-uid]').forEach(card => {
-    card.addEventListener('click', () => {
-      openDirectChat({
-        myUid:     profile.uid,
-        myName:    profile.name || '',
-        otherUid:  card.dataset.spUid,
-        otherName: card.dataset.spName,
-        otherRole: card.dataset.spLabel,
+    let volumes = [];
+    if (daySessions.length > 0) {
+      weeklySessionsCount += daySessions.length;
+      daySessions.forEach(session => {
+        if (session.exercises && Array.isArray(session.exercises)) {
+          session.exercises.forEach(ex => {
+            let exVol = 0;
+            if (ex.sets && Array.isArray(ex.sets)) {
+              ex.sets.forEach(set => {
+                const kg = parseFloat(set.weight) || 0;
+                const reps = parseInt(set.reps) || 0;
+                exVol += (kg > 0 ? kg * reps : reps);
+              });
+            }
+            if (exVol > 0) volumes.push(exVol);
+          });
+        }
       });
+      if (volumes.length === 0) volumes = [10, 15, 20]; 
+    }
+    
+    maxVolumeOfWeek = Math.max(maxVolumeOfWeek, ...volumes);
+
+    daysOfWeek.push({
+      label: ['L','M','X','J','V','S','D'][i],
+      isToday,
+      isFuture,
+      hasTraining: volumes.length > 0,
+      volumes,
+      totalSeries: volumes.length * 3
     });
-  });
-}
-
-async function loadChatMessages(container, myUid, otherUid) {
-  const el = container.querySelector('#chat-messages');
-  if (!el) return;
-  const chatId = [myUid, otherUid].sort().join('_');
-  try {
-    const snap = await db.collection('chats').doc(chatId).collection('messages')
-      .orderBy('createdAt', 'asc').limit(20).get();
-    el.innerHTML = snap.docs.map(doc => {
-      const m = doc.data();
-      const mine = m.senderId === myUid;
-      return `<div style="display:flex;justify-content:${mine ? 'flex-end' : 'flex-start'}">
-        <div style="max-width:80%;padding:8px 12px;border-radius:${mine ? '16px 16px 4px 16px' : '16px 16px 16px 4px'};background:${mine ? 'var(--red)' : 'var(--glass-bg-strong)'};font-size:13px;color:var(--white)">${m.text}</div>
-      </div>`;
-    }).join('') || '<p style="font-size:12px;color:var(--color-text-muted);text-align:center">Inicia la conversación</p>';
-    el.scrollTop = el.scrollHeight;
-  } catch { el.innerHTML = '<p class="text-muted" style="font-size:12px">No se pudieron cargar los mensajes</p>'; }
-}
-
-async function sendChatMessage(container) {
-  const profile = getUserProfile();
-  const input = container.querySelector('#chat-input');
-  const text = input?.value.trim();
-  if (!text || !profile?.uid) return;
-
-  const activeCard = container.querySelector('[data-sp-uid]');
-  // find selected specialist via a flag
-  const allCards = container.querySelectorAll('[data-sp-uid]');
-  let otherUid = allCards[0]?.dataset.spUid;
-
-  if (!otherUid) return;
-  const chatId = [profile.uid, otherUid].sort().join('_');
-
-  input.value = '';
-  try {
-    await db.collection('chats').doc(chatId).collection('messages').add({
-      text,
-      senderId: profile.uid,
-      senderName: profile.name,
-      createdAt: timestamp(),
-    });
-    loadChatMessages(container, profile.uid, otherUid);
-  } catch (e) {
-    input.value = text;
   }
+
+  const countEl = container.querySelector('#timeline-sessions-count');
+  if (countEl) countEl.textContent = \`\${weeklySessionsCount} sesiones\`;
+
+  const scrollArea = container.querySelector('#timeline-scroll-area');
+  const dotsArea = container.querySelector('#timeline-dots');
+  if (!scrollArea || !dotsArea) return;
+
+  let blocksHtml = '';
+  let dotsHtml = '';
+
+  daysOfWeek.forEach((d, idx) => {
+    let barsHtml = '';
+    
+    if (d.isFuture) {
+      barsHtml = \`<div class="exercise-bar" style="height:4px;background:var(--bg-track);opacity:0.5"></div>\`;
+    } else if (!d.hasTraining) {
+      barsHtml = \`<div class="exercise-bar" style="height:4px;background:var(--bg-track);"></div>\`;
+    } else {
+      barsHtml = d.volumes.map(vol => {
+        let h = Math.max((vol / maxVolumeOfWeek) * 52, 6);
+        let grad = isDark ? 
+          (d.isToday ? 'linear-gradient(180deg, rgba(255,165,65,0.95) 0%, rgba(241,96,1,0.80) 100%)' : 'linear-gradient(180deg, rgba(241,96,1,0.65) 0%, rgba(193,8,1,0.45) 100%)') :
+          (d.isToday ? 'linear-gradient(180deg, rgba(255,165,65,0.95) 0%, rgba(241,96,1,0.80) 100%)' : 'linear-gradient(180deg, rgba(241,96,1,0.75) 0%, rgba(193,8,1,0.55) 100%)');
+        
+        let glow = '';
+        if (d.isToday) {
+          let extraOpac = isDark ? 0.20 : 0;
+          let baseOpac = 0.35 + (h/52)*0.30 + extraOpac;
+          glow = \`filter: drop-shadow(0 -\${h*0.06}px \${h*0.19}px rgba(241,96,1,\${baseOpac}))\`;
+        }
+
+        return \`<div class="exercise-bar" style="height:\${h}px; background:\${grad}; \${glow}"></div>\`;
+      }).join('');
+    }
+
+    let lblColor = d.isToday ? 'var(--color-text-primary)' : (d.isFuture || !d.hasTraining ? 'var(--color-text-muted)' : 'var(--color-text-tertiary)');
+    let lblFontW = d.isToday ? '600' : (d.isFuture || !d.hasTraining ? '400' : '500');
+    let dotHtml = d.isToday ? \`<div style="width:4px;height:4px;background:var(--color-text-primary);border-radius:50%;flex-shrink:0;"></div>\` : '';
+    
+    let subTxt = d.hasTraining ? \`\${d.totalSeries} ser\` : '—';
+
+    blocksHtml += \`
+      <div class="session-block" data-idx="\${idx}">
+        <div class="exercise-bars-row">\${barsHtml}</div>
+        <div class="session-day-label" style="color:\${lblColor};font-weight:\${lblFontW}">\${d.label}\${dotHtml}</div>
+        <div class="session-series-total">\${subTxt}</div>
+      </div>
+    \`;
+
+    dotsHtml += \`<div class="scroll-dot" data-idx="\${idx}" style="width:5px;height:5px;border-radius:50%;background:var(--bg-track);transition:all 200ms ease"></div>\`;
+  });
+
+  scrollArea.innerHTML = blocksHtml;
+  dotsArea.innerHTML = dotsHtml;
+
+  setupScrollLogic(scrollArea, dotsArea);
 }
 
-function getMotivationPhrase() {
-  const phrases = [
-    t('motivation_1'), t('motivation_2'), t('motivation_3'),
-    t('motivation_4'), t('motivation_5'), t('motivation_6'), t('motivation_7'),
-  ];
-  return phrases[new Date().getDay() % phrases.length];
+function setupScrollLogic(scrollArea, dotsArea) {
+  let isFirstVisit = !localStorage.getItem('tgwl_timeline_seen');
+  const hint = document.getElementById('timeline-scroll-hint');
+  if (hint && !isFirstVisit) hint.style.opacity = '0';
+
+  const blocks = scrollArea.querySelectorAll('.session-block');
+  const dots = dotsArea.querySelectorAll('.scroll-dot');
+  
+  let activeIdx = -1;
+
+  const updateDots = (idx) => {
+    dots.forEach((d, i) => {
+      if (i === idx) {
+        d.style.width = '14px';
+        d.style.borderRadius = '3px';
+        d.style.background = 'var(--color-text-primary)';
+      } else {
+        d.style.width = '5px';
+        d.style.borderRadius = '50%';
+        d.style.background = 'var(--bg-track)';
+      }
+    });
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const newIdx = parseInt(entry.target.dataset.idx);
+        if (newIdx !== activeIdx) {
+          activeIdx = newIdx;
+          updateDots(activeIdx);
+          
+          if (navigator.vibrate) navigator.vibrate([8]);
+          else {
+            const tallest = Array.from(entry.target.querySelectorAll('.exercise-bar'))
+              .reduce((prev, curr) => (parseFloat(prev.style.height) > parseFloat(curr.style.height)) ? prev : curr, entry.target.querySelector('.exercise-bar'));
+            if (tallest) {
+              tallest.style.transform = 'scaleY(1.06)';
+              tallest.style.transformOrigin = 'bottom';
+              setTimeout(() => { tallest.style.transform = 'scaleY(1.0)'; }, 120);
+            }
+          }
+
+          if (isFirstVisit && hint) {
+            isFirstVisit = false;
+            localStorage.setItem('tgwl_timeline_seen', '1');
+            hint.style.opacity = '0';
+          }
+        }
+      }
+    });
+  }, { root: scrollArea, threshold: 0.6 });
+
+  blocks.forEach(b => observer.observe(b));
+
+  setTimeout(() => {
+    const todayBlock = Array.from(blocks).find(b => b.querySelector('.session-day-label').innerText.includes('•')) || 
+                       Array.from(blocks).reverse().find(b => b.querySelector('.exercise-bar').style.height !== '4px');
+    if (todayBlock) {
+      todayBlock.scrollIntoView({ behavior: 'instant', block: 'nearest', inline: 'center' });
+    }
+  }, 100);
+}
+
+function renderHeatmap(container, sortedDates) {
+  const isDark = document.body.classList.contains('dark-mode') || !document.body.classList.contains('light-mode');
+  const grid = container.querySelector('#heatmap-grid');
+  if (!grid) return;
+
+  const trainingSet = new Set(sortedDates);
+  
+  const today = new Date();
+  
+  const day = today.getDay(); 
+  const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+  const thisMonday = new Date(today.setDate(diff));
+  thisMonday.setDate(thisMonday.getDate() - 21);
+
+  let colsHtml = '';
+  const dayLabels = ['L','M','X','J','V','S','D'];
+
+  colsHtml += \`<div style="display:flex;flex-direction:column;gap:8px;margin-top:2px;">\`;
+  dayLabels.forEach(lbl => {
+    colsHtml += \`<div style="font-family:var(--font-sans);font-size:10px;color:var(--color-text-tertiary);height:9px;line-height:9px;width:12px;">\${lbl}</div>\`;
+  });
+  colsHtml += \`</div>\`;
+
+  for (let w = 0; w < 4; w++) {
+    let colHtml = \`<div style="display:flex;flex-direction:column;gap:8px;">\`;
+    for (let d = 0; d < 7; d++) {
+      const curDate = new Date(thisMonday);
+      curDate.setDate(thisMonday.getDate() + (w * 7) + d);
+      const dateStr = curDate.toISOString().split('T')[0];
+      const hasT = trainingSet.has(dateStr);
+      
+      let bg = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)';
+      let shadow = '';
+      let border = '';
+      
+      if (hasT) {
+        const intensity = Math.random();
+        if (intensity < 0.33) {
+          bg = isDark ? 'rgba(241,96,1,0.40)' : 'rgba(241,96,1,0.35)';
+        } else if (intensity < 0.66) {
+          bg = isDark ? 'rgba(241,96,1,0.70)' : 'rgba(241,96,1,0.65)';
+          shadow = 'box-shadow: 0 0 3px rgba(241,96,1,0.30);';
+        } else {
+          bg = isDark ? 'rgba(241,96,1,0.92)' : 'rgba(241,96,1,0.90)';
+          shadow = 'box-shadow: 0 0 5px rgba(241,96,1,0.55);';
+        }
+        
+        if (w === 3) {
+           border = isDark ? 'border: 1.5px solid rgba(241,96,1,0.90);' : 'border: 1.5px solid rgba(241,96,1,0.85);';
+        }
+      }
+
+      colHtml += \`<div style="width:9px;height:9px;border-radius:50%;background:\${bg};\${shadow}\${border}"></div>\`;
+    }
+    colHtml += \`</div>\`;
+    colsHtml += colHtml;
+  }
+
+  grid.innerHTML = colsHtml;
 }
