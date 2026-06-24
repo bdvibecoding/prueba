@@ -2,8 +2,8 @@
    TGWL Service Worker — PWA offline support
 ═══════════════════════════════════════════════ */
 const CACHE_NAME = 'tgwl-v2.07';
-const STATIC_CACHE = 'tgwl-static-v181.0';
-const DYNAMIC_CACHE = 'tgwl-dynamic-v181.0';
+const STATIC_CACHE = 'tgwl-static-v182.0';
+const DYNAMIC_CACHE = 'tgwl-dynamic-v182.0';
 
 const STATIC_ASSETS = [
   './',
@@ -26,7 +26,7 @@ const STATIC_ASSETS = [
   './js/modules/biomedidas.js',
   './js/modules/salud.js',
   './js/modules/progreso.js',
-  './js/modules/perfil.js',
+  './js/modules/perfil.js?v=174',
   './js/modules/suscripcion.js',
   './js/modules/configuracion.js',
   './js/components/nav.js',
