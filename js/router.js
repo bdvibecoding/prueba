@@ -177,7 +177,7 @@ async function renderRoute(route, params) {
   try {
     let module;
     switch (route) {
-      case 'home':          module = await import('./modules/home.js'); break;
+      case 'home':          module = await import('./modules/home.js?v=180'); break;
       case 'entreno':       module = await import('./modules/entreno.js'); break;
       case 'alimentacion':  module = await import('./modules/alimentacion.js'); break;
       case 'biomedidas':    module = await import('./modules/biomedidas.js'); break;
