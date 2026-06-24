@@ -142,7 +142,7 @@ async function loadWorkoutData(container) {
       else if (date < current) break;
     }
     const streakEl = container.querySelector('#spark-racha');
-    if (streakEl) streakEl.textContent = \`\${streak} días\`;
+    if (streakEl) streakEl.textContent = `${streak} días`;
 
     renderTimeline(container, sessions);
     renderHeatmap(container, sortedDates);
@@ -217,7 +217,7 @@ function renderTimeline(container, sessions) {
   }
 
   const countEl = container.querySelector('#timeline-sessions-count');
-  if (countEl) countEl.textContent = \`\${weeklySessionsCount} sesiones\`;
+  if (countEl) countEl.textContent = `${weeklySessionsCount} sesiones`;
 
   const scrollArea = container.querySelector('#timeline-scroll-area');
   const dotsArea = container.querySelector('#timeline-dots');
@@ -230,9 +230,9 @@ function renderTimeline(container, sessions) {
     let barsHtml = '';
     
     if (d.isFuture) {
-      barsHtml = \`<div class="exercise-bar" style="height:4px;background:var(--bg-track);opacity:0.5"></div>\`;
+      barsHtml = `<div class="exercise-bar" style="height:4px;background:var(--bg-track);opacity:0.5"></div>`;
     } else if (!d.hasTraining) {
-      barsHtml = \`<div class="exercise-bar" style="height:4px;background:var(--bg-track);"></div>\`;
+      barsHtml = `<div class="exercise-bar" style="height:4px;background:var(--bg-track);"></div>`;
     } else {
       barsHtml = d.volumes.map(vol => {
         let h = Math.max((vol / maxVolumeOfWeek) * 52, 6);
@@ -244,28 +244,28 @@ function renderTimeline(container, sessions) {
         if (d.isToday) {
           let extraOpac = isDark ? 0.20 : 0;
           let baseOpac = 0.35 + (h/52)*0.30 + extraOpac;
-          glow = \`filter: drop-shadow(0 -\${h*0.06}px \${h*0.19}px rgba(241,96,1,\${baseOpac}))\`;
+          glow = `filter: drop-shadow(0 -${h*0.06}px ${h*0.19}px rgba(241,96,1,${baseOpac}))`;
         }
 
-        return \`<div class="exercise-bar" style="height:\${h}px; background:\${grad}; \${glow}"></div>\`;
+        return `<div class="exercise-bar" style="height:${h}px; background:${grad}; ${glow}"></div>`;
       }).join('');
     }
 
     let lblColor = d.isToday ? 'var(--color-text-primary)' : (d.isFuture || !d.hasTraining ? 'var(--color-text-muted)' : 'var(--color-text-tertiary)');
     let lblFontW = d.isToday ? '600' : (d.isFuture || !d.hasTraining ? '400' : '500');
-    let dotHtml = d.isToday ? \`<div style="width:4px;height:4px;background:var(--color-text-primary);border-radius:50%;flex-shrink:0;"></div>\` : '';
+    let dotHtml = d.isToday ? `<div style="width:4px;height:4px;background:var(--color-text-primary);border-radius:50%;flex-shrink:0;"></div>` : '';
     
-    let subTxt = d.hasTraining ? \`\${d.totalSeries} ser\` : '—';
+    let subTxt = d.hasTraining ? `${d.totalSeries} ser` : '—';
 
-    blocksHtml += \`
-      <div class="session-block" data-idx="\${idx}">
-        <div class="exercise-bars-row">\${barsHtml}</div>
-        <div class="session-day-label" style="color:\${lblColor};font-weight:\${lblFontW}">\${d.label}\${dotHtml}</div>
-        <div class="session-series-total">\${subTxt}</div>
+    blocksHtml += `
+      <div class="session-block" data-idx="${idx}">
+        <div class="exercise-bars-row">${barsHtml}</div>
+        <div class="session-day-label" style="color:${lblColor};font-weight:${lblFontW}">${d.label}${dotHtml}</div>
+        <div class="session-series-total">${subTxt}</div>
       </div>
-    \`;
+    `;
 
-    dotsHtml += \`<div class="scroll-dot" data-idx="\${idx}" style="width:5px;height:5px;border-radius:50%;background:var(--bg-track);transition:all 200ms ease"></div>\`;
+    dotsHtml += `<div class="scroll-dot" data-idx="${idx}" style="width:5px;height:5px;border-radius:50%;background:var(--bg-track);transition:all 200ms ease"></div>`;
   });
 
   scrollArea.innerHTML = blocksHtml;
@@ -355,14 +355,14 @@ function renderHeatmap(container, sortedDates) {
   let colsHtml = '';
   const dayLabels = ['L','M','X','J','V','S','D'];
 
-  colsHtml += \`<div style="display:flex;flex-direction:column;gap:8px;margin-top:2px;">\`;
+  colsHtml += `<div style="display:flex;flex-direction:column;gap:8px;margin-top:2px;">`;
   dayLabels.forEach(lbl => {
-    colsHtml += \`<div style="font-family:var(--font-sans);font-size:10px;color:var(--color-text-tertiary);height:9px;line-height:9px;width:12px;">\${lbl}</div>\`;
+    colsHtml += `<div style="font-family:var(--font-sans);font-size:10px;color:var(--color-text-tertiary);height:9px;line-height:9px;width:12px;">${lbl}</div>`;
   });
-  colsHtml += \`</div>\`;
+  colsHtml += `</div>`;
 
   for (let w = 0; w < 4; w++) {
-    let colHtml = \`<div style="display:flex;flex-direction:column;gap:8px;">\`;
+    let colHtml = `<div style="display:flex;flex-direction:column;gap:8px;">`;
     for (let d = 0; d < 7; d++) {
       const curDate = new Date(thisMonday);
       curDate.setDate(thisMonday.getDate() + (w * 7) + d);
@@ -390,9 +390,9 @@ function renderHeatmap(container, sortedDates) {
         }
       }
 
-      colHtml += \`<div style="width:9px;height:9px;border-radius:50%;background:\${bg};\${shadow}\${border}"></div>\`;
+      colHtml += `<div style="width:9px;height:9px;border-radius:50%;background:${bg};${shadow}${border}"></div>`;
     }
-    colHtml += \`</div>\`;
+    colHtml += `</div>`;
     colsHtml += colHtml;
   }
 
